@@ -1,0 +1,36 @@
+              ==================================================
+              =       SUPERTREE TOOK KIT DOCUMENTATION         =
+              ==================================================
+              
+Davis, K.E. Hill, J.
+
+The Supertree Tool Kit is a suite of Perl and Java tools designed to 
+make the processing of source tree data, ready for inclusion in a supertree
+phylogenetic analysis, easier.
+
+This document describes how to make the documentation.
+
+POD
+----
+
+All documentation is in POD format, embedded within the module and the exectuable scripts.
+See http://perldoc.perl.org/perlpod.html fo info on how to write POD.
+
+Unifying the PODs
+------------------
+
+The POD in the various .pl and .pm files is then unified using the pod2include.pl script. This is
+called with a header file, STK_header.pod
+
+The header file contains include statements for each POD/perl file to include:
+
+=for include ../exec/amalgamate_trees.pl
+
+If a new module (i.e. other than lib/Bio/STK.pm) or an exectuable file is added to the 
+STK, add the include statement.
+
+The main documents can be generated using the script "make_docs.sh". This makes a master
+POD document, which includes all the sub-PODs and then uses that to generate the HTML and Wiki
+versions.
+
+Just execute the script - that should do it.

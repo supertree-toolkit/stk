@@ -1,0 +1,2 @@
+taxa1 = taxa2, taxa3, taxa2,taxa4
+taxa5 = taxa6,taxa7,taxa8

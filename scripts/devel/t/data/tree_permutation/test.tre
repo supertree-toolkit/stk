@@ -1,0 +1,5 @@
+#NEXUS
+
+BEGIN TREES;
+     TREE test = ((E%1,G%1),A,(G%2,(E%2,F,D,H,E%3)));
+ENDBLOCK;

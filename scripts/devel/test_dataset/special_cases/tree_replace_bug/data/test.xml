@@ -1,0 +1,36 @@
+<?xml version='1.0' standalone='yes'?>
+<Source>
+  <Analysis>
+    <Type>MP</Type>
+  </Analysis>
+  <Characters>
+    <Behavioural></Behavioural>
+    <Molecular></Molecular>
+    <Morphological number="1">
+      <Type>Osteology</Type>
+    </Morphological>
+    <Other></Other>
+  </Characters>
+  <Notes></Notes>
+  <Source>
+    <Author>Clarke, J. Tambussi, C. P. Noriega, J. I. Erickson, G. M. Ketcham, R. A.</Author>
+    <Booktitle></Booktitle>
+    <Editor></Editor>
+    <Journal>Nature</Journal>
+    <Pages>305-308</Pages>
+    <Publisher></Publisher>
+    <Title>Definitive fossil evidence for the extant avian radiation in the Cretaceous.</Title>
+    <Volume>433</Volume>
+    <Year>2005</Year>
+  </Source>
+  <Taxa fossil="some" number="7">
+    <List>Apsaravis</List>
+    <List>Hesperornis</List>
+    <List>Ichthyornis</List>
+    <List>Vegavis iaai</List>
+    <List>Modern birds</List>
+    <List>Cathartidae=Ciconiidae</List>
+    <List>Recurvirostridae=Charadriidae</List>
+  </Taxa>
+  <TreeFile>test.tre</TreeFile>
+</Source>

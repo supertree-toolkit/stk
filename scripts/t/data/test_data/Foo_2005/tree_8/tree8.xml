@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<SourceTree>
+    <Source>
+        <!-- If it's a journal, it has a journal name. Book has booktitle -->
+        <Author>Allende, L. M., Rubio, I., Ruiz-del-Valle, V., Guillen, J., Martinez-Laso, J., Lowy, E., Varela, P., Zamora, J. and Arnaiz-Villena, A.</Author>
+        <Year>2001</Year>
+        <Title>The Old World sparrows (genus Passer) phylogeography and their relative abundance of nuclear mtDNA pseudogenes.</Title>
+        <Journal>Journal of Molecular Evolution</Journal>
+        <Volume>53</Volume>
+        <Pages>144-154</Pages>
+        <Booktitle/>
+        <Editor/>
+        <Publisher/>
+    </Source>
+    <Taxa fossil="none" number="16">
+        <List>Chondestes grammacus</List>
+        <List>Fringilla coelebs</List>
+        <List>Lonchura cucullata</List>
+        <List>Miliaria calandra</List>
+        <List>Passer ammodendri</List>
+        <List>Passer domesticus</List>
+        <List>Passer flaveolus</List>
+        <List>Passer griseus</List>
+        <List>Passer hispaniolensis</List>
+        <List>Passer luteus</List>
+        <List>Passer melanurus</List>
+        <List>Passer montanus</List>
+        <List>Passer rutilans</List>
+        <List>Petronia petronia</List>
+        <List>Quelea cardinalis</List>
+        <List>Spizella passerina</List>
+    </Taxa>
+    <Characters>
+        <Molecular number="1">
+            <Type>cytb</Type>
+        </Molecular>
+        <Morphological/>
+        <Behavioural/>
+        <Other/>
+    </Characters>
+    <Analysis>
+        <Type>UPGMA</Type>
+    </Analysis>
+    <Notes>UPGMA dendrogram. Constructed because this type of phylogenetic tree is more suitable for estimating coalescence times than other methods, particularly when a molecular clock exists (as shown in this case by the LINTRE test). Obtained by comparing the mt cyt b DNA sequences of the pheasant and chicken (diverged around 18Ma).</Notes>
+    <TreeFile>Allende_etal_2001\Tree 1\Corrected\Adj for tax rank\Allende_etal_2001_1_corr.tre</TreeFile>
+</SourceTree>

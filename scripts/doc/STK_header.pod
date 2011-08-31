@@ -1,0 +1,216 @@
+#!/usr/bin/perl -w
+#
+#    STK - Perl tools to help process data for Supertree construction
+#    Copyright (C) 2009, Jon Hill and Katie Davis. All rights reserved.
+#    Email: j.hill@epcc.ed.ac.uk or katie.davis@oum.ox.ac.uk
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+=head1 Supertree Tool Kit (STK)
+
+STK is a perl module and collection of script designed to make processing
+data for supertree analysis easier. It is not an automated system that 
+blindly alters data: human intelligence is still required.
+
+=head1 Description
+
+Creating supertrees containing thousands of taxa requires hundreds of input 
+source phylogenies. Managing and processing this data in a systematic, 
+error-free, manner challenging and will become even more so as supertrees 
+contain increasing numbers of taxa. Protocols for processing input source 
+phylogenies have been proposed to ensure data quality. Therefore any tool for 
+processing source phylogenies should enable these protocols to be followed 
+easily.
+
+The Supertree Tool Kit is a Perl module with associated executables scripts that 
+aim to aid in the collection, storage and processing of input source trees for 
+use in supertree analysis. It is therefore invaluable when creating supertrees 
+containing thousands of taxa. We have added meta-data via XML files to each tree 
+that contains information such as the source information for the tree (authors, 
+journal, etc) and how the data were derived, including the analysis algorithm 
+and character data used to carry out the original analysis.
+
+The STK is a bioinformatics tool designed to make it easier to construct 
+supertrees from hundreds or thousands of input source trees, whilst reducing 
+potential errors and enabling easy sharing of such datasets.
+
+
+=head1 Files
+
+STK uses three types of files:
+
+=over 4
+
+=item B<NEXUS formatted tree files>
+
+These are simply standard NEXUS files. Bio::Nexus does a reasonable job of reading in a lot of the variations
+in this format. The STK assumes these files have a C<.tre> extension. If not, they will not be read.
+
+=item B<XML meta-data files>
+
+XML is a standard for meta-data.
+
+=item B<substitute taxa files>
+
+A file that contains taxa and the taxa to substitute with.
+
+=back
+
+=head2 NEXUS files
+
+Standard NEXUS file as read in by Bio::Nexus (Hladish et al., 2007). These can be created
+by a number of programs, including TreeView, Mesquite, etc. TreeView produces files that
+cannot be read in by Bio::Nexus, but a script is included to fix these.
+
+=head2 XML files
+
+Are of the layout:
+
+    <SourceTree>
+        <Source>
+            <!-- If it's a journal, it has a journal name. Book has booktitle -->
+            <Author>authors</Author>
+            <Year>year</Year>
+            <Title>title</Title>
+            <Journal>Auk</Journal>
+            <Volume></Volume>
+            <Pages></Pages>
+            <Booktitle/>
+            <Editor/>
+            <Publisher/>
+        </Source>
+        <Taxa fossil="none|some|all" number="n">
+            <List>taxon 1</List>
+            ...
+            <List>taxon n</List>
+        </Taxa>
+        <Characters>
+            <Molecular>
+                <Type>type</Type>
+            </Molecular>
+            <Morphological/>
+            <Behavioural/>
+            <Other/>
+        </Characters>
+        <Analysis>
+            <Type></Type>
+        </Analysis>
+        <Notes>Some notes</Notes>
+        <TreeFile>A tree file</TreeFile>
+    </SourceTree>
+    
+
+
+=head2 Substitute taxa files
+
+These are of the format:
+
+ taxon_1 = taxon_2,taxon_3
+ taxon_4 = taxon_5,taxon_6,taxon_7
+ taxon_8 = 
+
+A blank after the C<=> sign indicates a removal of a taxon. Any number of replacement taxa can be 
+used on a single line. There must be a space either side of the C<=> sign.
+
+=head1 Data Structure
+
+The STK was designed around a typical user who liked to keep back-up copies of data within the main dataset. As
+such certain directories and files are ignored when scanning a dataset. These are (note that the names are case-insensitive and italics indicate filenames, rather than directory names):
+
+=over 4
+
+=item * B<original>
+
+=item * B<Adj for>
+
+=item * B<Adj_for>
+
+=item * I<temp.tre>
+
+=item * I<combinedTrees>
+
+=item * I<all_trees>
+
+=back
+
+=head1 Scripts
+
+The STK consists of a number of executable scripts. Each script can be run using:
+C<stk_script_name [options]>, if the STK has been installed, otherwise they can be run using
+C<perl stk_script_namei.pl [options]> from the exec directory.
+
+The following scripts are included in the STK:
+
+=over 4
+
+=item * Amalagamate Trees
+
+=item * Check Data
+
+=item * Check Overlap
+
+=item * Check Substitutions
+
+=item * Create Matrix
+
+=item * Data Independence
+
+=item * Data Summary
+
+=item * Fix TreeFiles
+
+=item * Replace Genera
+
+=item * Replace Taxa
+
+=item * Tree Permutation
+
+=item * Search Data
+
+=back
+
+More details are given in the sections below.
+
+
+=for include ../exec/stk_amalgamate_trees.pl
+
+=for include ../exec/stk_check_data.pl
+
+=for include ../exec/stk_check_overlap.pl
+
+=for include ../exec/stk_check_substitutions.pl
+
+=for include ../exec/stk_clean_data.pl
+
+=for include ../exec/stk_create_dirs.pl
+
+=for include ../exec/stk_create_matrix.pl
+
+=for include ../exec/stk_data_independence.pl
+
+=for include ../exec/stk_data_summary.pl
+
+=for include ../exec/stk_fix_treefiles.pl
+
+=for include ../exec/stk_replace_genera.pl
+
+=for include ../exec/stk_replace_taxa.pl
+
+=for include ../exec/stk_tree_permutation.pl
+
+=for include ../exec/stk_search_data.pl
+
+=head1 Bio::STK Module
+
+=for include ../lib/Bio/STK.pm

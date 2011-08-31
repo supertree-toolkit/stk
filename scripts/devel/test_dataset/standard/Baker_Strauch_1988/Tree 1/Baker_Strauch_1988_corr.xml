@@ -1,0 +1,45 @@
+<?xml version="1.0" standalone="yes"?>
+<SourceTree>
+  <Source>
+    <Author>Baker, A. J. and Strauch, J. G. Jr</Author>
+    <Year>1988</Year>
+    <Title>Genetic variation and differentiation in shorebirds.</Title>
+    <Journal>Proceedings of the 19th International Ornithological Congress</Journal>
+    <Volume>1</Volume>
+    <Pages>1639-1645</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="17" fossil="none">
+    <List>Calidris alpina</List>
+    <List>Calidris canutus</List>
+    <List>Calidris ferruginea</List>
+    <List>Calidris fuscicollis</List>
+    <List>Calidris maritima</List>
+    <List>Calidris mauri</List>
+    <List>Calidris minutilla</List>
+    <List>Calidris ruficollis</List>
+    <List>Catoptrophorus semipalmatus</List>
+    <List>Charadrius falklandicus</List>
+    <List>Charadrius montanus</List>
+    <List>Charadrius semipalmatus</List>
+    <List>Charadrius vociferus</List>
+    <List>Limnodromus griseus</List>
+    <List>Pluvialis dominica</List>
+    <List>Pluvialis squatarola</List>
+    <List>Tringa cinereus</List>
+  </Taxa>
+  <Characters>
+    <Molecular number="1">
+      <Type>Alleles</Type>
+    </Molecular>
+    <Morphological/>
+    <Behavioural/>
+    <Other/></Characters>
+  <Analysis>
+    <Type>UPGMA</Type>
+  </Analysis>
+  <Notes></Notes>
+  <TreeFile>Baker_Strauch_1988_corr.tre</TreeFile>
+</SourceTree>
+

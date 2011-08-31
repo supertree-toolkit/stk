@@ -1,0 +1,48 @@
+<?xml version="1.0" standalone="yes"?>
+<SourceTree>
+  <Source>
+    <Author>Raikow, R. J.</Author>
+    <Year>1987</Year>
+    <Title>Hindlimb myology and evolution of the old world suboscine passerine birds (Acanthisittidae, Pittidae, Philepittidae, Eurylaimidae).</Title>
+    <Journal>Ornithological Monographs</Journal>
+    <Volume>41</Volume>
+    <Pages>1-81</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="20" fossil="none">
+    <List>Acanthisitta</List>
+    <List>Calyptomena viridis</List>
+    <List>Calyptomena whiteheadi</List>
+    <List>Cymbirhynchus</List>
+    <List>Eurylaimus ochromalus</List>
+    <List>Eurylaimus steerii</List>
+    <List>Furnarii</List>
+    <List>Neodrepanis</List>
+    <List>Oscines</List>
+    <List>Philepitta</List>
+    <List>Pitta brachyura</List>
+    <List>Pitta erythrogaster</List>
+    <List>Pitta guajana</List>
+    <List>Pitta versicolor</List>
+    <List>Psarisomus</List>
+    <List>Pseudocalyptomena</List>
+    <List>Serilophus</List>
+    <List>Smithornis</List>
+    <List>Tyranni</List>
+    <List>Xenicus</List>
+  </Taxa>
+  <Characters>
+    <Molecular/>
+    <Morphological number="1">
+      <Type>Myology</Type>
+    </Morphological>
+    <Behavioural/>
+    <Other/></Characters>
+  <Analysis>
+    <Type>MP</Type>
+  </Analysis>
+  <Notes>Strict consensus of 4 MPTs.</Notes>
+  <TreeFile>Raikow_1987_corr.tre</TreeFile>
+</SourceTree>
+

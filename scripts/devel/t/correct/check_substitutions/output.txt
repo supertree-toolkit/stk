@@ -1,0 +1,20 @@
+
+============================================
+Summary of substitution file: ../devel/t/data/check_substitutions/subs_test.txt
+============================================
+
+Number of subs:       2
+Number of new taxa:   26
++----------------+---------------------------------+------+
+|  Old taxon     | New taxa (taxon)                |   N  |
++----------------+---------------------------------+------+
+| Enantiornithes | Avisaurus arch...Yungavolucris  | 0015 |
+|  Dinornithidae | Anomalopteryx ...Dinornis novae | 0011 |
++----------------+---------------------------------+------+
+
+
+
+Checking for duplicated taxa in a single substitution...
+Found none - data OK
+
+

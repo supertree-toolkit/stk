@@ -1,0 +1,53 @@
+#NEXUS
+
+BEGIN TAXA;
+	DIMENSIONS NTAX = 20;
+	TAXLABELS
+		Oscines
+		Acanthisitta
+		Xenicus
+		Furnarii
+		Tyranni
+		Pseudocalyptomena
+		Smithornis
+		Calyptomena_viridis
+		Calyptomena_whiteheadi
+		Cymbirhynchus
+		Eurylaimus_ochromalus
+		Eurylaimus_steerii
+		Psarisomus
+		Serilophus
+		Neodrepanis
+		Philepitta
+		Pitta_brachyura
+		Pitta_erythrogaster
+		Pitta_guajana
+		Pitta_versicolor
+		;
+ENDBLOCK;
+
+BEGIN TREES;
+	TRANSLATE
+		1 Oscines,
+		2 Acanthisitta,
+		3 Xenicus,
+		4 Furnarii,
+		5 Tyranni,
+		6 Pseudocalyptomena,
+		7 Smithornis,
+		8 Calyptomena_viridis,
+		9 Calyptomena_whiteheadi,
+		10 Cymbirhynchus,
+		11 Eurylaimus_ochromalus,
+		12 Eurylaimus_steerii,
+		13 Psarisomus,
+		14 Serilophus,
+		15 Neodrepanis,
+		16 Philepitta,
+		17 Pitta_brachyura,
+		18 Pitta_erythrogaster,
+		19 Pitta_guajana,
+		20 Pitta_versicolor
+		;
+	TREE tree_1  = [&u] ((1,(2,3)),(4,5,(((6,(7,(8,9),(10,11,12,13,14))),(15,16)),(17,(18,19,20)))));
+ENDBLOCK;

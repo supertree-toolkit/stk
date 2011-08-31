@@ -1,0 +1,69 @@
+#NEXUS
+
+BEGIN TAXA;
+	DIMENSIONS NTAX = 28;
+	TAXLABELS
+		Gallus_gallus
+		Fringilla_coelebs
+		Carduelis_spinus
+		Carduelis_pinus
+		Carduelis_lawrencei
+		Carduelis_psaltria
+		Carduelis_tristis
+		Carduelis_cannabina
+		Carduelis_flavirostris
+		Carduelis_notata
+		Carduelis_barbata
+		Carduelis_cucullata
+		Carduelis_xanthogastra
+		Carduelis_olivacea
+		Carduelis_atrata
+		Carduelis_spinescens
+		Carduelis_crassirostris
+		Carduelis_yarrellii
+		Carduelis_magellanica
+		Serinus_citrinella
+		Carduelis_carduelis
+		Carduelis_flammea
+		Carduelis_hornemanni
+		Carduelis_chloris
+		Carduelis_sinica
+		Carduelis_ambigua
+		Carduelis_spinoides
+		Lophura_nycthemera
+		;
+ENDBLOCK;
+
+BEGIN TREES;
+	TRANSLATE
+		1 Gallus_gallus,
+		2 Fringilla_coelebs,
+		3 Carduelis_spinus,
+		4 Carduelis_pinus,
+		5 Carduelis_lawrencei,
+		6 Carduelis_psaltria,
+		7 Carduelis_tristis,
+		8 Carduelis_cannabina,
+		9 Carduelis_flavirostris,
+		10 Carduelis_notata,
+		11 Carduelis_barbata,
+		12 Carduelis_cucullata,
+		13 Carduelis_xanthogastra,
+		14 Carduelis_olivacea,
+		15 Carduelis_atrata,
+		16 Carduelis_spinescens,
+		17 Carduelis_crassirostris,
+		18 Carduelis_yarrellii,
+		19 Carduelis_magellanica,
+		20 Serinus_citrinella,
+		21 Carduelis_carduelis,
+		22 Carduelis_flammea,
+		23 Carduelis_hornemanni,
+		24 Carduelis_chloris,
+		25 Carduelis_sinica,
+		26 Carduelis_ambigua,
+		27 Carduelis_spinoides,
+		28 Lophura_nycthemera
+		;
+	TREE tree_1  =(1,((2,(((((3,4),(5,(6,7))),(8,9),(10,(11,(12,(13,(14,(15,(16,17,(18,19))))))))),((20,21),(22,23))),((24,25),(26,27)))),28));
+ENDBLOCK;

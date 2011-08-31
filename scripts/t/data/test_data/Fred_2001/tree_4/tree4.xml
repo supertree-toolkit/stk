@@ -1,0 +1,39 @@
+<?xml version="1.0" standalone="yes"?>
+<SourceTree>
+  <Source>
+    <Author>Arctander, P.</Author>
+    <Year>1995</Year>
+    <Title>Comparison of a mitochondrial gene and a corresponding nuclear pseudogene.</Title>
+    <Journal>Proceedings of the Royal Society of London B</Journal>
+    <Volume>262</Volume>
+    <Pages>13-19</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="7" fossil="some">
+    <List>Scytalopus parvirostris</List>
+    <List>Scytalopus schulenbergi</List>
+    <List>Scytalopus magellanicus</List>
+    <List>Scytalopus simonsi</List>
+    <List>Myornis senilis</List>
+    <List>Pitta sordida</List>
+    <List>Asthenes dorbignyi</List>
+  </Taxa>
+  <Characters>
+    <Molecular number="1">
+      <Type>cytb</Type>
+    </Molecular>
+    <Morphological/>
+    <Behavioural/>
+    <Other/></Characters>
+  <Analysis>
+    <Type>MP</Type>
+  </Analysis>
+  <Notes>319 bp of cyt b.
+    
+     Strict consensus of mt sequences based on parsimony.
+     
+     Author suggests that paralogous sequences should be avoided in phylogenetic construction and therefore the trees constructed using the assumed nuclear pseudogene were not included here.</Notes>
+  <TreeFile>Arctander_1995\Tree 1\Corrected\Arctander_1995_corr.tre</TreeFile>
+</SourceTree>
+

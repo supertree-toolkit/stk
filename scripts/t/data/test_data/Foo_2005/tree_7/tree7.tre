@@ -1,0 +1,117 @@
+#NEXUS
+
+BEGIN TAXA;
+	DIMENSIONS NTAX = 52;
+	TAXLABELS
+		Catharacta_skua
+		Stercorarius_pomarinus
+		Stercorarius_longicaudus
+		Stercorarius_parasiticus
+		Larus_thayeri
+		Larus_taimyrensis
+		Larus_serranus
+		Larus_scoresbii
+		Larus_scopulinus
+		Larus_schistisagus
+		Larus_saundersi
+		Larus_ridibundus
+		Larus_relictus
+		Larus_pipixcan
+		Larus_philadelphia
+		Larus_pacificus
+		Larus_occidentalis
+		Larus_novaehollandiae
+		Larus_modestus
+		Larus_minutus
+		Larus_michahellis
+		Larus_melanocephalus
+		Larus_marinus
+		Larus_maculipennis
+		Larus_livens
+		Larus_leucophthalmus
+		Larus_ichthyaetus
+		Larus_hyperboreus
+		Larus_heuglini
+		Larus_hemprichii
+		Larus_heermanni
+		Larus_hartlaubii
+		Larus_glaucoides
+		Larus_glaucescens
+		Larus_genei
+		Larus_fuscus
+		Larus_fuliginosus
+		Larus_dominicanus
+		Larus_delawarensis
+		Larus_crassirostris
+		Larus_cirrocephalus
+		Larus_canus
+		Larus_californicus
+		Larus_cachinnans
+		Larus_bulleri
+		Larus_brunnicephalus
+		Larus_belcheri
+		Larus_audouinii
+		Larus_atricilla
+		Larus_atlanticus
+		Larus_armenicus
+		Larus_argentatus
+		;
+ENDBLOCK;
+
+BEGIN TREES;
+	TRANSLATE
+		1 Catharacta_skua,
+		2 Stercorarius_pomarinus,
+		3 Stercorarius_longicaudus,
+		4 Stercorarius_parasiticus,
+		5 Larus_thayeri,
+		6 Larus_taimyrensis,
+		7 Larus_serranus,
+		8 Larus_scoresbii,
+		9 Larus_scopulinus,
+		10 Larus_schistisagus,
+		11 Larus_saundersi,
+		12 Larus_ridibundus,
+		13 Larus_relictus,
+		14 Larus_pipixcan,
+		15 Larus_philadelphia,
+		16 Larus_pacificus,
+		17 Larus_occidentalis,
+		18 Larus_novaehollandiae,
+		19 Larus_modestus,
+		20 Larus_minutus,
+		21 Larus_michahellis,
+		22 Larus_melanocephalus,
+		23 Larus_marinus,
+		24 Larus_maculipennis,
+		25 Larus_livens,
+		26 Larus_leucophthalmus,
+		27 Larus_ichthyaetus,
+		28 Larus_hyperboreus,
+		29 Larus_heuglini,
+		30 Larus_hemprichii,
+		31 Larus_heermanni,
+		32 Larus_hartlaubii,
+		33 Larus_glaucoides,
+		34 Larus_glaucescens,
+		35 Larus_genei,
+		36 Larus_fuscus,
+		37 Larus_fuliginosus,
+		38 Larus_dominicanus,
+		39 Larus_delawarensis,
+		40 Larus_crassirostris,
+		41 Larus_cirrocephalus,
+		42 Larus_canus,
+		43 Larus_californicus,
+		44 Larus_cachinnans,
+		45 Larus_bulleri,
+		46 Larus_brunnicephalus,
+		47 Larus_belcheri,
+		48 Larus_audouinii,
+		49 Larus_atricilla,
+		50 Larus_atlanticus,
+		51 Larus_armenicus,
+		52 Larus_argentatus
+		;
+	TREE tree_1  =(((1,2),(3,4)),5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52);
+ENDBLOCK;

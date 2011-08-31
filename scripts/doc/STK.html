@@ -1,0 +1,1867 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>STK</title>
+<link rel="stylesheet" href="styles.css" type="text/css" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#supertree_tool_kit__stk_">Supertree Tool Kit (STK)</a></li>
+	<li><a href="#description">Description</a></li>
+	<li><a href="#files">Files</a></li>
+	<ul>
+
+		<li><a href="#nexus_files">NEXUS files</a></li>
+		<li><a href="#xml_files">XML files</a></li>
+		<li><a href="#substitute_taxa_files">Substitute taxa files</a></li>
+	</ul>
+
+	<li><a href="#data_structure">Data Structure</a></li>
+	<li><a href="#scripts">Scripts</a></li>
+	<ul>
+
+		<li><a href="#amalgamate_trees">Amalgamate Trees</a></li>
+		<ul>
+
+			<li><a href="#synopsis">Synopsis</a></li>
+			<li><a href="#options">Options</a></li>
+			<li><a href="#description">Description</a></li>
+		</ul>
+
+		<li><a href="#check_data">Check Data</a></li>
+		<ul>
+
+			<li><a href="#synopsis">Synopsis</a></li>
+			<li><a href="#options">Options</a></li>
+			<li><a href="#description">Description</a></li>
+		</ul>
+
+		<li><a href="#check_overlap">Check Overlap</a></li>
+		<ul>
+
+			<li><a href="#synopsis">Synopsis</a></li>
+			<li><a href="#options">Options</a></li>
+			<li><a href="#description">Description</a></li>
+		</ul>
+
+		<li><a href="#check_substitutions">Check Substitutions</a></li>
+		<ul>
+
+			<li><a href="#synopsis">Synopsis</a></li>
+			<li><a href="#options">Options</a></li>
+			<li><a href="#description">Description</a></li>
+		</ul>
+
+		<li><a href="#clean_data">Clean Data</a></li>
+		<ul>
+
+			<li><a href="#synopsis">Synopsis</a></li>
+			<li><a href="#options">Options</a></li>
+			<li><a href="#description">Description</a></li>
+		</ul>
+
+		<li><a href="#create_directories">Create Directories</a></li>
+		<ul>
+
+			<li><a href="#synopsis">Synopsis</a></li>
+			<li><a href="#options">Options</a></li>
+			<li><a href="#description">Description</a></li>
+		</ul>
+
+		<li><a href="#create_matrix">Create Matrix</a></li>
+		<ul>
+
+			<li><a href="#synopsis">Synopsis</a></li>
+			<li><a href="#options">Options</a></li>
+			<li><a href="#description">Description</a></li>
+			<li><a href="#references">References</a></li>
+		</ul>
+
+		<li><a href="#data_independence">Data Independence</a></li>
+		<ul>
+
+			<li><a href="#synopsis">Synopsis</a></li>
+			<li><a href="#options">Options</a></li>
+			<li><a href="#description">Description</a></li>
+		</ul>
+
+		<li><a href="#data_summary">Data Summary</a></li>
+		<ul>
+
+			<li><a href="#synopsis">Synopsis</a></li>
+			<li><a href="#options">Options</a></li>
+			<li><a href="#description">Description</a></li>
+		</ul>
+
+		<li><a href="#fix_treefiles">Fix Treefiles</a></li>
+		<ul>
+
+			<li><a href="#synopsis">Synopsis</a></li>
+			<li><a href="#options">Options</a></li>
+			<li><a href="#description">Description</a></li>
+			<li><a href="#references">References</a></li>
+		</ul>
+
+		<li><a href="#replace_genera">Replace Genera</a></li>
+		<ul>
+
+			<li><a href="#synopsis">Synopsis</a></li>
+			<li><a href="#options">Options</a></li>
+			<li><a href="#description">Description</a></li>
+		</ul>
+
+		<li><a href="#replace_taxa">Replace Taxa</a></li>
+		<ul>
+
+			<li><a href="#synopsis">Synopsis</a></li>
+			<li><a href="#options">Options</a></li>
+			<li><a href="#description">Description</a></li>
+			<li><a href="#examples">Examples</a></li>
+		</ul>
+
+		<li><a href="#tree_permutation">Tree Permutation</a></li>
+		<ul>
+
+			<li><a href="#synopsis">Synopsis</a></li>
+			<li><a href="#description">Description</a></li>
+		</ul>
+
+		<li><a href="#search_data">Search Data</a></li>
+		<ul>
+
+			<li><a href="#synopsis">Synopsis</a></li>
+			<li><a href="#options">Options</a></li>
+			<li><a href="#description">Description</a></li>
+		</ul>
+
+	</ul>
+
+	<li><a href="#bio__stk_module">Bio::STK Module</a></li>
+	<ul>
+
+		<li><a href="#stk___supertree_tool_kit">STK - Supertree Tool Kit</a></li>
+		<ul>
+
+			<li><a href="#description">Description</a></li>
+			<li><a href="#requires">Requires</a></li>
+			<li><a href="#feedback">Feedback</a></li>
+			<li><a href="#authors">Authors</a></li>
+			<li><a href="#methods">Methods</a></li>
+			<ul>
+
+				<li><a href="#find_tree_files">find_tree_files</a></li>
+				<li><a href="#find_xml_files">find_xml_files</a></li>
+				<li><a href="#read_tree_file">read_tree_file</a></li>
+				<li><a href="#read_xml_file">read_xml_file</a></li>
+				<li><a href="#save_tree_file">save_tree_file</a></li>
+				<li><a href="#save_tree_newick">save_tree_newick</a></li>
+				<li><a href="#save_xml_file">save_xml_file</a></li>
+				<li><a href="#read_taxa_file">read_taxa_file</a></li>
+				<li><a href="#taxa_from_tree">taxa_from_tree</a></li>
+				<li><a href="#get_taxa_list">get_taxa_list</a></li>
+				<li><a href="#taxa_from_xml">taxa_from_xml</a></li>
+				<li><a href="#get_analysis">get_analysis</a></li>
+				<li><a href="#get_year">get_year</a></li>
+				<li><a href="#get_source_data">get_source_data</a></li>
+				<li><a href="#get_treefile">get_treefile</a></li>
+				<li><a href="#get_characters">get_characters</a></li>
+				<li><a href="#check_tree_file">check_tree_file</a></li>
+				<li><a href="#replace_taxon_tree">replace_taxon_tree</a></li>
+				<li><a href="#delete_taxa">delete_taxa</a></li>
+				<li><a href="#replace_taxon_xml">replace_taxon_xml</a></li>
+				<li><a href="#tree_equals">tree_equals</a></li>
+				<li><a href="#tree_contains">tree_contains</a></li>
+				<li><a href="#xml_from_year">xml_from_year</a></li>
+				<li><a href="#xml_contains_taxon">xml_contains_taxon</a></li>
+				<li><a href="#xml_contains_analysis">xml_contains_analysis</a></li>
+				<li><a href="#xml_contains_character">xml_contains_character</a></li>
+				<li><a href="#contains_data">contains_data</a></li>
+				<li><a href="#contains_fossils">contains_fossils</a></li>
+				<li><a href="#get_short_study_name">get_short_study_name</a></li>
+			</ul>
+
+		</ul>
+
+	</ul>
+
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="supertree_tool_kit__stk_">Supertree Tool Kit (STK)</a></h1>
+<p>STK is a perl module and collection of script designed to make processing
+data for supertree analysis easier. It is not an automated system that 
+blindly alters data: human intelligence is still required.</p>
+<p>
+<a href="#__index__"><small>Back to top</small></a>
+</p>
+<hr />
+<h1><a name="description">Description</a></h1>
+<p>Creating supertrees containing thousands of taxa requires hundreds of input 
+source phylogenies. Managing and processing this data in a systematic, 
+error-free, manner challenging and will become even more so as supertrees 
+contain increasing numbers of taxa. Protocols for processing input source 
+phylogenies have been proposed to ensure data quality. Therefore any tool for 
+processing source phylogenies should enable these protocols to be followed 
+easily.</p>
+<p>The Supertree Tool Kit is a Perl module with associated executables scripts that 
+aim to aid in the collection, storage and processing of input source trees for 
+use in supertree analysis. It is therefore invaluable when creating supertrees 
+containing thousands of taxa. We have added meta-data via XML files to each tree 
+that contains information such as the source information for the tree (authors, 
+journal, etc) and how the data were derived, including the analysis algorithm 
+and character data used to carry out the original analysis.</p>
+<p>The STK is a bioinformatics tool designed to make it easier to construct 
+supertrees from hundreds or thousands of input source trees, whilst reducing 
+potential errors and enabling easy sharing of such datasets.</p>
+<p>
+<a href="#__index__"><small>Back to top</small></a>
+</p>
+<hr />
+<h1><a name="files">Files</a></h1>
+<p>STK uses three types of files:</p>
+<dl>
+<dt><strong><a name="nexus_formatted_tree_files" class="item"><strong>NEXUS formatted tree files</strong></a></strong></dt>
+
+<dd>
+<p>These are simply standard NEXUS files. Bio::Nexus does a reasonable job of reading in a lot of the variations
+in this format. The STK assumes these files have a <code>.tre</code> extension. If not, they will not be read.</p>
+</dd>
+<dt><strong><a name="xml_meta_data_files" class="item"><strong>XML meta-data files</strong></a></strong></dt>
+
+<dd>
+<p>XML is a standard for meta-data.</p>
+</dd>
+<dt><strong><a name="substitute_taxa_files" class="item"><strong>substitute taxa files</strong></a></strong></dt>
+
+<dd>
+<p>A file that contains taxa and the taxa to substitute with.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="nexus_files">NEXUS files</a></h2>
+<p>Standard NEXUS file as read in by Bio::Nexus (Hladish et al., 2007). These can be created
+by a number of programs, including TreeView, Mesquite, etc. TreeView produces files that
+cannot be read in by Bio::Nexus, but a script is included to fix these.</p>
+<p>
+</p>
+<h2><a name="xml_files">XML files</a></h2>
+<p>Are of the layout:</p>
+<pre>
+    &lt;SourceTree&gt;
+        &lt;Source&gt;
+            &lt;!-- If it's a journal, it has a journal name. Book has booktitle --&gt;
+            &lt;Author&gt;authors&lt;/Author&gt;
+            &lt;Year&gt;year&lt;/Year&gt;
+            &lt;Title&gt;title&lt;/Title&gt;
+            &lt;Journal&gt;Auk&lt;/Journal&gt;
+            &lt;Volume&gt;&lt;/Volume&gt;
+            &lt;Pages&gt;&lt;/Pages&gt;
+            &lt;Booktitle/&gt;
+            &lt;Editor/&gt;
+            &lt;Publisher/&gt;
+        &lt;/Source&gt;
+        &lt;Taxa fossil=&quot;none|some|all&quot; number=&quot;n&quot;&gt;
+            &lt;List&gt;taxon 1&lt;/List&gt;
+            ...
+            &lt;List&gt;taxon n&lt;/List&gt;
+        &lt;/Taxa&gt;
+        &lt;Characters&gt;
+            &lt;Molecular&gt;
+                &lt;Type&gt;type&lt;/Type&gt;
+            &lt;/Molecular&gt;
+            &lt;Morphological/&gt;
+            &lt;Behavioural/&gt;
+            &lt;Other/&gt;
+        &lt;/Characters&gt;
+        &lt;Analysis&gt;
+            &lt;Type&gt;&lt;/Type&gt;
+        &lt;/Analysis&gt;
+        &lt;Notes&gt;Some notes&lt;/Notes&gt;
+        &lt;TreeFile&gt;A tree file&lt;/TreeFile&gt;
+    &lt;/SourceTree&gt;</pre>
+<p>
+</p>
+<h2><a name="substitute_taxa_files">Substitute taxa files</a></h2>
+<p>These are of the format:</p>
+<pre>
+ taxon_1 = taxon_2,taxon_3
+ taxon_4 = taxon_5,taxon_6,taxon_7
+ taxon_8 =</pre>
+<p>A blank after the <code>=</code> sign indicates a removal of a taxon. Any number of replacement taxa can be 
+used on a single line. There must be a space either side of the <code>=</code> sign.</p>
+<p>
+<a href="#__index__"><small>Back to top</small></a>
+</p>
+<hr />
+<h1><a name="data_structure">Data Structure</a></h1>
+<p>The STK was designed around a typical user who liked to keep back-up copies of data within the main dataset. As
+such certain directories and files are ignored when scanning a dataset. These are (note that the names are case-insensitive and italics indicate filenames, rather than directory names):</p>
+<ul>
+<li><strong><a name="original" class="item"><strong>original</strong></a></strong>
+
+</li>
+<li><strong><a name="adj_for" class="item"><strong>Adj for</strong></a></strong>
+
+</li>
+<li><strong><a name="adj_for2" class="item"><strong>Adj_for</strong></a></strong>
+
+</li>
+<li><strong><a name="temp_tre" class="item"><em>temp.tre</em></a></strong>
+
+</li>
+<li><strong><a name="combinedtrees" class="item"><em>combinedTrees</em></a></strong>
+
+</li>
+<li><strong><a name="all_trees" class="item"><em>all_trees</em></a></strong>
+
+</li>
+</ul>
+<p>
+<a href="#__index__"><small>Back to top</small></a>
+</p>
+<hr />
+<h1><a name="scripts">Scripts</a></h1>
+<p>The STK consists of a number of executable scripts. Each script can be run using:
+<code>stk_script_name [options]</code>, if the STK has been installed, otherwise they can be run using
+<code>perl stk_script_namei.pl [options]</code> from the exec directory.</p>
+<p>The following scripts are included in the STK:</p>
+<ul>
+<li><strong><a name="amalagamate_trees" class="item">Amalagamate Trees</a></strong>
+
+</li>
+<li><strong><a name="check_data" class="item">Check Data</a></strong>
+
+</li>
+<li><strong><a name="check_overlap" class="item">Check Overlap</a></strong>
+
+</li>
+<li><strong><a name="check_substitutions" class="item">Check Substitutions</a></strong>
+
+</li>
+<li><strong><a name="create_matrix" class="item">Create Matrix</a></strong>
+
+</li>
+<li><strong><a name="data_independence" class="item">Data Independence</a></strong>
+
+</li>
+<li><strong><a name="data_summary" class="item">Data Summary</a></strong>
+
+</li>
+<li><strong><a name="fix_treefiles" class="item">Fix TreeFiles</a></strong>
+
+</li>
+<li><strong><a name="replace_genera" class="item">Replace Genera</a></strong>
+
+</li>
+<li><strong><a name="replace_taxa" class="item">Replace Taxa</a></strong>
+
+</li>
+<li><strong><a name="tree_permutation" class="item">Tree Permutation</a></strong>
+
+</li>
+<li><strong><a name="search_data" class="item">Search Data</a></strong>
+
+</li>
+</ul>
+<p>More details are given in the sections below.</p>
+<p>
+</p>
+<h2><a name="amalgamate_trees">Amalgamate Trees</a></h2>
+<p>
+</p>
+<h3><a name="synopsis">Synopsis</a></h3>
+<p>stk_amalgamate_trees.pl [options]</p>
+<pre>
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing Tree/XML files. Required
+   --verbose         print verbose messages
+   --output          output file. Default is 'all_trees.tre' in C&lt;dir&gt;
+   --anon            anonymise data</pre>
+<p>
+</p>
+<h3><a name="options">Options</a></h3>
+<dl>
+<dt><strong><a name="dir" class="item"><strong>--dir</strong></a></strong></dt>
+
+<dd>
+<p>a directory which contains tree (and XML) files. <strong>Required</strong>.</p>
+</dd>
+<dt><strong><a name="help" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print a brief help message and exits.</p>
+</dd>
+<dt><strong><a name="man" class="item"><strong>--man</strong></a></strong></dt>
+
+<dd>
+<p>Prints the manual page and exits.</p>
+</dd>
+<dt><strong><a name="verbose" class="item"><strong>--verbose</strong></a></strong></dt>
+
+<dd>
+<p>Print verbose messages</p>
+</dd>
+<dt><strong><a name="output" class="item"><strong>--output</strong></a></strong></dt>
+
+<dd>
+<p>Where to save output. Default is 'all_trees.tre' in the <a href="#dir"><code>dir</code></a>.</p>
+</dd>
+<dt><strong><a name="anon" class="item"><strong>--anon</strong></a></strong></dt>
+
+<dd>
+<p>The <a href="#anon"><code>--anon</code></a> flag to name trees tree_1...tree_n. A key file will be written
+in <a href="#dir"><code>dir</code></a> linking either author names or treefile names to each anonymised tree.
+Without this flag, tree are named after the tree authors and year published, 
+e.g. SmithAndJones_1999 if XML files are available, or the tree filename without
+the suffix .tre, the prefix <a href="#dir"><code>dir</code></a>, and all non-standard characters repolaceed with
+underscores, e.g. trees_SmithAndJones_1999</p>
+</dd>
+</dl>
+<p>If <a href="#dir"><code>dir</code></a> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.</p>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p><strong>Amalgamate Trees</strong> creates a single tree file with all trees from <a href="#dir"><code>dir</code></a>. This is useful
+when sharing your data as it is the version of the data that has most compatibility with other 
+software. If XML files are present trees will be named using the author_year convention. 
+If XML files are not present the trees will be after the tree file name.
+The <a href="#anon"><code>--anon</code></a> flag to name trees tree_1...tree_n. A key file will be written
+in <a href="#dir"><code>dir</code></a> linking either author names or treefile names to each anonymised tree.</p>
+<p>
+</p>
+<h2><a name="check_data">Check Data</a></h2>
+<p>
+</p>
+<h3><a name="synopsis">Synopsis</a></h3>
+<p>check_data.pl [options]</p>
+<pre>
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing XML files. Required
+   --verbose         print verbose messages
+   --output          direct output to file instead of STDOUT</pre>
+<p>
+</p>
+<h3><a name="options">Options</a></h3>
+<dl>
+<dt><strong><a name="dir2" class="item"><strong>--dir</strong></a></strong></dt>
+
+<dd>
+<p>a directory which contains XML and/or tree files. <strong>Required</strong>.</p>
+</dd>
+<dt><strong><a name="help2" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print a brief help message and exits.</p>
+</dd>
+<dt><strong><a name="man2" class="item"><strong>--man</strong></a></strong></dt>
+
+<dd>
+<p>Prints the manual page and exits.</p>
+</dd>
+<dt><strong><a name="verbose2" class="item"><strong>--verbose</strong></a></strong></dt>
+
+<dd>
+<p>Print verbose messages</p>
+</dd>
+<dt><strong><a name="output2" class="item"><strong>--output</strong></a></strong></dt>
+
+<dd>
+<p>Directs output to file instead of STDOUT. If a filename is given, output is directed there, otherwise it is directed
+to error.txt in the c&lt;dir&gt;ectory.</p>
+</dd>
+</dl>
+<p>If <a href="#dir"><code>dir</code></a> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.</p>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p><strong>Check Data</strong> checks that the data in <a href="#dir"><code>dir</code></a> is valid. For a directory of tree files
+this means checking that all tree files are valid NEXUS files. For a directory of XML
+files this means check for XML correctness and contain the minimum amount of data. 
+For a directory of both tree and XML files the two file types are validated and 
+cross-checked against each other. Tests carried out are:</p>
+<ul>
+<li><strong><a name="file" class="item">Matching files - each tree file should have a matching XML file (or more correctly, each XML file should have a matching tree file)</a></strong>
+
+</li>
+<li><strong><a name="matching_taxa_the_tree_and_xml_files_should_contain_the_same_taxa" class="item">Matching taxa - the tree and XML files should contain the same taxa</a></strong>
+
+</li>
+</ul>
+<p>
+</p>
+<h2><a name="check_overlap">Check Overlap</a></h2>
+<p>
+</p>
+<h3><a name="synopsis">Synopsis</a></h3>
+<p>check_overlap.pl [options]</p>
+<pre>
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing Tree files. Required
+   --verbose         print verbose messages
+   --nCluster        number of taxa that trees must share. Default value is 2.
+   --graphic         output a &quot;dot&quot; file that can be loaded into GraphViz
+   --compressed      output a &quot;dot&quot; file where clusters are shown, rather than individual trees</pre>
+<p>
+</p>
+<h3><a name="options">Options</a></h3>
+<dl>
+<dt><strong><a name="dir3" class="item"><strong>--dir</strong></a></strong></dt>
+
+<dd>
+<p>A directory which contains tree files.</p>
+</dd>
+<dt><strong><a name="ncluster" class="item"><strong>--nCluster</strong></a></strong></dt>
+
+<dd>
+<p>The number of taxa required for trees to &quot;cluster&quot;.</p>
+</dd>
+<dt><strong><a name="help3" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print a brief help message and exits.</p>
+</dd>
+<dt><strong><a name="man3" class="item"><strong>--man</strong></a></strong></dt>
+
+<dd>
+<p>Prints the manual page and exits.</p>
+</dd>
+<dt><strong><a name="verbose3" class="item"><strong>--verbose</strong></a></strong></dt>
+
+<dd>
+<p>Print verbose messages</p>
+</dd>
+<dt><strong><a name="graphic" class="item"><strong>--graphic</strong></a></strong></dt>
+
+<dd>
+<p>Ouput a &quot;dot&quot; file that can be loaded into GraphViz to produce a graphical representation of the connectivity.
+A key file (key.csv) is also output containing the legend for the graphic</p>
+</dd>
+<dt><strong><a name="compressed" class="item"><strong>--compressed</strong></a></strong></dt>
+
+<dd>
+<p>Large datasets can produce &quot;dot&quot; files too large for neato to produce a graphic. If this is the case, using this
+option produce a graph of &quot;clusters&quot; of trees only, where a node represents a cluster of trees.</p>
+</dd>
+</dl>
+<p><a href="#dir"><code>dir</code></a> scans all subdirectories also, apart from those
+excluded by STK.</p>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p><strong>Check Overlap</strong> checks that trees in a directory have sufficient taxonomic
+overlap to be used as source trees in supertree construction. Each tree must
+contain at least two taxon also contained in another tree (Nixon, 1996).</p>
+<p>Check Overlap checks that a dataset fulfils this criterion. A single &quot;cluster&quot; of
+connected trees is the ideal output as this means all trees share at least two common
+taxa with at least one other tree. The minimum requirement for overlap to occur can be 
+changed to create &quot;more connected&quot; data. Any trees that do not share the minimum number of taxa
+with at least one other tree should be removed fro the dataset. A warning is printed is more
+than one cluster is found.</p>
+<p>If more than one cluster is found, you should use the <a href="#graphic"><code>--graphic</code></a> option to visualise the
+data connectivity. For large datasets, the <a href="#compressed"><code>--compressed</code></a> flag should also be used. 
+The <a href="#graphic"><code>--graphic</code></a>&gt; output creates input for GraphViz, a free program that can display the
+overlap graphically. The <a href="#compressed"><code>--compressed</code></a> flag produces output where &quot;clusters&quot; are 
+represented by nodes. By definition, there will be no edges on this graph.
+Without this flag, each node is a tree, with edges between 
+nodes representing minimal connectivity.</p>
+<p>Nixon, K., Carpenter, J., 1996. On simultaneous analysis. 
+Cladistics 12, 221-241.</p>
+<p>
+</p>
+<h2><a name="check_substitutions">Check Substitutions</a></h2>
+<p>
+</p>
+<h3><a name="synopsis">Synopsis</a></h3>
+<p>check_substitutions.pl [options]</p>
+<pre>
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --file            substitutions file
+   --dir             directory that contains the data
+   --verbose         verbose messages
+   --output          output to file rather than standard out</pre>
+<p>
+</p>
+<h3><a name="options">Options</a></h3>
+<dl>
+<dt><strong><a name="dir4" class="item"><strong>--dir</strong></a></strong></dt>
+
+<dd>
+<p>A directory of tree and optionally XML files</p>
+</dd>
+<dt><strong><strong>--file</strong></strong></dt>
+
+<dd>
+<p>A substitutions file to check</p>
+</dd>
+<dt><strong><a name="help4" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print a brief help message and exits.</p>
+</dd>
+<dt><strong><a name="man4" class="item"><strong>--man</strong></a></strong></dt>
+
+<dd>
+<p>Prints the manual page and exits.</p>
+</dd>
+<dt><strong><a name="verbose4" class="item"><strong>--verbose</strong></a></strong></dt>
+
+<dd>
+<p>Print verbose messages</p>
+</dd>
+<dt><strong><a name="output3" class="item"><strong>--output</strong></a></strong></dt>
+
+<dd>
+<p>File to send output to</p>
+</dd>
+</dl>
+<p>You must specify a <a href="#file"><code>file</code></a>. If <a href="#dir"><code>dir</code></a> is also specified the taxa within the substitution
+file are checked against the taxa in the dataset. Any taxa in the subs file that are
+not in the data set are flagged.</p>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p><strong>Check Substitutions</strong> ensures that a substitution file as used in replace_taxa.pl is
+of the correct format. Additionally, if a dataset is specified, it checks the
+substitutions that would be made by replace_taxa.pl are alreday in the data.</p>
+<p>For example, if your substitution file contains:
+taxa_1 = fred, foo, bar</p>
+<p>taxa_1 would be replaced with a polytomy of fred, foo, bar. Specifying a dataset
+ensures that fred, foo, and bar are in the data - i.e. you are not introducing 
+additional taxa into the dataset. You may <strong>want</strong> to do this and hence why replace_taxa.pl
+does allow this, but this is generally not a good idea, and this script checks you really
+mean this action.</p>
+<p>
+</p>
+<h2><a name="clean_data">Clean Data</a></h2>
+<p>
+</p>
+<h3><a name="synopsis">Synopsis</a></h3>
+<p>clean_data.pl [options]</p>
+<pre>
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing XML files. Required
+   --dryrun          dry run only
+   --verbose         print verbose messages
+   --output          direct output to file instead of STDOUT</pre>
+<p>
+</p>
+<h3><a name="options">Options</a></h3>
+<dl>
+<dt><strong><a name="dir5" class="item"><strong>--dir</strong></a></strong></dt>
+
+<dd>
+<p>a directory which contains XML and/or tree files. <strong>Required</strong>.</p>
+</dd>
+<dt><strong><a name="help5" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print a brief help message and exits.</p>
+</dd>
+<dt><strong><a name="man5" class="item"><strong>--man</strong></a></strong></dt>
+
+<dd>
+<p>Prints the manual page and exits.</p>
+</dd>
+<dt><strong><a name="verbose5" class="item"><strong>--verbose</strong></a></strong></dt>
+
+<dd>
+<p>Print verbose messages</p>
+</dd>
+<dt><strong><a name="output4" class="item"><strong>--output</strong></a></strong></dt>
+
+<dd>
+<p>Directs output to file instead of STDOUT. If a filename is given, output is directed there, otherwise it is directed
+to error.txt in the c&lt;dir&gt;ectory.</p>
+</dd>
+<dt><strong><a name="dryrun" class="item"><strong>--dryrun</strong></a></strong></dt>
+
+<dd>
+<p>Don't delete the directories, but list them instead.</p>
+</dd>
+</dl>
+<p>If <a href="#dir"><code>dir</code></a> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.</p>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p><strong>Clean Data</strong> deletes directories within the dataset that contain less than three
+taxa. The check is made on the XML file only. Run the check_data script first
+to ensure your data is as you expect. The script takes care of checking 
+sub-directories of an author/paper directory before deleting the author/paper
+directory.</p>
+<p>Note that hidden files (such as those from SVN or CVS) are a problem for the
+last part of this script where empty directories are deleted. If your dataset
+contains hidden files, then the directories will not get deleted.</p>
+<p>
+</p>
+<h2><a name="create_directories">Create Directories</a></h2>
+<p>
+</p>
+<h3><a name="synopsis">Synopsis</a></h3>
+<p>create_dirs.pl [options]</p>
+<pre>
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             path to the storage dir. Required
+   --verbose         print verbose messages
+   --output          output to a file, rather than standard output
+   --bib             BibTex file. Required</pre>
+<p>
+</p>
+<h3><a name="options">Options</a></h3>
+<dl>
+<dt><strong><a name="dir6" class="item"><strong>--dir</strong></a></strong></dt>
+
+<dd>
+<p>Path to the storage dir. The database will be created here. <strong>Required</strong>.</p>
+</dd>
+<dt><strong><a name="bib" class="item"><strong>--bib</strong></a></strong></dt>
+
+<dd>
+<p>A BibTex file from which directory names and the base XML file will be created. <strong>Required</strong>.</p>
+</dd>
+<dt><strong><a name="help6" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print a brief help message and exits.</p>
+</dd>
+<dt><strong><a name="man6" class="item"><strong>--man</strong></a></strong></dt>
+
+<dd>
+<p>Prints the manual page and exits.</p>
+</dd>
+<dt><strong><a name="verbose6" class="item"><strong>--verbose</strong></a></strong></dt>
+
+<dd>
+<p>Print verbose messages</p>
+</dd>
+</dl>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p>The script takes a BibTex file and creates the database structure. The directories will have
+the following format:
+Base_Dir/
+	Author_year/author_year.xml
+	Author2_year/author_year.xml
+	...
+	AuthorN_year/author_year.xml</p>
+<p>The XML files will be created with the correct bibliographic metadata, such 
+as journal details and paper titles.</p>
+<p>
+</p>
+<h2><a name="create_matrix">Create Matrix</a></h2>
+<p>
+</p>
+<h3><a name="synopsis">Synopsis</a></h3>
+<p>create_matrix.pl [options]</p>
+<pre>
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing Tree files. Required
+   --verbose         print verbose messages
+   --output          output MRP file
+   --format          output format. Defaults to Hening86.</pre>
+<p>
+</p>
+<h3><a name="options">Options</a></h3>
+<dl>
+<dt><strong><a name="dir7" class="item"><strong>--dir</strong></a></strong></dt>
+
+<dd>
+<p>a directory which contains tree files. <strong>Required</strong>.</p>
+</dd>
+<dt><strong><a name="help7" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print a brief help message and exits.</p>
+</dd>
+<dt><strong><a name="man7" class="item"><strong>--man</strong></a></strong></dt>
+
+<dd>
+<p>Prints the manual page and exits.</p>
+</dd>
+<dt><strong><a name="verbose7" class="item"><strong>--verbose</strong></a></strong></dt>
+
+<dd>
+<p>Print verbose messages</p>
+</dd>
+<dt><strong><a name="output5" class="item"><strong>--output</strong></a></strong></dt>
+
+<dd>
+<p>Output file for MRP matrix. Defaults to Matrix.tnt in <a href="#dir"><code>dir</code></a>.</p>
+</dd>
+<dt><strong><a name="format" class="item"><strong>--format</strong></a></strong></dt>
+
+<dd>
+<p>Sepcify the output format. Current Nexus and Hening86 are supported. The default is Hening86</p>
+</dd>
+</dl>
+<p>If <a href="#dir"><code>dir</code></a> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.</p>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p><strong>Create Matrix</strong> creates an MRP matrix from all tree files contained in a directory. The script uses 
+standard MRP coding.</p>
+<p>The script is  based on that of Bininda-Emonds et al. (2005), SuperMRP.pl, but there
+is no support for Purvis coding, weights, etc. If you need those, use SuperMRP instead.</p>
+<p>
+</p>
+<h3><a name="references">References</a></h3>
+<p>Bininda-Emonds, O.R.P., R.M.D. Beck, and A. Purvis. 2005. 
+Getting to the roots of matrix representation. Systematic Biology 54(4):668-672.</p>
+<p>
+</p>
+<h2><a name="data_independence">Data Independence</a></h2>
+<p>
+</p>
+<h3><a name="synopsis">Synopsis</a></h3>
+<p>data_independence.pl [options]</p>
+<pre>
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing XML files. Required
+   --verbose         print verbose messages</pre>
+<p>
+</p>
+<h3><a name="options">Options</a></h3>
+<dl>
+<dt><strong><a name="dir8" class="item"><strong>--dir</strong></a></strong></dt>
+
+<dd>
+<p>a directory which contains XML files. <strong>Required</strong>.</p>
+</dd>
+<dt><strong><a name="help8" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print a brief help message and exits.</p>
+</dd>
+<dt><strong><a name="man8" class="item"><strong>--man</strong></a></strong></dt>
+
+<dd>
+<p>Prints the manual page and exits.</p>
+</dd>
+<dt><strong><a name="verbose8" class="item"><strong>--verbose</strong></a></strong></dt>
+
+<dd>
+<p>Print verbose messages</p>
+</dd>
+</dl>
+<p>If <a href="#dir"><code>dir</code></a> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.</p>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p><strong>Data Independence</strong> checks that source data do not actually contain the same data - that is they are
+independent of each other. For supertree construction, the source data must be independent, which for
+current protocols means that they cannot contain the same taxa (or subset
+of taxa) and not use the same data for the analysis. This script checks the taxonomic overlap of each study
+with every other study and if the taxa are the same (or one source set in wholly contained
+within another) checks the original source data. If these are the same, the two source
+studies are flagged as being potentially non-independent.</p>
+<p>Output is a Tab-delimited file which contains the potential non-independencies. This can be loaded into
+Excel or similar. The data is grouped by the type of character used. The final column contains the 
+treefile for each XML file, followed by any potential dependent trees.</p>
+<p>This script requires XML files to function - no XML, no checks.</p>
+<p>
+</p>
+<h2><a name="data_summary">Data Summary</a></h2>
+<p>
+</p>
+<h3><a name="synopsis">Synopsis</a></h3>
+<p>data_summary.pl [options]</p>
+<pre>
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing Tree files. Required
+   --taxatreematrix  create data availability matrices
+   --verbose         print verbose messages
+   --output          output to a file, rather than standard output</pre>
+<p>
+</p>
+<h3><a name="options">Options</a></h3>
+<dl>
+<dt><strong><a name="dir9" class="item"><strong>--dir</strong></a></strong></dt>
+
+<dd>
+<p>A directory which contains XML/Tree files. <strong>Required</strong>.</p>
+</dd>
+<dt><strong><a name="taxatreematrix" class="item"><strong>--taxatreematrix</strong></a></strong></dt>
+
+<dd>
+<p>Create two file which allow data availability plots to be created.</p>
+</dd>
+<dt><strong><a name="help9" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print a brief help message and exits.</p>
+</dd>
+<dt><strong><a name="man9" class="item"><strong>--man</strong></a></strong></dt>
+
+<dd>
+<p>Prints the manual page and exits.</p>
+</dd>
+<dt><strong><a name="verbose9" class="item"><strong>--verbose</strong></a></strong></dt>
+
+<dd>
+<p>Print verbose messages</p>
+</dd>
+<dt><strong><a name="output6" class="item"><strong>--output</strong></a></strong></dt>
+
+<dd>
+<p>Write the data summary to file, rather than standard output. Defaults to <code>data_summary.txt</code> in <a href="#dir"><code>dir</code></a>.</p>
+</dd>
+</dl>
+<p>If <a href="#dir"><code>dir</code></a> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.</p>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p><strong>Data Summary</strong> chreates a summary of data generated from both tree and XML files which
+is useful when writing manuscripts. Statistics such as the number of trees, the characters 
+used, the taxa included, etc are output.</p>
+<p>Note that the output depends on whether XML <em>and</em> Tree file are found, or just Tree files.
+The aim is to generate the data usually found in paper (e.g. we used 100 trees, from 185 papers, 
+containing 500 taxa).</p>
+<p>There is an assumption here that the XML and Treefiles live in the same directory. Therefore,
+specify tha topmost directory where both can be reached. This won't work where, for example,
+there are two directories containing treefiles and there's one directory containing XML files
+underneath them, e.g.
+ data_dir/
+    tree_original/
+    tree_processed/
+    xml_files/</p>
+<p>Supplying <code>data_dir</code> will not work correctly.</p>
+<p>The <a href="#taxatreematrix"><code>--taxatreematrix</code></a> flag creates two additional files in the <code>data_dir</code>:
+data_availability_matrix.txt
+taxa_tree_matrix.txt</p>
+<p>These two files allow visualisation of the data. The former is comparable to the
+popular visualisation of the data availability in molecular studies where
+genes are plotted against species, with the speices sampled by many genes
+occur at the origin and they are ranked by the number of genes available. The latter
+file keeps the order of the trees and the taxa (alphabetical in both cases). This allows
+individual trees or taxa to be identified. A simple plotting script can be used to
+visualise these files.</p>
+<p>
+</p>
+<h2><a name="fix_treefiles">Fix Treefiles</a></h2>
+<p>
+</p>
+<h3><a name="synopsis">Synopsis</a></h3>
+<p>fix_treefiles.pl [options]</p>
+<pre>
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing Tree files to fix
+   --file            a file to fix
+   --verbose         print verbose messages</pre>
+<p>
+</p>
+<h3><a name="options">Options</a></h3>
+<dl>
+<dt><strong><a name="dir10" class="item"><strong>--dir</strong></a></strong></dt>
+
+<dd>
+<p>A directory which contains tree files that require fixing.</p>
+</dd>
+<dt><strong><a name="file2" class="item"><strong>--file</strong></a></strong></dt>
+
+<dd>
+<p>A file to fix.</p>
+</dd>
+<dt><strong><a name="help10" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print a brief help message and exits.</p>
+</dd>
+<dt><strong><a name="man10" class="item"><strong>--man</strong></a></strong></dt>
+
+<dd>
+<p>Prints the manual page and exits.</p>
+</dd>
+<dt><strong><a name="verbose10" class="item"><strong>--verbose</strong></a></strong></dt>
+
+<dd>
+<p>Print verbose messages</p>
+</dd>
+</dl>
+<p>If <a href="#dir"><code>dir</code></a> is specified all subdirectories will also be scanned, apart from those
+excluded by STK</p>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p><strong>Fix Treefiles</strong> is a simple script to fix some common problems with tree files created
+using various programs.</p>
+<p>TreeView (Page, 1996):
+TreeView create a tree with the following description:</p>
+<pre>
+ UTREE * tree_1 = ((1,(2,(3,(4,5)))),(6,7));</pre>
+<p>UTREE * is not a supported part of the NEXUS format (as far as Bio::NEXUS
+(Hladish et. al., 2007) is concerned). stk_check_data.pl will report a formatting error with
+a file like this, so this script will fix this by replacingthe above with:</p>
+<pre>
+ tree_1 = [&amp;u] ((1,(2,(3,(4,5)))),(6,7));</pre>
+<p>TNT (Goloboff et al, 2008):
+Outputed NEXUS tree files from TNT contain &quot;begin trees ;&quot; with a space bewteen the &quot;trees&quot; and
+the &quot;;&quot;. Bio::NEXUS does not recognise this as the begining of a tree block and skips
+all the trees. stk_check_data.pl will pick this error up, removing the space.</p>
+<p>The script works on either a file or directory.</p>
+<p>
+</p>
+<h3><a name="references">References</a></h3>
+<p>Goloboff, P. A. and Farris, J. S. and Nixon, K. C., 2008.
+TNT, a free program for phylogenetic analysis. Cladistics 24 (5),
+774-786. DOI: 10.1111/j.1096-0031.2008.00217.x</p>
+<p>Hladish, T., Gopalan, V., Liang, C., Qiu, W., Yang, P., Stoltzfus, A., 2007. 
+Bio::Nexus: A Perl API for the Nexus format for comparative biological data. 
+BMC Bioinformatics 8, 191.</p>
+<p>Page, R.D.M., 1996. Treeview: An application to display phylogenetic trees on 
+personal computers. Computer Applications in the Biosciences 12, 357-358.</p>
+<p>
+</p>
+<h2><a name="replace_genera">Replace Genera</a></h2>
+<p>
+</p>
+<h3><a name="synopsis">Synopsis</a></h3>
+<p>stk_replace_genera.pl [options]</p>
+<pre>
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing XML/Tree files. Required
+   --verbose         print verbose messages. Sets C&lt;--higher&gt;, but substitutions are done.
+   --higher          print higher taxa to screen. No substitutions will be done.
+   --output          writes substitutions carried out to taxa substituion file (specify). No substitutions will be done.</pre>
+<p>
+</p>
+<h3><a name="options">Options</a></h3>
+<dl>
+<dt><strong><a name="dir11" class="item"><strong>--dir</strong></a></strong></dt>
+
+<dd>
+<p>a directory which contains tree and/or XML files. <strong>Required</strong>.</p>
+</dd>
+<dt><strong><a name="help11" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print a brief help message and exits.</p>
+</dd>
+<dt><strong><a name="man11" class="item"><strong>--man</strong></a></strong></dt>
+
+<dd>
+<p>Prints the manual page and exits.</p>
+</dd>
+<dt><strong><a name="verbose11" class="item"><strong>--verbose</strong></a></strong></dt>
+
+<dd>
+<p>Print verbose messages</p>
+</dd>
+<dt><strong><a name="higher" class="item"><strong>--higher</strong></a></strong></dt>
+
+<dd>
+<p>Prints the higher (non-specific) taxa to screen. No substitutions will be done</p>
+</dd>
+<dt><strong><a name="output7" class="item"><strong>--output</strong></a></strong></dt>
+
+<dd>
+<p>Writes what substitutions will be done by the script to taxa substitution file. The default
+location is the data_directory/generic_subs.txt. This file is in the same file format used 
+in <a href="#stk_replace_taxa">STK Replace Taxa</a>. No substitutions will be done.</p>
+</dd>
+</dl>
+<p>If <a href="#dir"><code>dir</code></a> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.</p>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p><strong>Replace Genera</strong> is used when creating trees at specific level following the protocol
+of Davis (2008). Any taxon that are at generic level only are replaced by a polytomy
+of specific names from the rest of the data set.</p>
+<p>An example is if a data set contains <em>Gallus gallus</em> and <em>Gallus lafayetii</em> will have
+<em>Gallus</em> replaced where it occurs as a generic taxon with a polytomy containing 
+<em>Gallus gallus</em> and <em>Gallus lafayetii</em>.</p>
+<p>There is an assumption here that the XML and Treefiles live in the same directory. Therefore,
+specify the topmost directory where both can be reached. This won't work where, for example,
+there are two directories containing treefiles and there's one directory containing XML files
+underneath them, e.g.
+ data_dir/
+    tree_original/
+    tree_processed/
+    xml_files/</p>
+<p>Supplying <code>data_dir</code> will not work correctly.</p>
+<p>Also, make sure that the data is consistant, i.e. run the Data Check script first and make
+sure the data passses.</p>
+<p>
+</p>
+<h2><a name="replace_taxa">Replace Taxa</a></h2>
+<p>
+</p>
+<h3><a name="synopsis">Synopsis</a></h3>
+<p>stk_replace_taxa.pl [options]</p>
+<pre>
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory in which replacements should occur 
+   --file            file in which replacments should occur
+   --taxa            file specifying which substitions to carry out            
+   --old             taxon to be replaced
+   --new             the new taxon. May be omitted, in which case old taxon is removed
+   --verbose         verbose messages
+   --reverse         the taxa file will contain taxa to keep with this flag on</pre>
+<p>One of <a href="#dir"><code>dir</code></a> or <a href="#file"><code>file</code></a> is required. One of <a href="#old"><code>old</code></a> or <a href="#taxa"><code>taxa</code></a> is required.</p>
+<p>
+</p>
+<h3><a name="options">Options</a></h3>
+<dl>
+<dt><strong><a name="dir12" class="item"><strong>--dir</strong></a></strong></dt>
+
+<dd>
+<p>A directory which contains tree files that require replacing.</p>
+</dd>
+<dt><strong><a name="file3" class="item"><strong>--file</strong></a></strong></dt>
+
+<dd>
+<p>The file (tree or XML) which has taxa that require replacing</p>
+</dd>
+<dt><strong><a name="taxa" class="item"><strong>--taxa</strong></a></strong></dt>
+
+<dd>
+<p>A file containing the substitutions to be made. See full documentation for details</p>
+</dd>
+<dt><strong><a name="old" class="item"><strong>--old</strong></a></strong></dt>
+
+<dd>
+<p>The old taxa to be replaced. Note that spaces in the taxon name must be replaced with _</p>
+</dd>
+<dt><strong><a name="new" class="item"><strong>--new</strong></a></strong></dt>
+
+<dd>
+<p>The new taxa. Note that spaces in the taxon name must be replaced with _. If blank, <a href="#old"><code>old</code></a> will be deleted.</p>
+</dd>
+<dt><strong><a name="help12" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print a brief help message and exits.</p>
+</dd>
+<dt><strong><a name="man12" class="item"><strong>--man</strong></a></strong></dt>
+
+<dd>
+<p>Prints the manual page and exits.</p>
+</dd>
+<dt><strong><a name="verbose12" class="item"><strong>--verbose</strong></a></strong></dt>
+
+<dd>
+<p>Print verbose messages</p>
+</dd>
+</dl>
+<p>One of <a href="#file"><code>file</code></a> or <a href="#dir"><code>dir</code></a> must be specified. Either <a href="#taxa"><code>taxa</code></a> or <a href="#old"><code>old</code></a> must also be specified. 
+<a href="#new"><code>new</code></a> can be ommitted to replace the original taxon.</p>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p><strong>Replace Taxa</strong> replaces a single taxon or multiple taxa with either
+another taxon or multiple taxa as a polytomy. Replacement is done
+on both tree files and XML files (if present). If a file is specified
+only that file has the taxa replaced.</p>
+<p>A taxon can be deleted by specifying a blank new taxon.</p>
+<p>All taxon names are <strong>case sensitive</strong>.</p>
+<p>Multiple replacements are achieved by supplying a &quot;taxa file&quot;. This lists
+&quot;old taxa&quot; and &quot;new taxa&quot; on individual lines in the file, seperated by an &quot;=&quot;
+sign. For example:
+ old_taxon = new_taxon
+ old_taxon2 = new_taxon1, new_taxon2, new_taxon3
+ old_taxon3 =</p>
+<p>The first line above does a simple substitution for <code>old_taxon</code> with <code>new_taxon</code>.
+The second line replaces <code>old_taxon2</code> with a polytomy of <code>new_taxon1</code>, <code>new_taxon2</code>
+and, <code>new_taxon3</code> in a tree file and a simple substitution in an XML file. The third line
+removes <code>old_taxon3</code>. Note there are spaces <strong>either</strong> side of the equals sign. These
+spaces <strong>must</strong> occur or the file is invalid.</p>
+<p>In addition, the underscores (which are required for the tree file) are required here
+also. However, they will be replaced by spaces in the XML file.</p>
+<p>The script works on either a single file or directory of files (including subdirectories).</p>
+<p><strong>Warning</strong>: This script simply overwrites existing data - please back up data before using it.</p>
+<p>
+</p>
+<h3><a name="examples">Examples</a></h3>
+<p>Remove all instances of &quot;MRPOutgroup&quot; from a dataset</p>
+<pre>
+
+ perl stk_replace_taxa.pl --dir /home/data/phylogenies --old MRPOutgroup</pre>
+<p>Replace taxa_1 with taxa_2 within a single tree file</p>
+<pre>
+ perl stk_replace_taxa.pl --file /home/data/tree1.tre --old taxa_1 --new taxa_2</pre>
+<p>
+</p>
+<h2><a name="tree_permutation">Tree Permutation</a></h2>
+<p>
+</p>
+<h3><a name="synopsis">Synopsis</a></h3>
+<p>tree_permutation.pl [options]</p>
+<pre>
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --file            a file that contains polyphyletic taxa. REQUIRED
+   --verbose         print verbose messages
+   
+=head3 Options</pre>
+<dl>
+<dt><strong><a name="file4" class="item"><strong>--file</strong></a></strong></dt>
+
+<dd>
+<p>a file which contains specially notation for polyphyly</p>
+</dd>
+<dt><strong><a name="help13" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print a brief help message and exits.</p>
+</dd>
+<dt><strong><a name="man13" class="item"><strong>--man</strong></a></strong></dt>
+
+<dd>
+<p>Prints the manual page and exits.</p>
+</dd>
+<dt><strong><a name="verbose13" class="item"><strong>--verbose</strong></a></strong></dt>
+
+<dd>
+<p>Print verbose messages</p>
+</dd>
+</dl>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p><strong>Tree Permutation</strong> generates multilpe trees based on a single input tree.
+The input tree contains specially noted taxa which are polyphyletic or
+are, perhaps sub-species, which need to be removed.</p>
+<p>Taxa are denoted by % symbol at the end of the name.</p>
+<p>A single file is output.</p>
+<p>
+</p>
+<h2><a name="search_data">Search Data</a></h2>
+<p>
+</p>
+<h3><a name="synopsis">Synopsis</a></h3>
+<p>search_data [options]</p>
+<pre>
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing XML or tree files. Required
+   --verbose         print verbose messages
+   --output          direct output to file instead of STDOUT
+   --copy            copy all files resulting from search into a directory
+   --charterm        a character term to search for 
+   --anterm          an analysis term to search for
+   --taxterm         a taxa to search for
+   --anyterm         search for data for a term in either character, analysis, or taxa
+   --fossil          none|all|some
+   --only            restrict results to B&lt;only&gt; containing the search term. Character term only.
+   --year            search for data from a particular year</pre>
+<p>
+</p>
+<h3><a name="options">Options</a></h3>
+<dl>
+<dt><strong><a name="dir13" class="item"><strong>--dir</strong></a></strong></dt>
+
+<dd>
+<p>a directory which contains XML and/or tree files. <strong>Required</strong>.</p>
+</dd>
+<dt><strong><a name="help14" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print a brief help message and exits.</p>
+</dd>
+<dt><strong><a name="man14" class="item"><strong>--man</strong></a></strong></dt>
+
+<dd>
+<p>Prints the manual page and exits.</p>
+</dd>
+<dt><strong><a name="verbose14" class="item"><strong>--verbose</strong></a></strong></dt>
+
+<dd>
+<p>Print verbose messages</p>
+</dd>
+<dt><strong><a name="output8" class="item"><strong>--output</strong></a></strong></dt>
+
+<dd>
+<p>Directs output to file instead of STDOUT.
+If a filename is given, output is directed there, otherwise it is directed
+to results.txt in the <a href="#dir"><code>dir</code></a>ectory.</p>
+</dd>
+<dt><strong><a name="copy" class="item"><strong>--copy</strong></a></strong></dt>
+
+<dd>
+<p>Copy the files that are matched in the search to a new directory. If a directory 
+name is given, the files are copied there. If this directory does not exist
+it is created. If no name is given, the files will be copied into a directory
+called <code>seach_results</code> in <a href="#dir"><code>dir</code></a>ectory.</p>
+</dd>
+<dt><strong><a name="charterm" class="item"><strong>--charterm</strong></a></strong></dt>
+
+<dd>
+<p>A character term to search for. Specify multiple <a href="#charterm"><code>--charterm</code></a>s to perform OR searches</p>
+</dd>
+<dt><strong><a name="anterm" class="item"><strong>--anterm</strong></a></strong></dt>
+
+<dd>
+<p>An analysis term to search for. Specify multiple <a href="#anterm"><code>--anterm</code></a>s to perform OR searches</p>
+</dd>
+<dt><strong><a name="taxterm" class="item"><strong>--taxterm</strong></a></strong></dt>
+
+<dd>
+<p>A taxa to search for. Specify multiple <a href="#taxterm"><code>--taxterm</code></a>s to perform OR searches</p>
+</dd>
+<dt><strong><a name="anyterm" class="item"><strong>--anyterm</strong></a></strong></dt>
+
+<dd>
+<p>A term to search for. Specify multiple <a href="#anyterm"><code>--anyterm</code></a>s to perform OR searches.
+This will search all of taxa, characters and analyses.</p>
+</dd>
+<dt><strong><a name="fossil" class="item"><strong>--fossil</strong></a></strong></dt>
+
+<dd>
+<p>Search for either <code>none</code>, <code>some</code> or <code>all</code> fossil-based data.</p>
+</dd>
+<dt><strong><a name="year" class="item"><strong>--year</strong></a></strong></dt>
+
+<dd>
+<p>Search for a particular year. Must be a four digit year.</p>
+</dd>
+</dl>
+<p>If <a href="#dir"><code>dir</code></a> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.</p>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p><strong>Search Data</strong> allows the data directory to be searched for taxa, characters or analyses.
+The results can be printed to screen or the Tree/XML files copied into a new directory.
+The executable is useful for extracting subsets of data, for example all source trees 
+generated using molecular data. XML files are required as the searches are carried on</p>
+<p>Characters can be specified, e.g. cytb or rag1, or can be generic characters, e.g. Molecular or 
+Morphological.</p>
+<p>Taxonomic searches search only taxa contained in the data - this script does not understand
+taxonomy, so search for &quot;Galliformes&quot; will not return any results unless a tree contains a
+terminal node &quot;Galliformes&quot;</p>
+<p>All searches are case insensitive. If multilpe terms are searchd an &quot;OR&quot; search will be carried out</p>
+<p>
+<a href="#__index__"><small>Back to top</small></a>
+</p>
+<hr />
+<h1><a name="bio__stk_module">Bio::STK Module</a></h1>
+<p>
+</p>
+<h2><a name="stk___supertree_tool_kit">STK - Supertree Tool Kit</a></h2>
+<p>
+</p>
+<h3><a name="description">Description</a></h3>
+<p><strong>STK</strong> is a collection of tools to prepare data ready for supertree 
+contruction with PAUP* or similar. It relies on a file-based database
+based on tree and XML files. Functions include finding all tree files,
+xml files and summarising data. STK also comes with a number of scripts
+ready for use.</p>
+<p>
+</p>
+<h3><a name="requires">Requires</a></h3>
+<p>Perl 5.004, XML::Simple, Bio::NEXUS, File::Find, Carp, File::Copy;</p>
+<p>
+</p>
+<h3><a name="feedback">Feedback</a></h3>
+<p>All feedback (bugs, feature enhancements, etc.) are all greatly appreciated.</p>
+<p>
+</p>
+<h3><a name="authors">Authors</a></h3>
+<p>Jon Hill (<a href="mailto:jon.hill@imperial.ac.uk">jon.hill@imperial.ac.uk</a>) and Katie Davis (<a href="mailto:katie.davis@oum.ox.ac.uk">katie.davis@oum.ox.ac.uk</a>)</p>
+<p>
+</p>
+<h3><a name="methods">Methods</a></h3>
+<p>
+</p>
+<h4><a name="find_tree_files">find_tree_files</a></h4>
+<pre>
+ Title   : find_tree_files
+ Usage   : my @files = Bio::STK::find_tree_files($dir);
+ Function: Finds all tree files in specified directory and all sub-directories
+ Returns : Array of complete filenames
+ Args    : $dir, else croaks.
+ 
+=cut</pre>
+<p>sub find_tree_files {</p>
+<pre>
+    my ($dir) = @_;
+    undef @_files;</pre>
+<pre>
+        if ( -d $dir ) {
+        find( \&amp;Bio::STK::_find_trees, $dir );
+    }
+    else {
+        croak(&quot;Error - specified directory does not exist: $dir\n&quot;);
+    }</pre>
+<pre>
+    @_files = sort @_files;
+    return @_files;</pre>
+<p>}</p>
+<p>
+</p>
+<h4><a name="find_xml_files">find_xml_files</a></h4>
+<pre>
+ Title   : find_xml_files
+ Usage   : my @files = Bio::STK::find_xml_files($dir);
+ Function: Finds all XML files in specified directory and all sub-directories
+ Returns : Array of complete filenames
+ Args    : $dir, else croaks.</pre>
+<p>
+</p>
+<h4><a name="read_tree_file">read_tree_file</a></h4>
+<pre>
+ Title   : read_tree_file
+ Usage   : my $tree = read_tree_file($file);
+ Function: Reads in a correctly formatted NEXUS tree file
+ Returns : An array of Newick tree formatted strings;
+ Args    : $file, else croaks.</pre>
+<p>
+</p>
+<h4><a name="read_xml_file">read_xml_file</a></h4>
+<pre>
+ Title   : read_xml_file
+ Usage   : my $xml = read_xml_file($file);
+ Function: Reads in an XML file
+ Returns : The data structure from XML::Simple
+ Args    : $file, else croaks.</pre>
+<p>A sample data structure is:</p>
+<pre>
+ 'Notes' =&gt; [
+           '2,430bp of the mitochondrial genes ND2, ND3 and cyt b.'
+         ],
+ 'Analysis' =&gt; [
+              {
+                'Type' =&gt; [
+                            'MP'
+                          ]
+              }
+            ],
+ 'Characters' =&gt; [
+                {
+                  'Other' =&gt; [
+                               {}
+                             ],
+                  'Behavioural' =&gt; [
+                                     {}
+                                   ],
+                  'Morphological' =&gt; [
+                                       {}
+                                     ],
+                  'Molecular' =&gt; [
+                                   {
+                                     'Type' =&gt; [
+                                                 'cytb',
+                                                 'ND2',
+                                                 'ND3'
+                                               ],
+                                     'number' =&gt; '3'
+                                   }
+                                 ]
+                }
+              ],
+ 'Taxa' =&gt; [
+          {
+            'List' =&gt; [
+                        'Campylorhamphus falcularius',
+                        'Campylorhamphus procurvoides',
+                        'Campylorhamphus trochilirostris',
+                        'Dendrexetastes rufigula',
+                        'Dendrocolaptes certhia',
+                        'Glyphorynchus spirurus',
+                        'Hylexetastes perrotii',
+                        'Lepidocolaptes albolineatus',
+                        'Lepidocolaptes angustirostris',
+                        'Lepidocolaptes fuscus',
+                        'Nasica longirostris',
+                        'Sittasomus griseicapillus',
+                        'Xiphocolaptes promeropirhynchus',
+                        'Xiphorhynchus erythropygius',
+                        'Xiphorhynchus flavigaster',
+                        'Xiphorhynchus guttatus',
+                        'Xiphorhynchus kienerii',
+                        'Xiphorhynchus lachrymosus',
+                        'Xiphorhynchus obsoletus',
+                        'Xiphorhynchus ocellatus',
+                        'Xiphorhynchus pardalotus',
+                        'Xiphorhynchus picus',
+                        'Xiphorhynchus spixii',
+                        'Xiphorhynchus susurrans',
+                        'Xiphorhynchus triangularis'
+                      ],
+            'number' =&gt; '25',
+            'fossil' =&gt; 'none'
+          }
+        ],
+ 'Source' =&gt; [
+            {
+              'Year' =&gt; [
+                          '2000'
+                        ],
+              'Publisher' =&gt; [
+                               {}
+                             ],
+              'Volume' =&gt; [
+                            '119'
+                          ],
+              'Editor' =&gt; [
+                            {}
+                          ],
+              'Pages' =&gt; [
+                           '621-640'
+                         ],
+              'Booktitle' =&gt; [
+                               {}
+                             ],
+              'Journal' =&gt; [
+                             'Auk'
+                           ],
+              'Title' =&gt; [
+                           'Molecular systematics and the role of the &quot;Varzea&quot;-&quot;Terra-firme&quot; ecotone in
+ the diversification of Xiphorhynchus woodcreepers (Aves: Dendrocolaptidae).'
+                         ],
+              'Author' =&gt; [
+                            'Bar, A.'
+                          ]
+            }
+          ],
+ 'TreeFile' =&gt; [
+              'tree1.tre'
+            ]</pre>
+<p>You can access by using structures like this: <code>@{$xml_contents-</code>{Taxa}-&gt;[0]-&gt;{List}}&gt;.</p>
+<p>
+</p>
+<h4><a name="save_tree_file">save_tree_file</a></h4>
+<pre>
+ Title   : save_tree_file
+ Usage   : save_tree_file($treefile, \@tree_string, \@tree_names);
+ Function: Save an array of tree strings to file. Will overwrite any existing file without checking
+ Returns : 1 if sucessful, 0 if not. CHECK THIS
+ Args    : $treefile, @tree_string, @tree_names</pre>
+<p>This function does not check if the treefile already exists - this is the responsibility of
+the calling program.</p>
+<p>
+</p>
+<h4><a name="save_tree_newick">save_tree_newick</a></h4>
+<pre>
+ Title   : save_tree_newick
+ Usage   : save_tree_newick($treefile, \@tree_string, \@tree_names)
+ Function: Save an array of tree strings to file. Will overwrite any existing file without checking
+ Returns : 1 if sucessful, 0 if not. CHECK THIS
+ Args    : $treefile, \@tree_string, \@tree_names</pre>
+<p>This function does not check if the treefile already exists - this is the responsibility of
+the calling program. The purpose of this function is to save a tree file in &quot;raw&quot; Newick format, 
+i.e. without any other BLOCKS apart from TREE. This is the simplist form of the treefile and hence
+the most compatible with other software.</p>
+<p>
+</p>
+<h4><a name="save_xml_file">save_xml_file</a></h4>
+<pre>
+ Title   : save_xml_file
+ Usage   : save_xml_file($xmlfile, $xml_hash);
+ Function: Save a XML hash to file. Will overwrite any existing file without checking
+ Returns : 1 if sucessful, 0 if not. CHECK THIS
+ Args    : $xmlfile, $xml_hash</pre>
+<p>This function does not check if the xml file already exists - this is the responsibility of
+the calling program.</p>
+<p>$xml_hash is the same object as returned by <a href="#read_xml_file">the read_xml_file manpage</a>.</p>
+<p>
+</p>
+<h4><a name="read_taxa_file">read_taxa_file</a></h4>
+<pre>
+ Title   : read_taxa_file
+ Usage   : $nSubs = read_taxa_file($taxafile, \@old_taxa, \@new_taxa);
+ Function: Read in a taxa substitution file, populating @old_taxa and @new_taxa.
+ Returns : The number of substitutions.
+ Args    : $taxafile, \@old_taxa, \@new_taxa</pre>
+<p>old_taxa contains each old taxa, with a corresponding entry in new_taxa, i.e.</p>
+<pre>
+
+ old_taxa[0] =&gt; new_taxa[0]
+ old_taxa[1] =&gt; new_taxa[1]
+ etc</pre>
+<p>new_taxa will contain a string which is a comma-seperated list of all taxa that should replace
+the old_taxa</p>
+<p>
+</p>
+<h4><a name="taxa_from_tree">taxa_from_tree</a></h4>
+<pre>
+ Title   : taxa_from_tree
+ Usage   : my @taxa = taxa_from_tree($tree);
+ Function: Obtains unique taxa from a tree file or tree string
+ Returns : An array of taxa names or undef if error
+ Args    : $tree, else croaks.</pre>
+<p>$tree can be a tree file or a NEXUS formatted tree string</p>
+<p>
+</p>
+<h4><a name="get_taxa_list">get_taxa_list</a></h4>
+<pre>
+ Title   : get_taxa_list
+ Usage   : get_taxa_list($dir);
+ Function: Gets a list of unique taxa from a directory (and subdirectories) of tree files.
+ Returns : An array of unique names
+ Args    : $dir, else croaks.</pre>
+<p>
+</p>
+<h4><a name="taxa_from_xml">taxa_from_xml</a></h4>
+<pre>
+ Title   : taxa_from_xml
+ Usage   : my @taxa = taxa_from_xml($input)
+ Function: Gets the taxa containedin XML file or XML hash
+ Returns : An array of strings containing the taxa
+ Args    : $input, else croaks.</pre>
+<p>Note that input can be a filename or XML hash.</p>
+<p>
+</p>
+<h4><a name="get_analysis">get_analysis</a></h4>
+<pre>
+ Title   : get_analysis
+ Usage   : $analysis = get_analysis($xmlfile);
+ Function: Gets the type of analysis used from an XML file
+ Returns : A string containing the type of analysis used
+ Args    : $xmlfile, else croaks.</pre>
+<p>
+</p>
+<h4><a name="get_year">get_year</a></h4>
+<pre>
+ Title   : get_year
+ Usage   : $year = get_year($xmlfile);
+ Function: Gets the year from the bibliographic data
+ Returns : An integer containing the year the data were published
+ Args    : $xmlfile, else croaks.</pre>
+<p>
+</p>
+<h4><a name="get_source_data">get_source_data</a></h4>
+<pre>
+ Title   : get_source_data
+ Usage   : %source = get_source_data($xmlfile);
+ Function: Gets the tsource information from an XML file
+ Returns : A hash containing the source information (journal, title, etc)
+ Args    : $xmlfile, else croaks.</pre>
+<p>The output from get_source_data returns a Hash with the following structure:</p>
+<pre>
+ my %expected = (year =&gt; '2000',
+                volume =&gt; '119',
+                pages =&gt; '621-640',
+                journal =&gt; 'Auk',
+                title =&gt; 'Molecular systematics and the role of the &quot;Varzea&quot;-&quot;Terra-firme&quot; ecotone in the diversification of Xiphorhynchus woodcreepers (Aves: Dendrocolaptidae).',
+                author =&gt; 'Bar, A.',
+                booktitle =&gt; 'Some title',
+                editor =&gt; 'Some editors',
+                publisher =&gt; 'Some publisher',
+                );</pre>
+<p>Access as a normal Hash.</p>
+<p>
+</p>
+<h4><a name="get_treefile">get_treefile</a></h4>
+<pre>
+ Title   : get_treefile
+ Usage   : get_treefile($xmlfile);
+ Function: Get the tree files that this XML file is for
+ Returns : A string containing the B&lt;relative&gt; path of the tree file
+ Args    : $xmlfile, else croaks.</pre>
+<p>
+</p>
+<h4><a name="get_characters">get_characters</a></h4>
+<pre>
+ Title   : get_characters
+ Usage   : get_characters($xmlfile);
+ Function: Get the chracters used in this analysis
+ Returns : A Hash containing the character types
+ Args    : $xmlfile, else croaks.</pre>
+<p>The output from get_characters returns a Hash with the following structure:</p>
+<pre>
+ my %expected = (Molecular =&gt; [ &quot;cytb&quot;, &quot;ND2&quot;, &quot;ND3&quot; ],
+                Morphological =&gt; [ &quot;feathers&quot; ],
+                Other =&gt; [ &quot;stuff&quot; ],
+                Behavioural =&gt; [ &quot;stuff&quot;, &quot;more stuff&quot; ],
+                );</pre>
+<p>Access as a normal Hash and then array notation, i.e. <code>$expected{molecular}[2]</code>;</p>
+<p>
+</p>
+<h4><a name="check_tree_file">check_tree_file</a></h4>
+<pre>
+ Title   : check_tree_file
+ Usage   : check_tree_file($file);
+ Function: Test that a tree file is a valid NEXUS file
+ Returns : 1 on success, 0 on failure - REMEMBER TO CHECK THIS!
+ Args    : $file, else croaks.</pre>
+<p>
+</p>
+<h4><a name="replace_taxon_tree">replace_taxon_tree</a></h4>
+<pre>
+ Title   : replace_taxon_tree
+ Usage   : replace_taxon_tree(\@treeString, $old_taxon, \@new_taxa);
+ Function: Swap a taxon in a tree with a new one within an array of tree strings. Leave new_taxon blank to remove old_taxon
+ Returns : 1 on success, 0 on failure. \@treeString contains new array of trees
+ Args    : \@treeString, $old_taxon, \@new_taxa. new_taxa may be null, in which case old_taxon is removed.
+           @new_taxon is an array of names - if this is longer than 1 element, then the old_taxon is
+           replaced with a polytomy
+ 
+Note that this function uses &quot;pass by reference&quot; - remember to add the slashes</pre>
+<p>
+</p>
+<h4><a name="delete_taxa">delete_taxa</a></h4>
+<pre>
+ Title   : delete_taxa
+ Usage   : delete_taxa(\@treeString, \@to_delete);
+ Function: Remove multilple taxa from a tree
+ Returns : 1 on success, 0 on failure. \@treeString contains new array of trees
+ Args    : \@treeString, \@to_delete
+           \@treeString is a reference to an array of tree strings
+           \@to_delete is an array of names
+ 
+Note that this function uses &quot;pass by reference&quot; - remember to add the slashes</pre>
+<p>
+</p>
+<h4><a name="replace_taxon_xml">replace_taxon_xml</a></h4>
+<pre>
+ Title   : replace_taxon_xml
+ Usage   : replace_taxon_xml($xml_data, $old_taxon, @new_taxon);
+ Function: Swap a taxon in a XML data structure with a new one. Leave new_taxon blank to remove old_taxon
+ Returns : 1 on success, 0 on failure. $xml_data is altered.
+ Args    : $xml_data, $old_taxon, @new_taxon. new_taxon may be null, in which case old_taxon is removed.
+           @new_taxon is an array of names - if this is longer than 1 element, then the old_taxon is
+           replaced with a polytomy</pre>
+<p>
+</p>
+<h4><a name="tree_equals">tree_equals</a></h4>
+<pre>
+ Title   : tree_equals
+ Usage   : tree_equals($tree1, $tree2);
+ Function: Compare tree1 to tree2 and test for equality
+ Returns : 1 if equal, 0 if not. CHECK THIS
+ Args    : $tree1, $tree2 - both NEWICK formatted strings.</pre>
+<p>
+</p>
+<h4><a name="tree_contains">tree_contains</a></h4>
+<pre>
+ Title   : tree_contains
+ Usage   : tree_contains($taxon,$tree_data);
+ Function: Check if $tree_data contains $taxon. Case insensitive. Accounts for _ or spaces in name
+ Returns : 1 if it does, 0 if not. CHECK THIS
+ Args    : $taxon, $tree_data</pre>
+<p>Note that $tree_data can be a tree file or a tree string</p>
+<p>
+</p>
+<h4><a name="xml_from_year">xml_from_year</a></h4>
+<pre>
+ Title   : xml_from_year
+ Usage   : xml_from_year($year,$xml_file);
+ Function: Check if $xml_file is from $year.
+ Returns : 1 if it does, 0 if not. CHECK THIS
+ Args    : $year, $xml_file</pre>
+<p>$xml_file can be a file or XML data structure</p>
+<p>
+</p>
+<h4><a name="xml_contains_taxon">xml_contains_taxon</a></h4>
+<pre>
+ Title   : xml_contains_taxon
+ Usage   : xml_contains_taxon($taxon,$xml_file);
+ Function: Check if $xml_file contains $taxon. Case insensitive. Accounts for _ or spaces in name
+ Returns : 1 if it does, 0 if not. CHECK THIS
+ Args    : $taxon, $xml_file</pre>
+<p>$xml_file can be a file or XML data structure</p>
+<p>
+</p>
+<h4><a name="xml_contains_analysis">xml_contains_analysis</a></h4>
+<pre>
+ Title   : xml_contains_analysis
+ Usage   : xml_contains_analysis($analysis,$xml);
+ Function: Check if $xml contains $analysis
+ Returns : 1 if it does, 0 if not. CHECK THIS
+ Args    : $analysis, $xml</pre>
+<p>$xml can be a file or XML data structure</p>
+<p>
+</p>
+<h4><a name="xml_contains_character">xml_contains_character</a></h4>
+<pre>
+ Title   : xml_contains_character
+ Usage   : xml_contains_character($character,$xml,$only);
+ Function: Check if $xml contains $character
+ Returns : 1 if it does, 0 if not. CHECK THIS
+ Args    : $character, $xml</pre>
+<p>$xml can be a file or XML data structure. <code>$character</code> can be a specific charater type, e.g. 'cytb' or
+can be one of &quot;Molecular&quot;, &quot;Morphological&quot;, &quot;Behavioural&quot; or &quot;Other&quot;.</p>
+<p>
+</p>
+<h4><a name="contains_data">contains_data</a></h4>
+<pre>
+ Title   : contains_data
+ Usage   : contains_data(\@data,$xml)
+ Function: Check if $xml contains $data. $data is case insensitive, but spaces in taxa names are not accounted for
+ Returns : 1 if it does, 0 if not. CHECK THIS
+ Args    : $data, $xml
+ 
+C&lt;$data&gt; is a string or array of strings containing the data to be searched for within the C&lt;$xml&gt;. C&lt;$data&gt; can be one of:</pre>
+<dl>
+<dt><strong><a name="characters_item_analysis_item_taxa" class="item">Characters
+=item Analysis
+=item Taxa</a></strong></dt>
+
+</dl>
+<p>If <code>$data</code> is an array an OR search is carried out.</p>
+<p><code>$xml</code> can be either a XML has (from read_xml_file) or a file name.</p>
+<p>
+</p>
+<h4><a name="contains_fossils">contains_fossils</a></h4>
+<pre>
+ Title   : contains_fossils
+ Usage   : contains_fossils($xmlfile);
+ Function: Tests if XML file contains fossil taxa
+ Returns : 0 - no fossils, 1 all fossils, 2 mixed, -1 incorrect info
+ Args    : $xmlfile, else croaks.</pre>
+<p>
+</p>
+<h4><a name="get_short_study_name">get_short_study_name</a></h4>
+<pre>
+ Title   : get_short_study_name
+ Usage   : get_short_study_name(@xmlFileList);
+ Function: Return a unique (for the dataset defined by the input array) name for a source tree study
+ Returns : A linked list containing files (key) and the short name (value)
+ Args    : @xmlfile</pre>
+<p>Call this function before the main loop over XML files to generate the short name. You can then use
+the resulting hash to grab the short name for whichever file you're currently dealing with.</p>
+<p><a href="#__index__"><small>Back to top</small></a></p>
+
+</body>
+
+</html>

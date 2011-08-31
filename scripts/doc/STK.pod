@@ -1,0 +1,2936 @@
+=head1 Supertree Tool Kit (STK)
+
+STK is a perl module and collection of script designed to make processing
+data for supertree analysis easier. It is not an automated system that 
+blindly alters data: human intelligence is still required.
+
+=head1 Description
+
+Creating supertrees containing thousands of taxa requires hundreds of input 
+source phylogenies. Managing and processing this data in a systematic, 
+error-free, manner challenging and will become even more so as supertrees 
+contain increasing numbers of taxa. Protocols for processing input source 
+phylogenies have been proposed to ensure data quality. Therefore any tool for 
+processing source phylogenies should enable these protocols to be followed 
+easily.
+
+The Supertree Tool Kit is a Perl module with associated executables scripts that 
+aim to aid in the collection, storage and processing of input source trees for 
+use in supertree analysis. It is therefore invaluable when creating supertrees 
+containing thousands of taxa. We have added meta-data via XML files to each tree 
+that contains information such as the source information for the tree (authors, 
+journal, etc) and how the data were derived, including the analysis algorithm 
+and character data used to carry out the original analysis.
+
+The STK is a bioinformatics tool designed to make it easier to construct 
+supertrees from hundreds or thousands of input source trees, whilst reducing 
+potential errors and enabling easy sharing of such datasets.
+
+
+=head1 Files
+
+STK uses three types of files:
+
+=over 4
+
+=item B<NEXUS formatted tree files>
+
+These are simply standard NEXUS files. Bio::Nexus does a reasonable job of reading in a lot of the variations
+in this format. The STK assumes these files have a C<.tre> extension. If not, they will not be read.
+
+=item B<XML meta-data files>
+
+XML is a standard for meta-data.
+
+=item B<substitute taxa files>
+
+A file that contains taxa and the taxa to substitute with.
+
+=back
+
+=head2 NEXUS files
+
+Standard NEXUS file as read in by Bio::Nexus (Hladish et al., 2007). These can be created
+by a number of programs, including TreeView, Mesquite, etc. TreeView produces files that
+cannot be read in by Bio::Nexus, but a script is included to fix these.
+
+=head2 XML files
+
+Are of the layout:
+
+    <SourceTree>
+        <Source>
+            <!-- If it's a journal, it has a journal name. Book has booktitle -->
+            <Author>authors</Author>
+            <Year>year</Year>
+            <Title>title</Title>
+            <Journal>Auk</Journal>
+            <Volume></Volume>
+            <Pages></Pages>
+            <Booktitle/>
+            <Editor/>
+            <Publisher/>
+        </Source>
+        <Taxa fossil="none|some|all" number="n">
+            <List>taxon 1</List>
+            ...
+            <List>taxon n</List>
+        </Taxa>
+        <Characters>
+            <Molecular>
+                <Type>type</Type>
+            </Molecular>
+            <Morphological/>
+            <Behavioural/>
+            <Other/>
+        </Characters>
+        <Analysis>
+            <Type></Type>
+        </Analysis>
+        <Notes>Some notes</Notes>
+        <TreeFile>A tree file</TreeFile>
+    </SourceTree>
+    
+
+
+=head2 Substitute taxa files
+
+These are of the format:
+
+ taxon_1 = taxon_2,taxon_3
+ taxon_4 = taxon_5,taxon_6,taxon_7
+ taxon_8 = 
+
+A blank after the C<=> sign indicates a removal of a taxon. Any number of replacement taxa can be 
+used on a single line. There must be a space either side of the C<=> sign.
+
+=head1 Data Structure
+
+The STK was designed around a typical user who liked to keep back-up copies of data within the main dataset. As
+such certain directories and files are ignored when scanning a dataset. These are (note that the names are case-insensitive and italics indicate filenames, rather than directory names):
+
+=over 4
+
+=item * B<original>
+
+=item * B<Adj for>
+
+=item * B<Adj_for>
+
+=item * I<temp.tre>
+
+=item * I<combinedTrees>
+
+=item * I<all_trees>
+
+=back
+
+=head1 Scripts
+
+The STK consists of a number of executable scripts. Each script can be run using:
+C<stk_script_name [options]>, if the STK has been installed, otherwise they can be run using
+C<perl stk_script_namei.pl [options]> from the exec directory.
+
+The following scripts are included in the STK:
+
+=over 4
+
+=item * Amalagamate Trees
+
+=item * Check Data
+
+=item * Check Overlap
+
+=item * Check Substitutions
+
+=item * Create Matrix
+
+=item * Data Independence
+
+=item * Data Summary
+
+=item * Fix TreeFiles
+
+=item * Replace Genera
+
+=item * Replace Taxa
+
+=item * Tree Permutation
+
+=item * Search Data
+
+=back
+
+More details are given in the sections below.
+
+
+
+=head2 Amalgamate Trees
+
+=head3 Synopsis
+
+stk_amalgamate_trees.pl [options]
+
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing Tree/XML files. Required
+   --verbose         print verbose messages
+   --output          output file. Default is 'all_trees.tre' in C<dir>
+   --anon            anonymise data
+
+=head3 Options 
+
+=over 4
+
+=item B<--dir>
+
+a directory which contains tree (and XML) files. B<Required>.
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--verbose>
+
+Print verbose messages
+
+=item B<--output>
+
+Where to save output. Default is 'all_trees.tre' in the C<dir>.
+
+=item B<--anon>
+
+The C<--anon> flag to name trees tree_1...tree_n. A key file will be written
+in C<dir> linking either author names or treefile names to each anonymised tree.
+Without this flag, tree are named after the tree authors and year published, 
+e.g. SmithAndJones_1999 if XML files are available, or the tree filename without
+the suffix .tre, the prefix C<dir>, and all non-standard characters repolaceed with
+underscores, e.g. trees_SmithAndJones_1999
+
+=back
+
+If C<dir> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.
+
+=head3 Description
+
+B<Amalgamate Trees> creates a single tree file with all trees from C<dir>. This is useful
+when sharing your data as it is the version of the data that has most compatibility with other 
+software. If XML files are present trees will be named using the author_year convention. 
+If XML files are not present the trees will be after the tree file name.
+The C<--anon> flag to name trees tree_1...tree_n. A key file will be written
+in C<dir> linking either author names or treefile names to each anonymised tree.
+
+
+=head2 Check Data
+
+
+=head3 Synopsis
+
+check_data.pl [options]
+
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing XML files. Required
+   --verbose         print verbose messages
+   --output          direct output to file instead of STDOUT
+
+=head3 Options 
+
+=over 4
+
+=item B<--dir>
+
+a directory which contains XML and/or tree files. B<Required>.
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--verbose>
+
+Print verbose messages
+
+=item B<--output> 
+
+Directs output to file instead of STDOUT. If a filename is given, output is directed there, otherwise it is directed
+to error.txt in the c<dir>ectory.
+
+=back
+
+If C<dir> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.
+
+=head3 Description
+
+B<Check Data> checks that the data in C<dir> is valid. For a directory of tree files
+this means checking that all tree files are valid NEXUS files. For a directory of XML
+files this means check for XML correctness and contain the minimum amount of data. 
+For a directory of both tree and XML files the two file types are validated and 
+cross-checked against each other. Tests carried out are:
+
+=over 8
+
+=item * Matching files - each tree file should have a matching XML file (or more correctly, each XML file should have a matching tree file)
+
+=item * Matching taxa - the tree and XML files should contain the same taxa
+
+=back
+
+
+=head2 Check Overlap
+
+
+
+
+=head3 Synopsis
+
+check_overlap.pl [options]
+
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing Tree files. Required
+   --verbose         print verbose messages
+   --nCluster        number of taxa that trees must share. Default value is 2.
+   --graphic         output a "dot" file that can be loaded into GraphViz
+   --compressed      output a "dot" file where clusters are shown, rather than individual trees
+
+=head3 Options 
+
+=over 4
+
+=item B<--dir>
+
+A directory which contains tree files.
+
+=item B<--nCluster>
+
+The number of taxa required for trees to "cluster".
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--verbose>
+
+Print verbose messages
+
+=item B<--graphic>
+
+Ouput a "dot" file that can be loaded into GraphViz to produce a graphical representation of the connectivity.
+A key file (key.csv) is also output containing the legend for the graphic
+
+=item B<--compressed>
+
+Large datasets can produce "dot" files too large for neato to produce a graphic. If this is the case, using this
+option produce a graph of "clusters" of trees only, where a node represents a cluster of trees.
+
+=back
+
+C<dir> scans all subdirectories also, apart from those
+excluded by STK.
+
+=head3 Description
+
+B<Check Overlap> checks that trees in a directory have sufficient taxonomic
+overlap to be used as source trees in supertree construction. Each tree must
+contain at least two taxon also contained in another tree (Nixon, 1996). 
+
+Check Overlap checks that a dataset fulfils this criterion. A single "cluster" of
+connected trees is the ideal output as this means all trees share at least two common
+taxa with at least one other tree. The minimum requirement for overlap to occur can be 
+changed to create "more connected" data. Any trees that do not share the minimum number of taxa
+with at least one other tree should be removed fro the dataset. A warning is printed is more
+than one cluster is found.
+
+If more than one cluster is found, you should use the C<--graphic> option to visualise the
+data connectivity. For large datasets, the C<--compressed> flag should also be used. 
+The C<--graphic>> output creates input for GraphViz, a free program that can display the
+overlap graphically. The C<--compressed> flag produces output where "clusters" are 
+represented by nodes. By definition, there will be no edges on this graph.
+Without this flag, each node is a tree, with edges between 
+nodes representing minimal connectivity.
+
+Nixon, K., Carpenter, J., 1996. On simultaneous analysis. 
+Cladistics 12, 221-241. 
+
+
+=head2 Check Substitutions
+
+
+
+=head3 Synopsis
+
+check_substitutions.pl [options]
+
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --file            substitutions file
+   --dir             directory that contains the data
+   --verbose         verbose messages
+   --output          output to file rather than standard out
+
+=head3 Options 
+
+=over 4
+
+=item B<--dir>
+
+A directory of tree and optionally XML files
+
+=item B<--file>
+
+A substitutions file to check
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--verbose>
+
+Print verbose messages
+
+=item B<--output>
+
+File to send output to
+
+=back
+
+You must specify a C<file>. If C<dir> is also specified the taxa within the substitution
+file are checked against the taxa in the dataset. Any taxa in the subs file that are
+not in the data set are flagged.
+
+=head3 Description
+
+B<Check Substitutions> ensures that a substitution file as used in replace_taxa.pl is
+of the correct format. Additionally, if a dataset is specified, it checks the
+substitutions that would be made by replace_taxa.pl are alreday in the data.
+
+For example, if your substitution file contains:
+taxa_1 = fred, foo, bar
+
+taxa_1 would be replaced with a polytomy of fred, foo, bar. Specifying a dataset
+ensures that fred, foo, and bar are in the data - i.e. you are not introducing 
+additional taxa into the dataset. You may B<want> to do this and hence why replace_taxa.pl
+does allow this, but this is generally not a good idea, and this script checks you really
+mean this action.
+
+
+=head2 Clean Data
+
+
+=head3 Synopsis
+
+clean_data.pl [options]
+
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing XML files. Required
+   --dryrun          dry run only
+   --verbose         print verbose messages
+   --output          direct output to file instead of STDOUT
+
+=head3 Options 
+
+=over 4
+
+=item B<--dir>
+
+a directory which contains XML and/or tree files. B<Required>.
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--verbose>
+
+Print verbose messages
+
+=item B<--output> 
+
+Directs output to file instead of STDOUT. If a filename is given, output is directed there, otherwise it is directed
+to error.txt in the c<dir>ectory.
+
+=item B<--dryrun>
+
+Don't delete the directories, but list them instead.
+
+=back
+
+If C<dir> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.
+
+=head3 Description
+
+B<Clean Data> deletes directories within the dataset that contain less than three
+taxa. The check is made on the XML file only. Run the check_data script first
+to ensure your data is as you expect. The script takes care of checking 
+sub-directories of an author/paper directory before deleting the author/paper
+directory.
+
+Note that hidden files (such as those from SVN or CVS) are a problem for the
+last part of this script where empty directories are deleted. If your dataset
+contains hidden files, then the directories will not get deleted.
+
+
+=head2 Create Directories
+
+=head3 Synopsis
+
+create_dirs.pl [options]
+
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             path to the storage dir. Required
+   --verbose         print verbose messages
+   --output          output to a file, rather than standard output
+   --bib             BibTex file. Required
+
+=head3 Options 
+
+=over 4
+
+=item B<--dir>
+
+Path to the storage dir. The database will be created here. B<Required>.
+
+=item B<--bib>
+
+A BibTex file from which directory names and the base XML file will be created. B<Required>.
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--verbose>
+
+Print verbose messages
+
+=back
+
+=head3 Description
+
+The script takes a BibTex file and creates the database structure. The directories will have
+the following format:
+Base_Dir/
+	Author_year/author_year.xml
+	Author2_year/author_year.xml
+	...
+	AuthorN_year/author_year.xml
+
+The XML files will be created with the correct bibliographic metadata, such 
+as journal details and paper titles.
+
+
+=head2 Create Matrix
+
+
+
+=head3 Synopsis
+
+create_matrix.pl [options]
+
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing Tree files. Required
+   --verbose         print verbose messages
+   --output          output MRP file
+   --format          output format. Defaults to Hening86.
+
+=head3 Options 
+
+=over 4
+
+=item B<--dir>
+
+a directory which contains tree files. B<Required>.
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--verbose>
+
+Print verbose messages
+
+=item B<--output>
+
+Output file for MRP matrix. Defaults to Matrix.tnt in C<dir>.
+
+=item B<--format>
+
+Sepcify the output format. Current Nexus and Hening86 are supported. The default is Hening86
+
+=back
+
+If C<dir> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.
+
+=head3 Description
+
+B<Create Matrix> creates an MRP matrix from all tree files contained in a directory. The script uses 
+standard MRP coding.
+
+The script is  based on that of Bininda-Emonds et al. (2005), SuperMRP.pl, but there
+is no support for Purvis coding, weights, etc. If you need those, use SuperMRP instead.
+
+=head3 References
+
+Bininda-Emonds, O.R.P., R.M.D. Beck, and A. Purvis. 2005. 
+Getting to the roots of matrix representation. Systematic Biology 54(4):668-672.
+
+
+=head2 Data Independence
+
+
+
+=head3 Synopsis
+
+data_independence.pl [options]
+
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing XML files. Required
+   --verbose         print verbose messages
+
+=head3 Options 
+
+=over 4
+
+=item B<--dir>
+
+a directory which contains XML files. B<Required>.
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--verbose>
+
+Print verbose messages
+
+=back
+
+If C<dir> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.
+
+=head3 Description
+
+B<Data Independence> checks that source data do not actually contain the same data - that is they are
+independent of each other. For supertree construction, the source data must be independent, which for
+current protocols means that they cannot contain the same taxa (or subset
+of taxa) and not use the same data for the analysis. This script checks the taxonomic overlap of each study
+with every other study and if the taxa are the same (or one source set in wholly contained
+within another) checks the original source data. If these are the same, the two source
+studies are flagged as being potentially non-independent. 
+
+Output is a Tab-delimited file which contains the potential non-independencies. This can be loaded into
+Excel or similar. The data is grouped by the type of character used. The final column contains the 
+treefile for each XML file, followed by any potential dependent trees. 
+
+This script requires XML files to function - no XML, no checks.
+
+
+=head2 Data Summary
+
+
+
+=head3 Synopsis
+
+data_summary.pl [options]
+
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing Tree files. Required
+   --taxatreematrix  create data availability matrices
+   --verbose         print verbose messages
+   --output          output to a file, rather than standard output
+
+=head3 Options 
+
+=over 4
+
+=item B<--dir>
+
+A directory which contains XML/Tree files. B<Required>.
+
+=item B<--taxatreematrix>
+
+Create two file which allow data availability plots to be created.
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--verbose>
+
+Print verbose messages
+
+=item B<--output>
+
+Write the data summary to file, rather than standard output. Defaults to C<data_summary.txt> in C<dir>.
+
+=back
+
+If C<dir> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.
+
+=head3 Description
+
+B<Data Summary> chreates a summary of data generated from both tree and XML files which
+is useful when writing manuscripts. Statistics such as the number of trees, the characters 
+used, the taxa included, etc are output.
+
+Note that the output depends on whether XML I<and> Tree file are found, or just Tree files.
+The aim is to generate the data usually found in paper (e.g. we used 100 trees, from 185 papers, 
+containing 500 taxa).
+
+There is an assumption here that the XML and Treefiles live in the same directory. Therefore,
+specify tha topmost directory where both can be reached. This won't work where, for example,
+there are two directories containing treefiles and there's one directory containing XML files
+underneath them, e.g.
+ data_dir/
+    tree_original/
+    tree_processed/
+    xml_files/
+
+Supplying C<data_dir> will not work correctly.  
+
+The C<--taxatreematrix> flag creates two additional files in the C<data_dir>:
+data_availability_matrix.txt
+taxa_tree_matrix.txt
+
+These two files allow visualisation of the data. The former is comparable to the
+popular visualisation of the data availability in molecular studies where
+genes are plotted against species, with the speices sampled by many genes
+occur at the origin and they are ranked by the number of genes available. The latter
+file keeps the order of the trees and the taxa (alphabetical in both cases). This allows
+individual trees or taxa to be identified. A simple plotting script can be used to
+visualise these files.
+
+
+=head2 Fix Treefiles
+
+
+
+=head3 Synopsis
+
+fix_treefiles.pl [options]
+
+
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing Tree files to fix
+   --file            a file to fix
+   --verbose         print verbose messages
+
+=head3 Options 
+
+=over 4
+
+=item B<--dir>
+
+A directory which contains tree files that require fixing.
+
+=item B<--file>
+
+A file to fix.
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--verbose>
+
+Print verbose messages
+
+=back
+
+If C<dir> is specified all subdirectories will also be scanned, apart from those
+excluded by STK
+
+
+=head3 Description
+
+B<Fix Treefiles> is a simple script to fix some common problems with tree files created
+using various programs. 
+
+TreeView (Page, 1996):
+TreeView create a tree with the following description:
+
+ UTREE * tree_1 = ((1,(2,(3,(4,5)))),(6,7));
+
+UTREE * is not a supported part of the NEXUS format (as far as Bio::NEXUS
+(Hladish et. al., 2007) is concerned). stk_check_data.pl will report a formatting error with
+a file like this, so this script will fix this by replacingthe above with:
+
+ tree_1 = [&u] ((1,(2,(3,(4,5)))),(6,7));
+
+TNT (Goloboff et al, 2008):
+Outputed NEXUS tree files from TNT contain "begin trees ;" with a space bewteen the "trees" and
+the ";". Bio::NEXUS does not recognise this as the begining of a tree block and skips
+all the trees. stk_check_data.pl will pick this error up, removing the space.
+
+The script works on either a file or directory.
+
+=head3 References
+
+Goloboff, P. A. and Farris, J. S. and Nixon, K. C., 2008.
+TNT, a free program for phylogenetic analysis. Cladistics 24 (5),
+774-786. DOI: 10.1111/j.1096-0031.2008.00217.x
+
+Hladish, T., Gopalan, V., Liang, C., Qiu, W., Yang, P., Stoltzfus, A., 2007. 
+Bio::Nexus: A Perl API for the Nexus format for comparative biological data. 
+BMC Bioinformatics 8, 191. 
+
+Page, R.D.M., 1996. Treeview: An application to display phylogenetic trees on 
+personal computers. Computer Applications in the Biosciences 12, 357-358. 
+
+
+=head2 Replace Genera
+
+
+
+=head3 Synopsis
+
+stk_replace_genera.pl [options]
+
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing XML/Tree files. Required
+   --verbose         print verbose messages. Sets C<--higher>, but substitutions are done.
+   --higher          print higher taxa to screen. No substitutions will be done.
+   --output          writes substitutions carried out to taxa substituion file (specify). No substitutions will be done.
+
+=head3 Options 
+
+=over 4
+
+=item B<--dir>
+
+a directory which contains tree and/or XML files. B<Required>.
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--verbose>
+
+Print verbose messages
+
+=item B<--higher>
+
+Prints the higher (non-specific) taxa to screen. No substitutions will be done
+
+=item B<--output>
+
+Writes what substitutions will be done by the script to taxa substitution file. The default
+location is the data_directory/generic_subs.txt. This file is in the same file format used 
+in L<STK Replace Taxa>. No substitutions will be done.
+
+=back
+
+If C<dir> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.
+
+=head3 Description
+
+B<Replace Genera> is used when creating trees at specific level following the protocol
+of Davis (2008). Any taxon that are at generic level only are replaced by a polytomy
+of specific names from the rest of the data set.
+
+An example is if a data set contains I<Gallus gallus> and I<Gallus lafayetii> will have
+I<Gallus> replaced where it occurs as a generic taxon with a polytomy containing 
+I<Gallus gallus> and I<Gallus lafayetii>.
+
+There is an assumption here that the XML and Treefiles live in the same directory. Therefore,
+specify the topmost directory where both can be reached. This won't work where, for example,
+there are two directories containing treefiles and there's one directory containing XML files
+underneath them, e.g.
+ data_dir/
+    tree_original/
+    tree_processed/
+    xml_files/
+
+Supplying C<data_dir> will not work correctly. 
+
+Also, make sure that the data is consistant, i.e. run the Data Check script first and make
+sure the data passses.
+
+
+=head2 Replace Taxa
+
+=head3 Synopsis
+
+stk_replace_taxa.pl [options]
+
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory in which replacements should occur 
+   --file            file in which replacments should occur
+   --taxa            file specifying which substitions to carry out            
+   --old             taxon to be replaced
+   --new             the new taxon. May be omitted, in which case old taxon is removed
+   --verbose         verbose messages
+   --reverse         the taxa file will contain taxa to keep with this flag on
+
+One of C<dir> or C<file> is required. One of C<old> or C<taxa> is required.
+
+=head3 Options 
+
+=over 4
+
+=item B<--dir>
+
+A directory which contains tree files that require replacing.
+
+=item B<--file>
+
+The file (tree or XML) which has taxa that require replacing
+
+=item B<--taxa>
+
+A file containing the substitutions to be made. See full documentation for details
+
+=item B<--old>
+
+The old taxa to be replaced. Note that spaces in the taxon name must be replaced with _
+
+=item B<--new>
+
+The new taxa. Note that spaces in the taxon name must be replaced with _. If blank, C<old> will be deleted.
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--verbose>
+
+Print verbose messages
+
+=back
+
+One of C<file> or C<dir> must be specified. Either C<taxa> or C<old> must also be specified. 
+C<new> can be ommitted to replace the original taxon.
+
+=head3 Description
+
+B<Replace Taxa> replaces a single taxon or multiple taxa with either
+another taxon or multiple taxa as a polytomy. Replacement is done
+on both tree files and XML files (if present). If a file is specified
+only that file has the taxa replaced. 
+
+A taxon can be deleted by specifying a blank new taxon.
+
+All taxon names are B<case sensitive>.
+
+Multiple replacements are achieved by supplying a "taxa file". This lists
+"old taxa" and "new taxa" on individual lines in the file, seperated by an "="
+sign. For example:
+ old_taxon = new_taxon
+ old_taxon2 = new_taxon1, new_taxon2, new_taxon3
+ old_taxon3 = 
+
+The first line above does a simple substitution for C<old_taxon> with C<new_taxon>.
+The second line replaces C<old_taxon2> with a polytomy of C<new_taxon1>, C<new_taxon2>
+and, C<new_taxon3> in a tree file and a simple substitution in an XML file. The third line
+removes C<old_taxon3>. Note there are spaces B<either> side of the equals sign. These
+spaces B<must> occur or the file is invalid.
+
+In addition, the underscores (which are required for the tree file) are required here
+also. However, they will be replaced by spaces in the XML file.
+
+The script works on either a single file or directory of files (including subdirectories).
+
+B<Warning>: This script simply overwrites existing data - please back up data before using it.
+
+=head3 Examples
+
+Remove all instances of "MRPOutgroup" from a dataset
+ 
+ perl stk_replace_taxa.pl --dir /home/data/phylogenies --old MRPOutgroup
+
+Replace taxa_1 with taxa_2 within a single tree file
+
+ perl stk_replace_taxa.pl --file /home/data/tree1.tre --old taxa_1 --new taxa_2
+
+
+=head2 Tree Permutation
+
+
+
+=head3 Synopsis
+
+tree_permutation.pl [options]
+
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --file            a file that contains polyphyletic taxa. REQUIRED
+   --verbose         print verbose messages
+   
+=head3 Options 
+
+=over 4
+
+=item B<--file>
+
+a file which contains specially notation for polyphyly 
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--verbose>
+
+Print verbose messages
+
+=back
+
+=head3 Description
+
+B<Tree Permutation> generates multilpe trees based on a single input tree.
+The input tree contains specially noted taxa which are polyphyletic or
+are, perhaps sub-species, which need to be removed.
+
+Taxa are denoted by % symbol at the end of the name.
+
+A single file is output.
+
+
+=head2 Search Data
+
+
+
+=head3 Synopsis
+
+search_data [options]
+
+ Options:
+   --help            brief help message
+   --man             full documentation
+   --dir             directory containing XML or tree files. Required
+   --verbose         print verbose messages
+   --output          direct output to file instead of STDOUT
+   --copy            copy all files resulting from search into a directory
+   --charterm        a character term to search for 
+   --anterm          an analysis term to search for
+   --taxterm         a taxa to search for
+   --anyterm         search for data for a term in either character, analysis, or taxa
+   --fossil          none|all|some
+   --only            restrict results to B<only> containing the search term. Character term only.
+   --year            search for data from a particular year
+
+=head3 Options 
+
+=over 4
+
+=item B<--dir>
+
+a directory which contains XML and/or tree files. B<Required>.
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--verbose>
+
+Print verbose messages
+
+=item B<--output> 
+
+Directs output to file instead of STDOUT.
+If a filename is given, output is directed there, otherwise it is directed
+to results.txt in the C<dir>ectory.
+
+=item B<--copy>
+
+Copy the files that are matched in the search to a new directory. If a directory 
+name is given, the files are copied there. If this directory does not exist
+it is created. If no name is given, the files will be copied into a directory
+called C<seach_results> in C<dir>ectory.
+
+=item B<--charterm>
+
+A character term to search for. Specify multiple C<--charterm>s to perform OR searches
+
+=item B<--anterm>
+
+An analysis term to search for. Specify multiple C<--anterm>s to perform OR searches
+
+=item B<--taxterm>
+
+A taxa to search for. Specify multiple C<--taxterm>s to perform OR searches
+
+=item B<--anyterm>
+
+A term to search for. Specify multiple C<--anyterm>s to perform OR searches.
+This will search all of taxa, characters and analyses.
+
+=item B<--fossil>
+
+Search for either C<none>, C<some> or C<all> fossil-based data. 
+
+=item B<--year>
+
+Search for a particular year. Must be a four digit year.
+
+=back
+
+If C<dir> is specified all subdirectories will also be scanned, apart from those
+excluded by STK.
+
+=head3 Description
+
+B<Search Data> allows the data directory to be searched for taxa, characters or analyses.
+The results can be printed to screen or the Tree/XML files copied into a new directory.
+The executable is useful for extracting subsets of data, for example all source trees 
+generated using molecular data. XML files are required as the searches are carried on
+
+Characters can be specified, e.g. cytb or rag1, or can be generic characters, e.g. Molecular or 
+Morphological.
+
+Taxonomic searches search only taxa contained in the data - this script does not understand
+taxonomy, so search for "Galliformes" will not return any results unless a tree contains a
+terminal node "Galliformes"
+
+All searches are case insensitive. If multilpe terms are searchd an "OR" search will be carried out
+
+=head1 Bio::STK Module
+
+
+=head2 STK - Supertree Tool Kit
+
+=head3 Description
+
+B<STK> is a collection of tools to prepare data ready for supertree 
+contruction with PAUP* or similar. It relies on a file-based database
+based on tree and XML files. Functions include finding all tree files,
+xml files and summarising data. STK also comes with a number of scripts
+ready for use.
+
+=head3 Requires
+
+Perl 5.004, XML::Simple, Bio::NEXUS, File::Find, Carp, File::Copy;
+
+=head3 Feedback
+
+All feedback (bugs, feature enhancements, etc.) are all greatly appreciated. 
+
+=head3 Authors
+
+Jon Hill (jon.hill@imperial.ac.uk) and Katie Davis (katie.davis@oum.ox.ac.uk)
+
+=head3 Methods
+
+=cut
+
+package Bio::STK;
+
+use strict;
+use XML::Simple;
+use File::Find;
+use File::Spec::Functions;
+use File::Copy;
+use Bio::NEXUS;
+use Carp;
+
+use vars qw($VERSION $AUTOLOAD);
+$VERSION = "0.1.2";
+
+use constant {
+    MOLECULAR     => 'Molecular',
+    MORPHOLOGICAL => 'Morphological',
+    BEHAVIOURAL   => 'Behavioural',
+    OTHER         => 'Other',
+};
+
+our @character_types;
+$character_types[0] = "Molecular";
+$character_types[1] = "Morphological";
+$character_types[2] = "Behavioural";
+$character_types[3] = "Other";
+
+our @_files;    
+
+=head4 find_tree_files
+
+ Title   : find_tree_files
+ Usage   : my @files = Bio::STK::find_tree_files($dir);
+ Function: Finds all tree files in specified directory and all sub-directories
+ Returns : Array of complete filenames
+ Args    : $dir, else croaks.
+ 
+=cut
+
+sub find_tree_files {
+
+    my ($dir) = @_;
+    undef @_files;
+
+        if ( -d $dir ) {
+        find( \&Bio::STK::_find_trees, $dir );
+    }
+    else {
+        croak("Error - specified directory does not exist: $dir\n");
+    }
+
+    @_files = sort @_files;
+    return @_files;
+
+}
+
+=head4 find_xml_files
+
+ Title   : find_xml_files
+ Usage   : my @files = Bio::STK::find_xml_files($dir);
+ Function: Finds all XML files in specified directory and all sub-directories
+ Returns : Array of complete filenames
+ Args    : $dir, else croaks.
+
+=cut
+
+sub find_xml_files {
+
+    my ($dir) = @_;
+    undef @_files;
+
+        if ( -d $dir ) {
+        find( \&Bio::STK::_find_xml, $dir );
+    }
+    else {
+        croak("Error - specified directory does not exist: $dir\n");
+    }
+
+    @_files = sort @_files;
+    return @_files;
+
+}
+
+=head4 read_tree_file
+
+ Title   : read_tree_file
+ Usage   : my $tree = read_tree_file($file);
+ Function: Reads in a correctly formatted NEXUS tree file
+ Returns : An array of Newick tree formatted strings;
+ Args    : $file, else croaks.
+
+=cut
+
+sub read_tree_file {
+
+    my ($file) = @_;
+
+        my $nexus = _load_nexus($file);
+
+    my @trees = _get_tree_array($nexus);
+
+    return @trees;
+
+}
+
+=head4 read_xml_file
+
+ Title   : read_xml_file
+ Usage   : my $xml = read_xml_file($file);
+ Function: Reads in an XML file
+ Returns : The data structure from XML::Simple
+ Args    : $file, else croaks. 
+
+A sample data structure is:
+
+ 'Notes' => [
+           '2,430bp of the mitochondrial genes ND2, ND3 and cyt b.'
+         ],
+ 'Analysis' => [
+              {
+                'Type' => [
+                            'MP'
+                          ]
+              }
+            ],
+ 'Characters' => [
+                {
+                  'Other' => [
+                               {}
+                             ],
+                  'Behavioural' => [
+                                     {}
+                                   ],
+                  'Morphological' => [
+                                       {}
+                                     ],
+                  'Molecular' => [
+                                   {
+                                     'Type' => [
+                                                 'cytb',
+                                                 'ND2',
+                                                 'ND3'
+                                               ],
+                                     'number' => '3'
+                                   }
+                                 ]
+                }
+              ],
+ 'Taxa' => [
+          {
+            'List' => [
+                        'Campylorhamphus falcularius',
+                        'Campylorhamphus procurvoides',
+                        'Campylorhamphus trochilirostris',
+                        'Dendrexetastes rufigula',
+                        'Dendrocolaptes certhia',
+                        'Glyphorynchus spirurus',
+                        'Hylexetastes perrotii',
+                        'Lepidocolaptes albolineatus',
+                        'Lepidocolaptes angustirostris',
+                        'Lepidocolaptes fuscus',
+                        'Nasica longirostris',
+                        'Sittasomus griseicapillus',
+                        'Xiphocolaptes promeropirhynchus',
+                        'Xiphorhynchus erythropygius',
+                        'Xiphorhynchus flavigaster',
+                        'Xiphorhynchus guttatus',
+                        'Xiphorhynchus kienerii',
+                        'Xiphorhynchus lachrymosus',
+                        'Xiphorhynchus obsoletus',
+                        'Xiphorhynchus ocellatus',
+                        'Xiphorhynchus pardalotus',
+                        'Xiphorhynchus picus',
+                        'Xiphorhynchus spixii',
+                        'Xiphorhynchus susurrans',
+                        'Xiphorhynchus triangularis'
+                      ],
+            'number' => '25',
+            'fossil' => 'none'
+          }
+        ],
+ 'Source' => [
+            {
+              'Year' => [
+                          '2000'
+                        ],
+              'Publisher' => [
+                               {}
+                             ],
+              'Volume' => [
+                            '119'
+                          ],
+              'Editor' => [
+                            {}
+                          ],
+              'Pages' => [
+                           '621-640'
+                         ],
+              'Booktitle' => [
+                               {}
+                             ],
+              'Journal' => [
+                             'Auk'
+                           ],
+              'Title' => [
+                           'Molecular systematics and the role of the "Varzea"-"Terra-firme" ecotone in
+ the diversification of Xiphorhynchus woodcreepers (Aves: Dendrocolaptidae).'
+                         ],
+              'Author' => [
+                            'Bar, A.'
+                          ]
+            }
+          ],
+ 'TreeFile' => [
+              'tree1.tre'
+            ]
+
+You can access by using structures like this: C<@{$xml_contents->{Taxa}->[0]->{List}}>.
+
+=cut
+
+sub read_xml_file {
+
+    my ($file) = @_;
+
+        unless ( -e $file ) {
+        croak("Error - specified XML file does not exist: $file\n");
+    }
+    return XMLin( $file, ForceArray => 1 );
+
+}
+
+=head4 save_tree_file
+
+ Title   : save_tree_file
+ Usage   : save_tree_file($treefile, \@tree_string, \@tree_names);
+ Function: Save an array of tree strings to file. Will overwrite any existing file without checking
+ Returns : 1 if sucessful, 0 if not. CHECK THIS
+ Args    : $treefile, @tree_string, @tree_names
+
+This function does not check if the treefile already exists - this is the responsibility of
+the calling program. 
+
+=cut
+
+sub save_tree_file {
+
+    my $file  = shift;
+    my $trees = shift;
+    my $names = shift;
+
+    my $nexus_obj = _create_nexus_object( $trees, $names );
+    my $t = $nexus_obj->get_block('Trees')->get_trees;
+
+        foreach my $tree ( @{$t} ) {
+        foreach my $node ( @{ $tree->get_nodes } ) {
+            if ( !$node->is_otu() ) {
+                $node->set_name('');
+            
+            }
+        }
+    }
+
+                open my $fh, ">$file" or die "Error saving tree file to $file: $!";
+    close $fh;
+    $nexus_obj->write($file);
+    return 1;
+
+}
+
+
+=head4 save_tree_newick
+
+ Title   : save_tree_newick
+ Usage   : save_tree_newick($treefile, \@tree_string, \@tree_names)
+ Function: Save an array of tree strings to file. Will overwrite any existing file without checking
+ Returns : 1 if sucessful, 0 if not. CHECK THIS
+ Args    : $treefile, \@tree_string, \@tree_names
+
+This function does not check if the treefile already exists - this is the responsibility of
+the calling program. The purpose of this function is to save a tree file in "raw" Newick format, 
+i.e. without any other BLOCKS apart from TREE. This is the simplist form of the treefile and hence
+the most compatible with other software.
+
+=cut
+
+sub save_tree_newick {
+
+      
+  my $file  = shift;
+  my $trees = shift;
+  my $names = shift;
+
+        open my $fh, ">$file" or die "Error saving tree file to $file: $!";
+ 
+  print $fh "
+  my $i = 0;
+  my $name;
+  foreach my $tree ( @{$trees} ) {
+    if ( !defined $$names[$i] ) {
+      $name = "tree_" . ( $i + 1 );
+    } else {
+      $name = $$names[$i];
+    }
+    
+    print $fh "tree $name = $tree;\n";
+    $i++;
+  }
+ 
+  print $fh "\nEND;\n";
+  close $fh;
+  return 1;
+
+}
+
+
+=head4 save_xml_file
+
+ Title   : save_xml_file
+ Usage   : save_xml_file($xmlfile, $xml_hash);
+ Function: Save a XML hash to file. Will overwrite any existing file without checking
+ Returns : 1 if sucessful, 0 if not. CHECK THIS
+ Args    : $xmlfile, $xml_hash
+
+This function does not check if the xml file already exists - this is the responsibility of
+the calling program.
+
+$xml_hash is the same object as returned by L<read_xml_file>.
+
+=cut
+
+sub save_xml_file {
+
+    my ( $file, $xml_hash ) = @_;
+
+    open my $fh, ">$file" or die "Error saving file to $file: $!";
+    XMLout( $xml_hash, OutputFile => $fh, XMLDecl => 1, RootName => 'Source' );
+    close $fh;
+    return 1;
+}
+
+=head4 read_taxa_file
+
+ Title   : read_taxa_file
+ Usage   : $nSubs = read_taxa_file($taxafile, \@old_taxa, \@new_taxa);
+ Function: Read in a taxa substitution file, populating @old_taxa and @new_taxa.
+ Returns : The number of substitutions.
+ Args    : $taxafile, \@old_taxa, \@new_taxa
+
+old_taxa contains each old taxa, with a corresponding entry in new_taxa, i.e.
+ 
+ old_taxa[0] => new_taxa[0]
+ old_taxa[1] => new_taxa[1]
+ etc
+
+new_taxa will contain a string which is a comma-seperated list of all taxa that should replace
+the old_taxa
+
+=cut
+
+sub read_taxa_file {
+
+    my $file = shift;
+    my $old_taxa = shift;
+    my $new_taxa = shift;
+
+        open( IN, "$file" ) or die "Read_Taxa_File: Can't read file\n";
+    my $line;
+    my $first_one = 0;
+    my $subs = '';
+    my $nSubs = 0;
+    while ( defined( $line = <IN> ) ) {
+        if ( $line =~ m/\s{1,}=\s{1,}/ ) {
+            $nSubs++;
+                        if ($first_one) {
+                push( @{$new_taxa}, $subs );
+            }
+
+                        my @temp_line = split( /\s=\s/ , $line );
+                                    $temp_line[0] =~ s/^\s+//;
+            $temp_line[0] =~ s/\s+$//;
+                                    $temp_line[0] =~ s/'//g;
+                        $temp_line[0] =~ s/(\w*[=\+]\w*)/'$1'/g;
+
+                        $temp_line[1] =~ s/^\s+//;
+            $temp_line[1] =~ s/\s+$//;
+                        $temp_line[1] =~ s/\s*,\s*/,/g;
+                                                $temp_line[1] =~ s/'//g;
+            chomp $temp_line[1];
+            $temp_line[1] =~ s/^\s+//;
+            $temp_line[1] =~ s/\s+$//;
+            $temp_line[1] =~ s/(,|^)(\w*[=\+]\w*)/$1'$2'/g;
+            push( @{$old_taxa}, $temp_line[0] );
+            $subs = $temp_line[1];
+            $first_one = 1;
+        }
+                else {
+                        my $temp_line = $line;
+            chomp $temp_line;
+            $temp_line =~ s/^\s+//;
+            $temp_line =~ s/\s+$//;
+                        if (not $temp_line =~ m/\w/) {
+                next;
+            }
+
+                        $temp_line =~ s/\s*,\s*/,/g;
+                        $temp_line =~ s/(,|^)(\w*[=\+]\w*)/$1'$2'/g;
+                                    if ($subs =~ m/,$/) {
+                $subs .= $temp_line;
+            } else {
+                if ($temp_line =~ m/^,/) {
+                    $subs .= $temp_line;
+                } else {
+                    $subs .= "," . $temp_line;
+                }
+            }
+        }
+    }
+    close IN;
+    push( @{$new_taxa}, $subs );
+
+    return $nSubs;
+}
+
+
+
+=head4 taxa_from_tree
+
+ Title   : taxa_from_tree
+ Usage   : my @taxa = taxa_from_tree($tree);
+ Function: Obtains unique taxa from a tree file or tree string
+ Returns : An array of taxa names or undef if error
+ Args    : $tree, else croaks.
+
+$tree can be a tree file or a NEXUS formatted tree string
+
+=cut
+
+sub taxa_from_tree {
+
+    my ($input) = @_;
+    my @taxlabels;
+    my @_trees;
+
+        my $ret = _file_or_tree($input);
+    if ( $ret == 1 ) {
+        $_trees[0] = $input;
+    }
+    elsif ( $ret == 2 ) {
+        @_trees = Bio::STK::read_tree_file($input);
+    }
+    else {
+
+                return undef;
+    }
+
+                
+    foreach my $tree (@_trees) {
+
+                                        $tree =~ s/\(//g;
+        $tree =~ s/\)//g;
+        $tree =~ s/\:\w+(,|\))/$1/g;
+        $tree =~ s/\:.*//g;
+                $tree =~ s/\s*,\s*/,/g;
+        
+        push( @taxlabels, split( ',', $tree ) );
+    }
+
+    for ( my $i = 0; $i < @taxlabels; $i++ ) {
+        $taxlabels[$i] =~ s/_/ /g;
+    }
+
+            my %saw;
+    undef %saw;
+    @taxlabels = grep( !$saw{$_}++, @taxlabels );
+
+    return @taxlabels;
+
+}
+
+=head4 get_taxa_list
+
+ Title   : get_taxa_list
+ Usage   : get_taxa_list($dir);
+ Function: Gets a list of unique taxa from a directory (and subdirectories) of tree files.
+ Returns : An array of unique names
+ Args    : $dir, else croaks.
+
+=cut
+
+sub get_taxa_list {
+
+    my ($dir) = @_;
+    my @taxa;
+
+    unless ( -d $dir ) {
+        croak("Directory $dir does not exist\n");
+    }
+
+        my @treefiles = Bio::STK::find_tree_files($dir);
+
+    foreach my $file (@treefiles) {
+        push( @taxa, Bio::STK::taxa_from_tree($file) );
+    }
+
+        my %saw;
+    undef %saw;
+    @taxa = grep( !$saw{$_}++, @taxa );
+
+    @taxa = sort(@taxa);
+
+    return @taxa;
+
+}
+
+=head4 taxa_from_xml
+
+ Title   : taxa_from_xml
+ Usage   : my @taxa = taxa_from_xml($input)
+ Function: Gets the taxa containedin XML file or XML hash
+ Returns : An array of strings containing the taxa
+ Args    : $input, else croaks. 
+
+Note that input can be a filename or XML hash.
+
+=cut
+
+sub taxa_from_xml {
+
+    my ($input) = @_;
+    my @taxa;
+
+        my $ret = Bio::STK::_file_or_xml($input);
+    if ( $ret == 1 ) {
+        @taxa = @{ $input->{Taxa}->[0]->{List} };
+    }
+    elsif ( $ret == 2 ) {
+
+                my $xml_contents = read_xml_file($input);
+        if (not defined ( @{ $xml_contents->{Taxa}->[0]->{List} })) {
+	    return undef
+        }
+        @taxa = @{ $xml_contents->{Taxa}->[0]->{List} };
+    }
+    else {
+
+                return undef;
+    }
+
+    return @taxa;
+
+}
+
+=head4 get_analysis
+
+ Title   : get_analysis
+ Usage   : $analysis = get_analysis($xmlfile);
+ Function: Gets the type of analysis used from an XML file
+ Returns : A string containing the type of analysis used
+ Args    : $xmlfile, else croaks.
+
+=cut
+
+sub get_analysis {
+
+    my ($file) = @_;
+    my $xml;
+
+        my $ret = Bio::STK::_file_or_xml($file);
+    if ( $ret == 1 ) {
+        $xml = $file;
+    }
+    elsif ( $ret == 2 ) {
+
+                $xml = read_xml_file($file);
+    }
+    else {
+        return undef;
+    }
+
+    return $xml->{Analysis}->[0]->{Type}->[0];
+
+}
+
+=head4 get_year
+
+ Title   : get_year
+ Usage   : $year = get_year($xmlfile);
+ Function: Gets the year from the bibliographic data
+ Returns : An integer containing the year the data were published
+ Args    : $xmlfile, else croaks.
+
+=cut
+
+sub get_year {
+
+    my ($file) = @_;
+    my %xml;
+
+        %xml = get_source_data($file);
+
+    return $xml{'year'};
+
+}
+
+
+=head4 get_source_data
+
+ Title   : get_source_data
+ Usage   : %source = get_source_data($xmlfile);
+ Function: Gets the tsource information from an XML file
+ Returns : A hash containing the source information (journal, title, etc)
+ Args    : $xmlfile, else croaks. 
+
+The output from get_source_data returns a Hash with the following structure:
+
+ my %expected = (year => '2000',
+                volume => '119',
+                pages => '621-640',
+                journal => 'Auk',
+                title => 'Molecular systematics and the role of the "Varzea"-"Terra-firme" ecotone in the diversification of Xiphorhynchus woodcreepers (Aves: Dendrocolaptidae).',
+                author => 'Bar, A.',
+                booktitle => 'Some title',
+                editor => 'Some editors',
+                publisher => 'Some publisher',
+                );
+
+Access as a normal Hash.
+
+=cut
+
+sub get_source_data {
+
+    my ($input) = @_;
+    my %source_data;
+
+    my $xml_contents;
+
+        my $ret = Bio::STK::_file_or_xml($input);
+    if ( $ret == 1 ) {
+        $xml_contents = $input;
+    }
+    elsif ( $ret == 2 ) {
+
+                $xml_contents = read_xml_file($input);
+    }
+    else {
+        return undef;
+    }
+
+                if ( ref( $xml_contents->{Source}->[0]->{Title}->[0] ) ne "HASH" ) {
+        $source_data{'title'} = $xml_contents->{Source}->[0]->{Title}->[0];
+    }
+    if ( ref( $xml_contents->{Source}->[0]->{Year}->[0] ) ne "HASH" ) {
+        $source_data{'year'} = $xml_contents->{Source}->[0]->{Year}->[0];
+    }
+    if ( ref( $xml_contents->{Source}->[0]->{Publisher}->[0] ) ne "HASH" ) {
+        $source_data{'publisher'} =
+            $xml_contents->{Source}->[0]->{Publisher}->[0];
+    }
+    if ( ref( $xml_contents->{Source}->[0]->{Volume}->[0] ) ne "HASH" ) {
+        $source_data{'volume'} = $xml_contents->{Source}->[0]->{Volume}->[0];
+    }
+    if ( ref( $xml_contents->{Source}->[0]->{Editor}->[0] ) ne "HASH" ) {
+        $source_data{'editor'} = $xml_contents->{Source}->[0]->{Editor}->[0];
+    }
+    if ( ref( $xml_contents->{Source}->[0]->{Pages}->[0] ) ne "HASH" ) {
+        $source_data{'pages'} = $xml_contents->{Source}->[0]->{Pages}->[0];
+    }
+    if ( ref( $xml_contents->{Source}->[0]->{Booktitle}->[0] ) ne "HASH" ) {
+        $source_data{'booktitle'} =
+            $xml_contents->{Source}->[0]->{Booktitle}->[0];
+    }
+    if ( ref( $xml_contents->{Source}->[0]->{Journal}->[0] ) ne "HASH" ) {
+        $source_data{'journal'} = $xml_contents->{Source}->[0]->{Journal}->[0];
+    }
+    if ( ref( $xml_contents->{Source}->[0]->{Author}->[0] ) ne "HASH" ) {
+        $source_data{'author'} = $xml_contents->{Source}->[0]->{Author}->[0];
+    }
+
+    return %source_data;
+
+}
+
+=head4 get_treefile
+
+ Title   : get_treefile
+ Usage   : get_treefile($xmlfile);
+ Function: Get the tree files that this XML file is for
+ Returns : A string containing the B<relative> path of the tree file
+ Args    : $xmlfile, else croaks. 
+
+=cut
+
+sub get_treefile {
+
+    my ($input) = @_;
+    my $treefile;
+
+    my $xml_contents;
+
+        my $ret = Bio::STK::_file_or_xml($input);
+    if ( $ret == 1 ) {
+        $xml_contents = $input;
+    }
+    elsif ( $ret == 2 ) {
+
+                $xml_contents = read_xml_file($input);
+    }
+    else {
+        return undef;
+    }
+
+    $treefile = $xml_contents->{TreeFile}->[0];
+
+    return $treefile;
+}
+
+=head4 get_characters
+
+ Title   : get_characters
+ Usage   : get_characters($xmlfile);
+ Function: Get the chracters used in this analysis
+ Returns : A Hash containing the character types
+ Args    : $xmlfile, else croaks.
+
+The output from get_characters returns a Hash with the following structure:
+
+ my %expected = (Molecular => [ "cytb", "ND2", "ND3" ],
+                Morphological => [ "feathers" ],
+                Other => [ "stuff" ],
+                Behavioural => [ "stuff", "more stuff" ],
+                );
+
+Access as a normal Hash and then array notation, i.e. C<$expected{molecular}[2]>;
+
+=cut
+
+sub get_characters {
+
+    my ($file) = @_;
+    my $xml_contents;
+
+    my %characters;
+
+    my $ret = Bio::STK::_file_or_xml($file);
+    if ( $ret == 1 ) {
+        $xml_contents = $file;
+    }
+    elsif ( $ret == 2 ) {
+
+                $xml_contents = read_xml_file($file);
+    }
+    else {
+        return undef;
+    }
+
+        for my $type (@character_types) {
+        if (defined(
+                $xml_contents->{Characters}->[0]->{$type}->[0]->{'number'}
+            )
+            )
+        {
+            $characters{$type} =
+                $xml_contents->{Characters}->[0]->{$type}->[0]->{'Type'};
+        }
+    }
+
+    return %characters;
+
+}
+
+
+=head4 check_tree_file
+
+ Title   : check_tree_file
+ Usage   : check_tree_file($file);
+ Function: Test that a tree file is a valid NEXUS file
+ Returns : 1 on success, 0 on failure - REMEMBER TO CHECK THIS!
+ Args    : $file, else croaks.
+
+=cut
+
+sub check_tree_file {
+
+    my ($file) = @_;
+    my @tree_loaded;
+
+    unless ( -e $file ) {
+        croak("File $file not found\n");
+    }
+
+    eval { @tree_loaded = Bio::STK::read_tree_file($file); };
+
+    if (@tree_loaded) {
+        return 1;
+    }
+
+    return 0;
+
+}
+
+
+=head4 replace_taxon_tree
+
+ Title   : replace_taxon_tree
+ Usage   : replace_taxon_tree(\@treeString, $old_taxon, \@new_taxa);
+ Function: Swap a taxon in a tree with a new one within an array of tree strings. Leave new_taxon blank to remove old_taxon
+ Returns : 1 on success, 0 on failure. \@treeString contains new array of trees
+ Args    : \@treeString, $old_taxon, \@new_taxa. new_taxa may be null, in which case old_taxon is removed.
+           @new_taxon is an array of names - if this is longer than 1 element, then the old_taxon is
+           replaced with a polytomy
+ 
+Note that this function uses "pass by reference" - remember to add the slashes
+
+=cut
+
+sub replace_taxon_tree {
+
+    my $treeStrings = shift;
+    my $old_taxon   = shift;
+    my $new_taxa    = shift;
+
+        $old_taxon =~ s/ /_/g;
+    
+    if ( defined($new_taxa) ) {
+        for ( my $i = 0; $i < @$new_taxa; $i++ ) {
+            $$new_taxa[$i] =~ s/ /_/g;
+        }
+    }
+
+
+    if ( !defined $$new_taxa[0] ) {
+
+                        my $nexus = _create_nexus_object($treeStrings);
+        my $t_old_taxon = $old_taxon;
+
+        $t_old_taxon =~ s/'//g;
+        {
+                                    $SIG{__WARN__} = sub {};
+            $nexus = $nexus->exclude_otus( [$t_old_taxon] );
+            $SIG{__WARN__} = 'DEFAULT';
+        }
+        @{$treeStrings} = _get_tree_array($nexus);
+
+
+    } else {
+
+                
+                my %seen = ();
+        @$new_taxa = grep { ! $seen{$_} ++ } @$new_taxa;
+
+                my $length = @$new_taxa;
+
+        my $i = 0;
+                        foreach my $tree ( @{$treeStrings} ) {
+                        $$treeStrings[$i] =~ s/\s*,\s*/,/g;
+
+                        my $new_string = "";
+            foreach my $taxon (@$new_taxa) {
+                unless ( Bio::STK::tree_contains( $taxon, $$treeStrings[$i] ) )
+                {
+                    $new_string = $new_string . "," . $taxon;
+                }
+            }
+	        
+                        if ( length($new_string) > 1 ) {
+                $new_string = substr( $new_string, 1 );
+            }
+            if ( length($new_string) == 0 ) {
+                my $nexus = _create_nexus_object([$$treeStrings[$i]]);
+                                my $t_old_taxon = $old_taxon;
+                $t_old_taxon =~ s/'//g;
+                {
+                                                            $SIG{__WARN__} = sub {};
+                    $nexus = $nexus->exclude_otus( [$t_old_taxon] );
+                    $SIG{__WARN__} = 'DEFAULT';
+                }
+                my @output = _get_tree_array($nexus);
+                $$treeStrings[$i] = $output[0];
+            } else {
+                                                my $replace = quotemeta $old_taxon;
+                $$treeStrings[$i] =~ s/(\(|,)$replace(\)|,)/$1$new_string$2/;
+            }
+            $i++;
+        }
+    }
+
+    return 1;
+
+}
+
+=head4 delete_taxa
+
+ Title   : delete_taxa
+ Usage   : delete_taxa(\@treeString, \@to_delete);
+ Function: Remove multilple taxa from a tree
+ Returns : 1 on success, 0 on failure. \@treeString contains new array of trees
+ Args    : \@treeString, \@to_delete
+           \@treeString is a reference to an array of tree strings
+           \@to_delete is an array of names
+ 
+Note that this function uses "pass by reference" - remember to add the slashes
+
+=cut
+
+sub delete_taxa {
+
+    my $treeStrings = shift;
+    my $old_taxa   = shift;
+
+    my @to_delete;
+
+        foreach my $taxon (@{$old_taxa}) {
+        $taxon =~ s/ /_/g;
+        push @to_delete, $taxon;
+
+    }
+            my $nexus = _create_nexus_object($treeStrings);
+    {
+                        $SIG{__WARN__} = sub {};
+        $nexus = $nexus->exclude_otus( \@to_delete );
+        $SIG{__WARN__} = 'DEFAULT';
+    }
+    @{$treeStrings} = _get_tree_array($nexus);
+
+    return 1;
+
+}
+
+=head4 replace_taxon_xml
+
+ Title   : replace_taxon_xml
+ Usage   : replace_taxon_xml($xml_data, $old_taxon, @new_taxon);
+ Function: Swap a taxon in a XML data structure with a new one. Leave new_taxon blank to remove old_taxon
+ Returns : 1 on success, 0 on failure. $xml_data is altered.
+ Args    : $xml_data, $old_taxon, @new_taxon. new_taxon may be null, in which case old_taxon is removed.
+           @new_taxon is an array of names - if this is longer than 1 element, then the old_taxon is
+           replaced with a polytomy
+
+=cut
+
+
+sub replace_taxon_xml {
+
+    my ( $xml, $old_taxon, @new_taxon ) = @_;
+
+    my @taxa = @{ $xml->{Taxa}->[0]->{List} };
+        
+    my $i = 0;
+
+        $old_taxon =~ s/_/ /g;
+        $old_taxon =~ s/'//g;
+    $old_taxon = quotemeta $old_taxon;
+    foreach my $taxon (@taxa) {
+                $taxon =~ s/'//g;  
+        if ( $taxon =~ m/^$old_taxon$/ ) {
+
+                        splice @taxa, $i, 1;
+            $i--;
+        }
+        $i++;
+    }
+
+        if ( defined $new_taxon[0] ) {
+
+                my %seen = ();
+        @new_taxon = grep { ! $seen{$_} ++ } @new_taxon;
+
+                foreach my $taxon (@new_taxon) {
+            $taxon =~ s/_/ /g; 
+            $taxon =~ s/'//g; 
+            my @found = grep(/^$taxon$/,@taxa);
+                        if ( @found == 0) {
+                push @taxa, $taxon; 
+            }
+        }
+    }
+
+    @{ $xml->{Taxa}->[0]->{List} } = @taxa;
+
+        my $nTaxa = @{ $xml->{Taxa}->[0]->{List} };
+    $xml->{Taxa}->[0]->{number} = $nTaxa;
+
+    return 1;
+}
+
+=head4 tree_equals
+
+ Title   : tree_equals
+ Usage   : tree_equals($tree1, $tree2);
+ Function: Compare tree1 to tree2 and test for equality
+ Returns : 1 if equal, 0 if not. CHECK THIS
+ Args    : $tree1, $tree2 - both NEWICK formatted strings.
+
+=cut
+
+sub tree_equals {
+
+    my ( $tree1, $tree2 ) = @_;
+
+    my @t1;
+    my @t2;
+
+    $t1[0] = $tree1;
+    $t2[0] = $tree2;
+
+    my $nexus1 = _create_nexus_object( \@t1 );
+    my $nexus2 = _create_nexus_object( \@t2 );
+
+    my $treesblock_1 = $nexus1->get_block('trees');
+    my $treesblock_2 = $nexus2->get_block('trees');
+
+    if ( $treesblock_1->equals($treesblock_2) ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+
+}
+
+
+=head4 tree_contains
+
+ Title   : tree_contains
+ Usage   : tree_contains($taxon,$tree_data);
+ Function: Check if $tree_data contains $taxon. Case insensitive. Accounts for _ or spaces in name
+ Returns : 1 if it does, 0 if not. CHECK THIS
+ Args    : $taxon, $tree_data
+
+Note that $tree_data can be a tree file or a tree string
+
+=cut
+
+sub tree_contains {
+
+    my ( $taxon, $input ) = @_;
+
+    $taxon =~ s/_/ /g;
+    $taxon = quotemeta $taxon;
+    my @taxa = Bio::STK::taxa_from_tree($input);
+
+    foreach my $t (@taxa) {
+        if ( $t =~ m/^$taxon$/ ) {
+            return 1;
+        }
+
+    }
+
+    return 0;
+}
+
+
+=head4 xml_from_year
+
+ Title   : xml_from_year
+ Usage   : xml_from_year($year,$xml_file);
+ Function: Check if $xml_file is from $year.
+ Returns : 1 if it does, 0 if not. CHECK THIS
+ Args    : $year, $xml_file
+
+$xml_file can be a file or XML data structure
+
+=cut
+
+sub xml_from_year {
+
+    my ( $year, $input ) = @_;
+
+    if ($year < 1500 or $year > 3000) {
+        return 0;
+    }
+
+    my $year_from_file = Bio::STK::get_year($input);
+
+    if ($year_from_file == $year) {
+        return 1;
+    }
+    return 0;
+}
+
+
+=head4 xml_contains_taxon
+
+ Title   : xml_contains_taxon
+ Usage   : xml_contains_taxon($taxon,$xml_file);
+ Function: Check if $xml_file contains $taxon. Case insensitive. Accounts for _ or spaces in name
+ Returns : 1 if it does, 0 if not. CHECK THIS
+ Args    : $taxon, $xml_file
+
+$xml_file can be a file or XML data structure
+
+=cut
+
+sub xml_contains_taxon {
+
+    my ( $taxon, $input, $partial ) = @_;
+
+        unless (defined $partial) {
+        $partial = 0;
+    }
+    $taxon =~ s/ /_/g;
+    $taxon =~ s/'//g;
+    my @taxa = taxa_from_xml($input);
+    $taxon = quotemeta $taxon;
+
+    if ($partial) {
+        foreach my $t (@taxa) {
+            $t =~ s/'//g;
+            $t =~ s/ /_/g;
+            if ( $t =~ m/(_|^)$taxon(_|$)/) {
+                return 1;
+            }
+        }
+    } else {
+        foreach my $t (@taxa) {
+            $t =~ s/'//g;
+            $t =~ s/ /_/g;
+            if ( $t =~ m/^$taxon$/) {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+=head4 xml_contains_analysis
+
+ Title   : xml_contains_analysis
+ Usage   : xml_contains_analysis($analysis,$xml);
+ Function: Check if $xml contains $analysis
+ Returns : 1 if it does, 0 if not. CHECK THIS
+ Args    : $analysis, $xml
+
+$xml can be a file or XML data structure
+
+=cut
+
+sub xml_contains_analysis {
+
+    my ( $analysis, $input ) = @_;
+
+    my @analyses = Bio::STK::get_analysis($input);
+
+    foreach my $a (@analyses) {
+        if ( $a =~ m/$analysis/i ) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+=head4 xml_contains_character
+
+ Title   : xml_contains_character
+ Usage   : xml_contains_character($character,$xml,$only);
+ Function: Check if $xml contains $character
+ Returns : 1 if it does, 0 if not. CHECK THIS
+ Args    : $character, $xml
+
+$xml can be a file or XML data structure. C<$character> can be a specific charater type, e.g. 'cytb' or
+can be one of "Molecular", "Morphological", "Behavioural" or "Other".
+
+=cut
+
+sub xml_contains_character {
+
+    my ( $c, $input ,$only ) = @_;
+
+    my $found = 0;
+    my %characters = Bio::STK::get_characters($input);
+
+        if (grep {/$c/i} @character_types) {
+                for my $type (@character_types) {
+            if ( $c =~ m/^$type$/i ) {
+                if ( defined(${ $characters{$type} }[0]) ) {
+                    $found++;
+                }
+            }
+        }
+                        if ($only and $found > 0) {
+            for my $type (@character_types) {
+                if ( $c !~ m/^$type$/i ) {
+                    if ( defined(${ $characters{$type} }[0]) ) {
+                        $found++;
+                    }
+                }
+            }
+        } 
+    } else {
+
+                        for my $type (@character_types) {
+            for my $m ( @{ $characters{$type} } ) {
+                if ( $c =~ m/$m/i ) {
+                    $found++;
+                }
+            }
+        }
+                if ($only and $found > 0) {
+            for my $type (@character_types) {
+                for my $m ( @{ $characters{$type} }) { 
+                    if ( $c !~ m/$m/i ) {
+                        $found++;
+                    }
+                }
+            }
+        }
+    }
+
+    if ($only) {
+        if ($found == 1) {
+            return 1;
+        }
+    } else {
+        if ($found > 0) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+=head4 contains_data
+
+ Title   : contains_data
+ Usage   : contains_data(\@data,$xml)
+ Function: Check if $xml contains $data. $data is case insensitive, but spaces in taxa names are not accounted for
+ Returns : 1 if it does, 0 if not. CHECK THIS
+ Args    : $data, $xml
+ 
+C<$data> is a string or array of strings containing the data to be searched for within the C<$xml>. C<$data> can be one of:
+
+=over 4
+
+=item Characters
+=item Analysis
+=item Taxa
+
+=back
+
+If C<$data> is an array an OR search is carried out.
+
+C<$xml> can be either a XML has (from read_xml_file) or a file name.
+
+=cut
+
+sub contains_data {
+
+    my $needle = shift;
+    my $input  = shift;
+    my $xml;
+
+                    my $ret = Bio::STK::_file_or_xml($input);
+    if ( $ret == 1 ) {
+        $xml = $input;
+    }
+    elsif ( $ret == 2 ) {
+
+                $xml = read_xml_file($input);
+    }
+    else {
+        return undef;
+    }
+
+        for my $taxon ( @{$needle} ) {
+        if ( Bio::STK::xml_contains_taxon( $taxon, $xml ) ) {
+            return 1;
+        }
+    }
+
+        for my $analysis ( @{$needle} ) {
+        if ( Bio::STK::xml_contains_analysis( $analysis, $xml ) ) {
+            return 1;
+        }
+    }
+
+        for my $char ( @{$needle} ) {
+        if ( Bio::STK::xml_contains_character( $char, $xml ) ) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+=head4 contains_fossils
+
+ Title   : contains_fossils
+ Usage   : contains_fossils($xmlfile);
+ Function: Tests if XML file contains fossil taxa
+ Returns : 0 - no fossils, 1 all fossils, 2 mixed, -1 incorrect info
+ Args    : $xmlfile, else croaks. 
+
+=cut
+
+sub contains_fossils {
+
+    my ($input) = @_;
+
+    my $xml_contents;
+
+        my $ret = Bio::STK::_file_or_xml($input);
+    if ( $ret == 1 ) {
+        $xml_contents = $input;
+    }
+    elsif ( $ret == 2 ) {
+
+                $xml_contents = read_xml_file($input);
+    }
+    else {
+        return undef;
+    }
+
+    my $fossils = $xml_contents->{Taxa}->[0]->{fossil};
+
+    if ( $fossils =~ m/none/i ) {
+        return 0;
+    }
+    elsif ( $fossils =~ m/all/i ) {
+        return 1;
+    }
+    elsif ( $fossils =~ m/some/i ) {
+        return 2;
+    }
+    else {
+        return -1;
+    }
+
+}
+
+sub in_polytomy {
+
+    my ( $taxon, $tree ) = @_;
+
+    $taxon =~ s/ /_/g;
+    if ($tree =~ m/\w+,$taxon,\w+(,|\))/ or
+        $tree =~ m/$taxon,\w+,\w+(,|\))/ or
+        $tree =~ m/\w+,\w+,$taxon(,|\))/) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+
+=head4 get_short_study_name
+
+ Title   : get_short_study_name
+ Usage   : get_short_study_name(@xmlFileList);
+ Function: Return a unique (for the dataset defined by the input array) name for a source tree study
+ Returns : A linked list containing files (key) and the short name (value)
+ Args    : @xmlfile
+
+Call this function before the main loop over XML files to generate the short name. You can then use
+the resulting hash to grab the short name for whichever file you're currently dealing with.
+
+=cut
+
+sub get_short_study_name {
+
+    my @xml_files = @_;
+    my %short_names;
+    my $last_author = '';
+    my $last_title  = '';
+    my $last_year   = '';
+    my $year_a      = 'a';
+    my $need_letter = 0;
+    my $i = 0;
+
+    for my $file (@xml_files) {
+
+        	        my $xml = read_xml_file($file);
+        my $author = $xml->{Source}->[0]->{Author}->[0];
+        my $year   = $xml->{Source}->[0]->{Year}->[0];
+        my $title  = $xml->{Source}->[0]->{Title}->[0];
+
+                my $y = $year;
+        my $t = $title;
+        my $a = $author;
+
+        $a = _author_munge($a,$y);
+
+        $year_a = 'a';
+
+                        for (my $j=$i-1; $j>=0; $j--) {
+            my $xml_ = read_xml_file($xml_files[$j]);
+            my $author_ = $xml_->{Source}->[0]->{Author}->[0];
+            my $year_   = $xml_->{Source}->[0]->{Year}->[0];
+            my $title_  = $xml_->{Source}->[0]->{Title}->[0];
+            my $a_ = _author_munge($author_, $year_);     
+              
+            if (   $year eq $year_
+                && $a eq $a_
+                && $title ne $title_ )
+            {
+                
+                                if ($year_a eq 'a') {
+                    if (substr($short_names{$xml_files[$j]}, -1) =~ m/\d/) {
+                        $short_names{$xml_files[$j]} = $a.$year_a;
+                    }
+                }
+                $year_a++;
+            } elsif ($title eq $title_
+                    && $a eq $a_) {
+                                                $a = $short_names{$xml_files[$j]};
+                last;
+            } else {
+                                                if ($year_a ne "a") {
+                    $a .= $year_a;
+                }
+                last;
+            }
+        }
+
+        
+        $last_title  = $title;
+        $last_author = $a;
+        $last_year   = $year;
+
+        $short_names{$file} = $a;
+
+        $i++
+
+    }
+
+    return %short_names
+
+}
+
+
+
+=begin comment
+
+ Title   : _author_munge
+ Usage   : _author_munge($xml{Author}, $xml{Year})
+ Function: Turn the authos in the list to LastName_etal or similar
+ Returns : A string
+ Args    : The contents of the author tag in XML
+ 
+=end comment
+
+=cut
+
+
+sub _author_munge {
+
+    my $author = shift;
+    my $year = shift;
+
+    my $a = $author;
+    my $y = $year;
+
+                my $nCommas = $a =~ tr/,//;
+    $a = substr( $a, 0, index( $a, ',' ) );
+    if ( $nCommas > 2 ) {
+
+                $a = $a . "_etal_" . $y;
+    }
+    elsif ( $author =~ m/and\s(\w+),/ ) {
+        $a = $a . "_" . $1 . "_" . $y;
+    }
+    else {
+        $a = $a . "_" . $y;
+    }
+
+        $a =~ s/ /_/g;
+    $a = lc($a);
+
+    return $a;
+
+
+}
+
+=begin comment
+
+ Title   : _find_xml
+ Usage   : find( \&Bio::STK::_find_xml, $dir );
+ Function: The subroutine used by File::Find to locate xml
+ Returns : nothing
+ Args    : nothing
+ 
+Uses .xml to search for XML files. Note that there are a few directories ignored. 
+
+TODO: Make directories ignored some kind of configurable argument
+ 
+=end comment 
+
+=cut
+
+sub _find_xml {
+
+    if ( $File::Find::dir =~ m/original/ ) {
+        return;
+    }
+    if ( $File::Find::dir =~ m/Adj for/i ) {
+        return;
+    }
+    if ( $File::Find::dir =~ m/Adj_for/i ) {
+        return;
+    }
+
+    
+    if ( (/\.xml$/) ) {
+
+        push( @_files, $File::Find::name );
+    }
+}
+
+=begin comment
+
+ Title   : _find_trees
+ Usage   : find( \&Bio::STK::_find_trees, $dir );
+ Function: The subroutine used by File::Find to locate tre
+ Returns : nothing
+ Args    : nothing
+ 
+Uses .tre to search for Tree files. Note that there are a few directories ignored. 
+
+TODO: Make directories ignored some kind of configurable argument
+ 
+=end comment 
+
+=cut
+
+sub _find_trees {
+
+    if ( $File::Find::dir =~ m/original/i ) {
+        return;
+    }
+    if ( $File::Find::dir =~ m/Adj for/i ) {
+        return;
+    }
+    if ( $File::Find::dir =~ m/Adj_for/i ) {
+        return;
+    }
+    if ( $File::Find::name =~ m/temp.tre/i ) {
+        return;
+    }
+    if ( $File::Find::name =~ m/combinedTrees/i ) {
+        return;
+    }
+    if ( $File::Find::name =~ m/all_trees/i ) {
+        return;
+    }
+
+    if ( (/\.tre$/) or (/\.nex/)) {
+
+        push( @_files, $File::Find::name );
+    }
+}
+
+=begin comment
+
+ Title   : _load_nexus
+ Usage   : my $nexus = _load_nexus($file);
+ Function: Load a NEXUS file and return a nexus object for manipulation
+ Returns : a Bio::NEXUS object
+ Args    : filename to load. Croaks if non-existant.
+ 
+=end comment 
+
+=cut
+
+sub _load_nexus {
+
+    my ($file) = @_;
+
+        unless ( -e $file ) {
+        croak("Error - specified tree file does not exist: $file\n");
+    }
+
+                my $nexus;
+    eval { 
+        no warnings 'all';
+    	$nexus = new Bio::NEXUS( $file, 0 );
+    };
+    if ($@ ne '') {
+        croak("Error loading tree file: $file. It exists, but is not truely compliant with the NEXUS format");
+    } 
+
+    return $nexus;
+
+}
+
+=begin comment
+
+ Title   : _get_tree_array
+ Usage   : my @trees = _get_tree_array($nexus);
+ Function: Grab the tree strings from a Bio::NEXUS object
+ Returns : an array of Newick formatted tree strings
+ Args    : a Bio::NEXUS object. Note no checks are done on this...
+ 
+TODO: Check for Bio::NEXUS object
+ 
+=end comment 
+=cut
+
+sub _get_tree_array {
+
+    my ($nexus) = @_;
+
+    my @trees;
+            foreach my $block ( @{ $nexus->get_blocks() } ) {
+        my $type = $block->{'type'};
+        if ( $type eq "trees" ) {
+            foreach my $tree ( @{ $block->get_trees() } ) {
+                                my $t =  substr( $tree->as_string_inodes_nameless(), 0, -1 );
+                $t =~ s/\:\w*(,|\))/$1/g;
+                push( @trees, $t );
+            }
+        }
+    }
+    
+
+    return @trees;
+
+}
+
+=begin comment
+
+ Title   : _create_nexus_object
+ Usage   : $nexus_obj = _create_nexus_object(\@trees,\@names);
+ Function: Creates a Bio::NEXUS object from an array of NEWICK formatted strings
+ Returns : A Bio::NEXUS object
+ Args    : An array of NEWICK formatted strings, array of names
+ 
+=end comment 
+
+=cut
+
+sub _create_nexus_object {
+
+    my $trees = shift;
+    my $names = shift;
+    my $name  = '';
+
+    my $nexus_obj   = new Bio::NEXUS();
+    my $trees_block = new Bio::NEXUS::TreesBlock('trees');
+
+    my $i = 0;
+    foreach my $tree ( @{$trees} ) {
+        if ( !defined $$names[$i] ) {
+            $name = "tree_" . ( $i + 1 );
+        }
+        else {
+            $name = $$names[$i];
+        }
+        $trees_block->add_tree_from_newick( $tree, $name );
+        $i++;
+    }
+
+    $nexus_obj->add_block($trees_block);
+
+        $nexus_obj->set_taxablock();
+
+    return $nexus_obj;
+}
+
+=begin comment
+
+ Title   : _file_or_tree
+ Usage   : $ret = _file_or_tree($input);
+ Function: Check a string to see if it's a file or a tree string
+ Returns : 0: undef, 1: tree_string, 2: file
+ Args    : A string which could be either file or tree_string
+ 
+=end comment 
+
+=cut
+
+sub _file_or_tree {
+
+    my $input = shift;
+
+            if ( defined($input) ) {
+        if (-e $input) {
+
+                        return 2;
+        }
+        else {
+            if ( $input =~ m/\(.*,.*\)+/g ) {
+                            return 1;
+            } else {
+                            return 0;
+            }
+        }
+    }
+    else {
+        return 0;
+    }
+
+}
+
+=begin comment
+
+ Title   : _file_or_xml
+ Usage   : $ret = _file_or_xml($input);
+ Function: Check a string to see if it's a file or an xml hash
+ Returns : 0: undef, 1: xml hash, 2: file
+ Args    : A variable which could be either file or xml hash
+ 
+=end comment 
+
+=cut
+
+sub _file_or_xml {
+
+    my $input = shift;
+
+            if ( defined($input) ) {
+        if ( ref($input) eq "HASH" ) {
+                        if ( $input->{Taxa}  &&
+                 $input->{Source} &&
+                 $input->{TreeFile} ) {
+
+                                return 1;
+            }
+            else {
+
+                                return 0;
+            }
+
+                                   }
+        else {
+           if (-e $input) {
+                            return 2;
+            } else {
+              return 0;
+            }
+        }
+    }
+    else {
+        return 0;
+    }
+
+}
+1;
+
+

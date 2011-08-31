@@ -1,0 +1,14 @@
+#NEXUS
+
+BEGIN TAXA;
+	DIMENSIONS ntax=6;
+	TAXLABELS  E G A F D H;
+END;
+
+BEGIN TREES;
+	TREE tree_1 = ((E,G),A,(F,D,H));
+	TREE tree_2 = (E,A,(G,(F,D,H)));
+	TREE tree_3 = (G,A,(E,F,D,H));
+	TREE tree_4 = (A,(G,(E,F,D,H)));
+END;
+

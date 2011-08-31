@@ -1,0 +1,111 @@
+#NEXUS
+
+BEGIN TAXA;
+	DIMENSIONS NTAX = 49;
+	TAXLABELS
+		Gavia_stellata
+		Macronectes_giganteus
+		Diomedea_melanophris
+		Phoebetria_palpebrata
+		Daption_capense
+		Puffinus_griseus
+		Procellaria_aequinoctialis
+		Pterodroma_incerta
+		Oceanodroma_leucorhoa
+		Oceanites_oceanicus
+		Pelecanoides_urinatrix
+		Pachyptila_desolata
+		Waimanu_manneringi
+		Waimanu_tuatahi
+		Delphinornis_larseni
+		Mesetaornis_polaris
+		Marambiornis_exilis
+		Anthropornis_nordenskjoeldi
+		Anthropornis_grandis
+		Palaeeudyptes_klekowskii
+		Palaeeudyptes_gunnari
+		Pachydyptes_ponderosus
+		Palaeeudyptes_antarcticus
+		Archaeospheniscus_lowei
+		Paraptenodytes_antarcticus
+		Arthrodyptes_andrewsi
+		Platydyptes_novaezealandiae
+		Palaeospheniscus_patagonicus
+		Eeretiscus_tonnii
+		Marplesornis_novaezealandiae
+		Eudyptula_minor
+		Spheniscus_megaramphus
+		Spheniscus_urbinai
+		Spheniscus_demersus
+		Spheniscus_magellanicus
+		Spheniscus_mendiculus
+		Spheniscus_humboldti
+		Aptenodytes_patagonicus
+		Aptenodytes_forsteri
+		Pygoscelis_antarctica
+		Pygoscelis_adeliae
+		Pygoscelis_papua
+		Megadyptes_antipodes
+		Eudyptes_pachyrhynchus
+		Eudyptes_sclateri
+		Eudyptes_robustus
+		Eudyptes_chrysocome
+		Eudyptes_chrysolophus
+		Eudyptes_schlegeli
+		;
+ENDBLOCK;
+
+BEGIN TREES;
+	TRANSLATE
+		1 Gavia_stellata,
+		2 Macronectes_giganteus,
+		3 Diomedea_melanophris,
+		4 Phoebetria_palpebrata,
+		5 Daption_capense,
+		6 Puffinus_griseus,
+		7 Procellaria_aequinoctialis,
+		8 Pterodroma_incerta,
+		9 Oceanodroma_leucorhoa,
+		10 Oceanites_oceanicus,
+		11 Pelecanoides_urinatrix,
+		12 Pachyptila_desolata,
+		13 Waimanu_manneringi,
+		14 Waimanu_tuatahi,
+		15 Delphinornis_larseni,
+		16 Mesetaornis_polaris,
+		17 Marambiornis_exilis,
+		18 Anthropornis_nordenskjoeldi,
+		19 Anthropornis_grandis,
+		20 Palaeeudyptes_klekowskii,
+		21 Palaeeudyptes_gunnari,
+		22 Pachydyptes_ponderosus,
+		23 Palaeeudyptes_antarcticus,
+		24 Archaeospheniscus_lowei,
+		25 Paraptenodytes_antarcticus,
+		26 Arthrodyptes_andrewsi,
+		27 Platydyptes_novaezealandiae,
+		28 Palaeospheniscus_patagonicus,
+		29 Eeretiscus_tonnii,
+		30 Marplesornis_novaezealandiae,
+		31 Eudyptula_minor,
+		32 Spheniscus_megaramphus,
+		33 Spheniscus_urbinai,
+		34 Spheniscus_demersus,
+		35 Spheniscus_magellanicus,
+		36 Spheniscus_mendiculus,
+		37 Spheniscus_humboldti,
+		38 Aptenodytes_patagonicus,
+		39 Aptenodytes_forsteri,
+		40 Pygoscelis_antarctica,
+		41 Pygoscelis_adeliae,
+		42 Pygoscelis_papua,
+		43 Megadyptes_antipodes,
+		44 Eudyptes_pachyrhynchus,
+		45 Eudyptes_sclateri,
+		46 Eudyptes_robustus,
+		47 Eudyptes_chrysocome,
+		48 Eudyptes_chrysolophus,
+		49 Eudyptes_schlegeli
+		;
+	TREE tree_1  = [&u] (1,((2,(3,4),(5,((6,7),(8,((9,10),(11,12)))))),(13,14,(15,(16,17,((18,19),(20,21,(22,23)),(24,(25,26,(27,((28,29),(30,((31,(32,33,(34,35,(36,37)))),(((38,39),(40,(41,42))),(43,(44,((45,46),(47,(48,49))))))))))))))))));
+ENDBLOCK;

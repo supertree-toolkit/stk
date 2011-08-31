@@ -1,0 +1,150 @@
+<?xml version="1.0" standalone="yes"?>
+<SourceTree>
+  <Source>
+    <Author>Lovette, I. J. Rubenstein, D. R.</Author>
+    <Year>2007</Year>
+    <Title>A comprehensive molecular phylogeny of the starlings (Aves : Sturnidae) and mockingbirds (Aves : Mimidae): Congruent mtDNA and nuclear trees for a cosmopolitan avian radiation</Title>
+    <Journal>Molecular Phylogenetics and Evolution</Journal>
+    <Volume>44</Volume>
+    <Pages>1031-1056</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="114" fossil="none">
+    <List>Cinnyricinclus leucogaster</List>
+    <List>Saroglossa aurata</List>
+    <List>Lamprotornis australis</List>
+    <List>Lamprotornis caudatus</List>
+    <List>Lamprotornis purpuropterus</List>
+    <List>Lamprotornis mevesii</List>
+    <List>Cosmopsarus unicolor</List>
+    <List>Lamprotornis chalybaeus</List>
+    <List>Coccycolius iris</List>
+    <List>Lamprotornis nitens</List>
+    <List>Lamprotornis chalcurus</List>
+    <List>Lamprotornis purpureus</List>
+    <List>Lamprotornis acuticaudus</List>
+    <List>Lamprotornis chloropterus</List>
+    <List>Spreo fischeri</List>
+    <List>Spreo albicapillus</List>
+    <List>Spreo bicolor</List>
+    <List>Lamprotornis pulcher</List>
+    <List>Lamprotornis superbus</List>
+    <List>Cosmopsarus regius</List>
+    <List>Lamprotornis splendidus</List>
+    <List>Lamprotornis ornatus</List>
+    <List>Lamprotornis hildebrandti</List>
+    <List>Lamprotornis shelleyi</List>
+    <List>Poeoptera kenricki</List>
+    <List>Poeoptera stuhlmanni</List>
+    <List>Poeoptera lugubris</List>
+    <List>Cinnyricinclus femoralis</List>
+    <List>Cinnyricinclus sharpii</List>
+    <List>Speculipastor bicolor</List>
+    <List>Grafisia torquata</List>
+    <List>Neocichla gutturalis</List>
+    <List>Saroglossa spiloptera</List>
+    <List>Lamprotornis corruscus</List>
+    <List>Lamprotornis purpureiceps</List>
+    <List>Lamprotornis cupreocauda</List>
+    <List>Onychognathus morio</List>
+    <List>Onychognathus salvadorii</List>
+    <List>Onychognathus frater</List>
+    <List>Onychognathus blythii</List>
+    <List>Onychognathus tristramii</List>
+    <List>Onychognathus albirostris</List>
+    <List>Onychognathus walleri</List>
+    <List>Onychognathus fulgidus</List>
+    <List>Onychognathus nabouroup</List>
+    <List>Onychognathus tenuirostris</List>
+    <List>Acridotheres cristatellus</List>
+    <List>Acridotheres grandis</List>
+    <List>Acridotheres fuscus</List>
+    <List>Acridotheres ginginianus</List>
+    <List>Acridotheres tristis</List>
+    <List>Sturnus cineraceus</List>
+    <List>Sturnus sericeus</List>
+    <List>Leucopsar rothschildi</List>
+    <List>Sturnus senex</List>
+    <List>Sturnus malabaricus</List>
+    <List>Sturnus pagodarum</List>
+    <List>Sturnus sinensis</List>
+    <List>Sturnus nigricollis</List>
+    <List>Sturnus contra</List>
+    <List>Sturnus philippensis</List>
+    <List>Sturnus roseus</List>
+    <List>Creatophora cinerea</List>
+    <List>Sturnus unicolor</List>
+    <List>Sturnus vulgaris</List>
+    <List>Aplonis brunneicapilla</List>
+    <List>Aplonis metallica</List>
+    <List>Aplonis pelzelni</List>
+    <List>Aplonis cantoroides</List>
+    <List>Aplonis minor</List>
+    <List>Aplonis panayensis</List>
+    <List>Aplonis grandis</List>
+    <List>Aplonis cinerascens</List>
+    <List>Aplonis tabuensis</List>
+    <List>Aplonis insularis</List>
+    <List>Scissirostrum dubium</List>
+    <List>Enodes erythrophris</List>
+    <List>Ampeliceps coronatus</List>
+    <List>Gracula religiosa</List>
+    <List>Gracula ptilogenys</List>
+    <List>Mino anais</List>
+    <List>Mino kreffti</List>
+    <List>Basilornis miranda</List>
+    <List>Streptocitta albicollis</List>
+    <List>Sarcops calvus</List>
+    <List>Basilornis celebensis</List>
+    <List>Rhabdornis inornatus</List>
+    <List>Rhabdornis mystacalis</List>
+    <List>Cinclocerthia ruficauda</List>
+    <List>Margarops fuscus</List>
+    <List>Dumetella carolinensis</List>
+    <List>Ramphocinclus brachyurus</List>
+    <List>Melanoptila glabrirostris</List>
+    <List>Melanotis caerulescens</List>
+    <List>Melanotis hypoleucus</List>
+    <List>Mimus gilvus</List>
+    <List>Mimus polyglottos</List>
+    <List>Mimodes graysoni</List>
+    <List>Mimus longicaudatus</List>
+    <List>Nesomimus parvulus</List>
+    <List>Nesomimus trifasciatus</List>
+    <List>Nesomimus macdonaldi</List>
+    <List>Nesomimus melanotis</List>
+    <List>Mimus gundlachii</List>
+    <List>Mimus patagonicus</List>
+    <List>Mimus thenca</List>
+    <List>Mimus saturninus</List>
+    <List>Mimus triurus</List>
+    <List>Oreoscoptes montanus</List>
+    <List>Toxostoma cinereum</List>
+    <List>Toxostoma rufum</List>
+    <List>Toxostoma curvirostre</List>
+    <List>Buphagus africanus</List>
+    <List>Buphagus erythrorhynchus</List>
+  </Taxa>
+  <Characters>
+    <Molecular number="9">
+      <Type>ND2</Type>
+      <Type>COI</Type>
+      <Type>COII</Type>
+      <Type>ATPase 6</Type>
+      <Type>ATPase 8</Type>
+      <Type>Fib5</Type>
+      <Type>Fib7</Type>
+      <Type>Rhodopsin</Type>
+      <Type>TGFB2</Type>
+    </Molecular>
+    <Morphological/>
+    <Behavioural/>
+    <Other/></Characters>
+  <Analysis>
+    <Type>Bayesian</Type>
+  </Analysis>
+  <Notes></Notes>
+  <TreeFile>Lovette_Rubenstein_2007_3_corr.tre</TreeFile>
+</SourceTree>
+

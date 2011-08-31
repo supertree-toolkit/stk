@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<SourceTree>
+    <Source>
+        <!-- If it's a journal, it has a journal name. Book has booktitle -->
+        <Author>Andersson, M.</Author>
+        <Year>1999</Year>
+        <Title>Phylogeny, behaviour, plumage evolution and neoteny in skuas Stercorariidae.</Title>
+        <Journal>Journal of Avian Biology</Journal>
+        <Volume>30</Volume>
+        <Pages>205-215</Pages>
+        <Booktitle/>
+        <Editor/>
+        <Publisher/>
+    </Source>
+    <Taxa fossil="none" number="5">
+        <List>Larus argentatus</List>
+		<List>Larus armenicus</List>
+		<List>Larus atlanticus</List>
+		<List>Larus atricilla</List>
+		<List>Larus audouinii</List>
+		<List>Larus belcheri</List>
+		<List>Larus brunnicephalus</List>
+		<List>Larus bulleri</List>
+		<List>Larus cachinnans</List>
+		<List>Larus californicus</List>
+		<List>Larus canus</List>
+		<List>Larus cirrocephalus</List>
+		<List>Larus crassirostris</List>
+		<List>Larus delawarensis</List>
+		<List>Larus dominicanus</List>
+		<List>Larus fuliginosus</List>
+		<List>Larus fuscus</List>
+		<List>Larus genei</List>
+		<List>Larus glaucescens</List>
+		<List>Larus glaucoides</List>
+		<List>Larus hartlaubii</List>
+		<List>Larus heermanni</List>
+		<List>Larus hemprichii</List>
+		<List>Larus heuglini</List>
+		<List>Larus hyperboreus</List>
+		<List>Larus ichthyaetus</List>
+		<List>Larus leucophthalmus</List>
+		<List>Larus livens</List>
+		<List>Larus maculipennis</List>
+		<List>Larus marinus</List>
+		<List>Larus melanocephalus</List>
+		<List>Larus michahellis</List>
+		<List>Larus minutus</List>
+		<List>Larus modestus</List>
+		<List>Larus novaehollandiae</List>
+		<List>Larus occidentalis</List>
+		<List>Larus pacificus</List>
+		<List>Larus philadelphia</List>
+		<List>Larus pipixcan</List>
+		<List>Larus relictus</List>
+		<List>Larus ridibundus</List>
+		<List>Larus saundersi</List>
+		<List>Larus schistisagus</List>
+		<List>Larus scopulinus</List>
+		<List>Larus scoresbii</List>
+		<List>Larus serranus</List>
+		<List>Larus taimyrensis</List>
+		<List>Larus thayeri</List>
+        <List>Stercorarius parasiticus</List>
+        <List>Stercorarius longicaudus</List>
+        <List>Stercorarius pomarinus</List>
+        <List>Catharacta skua</List>
+    </Taxa>
+    <Characters>
+        <Molecular/>
+        <Morphological/>
+        <Behavioural number="2">
+        	<Type>Displays</Type>
+        	<Type>Calls</Type>
+        </Behavioural>	
+        <Other/>
+    </Characters>
+    <Analysis>
+        <Type>MP</Type>
+    </Analysis>
+    <Notes>Cladistic phylogeny. Single most parsimonious tree found by exhaustive search.
+	</Notes>
+    <TreeFile>Andersson_1999a\Tree 1\Corrected\Andersson_1999a_corr.tre</TreeFile>
+</SourceTree>

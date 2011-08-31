@@ -1,0 +1,35 @@
+<?xml version="1.0" standalone="yes"?>
+<SourceTree>
+  <Source>
+    <Author>BAKER, A., S. L. PEREIRA, D. I. ROGERS, R. ELBOURNE, AND C. J. HASSELL</Author>
+    <Year>2007</Year>
+    <Title>Mitochondrial-DNA evidence shows the Australian Painted Snipe is a full species, Rostratula australis</Title>
+    <Journal>Emu</Journal>
+    <Volume>107</Volume>
+    <Pages>185-189</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="2" fossil="none">
+    <List>Nycticryphes semicollaris</List>
+    <List>Jacana jacana</List>
+  </Taxa>
+  <Characters>
+    <Molecular number="6">
+      <Type>cytb</Type>
+      <Type>ND5</Type>
+      <Type>ATPase 6</Type>
+      <Type>ATPase 8</Type>
+      <Type>COIII</Type>
+      <Type>COI</Type>
+    </Molecular>
+    <Morphological/>
+    <Behavioural/>
+    <Other/></Characters>
+  <Analysis>
+    <Type>Bayesian</Type>
+  </Analysis>
+  <Notes></Notes>
+  <TreeFile>Baker_etal_2007a_corr.tre</TreeFile>
+</SourceTree>
+

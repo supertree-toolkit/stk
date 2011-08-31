@@ -1,0 +1,206 @@
+<?xml version='1.0' standalone='yes'?>
+<Source>
+  <Analysis>
+    <Type>MP</Type>
+  </Analysis>
+  <Characters>
+    <Behavioural></Behavioural>
+    <Molecular></Molecular>
+    <Morphological number="1">
+      <Type>Osteology</Type>
+    </Morphological>
+    <Other></Other>
+  </Characters>
+  <Notes>Consensus of 44 MPTs.</Notes>
+  <Source>
+    <Author>Mayr, G.</Author>
+    <Booktitle></Booktitle>
+    <Editor></Editor>
+    <Journal>Condor</Journal>
+    <Pages>342-352</Pages>
+    <Publisher></Publisher>
+    <Title>A new cypselomorph bird from the middle Eocene of Germany and the early diversification of avian aerial insectivores.</Title>
+    <Volume>107</Volume>
+    <Year>2005</Year>
+  </Source>
+  <Taxa fossil="some" number="177">
+    <List>Protocypselomorphus manfredkelleri</List>
+    <List>Eocypselus vincenti</List>
+    <List>Aegialornis gallicus</List>
+    <List>Aegialornis leenhardti</List>
+    <List>Aegotheles albertisi</List>
+    <List>Aegotheles archboldi</List>
+    <List>Aegotheles bennettii</List>
+    <List>Aegotheles crinifrons</List>
+    <List>Aegotheles cristatus</List>
+    <List>Aegotheles insignis</List>
+    <List>Aegotheles novaezealandiae</List>
+    <List>Aegotheles savesi</List>
+    <List>Aegotheles wallacii</List>
+    <List>Alectura lathami</List>
+    <List>Amazilia amabilis</List>
+    <List>Amazilia beryllina</List>
+    <List>Amazilia candida</List>
+    <List>Amazilia chionogaster</List>
+    <List>Amazilia decora</List>
+    <List>Amazilia fimbriata</List>
+    <List>Amazilia franciae</List>
+    <List>Amazilia rutila</List>
+    <List>Amazilia saucerrottei</List>
+    <List>Amazilia tobaci</List>
+    <List>Amazilia tzacatl</List>
+    <List>Amazilia versicolor</List>
+    <List>Amazilia viridicauda</List>
+    <List>Amazilia viridigaster</List>
+    <List>Apus affinis</List>
+    <List>Apus apus</List>
+    <List>Apus melba</List>
+    <List>Apus nipalensis</List>
+    <List>Apus pacificus</List>
+    <List>Argornis caucasicus</List>
+    <List>Batrachostomus auritus</List>
+    <List>Batrachostomus cornutus</List>
+    <List>Batrachostomus septimus</List>
+    <List>Caprimulgus aegyptius</List>
+    <List>Caprimulgus affinis</List>
+    <List>Caprimulgus candicans</List>
+    <List>Caprimulgus carolinensis</List>
+    <List>Caprimulgus cayennensis</List>
+    <List>Caprimulgus climacurus</List>
+    <List>Caprimulgus enarratus</List>
+    <List>Caprimulgus europaeus</List>
+    <List>Caprimulgus fossii</List>
+    <List>Caprimulgus fraenatus</List>
+    <List>Caprimulgus inornatus</List>
+    <List>Caprimulgus longirostris</List>
+    <List>Caprimulgus macrurus</List>
+    <List>Caprimulgus maculicaudus</List>
+    <List>Caprimulgus parvulus</List>
+    <List>Caprimulgus pectoralis</List>
+    <List>Caprimulgus sericocaudatus</List>
+    <List>Caprimulgus vociferus</List>
+    <List>Chaetura chapmani</List>
+    <List>Chaetura cinereiventris</List>
+    <List>Chaetura pelagica</List>
+    <List>Chaetura vauxi</List>
+    <List>Chordeiles acutipennis</List>
+    <List>Chordeiles minor</List>
+    <List>Chordeiles rupestris</List>
+    <List>Chrysolampis mosquitus</List>
+    <List>Colibri coruscans</List>
+    <List>Colibri delphinae</List>
+    <List>Colibri thalassinus</List>
+    <List>Coracias abyssinica</List>
+    <List>Coracias benghalensis</List>
+    <List>Coracias caudata</List>
+    <List>Coracias garrulus</List>
+    <List>Coracias spatulata</List>
+    <List>Crypturellus atrocapillus</List>
+    <List>Crypturellus bartletti</List>
+    <List>Crypturellus berlepschi</List>
+    <List>Crypturellus boucardi</List>
+    <List>Crypturellus brevirostris</List>
+    <List>Crypturellus casiquiare</List>
+    <List>Crypturellus cinereus</List>
+    <List>Crypturellus cinnamomeus</List>
+    <List>Crypturellus duidae</List>
+    <List>Crypturellus erythropus</List>
+    <List>Crypturellus kerriae</List>
+    <List>Crypturellus noctivagus</List>
+    <List>Crypturellus obsoletus</List>
+    <List>Crypturellus parvirostris</List>
+    <List>Crypturellus ptaritepui</List>
+    <List>Crypturellus soui</List>
+    <List>Crypturellus strigulosus</List>
+    <List>Crypturellus tataupa</List>
+    <List>Crypturellus transfasciatus</List>
+    <List>Crypturellus undulatus</List>
+    <List>Crypturellus variegatus</List>
+    <List>Cypseloides niger</List>
+    <List>Cypseloides phelpsi</List>
+    <List>Glaucis aenea</List>
+    <List>Glaucis hirsuta</List>
+    <List>Harpactes ardens</List>
+    <List>Harpactes diardii</List>
+    <List>Harpactes duvaucelii</List>
+    <List>Harpactes erythrocephalus</List>
+    <List>Harpactes kasumba</List>
+    <List>Harpactes oreskios</List>
+    <List>Harpactes orrhophaeus</List>
+    <List>Harpactes whiteheadi</List>
+    <List>Hemiprocne comata</List>
+    <List>Hemiprocne longipennis</List>
+    <List>Hemiprocne mystacea</List>
+    <List>Hydropsalis brasiliana</List>
+    <List>Hydropsalis climacocerca</List>
+    <List>Jungornis tesselatus</List>
+    <List>Lophura bulweri</List>
+    <List>Lophura diardi</List>
+    <List>Lophura edwardsi</List>
+    <List>Lophura erythropthalma</List>
+    <List>Lophura hatinhensis</List>
+    <List>Lophura ignita</List>
+    <List>Lophura inornata</List>
+    <List>Lophura leucomelanos</List>
+    <List>Lophura nycthemera</List>
+    <List>Lophura swinhoii</List>
+    <List>Lurocalis semitorquatus</List>
+    <List>Nyctibius aethereus</List>
+    <List>Nyctibius bracteatus</List>
+    <List>Nyctibius grandis</List>
+    <List>Nyctibius griseus</List>
+    <List>Nyctibius leucopterus</List>
+    <List>Nyctibius maculosus</List>
+    <List>Nyctidromus albicollis</List>
+    <List>Phaethornis anthophilus</List>
+    <List>Phaethornis atrimentalis</List>
+    <List>Phaethornis augusti</List>
+    <List>Phaethornis bourcieri</List>
+    <List>Phaethornis eurynome</List>
+    <List>Phaethornis griseogularis</List>
+    <List>Phaethornis guy</List>
+    <List>Phaethornis hispidus</List>
+    <List>Phaethornis koepckeae</List>
+    <List>Phaethornis longirostris</List>
+    <List>Phaethornis longuemareus</List>
+    <List>Phaethornis malaris</List>
+    <List>Phaethornis philippii</List>
+    <List>Phaethornis pretrei</List>
+    <List>Phaethornis ruber</List>
+    <List>Phaethornis subochraceus</List>
+    <List>Phaethornis superciliosus</List>
+    <List>Phaethornis syrmatophorus</List>
+    <List>Phaethornis yaruqui</List>
+    <List>Phalaenoptilus nuttallii</List>
+    <List>Pharomachrus antisianus</List>
+    <List>Pharomachrus auriceps</List>
+    <List>Pharomachrus fulgidus</List>
+    <List>Pharomachrus mocinno</List>
+    <List>Pharomachrus pavoninus</List>
+    <List>Podargus ocellatus</List>
+    <List>Podargus papuensis</List>
+    <List>Podargus strigoides</List>
+    <List>Scaniacypselus szarskii</List>
+    <List>Scaniacypselus wardi</List>
+    <List>Steatornis caripensis</List>
+    <List>Streptoprocne zonaris</List>
+    <List>Trogon aurantiiventris</List>
+    <List>Trogon bairdii</List>
+    <List>Trogon citreolus</List>
+    <List>Trogon clathratus</List>
+    <List>Trogon collaris</List>
+    <List>Trogon comptus</List>
+    <List>Trogon curucui</List>
+    <List>Trogon elegans</List>
+    <List>Trogon massena</List>
+    <List>Trogon melanocephalus</List>
+    <List>Trogon melanurus</List>
+    <List>Trogon mexicanus</List>
+    <List>Trogon personatus</List>
+    <List>Trogon rufus</List>
+    <List>Trogon surrucura</List>
+    <List>Trogon violaceus</List>
+    <List>Trogon viridis</List>
+  </Taxa>
+  <TreeFile>Mayr_2005c_corr.tre</TreeFile>
+</Source>

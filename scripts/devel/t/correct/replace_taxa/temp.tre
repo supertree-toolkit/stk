@@ -1,0 +1,11 @@
+#NEXUS
+
+BEGIN TAXA;
+	DIMENSIONS ntax=25;
+	TAXLABELS  replaced_taxon Hylexetastes_perrotii Nasica_longirostris Dendrexetastes_rufigula Dendrocolaptes_certhia Xiphorhynchus_susurrans Xiphorhynchus_guttatus Xiphorhynchus_lachrymosus Xiphorhynchus_flavigaster Xiphorhynchus_triangularis Xiphorhynchus_erythropygius Xiphorhynchus_obsoletus Xiphorhynchus_pardalotus Xiphorhynchus_ocellatus Xiphorhynchus_spixii Lepidocolaptes_fuscus Xiphorhynchus_picus Xiphorhynchus_kienerii Lepidocolaptes_angustirostris Lepidocolaptes_albolineatus Campylorhamphus_trochilirostris Campylorhamphus_procurvoides Campylorhamphus_falcularius Sittasomus_griseicapillus Glyphorynchus_spirurus;
+END;
+
+BEGIN TREES;
+	TREE tree_1 = (((((replaced_taxon,Hylexetastes_perrotii),((Nasica_longirostris,Dendrexetastes_rufigula),Dendrocolaptes_certhia)),((((((Xiphorhynchus_susurrans,Xiphorhynchus_guttatus),(Xiphorhynchus_lachrymosus,Xiphorhynchus_flavigaster)),(Xiphorhynchus_triangularis,Xiphorhynchus_erythropygius)),Xiphorhynchus_obsoletus),(((Xiphorhynchus_pardalotus,Xiphorhynchus_ocellatus),Xiphorhynchus_spixii),Lepidocolaptes_fuscus)),((Xiphorhynchus_picus,Xiphorhynchus_kienerii),((Lepidocolaptes_angustirostris,Lepidocolaptes_albolineatus),((Campylorhamphus_trochilirostris,Campylorhamphus_procurvoides),Campylorhamphus_falcularius))))),Sittasomus_griseicapillus),Glyphorynchus_spirurus);
+END;
+

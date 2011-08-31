@@ -1,0 +1,81 @@
+<?xml version="1.0" standalone="yes"?>
+<SourceTree>
+  <Source>
+    <Author>KSEPKA, D. T., S. BERTELLI, AND N. P. GIANNINI</Author>
+    <Year>2006</Year>
+    <Title>The phylogeny of the living and fossil Sphenisciformes (penguins).</Title>
+    <Journal>Cladistics</Journal>
+    <Volume>22</Volume>
+    <Pages>412-441</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="49" fossil="some">
+    <List>Gavia stellata</List>
+    <List>Diomedea melanophris</List>
+    <List>Phoebetria palpebrata</List>
+    <List>Macronectes giganteus</List>
+    <List>Daption capense</List>
+    <List>Puffinus griseus</List>
+    <List>Procellaria aequinoctialis</List>
+    <List>Pterodroma incerta</List>
+    <List>Oceanodroma leucorhoa</List>
+    <List>Oceanites oceanicus</List>
+    <List>Pelecanoides urinatrix</List>
+    <List>Pachyptila desolata</List>
+    <List>Waimanu manneringi</List>
+    <List>Waimanu tuatahi</List>
+    <List>Delphinornis larseni</List>
+    <List>Mesetaornis polaris</List>
+    <List>Marambiornis exilis</List>
+    <List>Anthropornis nordenskjoeldi</List>
+    <List>Anthropornis grandis</List>
+    <List>Palaeeudyptes klekowskii</List>
+    <List>Palaeeudyptes gunnari</List>
+    <List>Pachydyptes ponderosus</List>
+    <List>Palaeeudyptes antarcticus</List>
+    <List>Archaeospheniscus lowei</List>
+    <List>Paraptenodytes antarcticus</List>
+    <List>Arthrodyptes andrewsi</List>
+    <List>Platydyptes novaezealandiae</List>
+    <List>Palaeospheniscus patagonicus</List>
+    <List>Eeretiscus tonnii</List>
+    <List>Marplesornis novaezealandiae</List>
+    <List>Eudyptula minor</List>
+    <List>Spheniscus megaramphus</List>
+    <List>Spheniscus urbinai</List>
+    <List>Spheniscus demersus</List>
+    <List>Spheniscus magellanicus</List>
+    <List>Spheniscus mendiculus</List>
+    <List>Spheniscus humboldti</List>
+    <List>Aptenodytes patagonicus</List>
+    <List>Aptenodytes forsteri</List>
+    <List>Pygoscelis antarctica</List>
+    <List>Pygoscelis adeliae</List>
+    <List>Pygoscelis papua</List>
+    <List>Megadyptes antipodes</List>
+    <List>Eudyptes pachyrhynchus</List>
+    <List>Eudyptes sclateri</List>
+    <List>Eudyptes robustus</List>
+    <List>Eudyptes chrysocome</List>
+    <List>Eudyptes chrysolophus</List>
+    <List>Eudyptes schlegeli</List>
+  </Taxa>
+  <Characters>
+    <Molecular/>
+    <Morphological number="3">
+      <Type>Integument</Type>
+      <Type>Osteology</Type>
+      <Type>Myology</Type>
+    </Morphological>
+    <Behavioural number="1">
+      <Type>Breeding</Type>
+    </Behavioural>
+    <Other/></Characters>
+  <Analysis>
+    <Type>MP</Type>
+  </Analysis>
+  <Notes></Notes>
+  <TreeFile>Ksepka_etal_2006_1_corr.tre</TreeFile>
+</SourceTree>
+

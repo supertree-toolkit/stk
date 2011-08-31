@@ -1,0 +1,12 @@
+#NEXUS
+
+BEGIN TAXA;
+      dimensions ntax=8;
+      taxlabels A B C D E F G H;  
+END;
+
+BEGIN TREES;
+       tree bush = (((A,B),(C,D)),((E,F),(G,H)));
+       tree ladder = (((((((A,B),C),D),E),F),G),H);
+       tree rake = (A:1,B:1,C:1,D:1,E:1,F:1,G:1,H:1);
+END;

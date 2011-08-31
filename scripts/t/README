@@ -1,0 +1,107 @@
+              ==================================================
+              |         SUPERTREE TOOL KIT TEST SUITE          |
+              ==================================================
+              
+Davis, K.E. Hill, J.
+
+The Supertree Tool Kit is a Perl module coupled with a suite of Perl and 
+Java tools designed to make the processing of source tree data, 
+ready for inclusion in a supertree phylogenetic analysis, easier.
+
+This document describes the test suite
+
+Perl scripts:
+ *  find_tree_files.t
+ *  find_xml_files.t
+ *  read_tree_file.t
+ *  check_tree_file.t
+ *  fix_treeview_files.t
+ *  get_taxa_list.t
+ *  read_xml_file.t
+ *  taxa_from_xml.t
+ *  contains_fossils.t
+ *  get_analysis.t
+ *  get_source_data.t
+ *  get_treefile.t
+ *  get_characters.t
+
+
+Conventions used in this document
+---------------------------------
+
+Perl scripts are should work without calling Perl. This should work is Perl is in 
+/usr/bin. If this does not work, simply call Perl first, e.g:
+perl check_integrity.pl inDir x
+
+
+The test scripts
+================
+
+The test suite is used using make (or nmake on Windows). Running the whole
+suite using the command "make" produces the following output:
+
+
+----------
+C:\Documents and Settings\jhill5\My Documents\EPCC\Projects\Supertrees\stk>nmake test
+
+
+Microsoft (R) Program Maintenance Utility   Version 1.50
+Copyright (c) Microsoft Corp 1988-94. All rights reserved.
+
+        perl -MTest::Harness -e "$Test::Harness::verbose=0; runtests @ARGV;" find_tree_files.t  find_xml_files.t  r
+ead_tree_file.t  check_tree_file.t  fix_treeview_files.t
+find_tree_files.......ok
+find_xml_files........ok
+read_tree_file........ok
+check_tree_file.......ok
+fix_treeview_files....ok
+All tests successful.
+Files=5, Tests=35,  3 wallclock secs ( 0.00 cusr +  0.00 csys =  0.00 CPU)
+----------
+
+
+More information when running the etsts can be gleaned using the verbose mode:
+make verbose
+
+You can also run a single test using the following:
+
+---------
+perl t/taxa_from_tree.t
+1..6
+ok 1 - Correct number of taxa in tree 1
+ok 2 - Correct taxa loaded
+ok 3 - Correct number of taxa in tree 2
+ok 4 - Correct taxa loaded
+ok 5 - Correct number of taxa in tree 2
+ok 6 - Correct taxa loaded
+---------
+
+Each function in the STK Module has a coresponding test script (.t). These tests use the Test::More
+module. An example is below:
+
+---------
+
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+use Test::More tests => 3;
+
+use lib "lib";
+use Bio::STK;
+
+my $file1 = "t/data/incorrect_tree1.tre";
+my $file2 = "t/data/tree1.tre";
+my $file3 = "t/data/trees-multiple.tre";
+
+# check we catch an incorrectly formatted tree
+ok (!STK::check_tree_file($file1), "Correctly ID incorrect format");
+
+# check some correctly formatted trees
+ok (STK::check_tree_file($file2), "Correctly ID correct format");
+ok (STK::check_tree_file($file3), "Correctly ID correct format");
+
+---------
+
+When adding new function to STK you *must* add an appropriate test script to match, 
+including test data and valid result data.

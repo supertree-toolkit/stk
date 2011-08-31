@@ -1,0 +1,4 @@
+Balaenicipitidae = Balaeniceps
+Cathartidae=Ciconiidae = Cathartes,Coragyps,Sarcoramphus,Gymnogyps,Vultur
+Podargidae+Batachostomidae = Podargus,Batrachostomus
+Turnicidae = Turnix

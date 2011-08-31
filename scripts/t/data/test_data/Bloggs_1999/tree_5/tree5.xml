@@ -1,0 +1,45 @@
+<?xml version="1.0" standalone="yes"?>
+<SourceTree>
+  <Source>
+    <Author>Aragon, S., Moller, A. P., Soler, J. J. and Soler, M.</Author>
+    <Year>1999</Year>
+    <Title>Molecular phylogeny of cuckoos supports a polyphyletic origin of brood parasitism.</Title>
+    <Journal>Journal of Evolutionary Biology</Journal>
+    <Volume>12</Volume>
+    <Pages>495-50</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="15" fossil="none">
+    <List>Cacomantis flabelliformis</List>
+    <List>Cercococcyx montanus</List>
+    <List>Surniculus lugubris</List>
+    <List>Cuculus canorus</List>
+    <List>Cuculus poliocephalus</List>
+    <List>Chrysococcyx osculans</List>
+    <List>Dromococcyx phasianellus</List>
+    <List>Tapera naevia</List>
+    <List>Guira guira</List>
+    <List>Geococcyx californianus</List>
+    <List>Neomorphus geoffroyi</List>
+    <List>Clamator glandarius</List>
+    <List>Clamator jacobinus</List>
+    <List>Phaenicophaeus superciliosus</List>
+    <List>Piaya cayana</List>
+    <List>Gallus gallus</List>
+  </Taxa>
+  <Characters>
+    <Molecular number="2">
+      <Type>cytb</Type>
+      <Type>ND2</Type>
+    </Molecular>
+    <Morphological/>
+    <Behavioural/>
+    <Other/></Characters>
+  <Analysis>
+    <Type>MP</Type>
+  </Analysis>
+  <Notes></Notes>
+  <TreeFile>tree5.tre</TreeFile>
+</SourceTree>
+

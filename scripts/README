@@ -1,0 +1,49 @@
+Bio-STK version 0.04
+=====================
+
+STK is a perl module and collection of script designed to make processing
+data for supertree analysis easier. It is not an automated system that 
+blindly alters data: human intelligence is still required.
+
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+   cp _check.cfg ~/
+
+You may need to alter these commands slightly for Windows machines, for example
+using 'nmake' instead of 'make' and the final command will be
+  copy _check.cfg ~\
+
+DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+	- Test::More
+	- XML::Simple
+	- File::Find
+	- File::Spec::Functions
+	- File::Copy
+	- Bio::NEXUS
+	- Carp
+
+DEVELOPING
+
+The STK contains a devel folder that has a test suite for the executables
+along with test datasets. This is only availble via SVN.
+
+svn co https://stck.svn.sourceforge.net/svnroot/stck/ stk
+
+will download the latest snapshot which contains the devel folder. Please get in touch
+with the authors via SourceForge to enable commit access.
+
+COPYRIGHT AND LICENCE
+
+See LICENCE
+
+

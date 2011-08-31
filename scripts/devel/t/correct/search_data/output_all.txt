@@ -1,0 +1,10 @@
+
+
+   Found the following
+==========================
+
+Found the following fossil attributes all:
+-----------------
+	../devel/test_dataset/standard/Baker_etal_2005/Baker_etal_2005_corr_a.xml
+
+

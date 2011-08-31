@@ -1,0 +1,11 @@
+#NEXUS
+
+BEGIN TAXA;
+	DIMENSIONS ntax=4;
+	TAXLABELS  taxa_3 'taxa_5=taxa4' taxa1 taxa2;
+END;
+
+BEGIN TREES;
+	TREE tree_1 = (taxa_3,'taxa_5=taxa4',taxa1,taxa2);
+END;
+

@@ -1,0 +1,70 @@
+<?xml version="1.0" standalone="yes"?>
+<SourceTree>
+  <Source>
+    <Author>JOHANSSON, U. S., J. FJELDSA, L. G. S. LOKUGALAPPATTI, AND R. C. K. BOWIE</Author>
+    <Year>2007</Year>
+    <Title>A nuclear DNA phylogeny and proposed taxonomic revision of African greenbuls (Aves, Passeriformes, Pycnonotidae)</Title>
+    <Journal>Zoologica Scripta</Journal>
+    <Volume>36</Volume>
+    <Pages>417-427</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="42" fossil="none">
+    <List>Andropadus masukuensis</List>
+    <List>Andropadus tephrolaemus</List>
+    <List>Andropadus chlorigula</List>
+    <List>Andropadus milanjensis</List>
+    <List>Baeopogon clamans</List>
+    <List>Baeopogon indicator</List>
+    <List>Chlorocichla flaviventris</List>
+    <List>Chlorocichla flavicollis</List>
+    <List>Ixonotus guttatus</List>
+    <List>Thescelocichla leucopleura</List>
+    <List>Bleda syndactyla</List>
+    <List>Bleda notatus ugandae</List>
+    <List>Andropadus curvirostris</List>
+    <List>Andropadus ansorgei</List>
+    <List>Andropadus gracilis</List>
+    <List>Andropadus latirostris</List>
+    <List>Andropadus virens</List>
+    <List>Phyllastrephus scandens</List>
+    <List>Phyllastrephus lorenzi</List>
+    <List>Phyllastrephus hypochloris</List>
+    <List>Phyllastrephus flavostriatus</List>
+    <List>Phyllastrephus alfredi</List>
+    <List>Phyllastrephus terrestris</List>
+    <List>Phyllastrephus fischeri</List>
+    <List>Phyllastrephus strepitans</List>
+    <List>Phyllastrephus cerviniventris</List>
+    <List>Phyllastrephus cabanisi</List>
+    <List>Phyllastrephus placidus</List>
+    <List>Phyllastrephus debilis</List>
+    <List>Phyllastrephus xavieri</List>
+    <List>Phyllastrephus icterinus</List>
+    <List>Phyllastrephus albigularis</List>
+    <List>Criniger barbatus</List>
+    <List>Criniger ndussumensis</List>
+    <List>Andropadus gracilirostris</List>
+    <List>Calyptocichla serina</List>
+    <List>Andropadus importunus</List>
+    <List>Ixos philippinus</List>
+    <List>Alophoixus pallidus</List>
+    <List>Pycnonotus urostictus</List>
+    <List>Pycnonotus capensis</List>
+    <List>Pycnonotus barbatus</List>
+  </Taxa>
+  <Characters>
+    <Molecular number="1">
+      <Type>OrDe</Type>
+    </Molecular>
+    <Morphological/>
+    <Behavioural/>
+    <Other/></Characters>
+  <Analysis>
+    <Type>Bayesian</Type>
+  </Analysis>
+  <Notes></Notes>
+  <TreeFile>Johansson_etal_2007a_3_com.tre</TreeFile>
+</SourceTree>
+
