@@ -1,0 +1,9 @@
+analyses =
+    (
+        element MRP {
+            empty
+        }?,
+        element Baysian {
+            empty
+        }?
+    )

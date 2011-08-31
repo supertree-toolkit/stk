@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0">
+  <include href="spud_base.rng"/>
+  <include href="characters.rng"/>
+  <include href="analyses.rng"/>
+  <start>
+    <element name="phylo_storage">
+      <a:documentation>The root node of the options dictionary.</a:documentation>
+      <ref name="comment"/>
+      <element name="project_name">
+        <a:documentation>Model output files are named according to the simulation
+name, e.g. [simulation_name]_0.vtu. Non-standard
+characters in the simulation name should be avoided.</a:documentation>
+        <ref name="anystring"/>
+      </element>
+      <element name="source_trees">
+        <oneOrMore>
+          <element name="source_tree">
+            <ref name="source_tree"/>
+          </element>
+        </oneOrMore>
+      </element>
+    </element>
+  </start>
+  <!-- End of main options -->
+  <define name="source_tree">
+    <element name="source_publication">
+      <oneOrMore>
+        <element name="author">
+          <ref name="anystring"/>
+        </element>
+      </oneOrMore>
+      <element name="title">
+        <ref name="anystring"/>
+      </element>
+      <element name="year">
+        <ref name="integer"/>
+      </element>
+    </element>
+    <element name="character_data">
+      <ref name="characters"/>
+    </element>
+    <element name="analyses_used">
+      <ref name="analyses"/>
+    </element>
+    <oneOrMore>
+      <element name="tree_data">
+        <ref name="anystring"/>
+      </element>
+    </oneOrMore>
+  </define>
+</grammar>

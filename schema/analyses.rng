@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+  <define name="analyses">
+    <optional>
+      <element name="MRP">
+        <empty/>
+      </element>
+    </optional>
+    <optional>
+      <element name="Baysian">
+        <empty/>
+      </element>
+    </optional>
+  </define>
+</grammar>

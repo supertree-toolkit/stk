@@ -1,0 +1,49 @@
+include "spud_base.rnc"
+include "characters.rnc"
+include "analyses.rnc"
+
+start =
+    (
+        ## The root node of the options dictionary.
+        element phylo_storage {
+            comment,
+            ## Model output files are named according to the simulation
+            ## name, e.g. [simulation_name]_0.vtu. Non-standard
+            ## characters in the simulation name should be avoided.
+            element project_name {
+                anystring
+            },
+            element source_trees {
+                element source_tree {
+                    source_tree
+                }+
+            }
+        }
+    )
+
+# End of main options
+
+source_tree =
+    (
+        element source_publication {
+            element author {
+                anystring
+            }+,
+            element title {
+                anystring
+            },
+            element year {
+                integer
+            }
+        },
+        element character_data {
+            characters
+        },
+        element analyses_used {
+            analyses
+        },
+        element tree_data {
+            anystring
+        }+
+    )
+
