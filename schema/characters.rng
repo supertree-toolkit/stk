@@ -1,12 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="">
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="">
   <define name="characters">
     <oneOrMore>
       <element name="character">
         <choice>
           <element name="character">
             <attribute name="name">
+              <value>12S</value>
+            </attribute>
+            <attribute name="type">
+              <value>molecular</value>
+            </attribute>
+          </element>
+          <element name="character">
+            <attribute name="name">
+              <value>16S</value>
+            </attribute>
+            <attribute name="type">
+              <value>molecular</value>
+            </attribute>
+          </element>
+          <element name="character">
+            <attribute name="name">
+              <value>18S</value>
+            </attribute>
+            <attribute name="type">
+              <value>molecular</value>
+            </attribute>
+          </element>
+          <element name="character">
+            <attribute name="name">
+              <a:documentation>Also covers aA-crystallin</a:documentation>
+              <value>a-crystallin</value>
+            </attribute>
+            <attribute name="type">
+              <value>molecular</value>
+            </attribute>
+          </element>
+          <element name="character">
+            <attribute name="name">
+              <value>a-globin</value>
+            </attribute>
+            <attribute name="type">
+              <value>molecular</value>
+            </attribute>
+          </element>
+          <element name="character">
+            <attribute name="name">
               <value>cytb</value>
+            </attribute>
+            <attribute name="type">
+              <value>molecular</value>
+            </attribute>
+          </element>
+          <element name="character">
+            <attribute name="name">
+              <value>ACO1</value>
             </attribute>
             <attribute name="type">
               <value>molecular</value>
@@ -33,7 +82,11 @@
               <data type="string"/>
             </attribute>
             <attribute name="type">
-              <data type="string"/>
+              <choice>
+                <value>morphological</value>
+                <value>molecular</value>
+                <value>other</value>
+              </choice>
             </attribute>
           </element>
         </choice>
