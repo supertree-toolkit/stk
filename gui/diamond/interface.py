@@ -551,12 +551,12 @@ class Diamond:
     else:
       filter_names_and_patterns[self.suffix] = "*." + self.suffix
 
-    filename = dialogs.get_filename(title = "Save XML file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+    filename = dialogs.get_filename(title = "Save PHYML file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 
     if filename is not None:
       # Check that the selected file has a file extension. If not, add a .xml extension.
       if len(filename.split(".")) <= 1:
-        filename += ".xml"
+        filename += ".phyml"
 
       # Save the file
       self.statusbar.set_statusbar("Saving ...")

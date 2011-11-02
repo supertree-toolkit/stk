@@ -33,40 +33,46 @@ import string
 # All functions take XML and a list of other arguments, process the data and return
 # it back to the user interface handler to save it somewhere
 
+def create_name(authors, year):
+    """ From a list of authors and a year construct a sensible
+    source name.
+    Input: authors - list of last (family, sur) names (string)
+           year - the year (string)
+    Output: source_name - (string)"""
+
+    source_name = None
+    if (len(authors) == 1):
+        # single name: name_year
+        source_name = authors[0] + "_" + year
+    elif (len(authors) == 2):
+        source_name = authors[0] + "_" + authors[1] + "_" + year
+    else:
+        source_name = authors[0] + "_etal_" + year
+
+    return source_name
+
+
 def single_sourcename(XML):
     """ Create a sensible source name based on the 
     bibliographic data.
-    XML should contain the XML tree for the source that is to be
+    xml_root should contain the xml_root etree for the source that is to be
     altered only"""
 
-    xml_root = etree.fromstring(xml)
+    xml_root = etree.fromstring(XML)
 
-    # Check we got some XML
-    if (len(xml_root.xpath(xpath)) == 0):
-        # Error handling!
+    authors_ele = xml_root[0][0][0]
+    authors = []
+    for ele in authors_ele.iter():
+        if (ele.tag == "family_name"):
+            authors.append(ele.xpath('string_value')[0].text)
 
-        return
+    year = str(xml_root.xpath('source_publication/article/year/integer_value')[0].text)
+    source_name = create_name(authors, year)
 
-    # Track back along xpath to find the source element where we're going to set the name
-    element = xml_root.xpath(xpath)[0]
-    while (element.tag != 'source'):
-        element = element.getparent()
+    attributes = xml_root.attrib
+    attributes["name"] = source_name
 
-    # get author 1
-    author1 = element.xpath('source_publication/author[0]')
-    if (author1):
-        #check for author 2
-        author2 = element.xpath('source_publication/author[1]')
-        if (author2):
-            # add etal
-            author1 = author1+"_etal"
-        year = element.xpath('source_publication/year')
-        author_year = author1+"_"+year
-    else:
-        return
-
-    attributes = element.attrib
-    attributes["name"] = author_year
+    XML = etree.tostring(xml_root)
 
     # Return the XML stub with the correct name
     return XML
@@ -98,7 +104,6 @@ def import_bibliography(XML, bibfile):
     while (element.tag != 'sources'):
         element = element.getparent()
 
-    print bibfile
     if (bibfile == None):
         return XML
 
@@ -109,22 +114,34 @@ def import_bibliography(XML, bibfile):
         failed=True
 
     items= b.sortedList[:]
-    print items
 
     for entry in items:
         # for each bibliographic entry, create the XML stub and
         # add it to the main XML
         it= b.get_item(entry)
-        authors = it.get_listnames_last()
-        year = it.get_field('year')
-        title = it.get_field('title')
-        journal = it.get_field('journal')
-        volume = it.get_field('volume')
-        pages = it.get_field('firstpage') + "-" + it.get_field('lastpage')
-        booktitle = it.get_field('booktitle')
+        xml_snippet = it.to_xml()
+        # turn this into an etree
+        publication = etree.fromstring(xml_snippet)
 
-        
+        #source_name = single_sourcename(etree.tostring(publication))
+        source_name = "temp"
+        # create top of source
+        source = etree.Element("source", name=source_name)
 
+        # now attach our publication
+        source.append(publication)
+
+        # now create tail of source
+        characters = etree.SubElement(source,"character_data")
+        analyses = etree.SubElement(source,"analyses_used")
+        tree = etree.SubElement(source,"tree_data")
+
+        # append our new source to the main tree
+        element.append(source)
+
+    # sort sources in alphabetical order
+    XML = etree.tostring(xml_root)
+    print XML
     return XML
 
 ################ PRIVATE FUNCTIONS ########################

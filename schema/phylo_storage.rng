@@ -56,61 +56,63 @@ the "Auto-gen name" button below.</a:documentation>
       <element name="source_publication">
         <a:documentation>Information on the source publication. The button below can be
 used to parse a bibtex citation foe this reference.</a:documentation>
-        <element name="authors">
-          <a:documentation>Enter each author seperately</a:documentation>
-          <oneOrMore>
-            <element name="author">
-              <ref name="person"/>
-            </element>
-          </oneOrMore>
-        </element>
-        <element name="title">
-          <a:documentation>The title of the work</a:documentation>
-          <ref name="anystring"/>
-        </element>
-        <element name="year">
-          <a:documentation>Year of original publication</a:documentation>
-          <ref name="integer"/>
-        </element>
-        <optional>
-          <element name="journal">
-            <ref name="anystring"/>
-          </element>
-        </optional>
-        <optional>
-          <element name="pages">
-            <ref name="anystring"/>
-          </element>
-        </optional>
-        <optional>
-          <element name="number">
-            <ref name="anystring"/>
-          </element>
-        </optional>
-        <optional>
-          <element name="publisher">
-            <ref name="anystring"/>
-          </element>
-        </optional>
-        <optional>
-          <element name="editors">
+        <element name="article">
+          <element name="authors">
+            <a:documentation>Enter each author seperately</a:documentation>
             <oneOrMore>
-              <element name="editor">
+              <element name="author">
                 <ref name="person"/>
               </element>
             </oneOrMore>
           </element>
-        </optional>
-        <optional>
-          <element name="series">
+          <element name="title">
+            <a:documentation>The title of the work</a:documentation>
             <ref name="anystring"/>
           </element>
-        </optional>
-        <optional>
-          <element name="doi">
-            <ref name="anystring"/>
+          <element name="year">
+            <a:documentation>Year of original publication</a:documentation>
+            <ref name="integer"/>
           </element>
-        </optional>
+          <optional>
+            <element name="journal">
+              <ref name="anystring"/>
+            </element>
+          </optional>
+          <optional>
+            <element name="pages">
+              <ref name="anystring"/>
+            </element>
+          </optional>
+          <optional>
+            <element name="number">
+              <ref name="anystring"/>
+            </element>
+          </optional>
+          <optional>
+            <element name="publisher">
+              <ref name="anystring"/>
+            </element>
+          </optional>
+          <optional>
+            <element name="editors">
+              <oneOrMore>
+                <element name="editor">
+                  <ref name="person"/>
+                </element>
+              </oneOrMore>
+            </element>
+          </optional>
+          <optional>
+            <element name="series">
+              <ref name="anystring"/>
+            </element>
+          </optional>
+          <optional>
+            <element name="doi">
+              <ref name="anystring"/>
+            </element>
+          </optional>
+        </element>
       </element>
       <element name="character_data">
         <a:documentation>This stores the character data used to construct the 

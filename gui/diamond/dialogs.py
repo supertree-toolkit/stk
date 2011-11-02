@@ -126,15 +126,14 @@ def get_filename(title, action, filter_names_and_patterns = {}, folder_uri = Non
   filew.add_filter(filter)
  
   result = filew.run()
-
+  filename = None
   if result == gtk.RESPONSE_OK:
     filename = filew.get_filename()
     filtername = filew.get_filter().get_name()
-    filew.destroy()
-    return filename
-  else:
-    filew.destroy()
-    return None
+    
+  filew.destroy()
+  
+  return filename
     
 def console(parent, locals = None):
   """

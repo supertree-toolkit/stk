@@ -52,43 +52,45 @@ source=
     ## Information on the source publication. The button below can be
     ## used to parse a bibtex citation foe this reference.
     element source_publication {
-        ## Enter each author seperately
-        element authors {
-            element author {
-                person
-            }+
-        },
-        ## The title of the work
-        element title {
-            anystring
-        },
-        ## Year of original publication
-        element year {
-            integer
-        },
-        element journal {
-            anystring
-        }?,
-        element pages {
-            anystring
-        }?,
-        element number {
-            anystring
-        }?,
-        element publisher {
-            anystring
-        }?,
-        element editors {
-            element editor {
-                person
-            }+
-        }?,
-        element series {
-            anystring
-        }?,
-        element doi {
-            anystring
-        }?
+        element article {
+            ## Enter each author seperately
+            element authors {
+                element author {
+                    person
+                }+
+            },
+            ## The title of the work
+            element title {
+                anystring
+            },
+            ## Year of original publication
+            element year {
+                integer
+            },
+            element journal {
+                anystring
+            }?,
+            element pages {
+                anystring
+            }?,
+            element number {
+                anystring
+            }?,
+            element publisher {
+                anystring
+            }?,
+            element editors {
+                element editor {
+                    person
+                }+
+            }?,
+            element series {
+                anystring
+            }?,
+            element doi {
+                anystring
+            }?
+        }
     },
     ## This stores the character data used to construct the 
     ## source tree(s).
