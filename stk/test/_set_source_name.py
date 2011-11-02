@@ -13,6 +13,10 @@ xml_two = etree.parse("data/input/two_names.xml")
 xml_two_c = etree.parse("data/output/two_names.xml")
 xml_lots = etree.parse("data/input/lots.xml")
 xml_lots_c = etree.parse("data/output/lots.xml")
+xml_full = etree.parse("data/input/full_tree.xml")
+xml_full_c = etree.parse("data/output/full_tree.xml")
+
+
 
 #xml_multiple_sources = etree.parse("data/multiple_sources.xml")
 
@@ -48,6 +52,9 @@ class TestSetSourceNames(unittest.TestCase):
         new_xml = single_sourcename(etree.tostring(xml_lots))
         self.assert_(new_xml == etree.tostring(xml_lots_c)) 
 
+    def test_full_sourcenames(self):
+        new_xml = all_sourcenames(etree.tostring(xml_full))
+        self.assert_(new_xml == etree.tostring(xml_full_c))
 
 if __name__ == '__main__':
     unittest.main()

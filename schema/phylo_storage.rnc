@@ -1,4 +1,3 @@
-include "spud_base.rnc"
 include "characters.rnc"
 include "analyses.rnc"
 
@@ -90,30 +89,47 @@ source=
             element doi {
                 anystring
             }?
-        }
+        },
+        ## Some notes on this action
+        comment
     },
-    ## This stores the character data used to construct the 
-    ## source tree(s).
-    element character_data {
-        characters
-    },
-    ## Which analytical methods were used to create
-    ## the source tree?
-    element analyses_used {
-        analyses
-    },
-    ## The tree data. This is a Nexus formatted tree string. You can import
-    ## a standard Nexus file using the "Import tree" button below or copy 
-    ## paste a string.
-    element tree_data {
-        anystring
+    ## This is a source tree and associated meta-data
+    element source_tree {
+        attribute name { string }+,
+        ## This stores the character data used to construct the 
+        ## source tree(s).
+        element character_data {
+            characters
+        }+,
+        ## Which analytical methods were used to create
+        ## the source tree?
+        element analyses_used {
+            analyses
+        },
+        ## The tree data. This is a Nexus formatted tree string. You can import
+        ## a standard Nexus file using the "Import tree" button below or copy 
+        ## paste a string.
+        element tree_data {
+            anystring
+        },
+        element score_information {
+            anystring
+        }?,
+        ## You can store information about taxa in the tree
+        ## in this section. 
+        element taxa_data {
+            taxon  
+        }?,
+        ## Some notes on this action
+        comment
     }+
     )
 )
 
 person= 
 (
-    element family_name {
+    ## Surname, family or last name
+    element surname {
         anystring
     },
     element other_names {
@@ -121,3 +137,248 @@ person=
     }
 )
 
+taxon=
+(
+    element taxon {
+        attribute name { string },
+        element fossil {
+            element location {
+                anystring
+            }?,
+            element date {
+                anystring
+            }?
+        }?,
+        element synonyms {
+            element synonym {
+                anystring
+            }*
+        }?
+    }*
+)
+
+# Any value in the xml file can be accompanied by a comment
+# displayed together in the gui.
+comment =
+   element comment {
+      xsd:string
+   }?
+
+# A simple string
+anystring =
+   (
+      element string_value{
+         # Lines is a hint to the gui about the size of the text box.
+         # It is not an enforced limit on string length.
+         attribute lines { "1" },
+         xsd:string
+      },
+      comment
+   )
+
+# a filename for which the gui 
+filename =
+   (
+      element string_value{
+         attribute type { "filename" },
+         # Lines is a hint to the gui about the size of the text box.
+         # It is not an enforced limit on string length.
+         attribute lines { "1" },
+         xsd:string
+      },
+      comment
+   )
+
+# python_code is just a long string
+python_code =
+   (
+      element string_value{
+         attribute type { "python" },
+         # Lines is a hint to the gui about the size of the text box.
+         # It is not an enforced limit on string length.
+         attribute lines { "20" },
+         xsd:string
+      },
+      comment
+   )
+
+integer =
+   (
+      element integer_value{
+         attribute rank { "0" },
+         list {xsd:integer}
+      },
+      comment
+   )
+
+# an integer vector of any length
+integer_vector =
+   (
+      element integer_value{
+         attribute rank { "1" },
+         attribute shape { xsd:integer },
+         list {xsd:integer+}
+      },
+      comment
+   )
+
+# an integer tensor of any shape
+integer_tensor =
+   (
+      element integer_value{
+         attribute rank { "2" },
+         attribute shape { list{xsd:integer, xsd:integer} },
+         list {xsd:integer+}
+      },
+      comment
+   )
+
+# An integer vector of length dim
+integer_dim_vector =
+   (
+      element integer_value{
+         attribute rank { "1" },
+         # Setting dim1 to a function of dim allows the gui to set the
+         # vector to the right length.
+         attribute dim1 { "dim" },
+         attribute shape { xsd:integer },
+         list {xsd:integer+}
+      },
+      comment
+   )
+
+# An dim x dim integer matrix (rank 2 tensor).
+integer_dim_tensor =
+   (
+      element integer_value{
+         attribute rank { "2" },
+         # Setting dim1, dim2 to a function of dim allows the gui to set the
+         # tensor to the right shape.
+         attribute dim1 { "dim" },
+         attribute dim2 { "dim" },
+         attribute shape { list{xsd:integer, xsd:integer} },
+         list {xsd:integer+}
+      },
+      comment
+   )
+
+real =
+   (
+      element real_value{
+         attribute rank { "0" },
+         list {xsd:float}
+      },
+      comment
+   )
+
+# An arbitrary length real vector
+real_vector =
+   (
+      element real_value{
+         attribute rank { "1" },
+         attribute shape { xsd:integer },
+         list {xsd:float+}
+      },
+      comment
+   )
+
+# An arbitrary size real matrix (rank 2 tensor).
+real_tensor =
+   (
+      element real_value{
+         attribute rank { "2" },
+         attribute shape { list{xsd:integer, xsd:integer} },
+         list {xsd:float+}
+      },
+      comment
+   )
+
+# A real vector of length dim
+real_dim_vector =
+   (
+      element real_value{
+         attribute rank { "1" },
+         # Setting dim1 to a function of dim allows the gui to set the
+         # vector to the right length.
+         attribute dim1 { "dim" },
+         attribute shape { xsd:integer },
+         list{xsd:float+}
+      },
+      comment
+   )
+
+# A real vector of length dim minus one
+real_dim_minus_one_vector =
+   (
+      element real_value{
+         attribute rank { "1" },
+         # Setting dim1 to a function of dim allows the gui to set the
+         # vector to the right length.
+         attribute dim1 { "dim-1" },
+         attribute shape { xsd:integer },
+         list{xsd:float+}
+      },
+      comment
+   )
+
+# A dim x dim real matrix (rank 2 tensor).
+real_dim_tensor =
+   (
+      element real_value{
+         attribute symmetric {"false"},
+         attribute rank { "2" },
+         # Setting dim1, dim2 to a function of dim allows the gui to set the
+         # tensor to the right shape.
+         attribute dim1 { "dim" },
+         attribute dim2 { "dim" },
+         attribute shape { list{xsd:integer, xsd:integer} },
+         list {xsd:float+}
+      },
+      comment
+   )
+
+# A dim x dim real matrix (rank 2 tensor) constrained to be symmetric.
+real_dim_symmetric_tensor =
+   (
+      element real_value{
+         attribute symmetric {"true"},
+         attribute rank { "2" },
+         attribute dim1 { "dim" },
+         attribute dim2 { "dim" },
+         attribute shape { list{xsd:integer, xsd:integer} },
+         list {xsd:float+}
+      },
+      comment
+   )
+
+# A dim-1 x dim-1 real matrix (rank 2 tensor).
+real_dim_minus_one_tensor =
+   (
+      element real_value{
+         attribute symmetric {"false"},
+         attribute rank { "2" },
+         # Setting dim1, dim2 to a function of dim allows the gui to set the
+         # tensor to the right shape.
+         attribute dim1 { "dim-1" },
+         attribute dim2 { "dim-1" },
+         attribute shape { list{xsd:integer, xsd:integer} },
+         list {xsd:float+}
+      },
+      comment
+   )
+
+# A dim-1 x dim-1 real matrix (rank 2 tensor) constrained to be symmetric.
+real_dim_minus_one_symmetric_tensor =
+   (
+      element real_value{
+         attribute symmetric {"true"},
+         attribute rank { "2" },
+         # Setting dim1, dim2 to a function of dim allows the gui to set the
+         # tensor to the right shape.
+         attribute dim1 { "dim-1" },
+         attribute dim2 { "dim-1" },
+         attribute shape { list{xsd:integer, xsd:integer} },
+         list {xsd:float+}
+      },
+      comment
+   )

@@ -933,8 +933,6 @@ class Diamond:
     
      filename = dialogs.get_filename(title = "Choose .bib fle", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 
-     print filename
-     
      f = StringIO.StringIO()
      self.tree.write(f)
      XML = f.getvalue() 
@@ -955,10 +953,8 @@ class Diamond:
 
      path = self.treestore.get_path(self.selected_iter)
 
-     self.display_validation_errors(self.s.read_errors())
 
      self.set_saved(False)
- 
      self.treeview.freeze_child_notify()
      self.treeview.set_model(None)
      self.signals = {}
@@ -974,50 +970,44 @@ class Diamond:
      return 
 
 
-  def on_standardise_names(self):
-    """
-    Standardises source names to Author1_Author2_Year
-    """
-    from lxml import etree
-    import diamond.interface
+  def on_standardise_names(self, widget = None):
+     """
+     Standardises source names to Author1_Author2_Year
+     """
+     f = StringIO.StringIO()
+     self.tree.write(f)
+     XML = f.getvalue() 
+     XML = stk.all_sourcenames(XML)
+     ios = StringIO.StringIO(XML)
+     try:
+        tree_read = self.s.read(ios)
 
-    xml_root = etree.fromstring(xml)
+        if tree_read is None:
+           dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
+           return
 
-    # This check is needed in case xpath in Diamond is not updated upon changing an attribute
-    # (can be removed once the bug in Diamond has been fixed)
-    if (len(xml_root.xpath(xpath)) == 0):
+        self.display_validation_errors(self.s.read_errors())
+        self.tree = tree_read
+     except:
+        dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
         return
 
-    # Track back along xpath to find the source element where we're going to set the name
-    element = xml_root.xpath(xpath)[0]
-    while (element.tag != 'source'):
-        element = element.getparent()
+     path = self.treestore.get_path(self.selected_iter)
 
-    # get author 1
-    author1 = element.xpath('source_publication/authors')[0].xpath("author/family_name/string_value")[0].text
-    if (len(author1)>0):
-        #check for author 2
-        try:
-            author2 = element.xpath('source_publication/authors')[1].xpath("author/family_name/string_value")[0].text
-        except:
-            author2 = ""
+     self.set_saved(False)
+     self.treeview.freeze_child_notify()
+     self.treeview.set_model(None)
+     self.signals = {}
+     self.set_treestore(None, [self.tree], True)
+     self.treeview.set_model(self.treestore)
+     self.treeview.thaw_child_notify()
 
-        if (len(author2)>0):
-            # add etal
-            author1 = author1+"_etal"
-        year = int(element.xpath('source_publication/year')[0].xpath("integer_value")[0].text)
-        author_year = author1+"_"+str(year)
-    else:
-        return
+     self.set_geometry_dim_tree()
+  
+     self.treeview.get_selection().select_path(path)
 
-    attributes = element.attrib
-    attributes["name"] = author_year
-    diamond.interface.plugin_xml = etree.tostring(xml_root)
-
-    pluginSender.emit("plugin_changed_xml")
-    
-    return
-
+     self.scherror.destroy_error_list()
+     return 
 
   ## LHS ###
 

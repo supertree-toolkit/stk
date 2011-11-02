@@ -83,13 +83,25 @@ def all_sourcenames(XML):
     dataset. 
     """
 
+    xml_root = etree.fromstring(XML)
+
     # Find all "source" trees
+    sources = []
+    for ele in xml_root.iter():
+        if (ele.tag == "source"):
+            sources.append(ele)
 
     for s in sources:
-        # pull XML stub
-        new_s = single_sourcename(s)
-        # insert into XML
+        xml_snippet = etree.tostring(s)
+        xml_snippet = single_sourcename(xml_snippet)
+        parent = s.getparent()
+        ele_T = etree.fromstring(xml_snippet)
+        parent.replace(s,ele_T)
 
+    XML = etree.tostring(xml_root)
+    # gah: the replacement has got rid of line breaks for some reason
+    XML = string.replace(XML,"</source><source ", "</source>\n    <source ")
+    XML = string.replace(XML,"</source></sources", "</source>\n  </sources")    
     return XML
 
 def import_bibliography(XML, bibfile):    
