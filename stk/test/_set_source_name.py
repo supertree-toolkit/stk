@@ -11,9 +11,9 @@ xml_single = etree.parse("data/input/single_name.xml")
 xml_single_c = etree.parse("data/output/single_name.xml")
 xml_two = etree.parse("data/input/two_names.xml")
 xml_two_c = etree.parse("data/output/two_names.xml")
+xml_lots = etree.parse("data/input/lots.xml")
+xml_lots_c = etree.parse("data/output/lots.xml")
 
-
-#xml_lots = etree.parse("data/lots_names.xml")
 #xml_multiple_sources = etree.parse("data/multiple_sources.xml")
 
 class TestSetSourceNames(unittest.TestCase):
@@ -43,11 +43,10 @@ class TestSetSourceNames(unittest.TestCase):
     def test_twonames(self):
         new_xml = single_sourcename(etree.tostring(xml_two))   
         self.assert_(new_xml == etree.tostring(xml_two_c)) 
-#
-#    def test_lotsofnames(self):
-#        source_name = single_sourcename(xml_single)        
-#
-#    def test_multilpesources(self):
+
+    def test_lotsofnames(self):
+        new_xml = single_sourcename(etree.tostring(xml_lots))
+        self.assert_(new_xml == etree.tostring(xml_lots_c)) 
 
 
 if __name__ == '__main__':
