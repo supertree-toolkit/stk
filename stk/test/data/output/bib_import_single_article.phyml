@@ -1,0 +1,58 @@
+<phylo_storage>
+  <project_name>
+    <string_value lines="1"/>
+  </project_name>
+  <sources>
+    <source name="Hill_Davis_2011">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Hill</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">J.</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Davis</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">K.</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">A great and important paper</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2011</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Nature</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">1-4</string_value>
+          </pages>
+          <number>
+            <string_value lines="1">5</string_value>
+          </number>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="12S"/>
+        </character_data>
+        <analyses_used>
+          <analysis name="Maximum Parsimony"/>
+        </analyses_used>
+        <tree_data>
+          <string_value lines="1">Insert your tree here</string_value>
+        </tree_data>
+      </source_tree>
+    </source>
+  </sources>
+  <history/>
+</phylo_storage>

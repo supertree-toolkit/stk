@@ -1,0 +1,68 @@
+<phylo_storage>
+  <project_name>
+    <string_value lines="1"/>
+  </project_name>
+  <sources>
+    <source name="Hill_Davis_2010">
+      <source_publication>
+        <book>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Hill</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">J.</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Davis</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">K.</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">A great and important book</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2010</integer_value>
+          </year>
+          <editors>
+            <editor>
+              <surname>
+                <string_value lines="1">Davis</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">K.</string_value>
+              </other_names>
+            </editor>
+          </editors>
+          <series>
+            <string_value lines="1">The great book collection</string_value>
+          </series>
+          <publisher>
+            <string_value lines="1">Wiley</string_value>
+          </publisher>          
+          <doi>
+            <string_value lines="1">10.12.3431.w.23</string_value>
+          </doi>
+        </book>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="12S"/>
+        </character_data>
+        <analyses_used>
+          <analysis name="Maximum Parsimony"/>
+        </analyses_used>
+        <tree_data>
+          <string_value lines="1">Insert your tree here</string_value>
+        </tree_data>
+      </source_tree>
+    </source>
+  </sources>
+  <history/>
+</phylo_storage>

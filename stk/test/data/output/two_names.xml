@@ -3,17 +3,17 @@
     <article>
       <authors>
         <author>
-          <family_name>
+          <surname>
             <string_value lines="1">Hill</string_value>
-          </family_name>
+          </surname>
           <other_names>
             <string_value lines="1">Jon</string_value>
           </other_names>
         </author>
         <author>
-          <family_name>
+          <surname>
             <string_value lines="1">Davis</string_value>
-          </family_name>
+          </surname>
           <other_names>
             <string_value lines="1">Katie</string_value>
           </other_names>

@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='utf-8'?>
+<phylo_storage>
+  <project_name>
+    <string_value lines="1"/>
+  </project_name>
+  <sources>
+    <source>
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1"/>
+              </surname>
+              <other_names>
+                <string_value lines="1"/>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1"/>
+          </title>
+          <year>
+            <integer_value rank="0"/>
+          </year>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="12S"/>
+        </character_data>
+        <analyses_used>
+          <analysis name="Maximum Parsimony"/>
+        </analyses_used>
+        <tree_data>
+          <string_value lines="1"/>
+        </tree_data>
+      </source_tree>
+    </source>
+  </sources>
+  <history/>
+</phylo_storage>

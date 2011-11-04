@@ -1,4 +1,4 @@
-<source name="test">
+<source name="Hill_etal_1996">
   <source_publication>
     <article>
       <authors>
@@ -17,7 +17,15 @@
           <other_names>
             <string_value lines="1">Katie</string_value>
           </other_names>
-      </author>
+        </author>        
+          <author>
+          <surname>
+            <string_value lines="1">Smith</string_value>
+          </surname>
+          <other_names>
+            <string_value lines="1">John</string_value>
+          </other_names>
+        </author>
       </authors>
       <title>
         <string_value lines="1">A great paper</string_value>

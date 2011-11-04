@@ -5,7 +5,8 @@
 # so that the tests get run
 #
 UNIT_TESTS = \
-_set_source_name.py 
+_set_source_name.py \
+_bibliography.py
 
 # default case (and test). Loop through all
 # tests listed above and run them
