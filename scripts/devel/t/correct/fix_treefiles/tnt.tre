@@ -1,6 +1,0 @@
-#NEXUS
-
-begin trees; 
-tree tnt_1 = [&U]
-(taxa1,taxa2,taxa3);
-end;

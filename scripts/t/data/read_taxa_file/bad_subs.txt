@@ -1,4 +1,0 @@
-taxa1 = taxa2, taxa3
-taxa4 = taxa5
-taxa6
-taxa7 = 

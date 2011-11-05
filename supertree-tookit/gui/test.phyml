@@ -1,0 +1,123 @@
+<phylo_storage>
+  <project_name>
+    <string_value lines="1">test</string_value>
+  </project_name>
+  <sources>
+    <source name="Hill_1996">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <family_name>
+                <string_value lines="1">Hill</string_value>
+              </family_name>
+              <other_names>
+                <string_value lines="1">jon</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">iuvbiv</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">1996</integer_value>
+          </year>
+        </article>
+      </source_publication>
+      <character_data>
+        <character>
+          <character type="molecular" name="16S"/>
+        </character>
+      </character_data>
+      <analyses_used/>
+      <tree_data>
+        <string_value lines="1">Add your tree here</string_value>
+      </tree_data>
+    </source><source name="Hill_etal_1996">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <family_name>
+                <string_value lines="1">Hill</string_value>
+              </family_name>
+              <other_names>
+                <string_value lines="1">Jon</string_value>
+              </other_names>
+            </author>
+            <author>
+              <family_name>
+                <string_value lines="1">Davis</string_value>
+              </family_name>
+              <other_names>
+                <string_value lines="1">Katie</string_value>
+              </other_names>
+            </author>        
+              <author>
+              <family_name>
+                <string_value lines="1">Smith</string_value>
+              </family_name>
+              <other_names>
+                <string_value lines="1">John</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">A great paper</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">1996</integer_value>
+          </year>
+        </article>
+      </source_publication>
+      <character_data>
+        <character>
+          <character type="molecular" name="16S"/>
+        </character>
+      </character_data>
+      <analyses_used/>
+      <tree_data>
+        <string_value lines="1">Add your tree here</string_value>
+      </tree_data>
+    </source><source name="Hill_Davis_1996">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <family_name>
+                <string_value lines="1">Hill</string_value>
+              </family_name>
+              <other_names>
+                <string_value lines="1">Jon</string_value>
+              </other_names>
+            </author>
+            <author>
+              <family_name>
+                <string_value lines="1">Davis</string_value>
+              </family_name>
+              <other_names>
+                <string_value lines="1">Katie</string_value>
+              </other_names>
+          </author>
+          </authors>
+          <title>
+            <string_value lines="1">A great paper</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">1996</integer_value>
+          </year>
+        </article>
+      </source_publication>
+      <character_data>
+        <character>
+          <character type="molecular" name="16S"/>
+        </character>
+      </character_data>
+      <analyses_used/>
+      <tree_data>
+        <string_value lines="1">Add your tree here</string_value>
+      </tree_data>
+    </source></sources>
+  <history/>
+</phylo_storage>
+

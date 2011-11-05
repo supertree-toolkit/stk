@@ -1,5 +1,0 @@
-#NEXUS
-
-BEGIN TREES;
-       tree 'basic bush' = ((A,B),(C,D));
-END;

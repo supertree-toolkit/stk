@@ -1,9 +1,0 @@
-
-======== WARNING ========
-There were 10 clusters found, which means some trees are not
-connected by 2 or more taxa. You may need to remove the trees
-that are not connected to the main group of connected trees.
-
-Run this script again with --graphic (and --compressed if the data are large)
-to see which trees are not sufficiently well connected
----------------------------------------------------------------------

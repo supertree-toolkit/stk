@@ -148,18 +148,10 @@ def import_bibliography(XML, bibfile):
        
         characters = etree.SubElement(s_tree,"character_data")
         c_data = etree.SubElement(characters,"character")
-        attributes_c = c_data.attrib
-        attributes_c['type'] = "molecular"
-        attributes_c['name'] = "12S"
         analyses = etree.SubElement(s_tree,"analyses_used")
         a_data = etree.SubElement(analyses,"analysis")
-        attributes_a = a_data.attrib
-        attributes_a['name'] = "Maximum Parsimony"
         tree = etree.SubElement(s_tree,"tree_data")
         tree_string = etree.SubElement(tree,"string_value")
-        attributes = tree_string.attrib
-        attributes["lines"] = "1"
-        tree_string.text = "Insert your tree here"
 
         source.tail="\n      "
 

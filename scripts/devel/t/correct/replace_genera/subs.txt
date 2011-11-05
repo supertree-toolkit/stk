@@ -1,3 +1,0 @@
-Gallus = Gallus gallus
-Larus = Larus argentatus,Larus marinus
-Struthio = Struthio camelus
