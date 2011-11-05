@@ -91,7 +91,7 @@ def error_tb(parent, message):
 
   return
 
-def get_filename(title, action, filter_names_and_patterns = {}, folder_uri = None):
+def get_filename(title, action, parent=None, filter_names_and_patterns = {}, folder_uri = None):
   """
   Utility function to get a filename.
   """
@@ -102,7 +102,7 @@ def get_filename(title, action, filter_names_and_patterns = {}, folder_uri = Non
     buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_NEW,gtk.RESPONSE_OK)
   else:
     buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK)
-  filew = gtk.FileChooserDialog(title=title, action=action, buttons=buttons)
+  filew = gtk.FileChooserDialog(title=title, parent=parent, action=action, buttons=buttons)
   filew.set_default_response(gtk.RESPONSE_OK)
 
   if not folder_uri is None:

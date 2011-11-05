@@ -30,7 +30,6 @@ gobject.signal_new("plugin_changed_xml", PluginSender, gobject.SIGNAL_RUN_FIRST,
 class PluginReceiver(gobject.GObject):
     def __init__(self, sender):
         self.__gobject_init__()
-        
         sender.connect('plugin_changed_xml', self.report_signal)
         
     def report_signal(self, sender):
@@ -52,7 +51,8 @@ class PluginDetails(object):
 
   def execute(self, xml, xpath):
      self.cb(xml, xpath)
-     yield False
+     return
+
 
 def register_plugin(applies, name, cb):
   global plugins

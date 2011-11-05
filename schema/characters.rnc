@@ -1,48 +1,46 @@
 characters =
     (
-        element character {
-              element character {
-                 attribute name { "12S" },
-                 attribute type { "molecular" }
-              }|              
-              element character {
-                 attribute name { "16S" },
-                 attribute type { "molecular" }
-              }|
-              element character {
-                 attribute name { "18S" },
-                 attribute type { "molecular" }
-              }|              
-              element character {
-                 ## Also covers aA-crystallin
-                 attribute name { "a-crystallin" },
-                 attribute type { "molecular" }
-              }|
-              element character {
-                 attribute name { "a-globin" },
-                 attribute type { "molecular" }
-              }|
-              element character {
-                 attribute name { "cytb" },
-                 attribute type { "molecular" }
-              }|
-              element character {
-                 attribute name { "ACO1" },
-                 attribute type { "molecular" }
-              }|
-              element character {
-                 attribute name { "feathers" },
-                 attribute type { "morphological" }
-              }|
-              element character {
-                 attribute name { "osteology" },
-                 attribute type { "morphological" }
-              }|
-              element character {
-                 attribute name { string },
-                 attribute type { "morphological"|"molecular"|"other" } 
-              }
-        }+
+          element character {
+             attribute name { "12S" },
+             attribute type { "molecular" }
+          }|              
+          element character {
+             attribute name { "16S" },
+             attribute type { "molecular" }
+          }|
+          element character {
+             attribute name { "18S" },
+             attribute type { "molecular" }
+          }|              
+          element character {
+             ## Also covers aA-crystallin
+             attribute name { "a-crystallin" },
+             attribute type { "molecular" }
+          }|
+          element character {
+             attribute name { "a-globin" },
+             attribute type { "molecular" }
+          }|
+          element character {
+             attribute name { "cytb" },
+             attribute type { "molecular" }
+          }|
+          element character {
+             attribute name { "ACO1" },
+             attribute type { "molecular" }
+          }|
+          element character {
+             attribute name { "feathers" },
+             attribute type { "morphological" }
+          }|
+          element character {
+             attribute name { "osteology" },
+             attribute type { "morphological" }
+          }|
+          element character {
+             attribute name { string },
+             attribute type { "morphological"|"molecular"|"behavioural"|"other" } 
+          }+
     )
 
 

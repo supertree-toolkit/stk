@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #    Jon Hill. jon.hill@imperial.ac.uk. 
-
+from Bio import Phylo
+from StringIO import StringIO
 import os
 import sys
 import math
@@ -187,6 +188,65 @@ def import_bibliography(XML, bibfile):
     XML = etree.tostring(xml_root,pretty_print=True)
     
     return XML
+
+def import_tree(filename, gui=None, tree_no = -1):
+    """Takes a NEXUS formatted file and returns a list containing the tree
+    strings"""
+   
+    if (filename.endswith(".nex") or filename.endswith(".tre")):
+        trees = list(Phylo.parse(filename, "nexus"))
+    elif (filename.endswith("nwk")):
+        trees = list(Phylo.parse(filename, "newick"))
+    elif (filename.endswith("phyloxml")):
+        trees = list(Phylo.parse(filename, "phyloxml"))
+
+   
+    if (len(trees) > 1 and tree_no == -1):
+        message = "Found "+len(trees)+" trees. Which one do you want to load (1-"+len(trees)+"?"
+        if (gui==None):
+            tree_no = raw_input(message)
+            # assume the user counts from 1 to n
+            tree_no -= 1
+        else:
+            #base this on a message dialog
+            dialog = gtk.MessageDialog(
+		        None,
+		        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+		        gtk.MESSAGE_QUESTION,
+		        gtk.BUTTONS_OK,
+		        None)
+            dialog.set_markup(message)
+            #create the text input field
+            entry = gtk.Entry()
+            #allow the user to press enter to do ok
+            entry.connect("activate", responseToDialog, dialog, gtk.RESPONSE_OK)
+            #create a horizontal box to pack the entry and a label
+            hbox = gtk.HBox()
+            hbox.pack_start(gtk.Label("Tree number:"), False, 5, 5)
+            hbox.pack_end(entry)
+            #add it and show it
+            dialog.vbox.pack_end(hbox, True, True, 0)
+            dialog.show_all()
+            #go go go
+            dialog.run()
+            text = entry.get_text()
+            dialog.destroy()
+            tree_no = int(text) - 1
+    else:
+        tree_no = 0
+
+    h = StringIO()
+    Phylo.write(trees[tree_no], h, "newick")
+    tree = h.getvalue()
+
+    return tree
+
+def draw_tree(tree_string):
+    
+    h = StringIO(tree_string)
+    tree = Phylo.read(h, 'newick')
+    tree.ladderize()   # Flip branches so deeper clades are displayed at top
+    Phylo.draw(tree)
 
 ################ PRIVATE FUNCTIONS ########################
 

@@ -20,6 +20,7 @@ reference (paper, book, etc) and one or more trees</a:documentation>
             <ref name="source"/>
           </element>
         </oneOrMore>
+        <ref name="comment"/>
       </element>
       <element name="history">
         <a:documentation>Automatic recording of the projects history in terms
@@ -55,63 +56,7 @@ the "Auto-gen name" button below.</a:documentation>
       <element name="source_publication">
         <a:documentation>Information on the source publication. The button below can be
 used to parse a bibtex citation foe this reference.</a:documentation>
-        <element name="article">
-          <element name="authors">
-            <a:documentation>Enter each author seperately</a:documentation>
-            <oneOrMore>
-              <element name="author">
-                <ref name="person"/>
-              </element>
-            </oneOrMore>
-          </element>
-          <element name="title">
-            <a:documentation>The title of the work</a:documentation>
-            <ref name="anystring"/>
-          </element>
-          <element name="year">
-            <a:documentation>Year of original publication</a:documentation>
-            <ref name="integer"/>
-          </element>
-          <optional>
-            <element name="journal">
-              <ref name="anystring"/>
-            </element>
-          </optional>
-          <optional>
-            <element name="pages">
-              <ref name="anystring"/>
-            </element>
-          </optional>
-          <optional>
-            <element name="number">
-              <ref name="anystring"/>
-            </element>
-          </optional>
-          <optional>
-            <element name="publisher">
-              <ref name="anystring"/>
-            </element>
-          </optional>
-          <optional>
-            <element name="editors">
-              <oneOrMore>
-                <element name="editor">
-                  <ref name="person"/>
-                </element>
-              </oneOrMore>
-            </element>
-          </optional>
-          <optional>
-            <element name="series">
-              <ref name="anystring"/>
-            </element>
-          </optional>
-          <optional>
-            <element name="doi">
-              <ref name="anystring"/>
-            </element>
-          </optional>
-        </element>
+        <ref name="publication"/>
         <ref name="comment">
           <a:documentation>Some notes on this action</a:documentation>
         </ref>
@@ -160,6 +105,187 @@ in this section. </a:documentation>
         </element>
       </oneOrMore>
     </group>
+  </define>
+  <define name="publication">
+    <choice>
+      <element name="article">
+        <element name="authors">
+          <a:documentation>Enter each author seperately</a:documentation>
+          <oneOrMore>
+            <element name="author">
+              <ref name="person"/>
+            </element>
+          </oneOrMore>
+        </element>
+        <element name="title">
+          <a:documentation>The title of the work</a:documentation>
+          <ref name="anystring"/>
+        </element>
+        <element name="year">
+          <a:documentation>Year of original publication</a:documentation>
+          <ref name="integer"/>
+        </element>
+        <optional>
+          <element name="journal">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="pages">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="number">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="doi">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+      </element>
+      <element name="book">
+        <element name="authors">
+          <a:documentation>Enter each author seperately</a:documentation>
+          <oneOrMore>
+            <element name="author">
+              <ref name="person"/>
+            </element>
+          </oneOrMore>
+        </element>
+        <element name="title">
+          <a:documentation>The title of the work</a:documentation>
+          <ref name="anystring"/>
+        </element>
+        <element name="year">
+          <a:documentation>Year of original publication</a:documentation>
+          <ref name="integer"/>
+        </element>
+        <optional>
+          <element name="editors">
+            <oneOrMore>
+              <element name="editor">
+                <ref name="person"/>
+              </element>
+            </oneOrMore>
+          </element>
+        </optional>
+        <optional>
+          <element name="series">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="publisher">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="doi">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+      </element>
+      <element name="inbook">
+        <element name="authors">
+          <a:documentation>Enter each author seperately</a:documentation>
+          <oneOrMore>
+            <element name="author">
+              <ref name="person"/>
+            </element>
+          </oneOrMore>
+        </element>
+        <element name="title">
+          <a:documentation>The title of the work</a:documentation>
+          <ref name="anystring"/>
+        </element>
+        <element name="year">
+          <a:documentation>Year of original publication</a:documentation>
+          <ref name="integer"/>
+        </element>
+        <optional>
+          <element name="editors">
+            <oneOrMore>
+              <element name="editor">
+                <ref name="person"/>
+              </element>
+            </oneOrMore>
+          </element>
+        </optional>
+        <optional>
+          <element name="series">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="publisher">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="pages">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="doi">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+      </element>
+      <element name="incollection">
+        <element name="authors">
+          <a:documentation>Enter each author seperately</a:documentation>
+          <oneOrMore>
+            <element name="author">
+              <ref name="person"/>
+            </element>
+          </oneOrMore>
+        </element>
+        <element name="title">
+          <a:documentation>The title of the work</a:documentation>
+          <ref name="anystring"/>
+        </element>
+        <element name="year">
+          <a:documentation>Year of original publication</a:documentation>
+          <ref name="integer"/>
+        </element>
+        <optional>
+          <element name="editors">
+            <oneOrMore>
+              <element name="editor">
+                <ref name="person"/>
+              </element>
+            </oneOrMore>
+          </element>
+        </optional>
+        <element name="booktitle">
+          <ref name="anystring"/>
+        </element>
+        <optional>
+          <element name="series">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="publisher">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="pages">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="doi">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+      </element>
+    </choice>
   </define>
   <define name="person">
     <element name="surname">
@@ -244,23 +370,6 @@ in this section. </a:documentation>
     </element>
     <ref name="comment"/>
   </define>
-  <!-- python_code is just a long string -->
-  <define name="python_code">
-    <element name="string_value">
-      <attribute name="type">
-        <value>python</value>
-      </attribute>
-      <!--
-        Lines is a hint to the gui about the size of the text box.
-        It is not an enforced limit on string length.
-      -->
-      <attribute name="lines">
-        <value>20</value>
-      </attribute>
-      <data type="string"/>
-    </element>
-    <ref name="comment"/>
-  </define>
   <define name="integer">
     <element name="integer_value">
       <attribute name="rank">
@@ -309,60 +418,6 @@ in this section. </a:documentation>
     </element>
     <ref name="comment"/>
   </define>
-  <!-- An integer vector of length dim -->
-  <define name="integer_dim_vector">
-    <element name="integer_value">
-      <attribute name="rank">
-        <value>1</value>
-      </attribute>
-      <!--
-        Setting dim1 to a function of dim allows the gui to set the
-        vector to the right length.
-      -->
-      <attribute name="dim1">
-        <value>dim</value>
-      </attribute>
-      <attribute name="shape">
-        <data type="integer"/>
-      </attribute>
-      <list>
-        <oneOrMore>
-          <data type="integer"/>
-        </oneOrMore>
-      </list>
-    </element>
-    <ref name="comment"/>
-  </define>
-  <!-- An dim x dim integer matrix (rank 2 tensor). -->
-  <define name="integer_dim_tensor">
-    <element name="integer_value">
-      <attribute name="rank">
-        <value>2</value>
-      </attribute>
-      <!--
-        Setting dim1, dim2 to a function of dim allows the gui to set the
-        tensor to the right shape.
-      -->
-      <attribute name="dim1">
-        <value>dim</value>
-      </attribute>
-      <attribute name="dim2">
-        <value>dim</value>
-      </attribute>
-      <attribute name="shape">
-        <list>
-          <data type="integer"/>
-          <data type="integer"/>
-        </list>
-      </attribute>
-      <list>
-        <oneOrMore>
-          <data type="integer"/>
-        </oneOrMore>
-      </list>
-    </element>
-    <ref name="comment"/>
-  </define>
   <define name="real">
     <element name="real_value">
       <attribute name="rank">
@@ -396,182 +451,6 @@ in this section. </a:documentation>
     <element name="real_value">
       <attribute name="rank">
         <value>2</value>
-      </attribute>
-      <attribute name="shape">
-        <list>
-          <data type="integer"/>
-          <data type="integer"/>
-        </list>
-      </attribute>
-      <list>
-        <oneOrMore>
-          <data type="float"/>
-        </oneOrMore>
-      </list>
-    </element>
-    <ref name="comment"/>
-  </define>
-  <!-- A real vector of length dim -->
-  <define name="real_dim_vector">
-    <element name="real_value">
-      <attribute name="rank">
-        <value>1</value>
-      </attribute>
-      <!--
-        Setting dim1 to a function of dim allows the gui to set the
-        vector to the right length.
-      -->
-      <attribute name="dim1">
-        <value>dim</value>
-      </attribute>
-      <attribute name="shape">
-        <data type="integer"/>
-      </attribute>
-      <list>
-        <oneOrMore>
-          <data type="float"/>
-        </oneOrMore>
-      </list>
-    </element>
-    <ref name="comment"/>
-  </define>
-  <!-- A real vector of length dim minus one -->
-  <define name="real_dim_minus_one_vector">
-    <element name="real_value">
-      <attribute name="rank">
-        <value>1</value>
-      </attribute>
-      <!--
-        Setting dim1 to a function of dim allows the gui to set the
-        vector to the right length.
-      -->
-      <attribute name="dim1">
-        <value>dim-1</value>
-      </attribute>
-      <attribute name="shape">
-        <data type="integer"/>
-      </attribute>
-      <list>
-        <oneOrMore>
-          <data type="float"/>
-        </oneOrMore>
-      </list>
-    </element>
-    <ref name="comment"/>
-  </define>
-  <!-- A dim x dim real matrix (rank 2 tensor). -->
-  <define name="real_dim_tensor">
-    <element name="real_value">
-      <attribute name="symmetric">
-        <value>false</value>
-      </attribute>
-      <attribute name="rank">
-        <value>2</value>
-      </attribute>
-      <!--
-        Setting dim1, dim2 to a function of dim allows the gui to set the
-        tensor to the right shape.
-      -->
-      <attribute name="dim1">
-        <value>dim</value>
-      </attribute>
-      <attribute name="dim2">
-        <value>dim</value>
-      </attribute>
-      <attribute name="shape">
-        <list>
-          <data type="integer"/>
-          <data type="integer"/>
-        </list>
-      </attribute>
-      <list>
-        <oneOrMore>
-          <data type="float"/>
-        </oneOrMore>
-      </list>
-    </element>
-    <ref name="comment"/>
-  </define>
-  <!-- A dim x dim real matrix (rank 2 tensor) constrained to be symmetric. -->
-  <define name="real_dim_symmetric_tensor">
-    <element name="real_value">
-      <attribute name="symmetric">
-        <value>true</value>
-      </attribute>
-      <attribute name="rank">
-        <value>2</value>
-      </attribute>
-      <attribute name="dim1">
-        <value>dim</value>
-      </attribute>
-      <attribute name="dim2">
-        <value>dim</value>
-      </attribute>
-      <attribute name="shape">
-        <list>
-          <data type="integer"/>
-          <data type="integer"/>
-        </list>
-      </attribute>
-      <list>
-        <oneOrMore>
-          <data type="float"/>
-        </oneOrMore>
-      </list>
-    </element>
-    <ref name="comment"/>
-  </define>
-  <!-- A dim-1 x dim-1 real matrix (rank 2 tensor). -->
-  <define name="real_dim_minus_one_tensor">
-    <element name="real_value">
-      <attribute name="symmetric">
-        <value>false</value>
-      </attribute>
-      <attribute name="rank">
-        <value>2</value>
-      </attribute>
-      <!--
-        Setting dim1, dim2 to a function of dim allows the gui to set the
-        tensor to the right shape.
-      -->
-      <attribute name="dim1">
-        <value>dim-1</value>
-      </attribute>
-      <attribute name="dim2">
-        <value>dim-1</value>
-      </attribute>
-      <attribute name="shape">
-        <list>
-          <data type="integer"/>
-          <data type="integer"/>
-        </list>
-      </attribute>
-      <list>
-        <oneOrMore>
-          <data type="float"/>
-        </oneOrMore>
-      </list>
-    </element>
-    <ref name="comment"/>
-  </define>
-  <!-- A dim-1 x dim-1 real matrix (rank 2 tensor) constrained to be symmetric. -->
-  <define name="real_dim_minus_one_symmetric_tensor">
-    <element name="real_value">
-      <attribute name="symmetric">
-        <value>true</value>
-      </attribute>
-      <attribute name="rank">
-        <value>2</value>
-      </attribute>
-      <!--
-        Setting dim1, dim2 to a function of dim allows the gui to set the
-        tensor to the right shape.
-      -->
-      <attribute name="dim1">
-        <value>dim-1</value>
-      </attribute>
-      <attribute name="dim2">
-        <value>dim-1</value>
       </attribute>
       <attribute name="shape">
         <list>

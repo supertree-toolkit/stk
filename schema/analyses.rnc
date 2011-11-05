@@ -1,9 +1,15 @@
 analyses =
-    (
-        element MRP {
-            empty
-        }?,
-        element Baysian {
-            empty
-        }?
-    )
+(
+    element  analysis{
+        attribute name {"Maximum Parsimony"}
+    }|
+    element analysis {
+        attribute name {"Maximum Liklihood"}
+    }|
+    element analysis {
+        attribute name {"Bayesian"}
+    }|
+    element analysis {
+        attribute name {string}
+    }
+)

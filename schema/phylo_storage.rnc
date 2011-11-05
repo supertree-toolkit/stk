@@ -17,7 +17,8 @@ start =
             element sources {
                 element source {
                     source
-                }+
+                }+,
+                comment
             },
             ## Automatic recording of the projects history in terms
             ## of which processing steps have been used.
@@ -51,45 +52,7 @@ source=
     ## Information on the source publication. The button below can be
     ## used to parse a bibtex citation foe this reference.
     element source_publication {
-        element article {
-            ## Enter each author seperately
-            element authors {
-                element author {
-                    person
-                }+
-            },
-            ## The title of the work
-            element title {
-                anystring
-            },
-            ## Year of original publication
-            element year {
-                integer
-            },
-            element journal {
-                anystring
-            }?,
-            element pages {
-                anystring
-            }?,
-            element number {
-                anystring
-            }?,
-            element publisher {
-                anystring
-            }?,
-            element editors {
-                element editor {
-                    person
-                }+
-            }?,
-            element series {
-                anystring
-            }?,
-            element doi {
-                anystring
-            }?
-        },
+        publication,
         ## Some notes on this action
         comment
     },
@@ -124,6 +87,137 @@ source=
         comment
     }+
     )
+)
+
+publication=
+(
+        element article {
+            ## Enter each author seperately
+            element authors {
+                element author {
+                    person
+                }+
+            },
+            ## The title of the work
+            element title {
+                anystring
+            },
+            ## Year of original publication
+            element year {
+                integer
+            },
+            element journal {
+                anystring
+            }?,
+            element pages {
+                anystring
+            }?,
+            element number {
+                anystring
+            }?,
+            element doi {
+                anystring
+            }?
+        }|
+        element book {
+            ## Enter each author seperately
+            element authors {
+                element author {
+                    person
+                }+
+            },
+            ## The title of the work
+            element title {
+                anystring
+            },
+            ## Year of original publication
+            element year {
+                integer
+            },            
+            element editors {
+                element editor {
+                    person
+                }+
+            }?,
+            element series {
+                anystring
+            }?,
+            element publisher {
+                anystring
+            }?,
+            element doi {
+                anystring
+            }?
+        }|
+        element inbook {
+            ## Enter each author seperately
+            element authors {
+                element author {
+                    person
+                }+
+            },
+            ## The title of the work
+            element title {
+                anystring
+            },
+            ## Year of original publication
+            element year {
+                integer
+            },            
+            element editors {
+                element editor {
+                    person
+                }+
+            }?,
+            element series {
+                anystring
+            }?,
+            element publisher {
+                anystring
+            }?,
+            element pages {
+                anystring
+            }?,
+            element doi {
+                anystring
+            }?
+        }| 
+        element incollection {
+            ## Enter each author seperately
+            element authors {
+                element author {
+                    person
+                }+
+            },
+            ## The title of the work
+            element title {
+                anystring
+            },
+            ## Year of original publication
+            element year {
+                integer
+            },        
+            element editors {
+                element editor {
+                    person
+                }+
+            }?,
+            element booktitle {
+                anystring
+            },
+            element series {
+                anystring
+            }?,
+            element publisher {
+                anystring
+            }?,
+            element pages {
+                anystring
+            }?,
+            element doi {
+                anystring
+            }?
+        }
 )
 
 person= 
@@ -189,19 +283,6 @@ filename =
       comment
    )
 
-# python_code is just a long string
-python_code =
-   (
-      element string_value{
-         attribute type { "python" },
-         # Lines is a hint to the gui about the size of the text box.
-         # It is not an enforced limit on string length.
-         attribute lines { "20" },
-         xsd:string
-      },
-      comment
-   )
-
 integer =
    (
       element integer_value{
@@ -233,35 +314,6 @@ integer_tensor =
       comment
    )
 
-# An integer vector of length dim
-integer_dim_vector =
-   (
-      element integer_value{
-         attribute rank { "1" },
-         # Setting dim1 to a function of dim allows the gui to set the
-         # vector to the right length.
-         attribute dim1 { "dim" },
-         attribute shape { xsd:integer },
-         list {xsd:integer+}
-      },
-      comment
-   )
-
-# An dim x dim integer matrix (rank 2 tensor).
-integer_dim_tensor =
-   (
-      element integer_value{
-         attribute rank { "2" },
-         # Setting dim1, dim2 to a function of dim allows the gui to set the
-         # tensor to the right shape.
-         attribute dim1 { "dim" },
-         attribute dim2 { "dim" },
-         attribute shape { list{xsd:integer, xsd:integer} },
-         list {xsd:integer+}
-      },
-      comment
-   )
-
 real =
    (
       element real_value{
@@ -287,96 +339,6 @@ real_tensor =
    (
       element real_value{
          attribute rank { "2" },
-         attribute shape { list{xsd:integer, xsd:integer} },
-         list {xsd:float+}
-      },
-      comment
-   )
-
-# A real vector of length dim
-real_dim_vector =
-   (
-      element real_value{
-         attribute rank { "1" },
-         # Setting dim1 to a function of dim allows the gui to set the
-         # vector to the right length.
-         attribute dim1 { "dim" },
-         attribute shape { xsd:integer },
-         list{xsd:float+}
-      },
-      comment
-   )
-
-# A real vector of length dim minus one
-real_dim_minus_one_vector =
-   (
-      element real_value{
-         attribute rank { "1" },
-         # Setting dim1 to a function of dim allows the gui to set the
-         # vector to the right length.
-         attribute dim1 { "dim-1" },
-         attribute shape { xsd:integer },
-         list{xsd:float+}
-      },
-      comment
-   )
-
-# A dim x dim real matrix (rank 2 tensor).
-real_dim_tensor =
-   (
-      element real_value{
-         attribute symmetric {"false"},
-         attribute rank { "2" },
-         # Setting dim1, dim2 to a function of dim allows the gui to set the
-         # tensor to the right shape.
-         attribute dim1 { "dim" },
-         attribute dim2 { "dim" },
-         attribute shape { list{xsd:integer, xsd:integer} },
-         list {xsd:float+}
-      },
-      comment
-   )
-
-# A dim x dim real matrix (rank 2 tensor) constrained to be symmetric.
-real_dim_symmetric_tensor =
-   (
-      element real_value{
-         attribute symmetric {"true"},
-         attribute rank { "2" },
-         attribute dim1 { "dim" },
-         attribute dim2 { "dim" },
-         attribute shape { list{xsd:integer, xsd:integer} },
-         list {xsd:float+}
-      },
-      comment
-   )
-
-# A dim-1 x dim-1 real matrix (rank 2 tensor).
-real_dim_minus_one_tensor =
-   (
-      element real_value{
-         attribute symmetric {"false"},
-         attribute rank { "2" },
-         # Setting dim1, dim2 to a function of dim allows the gui to set the
-         # tensor to the right shape.
-         attribute dim1 { "dim-1" },
-         attribute dim2 { "dim-1" },
-         attribute shape { list{xsd:integer, xsd:integer} },
-         list {xsd:float+}
-      },
-      comment
-   )
-
-# A dim-1 x dim-1 real matrix (rank 2 tensor) constrained to be symmetric.
-real_dim_minus_one_symmetric_tensor =
-   (
-      element real_value{
-         attribute symmetric {"true"},
-         attribute rank { "2" },
-         # Setting dim1, dim2 to a function of dim allows the gui to set the
-         # tensor to the right shape.
-         attribute dim1 { "dim-1" },
-         attribute dim2 { "dim-1" },
          attribute shape { list{xsd:integer, xsd:integer} },
          list {xsd:float+}
       },

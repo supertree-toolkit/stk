@@ -62,7 +62,7 @@ from lxml import etree
 
 pluginSender = plugins.PluginSender()
 pluginReceiver = plugins.PluginReceiver(pluginSender)
-plugin_xml = "h"
+plugin_xml = None
 
 try:
   gtk.Tooltip()
@@ -233,21 +233,15 @@ class Diamond:
 
       path = self.treestore.get_path(self.selected_iter)
 
-      self.display_validation_errors(self.s.read_errors())
-
       self.set_saved(False)
- 
       self.treeview.freeze_child_notify()
       self.treeview.set_model(None)
       self.signals = {}
       self.set_treestore(None, [self.tree], True)
       self.treeview.set_model(self.treestore)
       self.treeview.thaw_child_notify()
-
       self.set_geometry_dim_tree()
-  
       self.treeview.get_selection().select_path(path)
-
       self.scherror.destroy_error_list()
       plugin_xml = None
 
@@ -930,12 +924,14 @@ class Diamond:
      filter_names_and_patterns = {}
      filter_names_and_patterns['Bibtex file'] = "*.bib"
      filter_names_and_patterns['All files'] = "*"
-    
      filename = dialogs.get_filename(title = "Choose .bib fle", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
-
+     
      f = StringIO.StringIO()
      self.tree.write(f)
      XML = f.getvalue() 
+     if (filename == None):
+         return
+
      XML = stk.import_bibliography(XML, filename)
      ios = StringIO.StringIO(XML)
      try:
@@ -961,13 +957,15 @@ class Diamond:
      self.set_treestore(None, [self.tree], True)
      self.treeview.set_model(self.treestore)
      self.treeview.thaw_child_notify()
+     self.treeview.grab_focus()
+     self.treeview.get_selection().select_path(0)
 
-     self.set_geometry_dim_tree()
+     self.selected_node = None
+     self.update_options_frame()
   
-     self.treeview.get_selection().select_path(path)
-
      self.scherror.destroy_error_list()
-     return 
+     
+     return  
 
 
   def on_standardise_names(self, widget = None):
@@ -1570,7 +1568,7 @@ class Diamond:
         used_name = name_tree.name + '[@name="%s"]' % name_tree.attrs["name"][1]
       elif name_tree.parent is not None and name_tree.parent.count_children_by_schemaname(name_tree.schemaname) > 1:
         siblings = [x for x in name_tree.parent.children if x.schemaname == name_tree.schemaname]
-        i = 0
+        i = 1
         for sibling in siblings:
           if sibling is name_tree:
             break
@@ -1600,13 +1598,11 @@ class Diamond:
     self.plugin_buttonbox.add(button)
 
   def plugin_handler(self, widget, plugin):
-    global plugin_xml
-
+    
     f = StringIO.StringIO()
     self.tree.write(f)
     xml = f.getvalue()
-    task = plugin.execute(xml, self.current_xpath)
-    gobject.idle_add(task.next)
+    plugin.execute(xml, self.current_xpath)
 
 
   def get_selected_row(self, selection=None):

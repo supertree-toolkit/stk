@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="">
   <define name="analyses">
-    <optional>
-      <element name="MRP">
-        <empty/>
+    <choice>
+      <element name="analysis">
+        <attribute name="name">
+          <value>Maximum Parsimony</value>
+        </attribute>
       </element>
-    </optional>
-    <optional>
-      <element name="Baysian">
-        <empty/>
+      <element name="analysis">
+        <attribute name="name">
+          <value>Maximum Liklihood</value>
+        </attribute>
       </element>
-    </optional>
+      <element name="analysis">
+        <attribute name="name">
+          <value>Bayesian</value>
+        </attribute>
+      </element>
+      <element name="analysis">
+        <attribute name="name">
+          <data type="string"/>
+        </attribute>
+      </element>
+    </choice>
   </define>
 </grammar>
