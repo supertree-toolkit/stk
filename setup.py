@@ -10,7 +10,7 @@ except KeyError:
   destdir = ""
 
 # Get all the plugin directories we have
-plugin_dirs = [dir for dir in os.listdir('plugins') if os.path.isdir(os.path.join('plugins', dir)) and dir[0] != '.']
+plugin_dirs = ['supertree-toolkit/plugins']
 plugin_data_files = []
 for plugin in plugin_dirs:
   plugin_data_files.append((destdir + "/usr/local/share/diamond/plugins/" + plugin,
@@ -23,9 +23,9 @@ setup(
       author = "The STK Team",
       author_email = "jon.hill@imperial.ac.uk",
       url = "https://launchpad.net/supertree-tookit",
-      packages = ['stk-gui'],['stk'],['supertree-toolkit']
-      scripts=["bin/stk-gui"],
-      data_files = [(destdir + "/usr/local/share/stk/gui", ["gui/gui.glade", "gui/stk.svg"])] +
+      packages = ['stk-gui','stk'],
+      scripts=["stk-gui/bin/stk-gui", "stk/stk"],
+      data_files = [(destdir + "/usr/local/share/stk/", ["gui/gui.glade", "gui/stk.svg"])] +
                    plugin_data_files
      )
 
