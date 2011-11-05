@@ -1,6 +1,6 @@
 # Bash completion for diamond
 
-_diamond()
+_stk-gui()
 {
     local cmd cur prev skinsdir IFS=$' \t\n' i j k=0
 
@@ -19,11 +19,11 @@ _diamond()
           return 0
           ;;
          *)
-          _filedir '@(*ml)'
+          _filedir '@(phyml)'
           return 0;
           ;;
     esac
 
     return 0
 }
-complete -o filenames -F _diamond diamond
+complete -o filenames -F _stk-gui stk-gui

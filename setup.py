@@ -17,16 +17,15 @@ for plugin in plugin_dirs:
     glob.glob('plugins/' + plugin + '/*.py')))
 
 setup(
-      name='diamond',
-      version='1.0',
-      description="Fluidity preprocessor",
-      author = "The ICOM team",
-      author_email = "patrick.farrell@imperial.ac.uk",
-      url = "http://amcg.ese.ic.ac.uk",
-      packages = ['diamond'],
-      package_dir = {'diamond': 'diamond'},
-      scripts=["bin/diamond"],
-      data_files = [(destdir + "/usr/local/share/diamond/gui", ["gui/gui.glade", "gui/diamond.svg"])] +
+      name='supertree-toolkit',
+      version='0.1',
+      description="Supertree data source management",
+      author = "The STK Team",
+      author_email = "jon.hill@imperial.ac.uk",
+      url = "https://launchpad.net/supertree-tookit",
+      packages = ['stk-gui'],['stk'],['supertree-toolkit']
+      scripts=["bin/stk-gui"],
+      data_files = [(destdir + "/usr/local/share/stk/gui", ["gui/gui.glade", "gui/stk.svg"])] +
                    plugin_data_files
      )
 
