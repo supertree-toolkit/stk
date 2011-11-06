@@ -1,9 +1,7 @@
 from distutils.core import setup
-from distutils.extension import Extension
 import os
 import os.path
 import glob
-from setuptools import find_packages
 
 try:
   destdir = os.environ["DESTDIR"]
@@ -24,7 +22,8 @@ setup(
       author = "The STK Team",
       author_email = "jon.hill@imperial.ac.uk",
       url = "https://launchpad.net/supertree-tookit",
-      packages = find_packages(),
+      packages = ['stk', 'stk_gui'],
+      package_dir = {'stk': 'stk', 'stk_gui':'stk_gui/stk_gui'},
       scripts=["stk_gui/bin/stk-gui", "stk/stk"],
       data_files = [(destdir + "/usr/local/share/stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.svg"])] +
                    plugin_data_files
