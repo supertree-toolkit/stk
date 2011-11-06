@@ -4,6 +4,11 @@
     <choice>
       <element name="analysis">
         <attribute name="name">
+          <data type="string"/>
+        </attribute>
+      </element>
+      <element name="analysis">
+        <attribute name="name">
           <value>Maximum Parsimony</value>
         </attribute>
       </element>
@@ -15,11 +20,6 @@
       <element name="analysis">
         <attribute name="name">
           <value>Bayesian</value>
-        </attribute>
-      </element>
-      <element name="analysis">
-        <attribute name="name">
-          <data type="string"/>
         </attribute>
       </element>
     </choice>

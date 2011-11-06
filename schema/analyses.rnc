@@ -1,5 +1,8 @@
 analyses =
 (
+    element analysis {
+        attribute name {string}
+    }|
     element  analysis{
         attribute name {"Maximum Parsimony"}
     }|
@@ -8,8 +11,5 @@ analyses =
     }|
     element analysis {
         attribute name {"Bayesian"}
-    }|
-    element analysis {
-        attribute name {string}
     }
 )

@@ -24,7 +24,8 @@ import sys
 import tempfile
 import cStringIO as StringIO
 import Queue
-
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
+sys.path.insert(0, stk_path)
 import stk.supertree_toolkit as stk
 import pango
 import gobject
@@ -639,7 +640,7 @@ class Diamond:
     # Construct the dictionary of locals that will be used by the interpreter
     locals = {}
     locals["interface"] = globals()
-    locals["diamond_gui"] = self
+    locals["stk_gui"] = self
   
     dialogs.console(self.main_window, locals)
     

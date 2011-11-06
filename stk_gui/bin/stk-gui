@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 
-#    This file is part of Diamond.
+#    This file is part of the STK.
 #
-#    Diamond is free software: you can redistribute it and/or modify
+#    STK is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    Diamond is distributed in the hope that it will be useful,
+#    STK is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
+#    along with STK.  If not, see <http://www.gnu.org/licenses/>.
 
 import getopt
 import os
@@ -28,13 +28,13 @@ gtk.gdk.threads_init()
 import gobject
 gobject.threads_init()
 
-# do this right at the start, so we can find the diamond modules
-diamond_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir )
-sys.path.insert(0, diamond_path)
+# do this right at the start, so we can find the stk_gui modules
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir )
+sys.path.insert(0, stk_path)
 dxdiff_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir, "dxdiff" )
 sys.path.insert(0, dxdiff_path)
 
-import diamond.debug as debug
+import stk_gui.stk_gui.debug as debug
 
 def Help():
   """
@@ -59,7 +59,7 @@ def Help():
                "-v               Verbosity switch - if supplied STK prints additional\n" + \
                "                 debugging information to standard output and standard error\n" + \
                "\n" + \
-               "* Note: The locations of Spud schemas can also be defined in ~/.diamond/schemata/,\n" + \
+               "* Note: The locations of Spud schemas can also be defined in ~/.stk_gui/schemata/,\n" + \
                "  see the Spud manual for further details.", 0)
 
   return
@@ -95,14 +95,14 @@ def main():
     except:
       pass
 
-  import diamond.config as config
-  import diamond.dialogs as dialogs
-  import diamond.interface as interface
-  import diamond.schemausage as schemausage
-  import diamond.schema as schema
-  import diamond.tree as tree
-  import diamond.plugins as plugins
-  import diamond.useview as useview
+  import stk_gui.stk_gui.config as config
+  import stk_gui.stk_gui.dialogs as dialogs
+  import stk_gui.stk_gui.interface as interface
+  import stk_gui.stk_gui.schemausage as schemausage
+  import stk_gui.stk_gui.schema as schema
+  import stk_gui.stk_gui.tree as tree
+  import stk_gui.stk_gui.plugins as plugins
+  import stk_gui.stk_gui.useview as useview
 
   try:
     input_filename = args[0]
@@ -110,7 +110,7 @@ def main():
     input_filename = None
 
   logofile = None
-  for possible_logofile in [os.path.join(diamond_path, "gui", "diamond.svg"), "/usr/share/diamond/gui/diamond.svg"]:
+  for possible_logofile in [os.path.join(stk_path, "gui", "stk.svg"), "/usr/local/share/stk/stk.svg"]:
     try:
       os.stat(possible_logofile)
       logofile = possible_logofile
@@ -150,12 +150,6 @@ def main():
         schemata = config.schemata[suffix]
       except:
         debug.deprint("Could not find schema matching suffix %s." % suffix, 0)
-        debug.deprint("Have you registered it in /etc/diamond/schemata/ or $HOME/.diamond/schemata?", 0)
-        debug.deprint("To register a schema, place a file in one of those directories, and let its name be the suffix of your language.", 0)
-        debug.deprint("The file should consist of:", 0)
-        debug.deprint("  A Verbal Description Of The Language Purpose", 0)
-        debug.deprint("  Lines of the format alias=/path/to/the/schema/file.rng", 0)
-        debug.deprint("  alias= is optional, if not given default= is added automaticly")
         sys.exit(1)
       
     # if there is only one schema, use that
@@ -204,9 +198,9 @@ def main():
   # Import the GUI Glade file.
 
   gladefile = None
-  for possible_gladefile in [os.path.join(diamond_path, "gui", "gui.glade"),
-                             os.path.join(diamond_path, "share", "diamond", "gui", "gui.glade"),
-                             "/usr/share/diamond/gui/gui.glade"]:
+  for possible_gladefile in [os.path.join(stk_path, "gui", "gui.glade"),
+                             os.path.join(stk_path, "share", "stk", "gui", "gui.glade"),
+                             "/usr/local/share/stk/gui.glade"]:
     try:
       os.stat(possible_gladefile)
       gladefile = possible_gladefile

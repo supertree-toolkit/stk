@@ -1,6 +1,6 @@
-from diamond.plugins import register_plugin, cb_decorator
-import diamond.interface
-from diamond import dialogs
+from stk_gui.plugins import register_plugin, cb_decorator
+import stk_gui.interface
+from stk_gui import dialogs
 import gtk
 import os.path
 import sys
@@ -33,8 +33,8 @@ def handle_click(xml, xpath, **kwargs):
     ele_T = etree.fromstring(new_xml)
     element.getparent().replace(element,ele_T)
 
-    diamond.interface.plugin_xml = etree.tostring(xml_root)
-    diamond.interface.pluginSender.emit('plugin_changed_xml')
+    stk_gui.interface.plugin_xml = etree.tostring(xml_root)
+    stk_gui.interface.pluginSender.emit('plugin_changed_xml')
 
     return
 

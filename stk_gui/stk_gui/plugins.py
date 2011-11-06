@@ -8,7 +8,7 @@ import gtk.gdk
 import debug
 
 import time
-from diamond.interface import plugin_xml
+from stk_gui.stk_gui.interface import plugin_xml
 
 
 plugins = []

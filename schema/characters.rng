@@ -4,6 +4,19 @@
     <choice>
       <element name="character">
         <attribute name="name">
+          <data type="string"/>
+        </attribute>
+        <attribute name="type">
+          <choice>
+            <value>morphological</value>
+            <value>molecular</value>
+            <value>behavioural</value>
+            <value>other</value>
+          </choice>
+        </attribute>
+      </element>
+      <element name="character">
+        <attribute name="name">
           <value>12S</value>
         </attribute>
         <attribute name="type">
@@ -67,26 +80,13 @@
           <value>morphological</value>
         </attribute>
       </element>
-      <element name="character">
-        <attribute name="name">
-          <value>osteology</value>
-        </attribute>
-        <attribute name="type">
-          <value>morphological</value>
-        </attribute>
-      </element>
       <oneOrMore>
         <element name="character">
           <attribute name="name">
-            <data type="string"/>
+            <value>osteology</value>
           </attribute>
           <attribute name="type">
-            <choice>
-              <value>morphological</value>
-              <value>molecular</value>
-              <value>behavioural</value>
-              <value>other</value>
-            </choice>
+            <value>morphological</value>
           </attribute>
         </element>
       </oneOrMore>

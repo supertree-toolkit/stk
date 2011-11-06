@@ -1,4 +1,4 @@
-from diamond.plugins import register_plugin, cb_decorator
+from stk_gui.plugins import register_plugin, cb_decorator
 import os.path
 import sys
 sys.path.append("/home/jhill1/software/supertree_toolkit_2/supertree-toolkit/stk/")

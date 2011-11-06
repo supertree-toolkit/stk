@@ -1,6 +1,10 @@
 characters =
     (
           element character {
+             attribute name { string },
+             attribute type { "morphological"|"molecular"|"behavioural"|"other" } 
+          }|
+          element character {
              attribute name { "12S" },
              attribute type { "molecular" }
           }|              
@@ -36,10 +40,6 @@ characters =
           element character {
              attribute name { "osteology" },
              attribute type { "morphological" }
-          }|
-          element character {
-             attribute name { string },
-             attribute type { "morphological"|"molecular"|"behavioural"|"other" } 
           }+
     )
 
