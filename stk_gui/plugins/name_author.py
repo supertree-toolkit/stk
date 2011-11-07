@@ -5,8 +5,7 @@ import gtk
 import os.path
 import sys
 import gobject
-sys.path.append("/home/jhill1/software/supertree_toolkit_2/supertree-toolkit/stk/")
-from supertree_toolkit import *
+from stk import *
 
 def plugin_applies(xpath):
     # Allow plugin to be used at any element which is under a source dataset

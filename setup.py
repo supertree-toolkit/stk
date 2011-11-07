@@ -12,7 +12,7 @@ except KeyError:
 plugin_dirs = ['stk_gui/plugins/']
 plugin_data_files = []
 for plugin in plugin_dirs:
-  plugin_data_files.append((destdir + "/usr/local/share/plugin",
+  plugin_data_files.append((destdir + "/usr/local/share/plugin/phyml/",
     glob.glob(plugin + '/*.py')))
 
 schema_dirs = ['schema']

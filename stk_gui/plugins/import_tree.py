@@ -5,8 +5,7 @@ import gtk
 import os.path
 import sys
 import gobject
-sys.path.append("/home/jhill1/software/supertree_toolkit_2/supertree-toolkit/stk/")
-from supertree_toolkit import *
+import stk.supertree_toolkit as stk
 
 def plugin_applies(xpath):
     # Allow plugin to be used at any element which is under a source dataset
@@ -35,7 +34,7 @@ def handle_click(xml, xpath, **kwargs):
     while (element.tag != 'tree_data'):
         element = element.getparent()
 
-    tree = import_tree(filename)
+    tree = stk.import_tree(filename)
     tree_string_tag = element[0]
     tree_string_tag.text = tree
     

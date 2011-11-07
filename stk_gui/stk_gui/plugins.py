@@ -62,7 +62,7 @@ def register_plugin(applies, name, cb):
 def configure_plugins(suffix):
   homedir = os.path.expanduser('~')
   dirs = [os.path.join(homedir, ".stk", "plugins", suffix),
-      "/usr/local/share/stk_gui/plugins/" + suffix]
+      "/usr/local/share/plugin/" + suffix]
   if sys.platform != "win32" and sys.platform != "win64":
     dirs.append("/etc/stk/plugins/" + suffix)
 
