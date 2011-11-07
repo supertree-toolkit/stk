@@ -8,7 +8,7 @@ import gtk.gdk
 import debug
 
 import time
-from stk_gui.stk_gui.interface import plugin_xml
+from stk_gui.interface import plugin_xml
 
 
 plugins = []
@@ -62,7 +62,7 @@ def register_plugin(applies, name, cb):
 def configure_plugins(suffix):
   homedir = os.path.expanduser('~')
   dirs = [os.path.join(homedir, ".stk", "plugins", suffix),
-      "/usr/local/share/stk/plugins/" + suffix]
+      "/usr/local/share/stk_gui/plugins/" + suffix]
   if sys.platform != "win32" and sys.platform != "win64":
     dirs.append("/etc/stk/plugins/" + suffix)
 

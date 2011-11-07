@@ -34,7 +34,7 @@ sys.path.insert(0, stk_path)
 dxdiff_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir, "dxdiff" )
 sys.path.insert(0, dxdiff_path)
 
-import stk_gui.stk_gui.debug as debug
+import stk_gui.debug as debug
 
 def Help():
   """
@@ -95,14 +95,14 @@ def main():
     except:
       pass
 
-  import stk_gui.stk_gui.config as config
-  import stk_gui.stk_gui.dialogs as dialogs
-  import stk_gui.stk_gui.interface as interface
-  import stk_gui.stk_gui.schemausage as schemausage
-  import stk_gui.stk_gui.schema as schema
-  import stk_gui.stk_gui.tree as tree
-  import stk_gui.stk_gui.plugins as plugins
-  import stk_gui.stk_gui.useview as useview
+  import stk_gui.config as config
+  import stk_gui.dialogs as dialogs
+  import stk_gui.interface as interface
+  import stk_gui.schemausage as schemausage
+  import stk_gui.schema as schema
+  import stk_gui.tree as tree
+  import stk_gui.plugins as plugins
+  import stk_gui.useview as useview
 
   try:
     input_filename = args[0]

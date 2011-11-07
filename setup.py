@@ -9,11 +9,19 @@ except KeyError:
   destdir = ""
 
 # Get all the plugin directories we have
-plugin_dirs = ['supertree-toolkit/plugins']
+plugin_dirs = ['stk_gui/plugins/']
 plugin_data_files = []
 for plugin in plugin_dirs:
-  plugin_data_files.append((destdir + "/usr/local/share/stk/plugins/" + plugin,
-    glob.glob('plugins/' + plugin + '/*.py')))
+  plugin_data_files.append((destdir + "/usr/local/share/plugin",
+    glob.glob(plugin + '/*.py')))
+
+schema_dirs = ['schema']
+schema_data_files = []
+for s in schema_dirs:
+  schema_data_files.append((destdir + "/usr/local/share/stk/schemata/schema",
+    glob.glob(s + '/*.rng')))
+
+
 
 setup(
       name='supertree-toolkit',
@@ -22,10 +30,11 @@ setup(
       author = "The STK Team",
       author_email = "jon.hill@imperial.ac.uk",
       url = "https://launchpad.net/supertree-tookit",
-      packages = ['stk', 'stk_gui'],
-      package_dir = {'stk': 'stk', 'stk_gui':'stk_gui/stk_gui'},
+      packages = ['stk', 'stk_gui', 'stk.yapbib'],
+      package_dir = {'stk': 'stk', 'stk_gui':'stk_gui/stk_gui', 'stk.yapbib':'stk/yapbib'},
       scripts=["stk_gui/bin/stk-gui", "stk/stk"],
       data_files = [(destdir + "/usr/local/share/stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.svg"])] +
-                   plugin_data_files
-     )
+                   plugin_data_files + schema_data_files +
+                   [(destdir + "/usr/local/share/stk/schemata", ["schema/phyml"])]
+    )
 
