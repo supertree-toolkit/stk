@@ -45,15 +45,20 @@ class TestBibliography(unittest.TestCase):
         xml = etree.tostring(xml_start)
         try:
             new_xml = import_bibliography(xml, bib_book)
-        except stk_exceptions.BibImportError:
-            self.assert_(True)
+        except stk_exceptions.BibImportError as details:
+           self.assert_(details.msg == "Error importing bib file. Check all your authors for correct format")
         except:
-            self.assert_(False)
-        #self.assert_(isEqualXML(new_xml, xml_book_c))
+           return False
 
-
-
-#
+    def test_katie_article2(self):
+        bib_book = "data/input/test2.bib"
+        xml = etree.tostring(xml_start)
+        try:
+            new_xml = import_bibliography(xml, bib_book)
+        except stk_exceptions.BibImportError as details:
+           self.assert_(details.msg == "Error importing bib file. Check all your entry keys")
+        except:
+           return False
 #    def test_import_single_incollection(self):
 #
 #    def test_import_single_inbook(self):

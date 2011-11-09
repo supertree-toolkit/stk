@@ -399,6 +399,8 @@ class BibItem(dict):
     
     # title
     k = self.get_field('title')
+    if (helper.is_string_like(k)):
+        k= helper.replace_tags(k,'xml')
     sp+=1
     v = '\n%s<string_value lines="1">%s</string_value>\n%s'%(sp*spc,k,(sp-1)*spc)
     sp-=1
@@ -438,6 +440,8 @@ class BibItem(dict):
     # journal - if article
     if (entry_type == "article"):
         k = self.get_field('journal')
+        if (helper.is_string_like(k)):
+            k= helper.replace_tags(k,'xml')
         sp+=1
         v = '\n%s<string_value lines="1">%s</string_value>\n%s'%(sp*spc,k,(sp-1)*spc)
         sp-=1
@@ -446,6 +450,8 @@ class BibItem(dict):
     # booktitle - if incollection
     if (entry_type == "incollection"):
         k = self.get_field('booktitle')
+        if (helper.is_string_like(k)):
+            k= helper.replace_tags(k,'xml')
         sp+=1
         v = '\n%s<string_value lines="1">%s</string_value>\n%s'%(sp*spc,k,(sp-1)*spc)
         sp-=1
@@ -455,8 +461,10 @@ class BibItem(dict):
     ## empty tags, just ignore completely.
 
     # series - everything but article
-    if (entry_type == "book" or entry_type == "inbook" or entry_type == "incollection"):        
+    if (entry_type == "book" or entry_type == "inbook" or entry_type == "incollection"):  
         k = self.get_field('series')
+        if (helper.is_string_like(k)):
+            k= helper.replace_tags(k,'xml')
         if (k != None):
             sp+=1
             v = '\n%s<string_value lines="1">%s</string_value>\n%s'%(sp*spc,k,(sp-1)*spc)
@@ -464,8 +472,10 @@ class BibItem(dict):
             s+= '%s<series>%s</series>\n' %(sp*spc,v)
 
     # publisher - everything but article
-    if (entry_type == "book" or entry_type == "inbook" or entry_type == "incollection"):        
+    if (entry_type == "book" or entry_type == "inbook" or entry_type == "incollection"): 
         k = self.get_field('publisher')
+        if (helper.is_string_like(k)):
+            k= helper.replace_tags(k,'xml')
         if (k != None):
             sp+=1
             v = '\n%s<string_value lines="1">%s</string_value>\n%s'%(sp*spc,k,(sp-1)*spc)

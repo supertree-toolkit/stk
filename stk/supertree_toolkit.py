@@ -127,6 +127,9 @@ def import_bibliography(XML, bibfile):
     except UnboundLocalError:
         # This seems to be raised if the authors aren't formatted correctly
         raise BibImportError("Error importing bib file. Check all your authors for correct format")
+    except AttributeError:
+        # This seems to occur if the keys are not set for the entry
+        raise BibImportError("Error importing bib file. Check all your entry keys")
     except: 
         raise BibImportError("Error importing bibliography") 
 

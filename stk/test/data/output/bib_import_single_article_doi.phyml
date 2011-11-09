@@ -46,13 +46,13 @@
       </source_publication>
       <source_tree>
         <character_data>
-          <character type="molecular" name="12S"/>
+          <character/>
         </character_data>
         <analyses_used>
-          <analysis name="Maximum Parsimony"/>
+          <analysis/>
         </analyses_used>
         <tree_data>
-          <string_value lines="1">Insert your tree here</string_value>
+          <string_value/>
         </tree_data>
       </source_tree>
     </source>
