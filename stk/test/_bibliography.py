@@ -6,6 +6,7 @@ from supertree_toolkit import import_bibliography
 import os
 from lxml import etree
 from util import *
+import stk_exceptions
 
 parser = etree.XMLParser(remove_blank_text=True)
 xml_start = etree.parse("data/input/start_up.phyml")
@@ -38,6 +39,19 @@ class TestBibliography(unittest.TestCase):
         xml = etree.tostring(xml_start)
         new_xml = import_bibliography(xml, bib_book)
         self.assert_(isEqualXML(new_xml, xml_book_c))
+
+    def test_katie_article(self):
+        bib_book = "data/input/test.bib"
+        xml = etree.tostring(xml_start)
+        try:
+            new_xml = import_bibliography(xml, bib_book)
+        except stk_exceptions.BibImportError:
+            self.assert_(True)
+        except:
+            self.assert_(False)
+        #self.assert_(isEqualXML(new_xml, xml_book_c))
+
+
 
 #
 #    def test_import_single_incollection(self):

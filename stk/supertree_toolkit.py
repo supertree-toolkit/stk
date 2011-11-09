@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#    Supertree Toolkit. SOftware for managing and manipulating sources
+#    Supertree Toolkit. Software for managing and manipulating sources
 #    trees ready for supretree construction.
 #    Copyright (C) 2011, Jon Hill, Katie Davis
 #
@@ -27,6 +27,8 @@ import numpy
 from lxml import etree
 import yapbib.biblist as biblist
 import string
+from stk_exceptions import *
+import traceback
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -118,13 +120,15 @@ def import_bibliography(XML, bibfile):
     sources = xml_root.xpath('sources')[0]
     sources.tail="\n      "
     if (bibfile == None):
-        return XML
+        raise BibImportError("Error importing bib file. There was an error with the file")
 
-    failed = False
     try: 
         b.import_bibtex(bibfile)
+    except UnboundLocalError:
+        # This seems to be raised if the authors aren't formatted correctly
+        raise BibImportError("Error importing bib file. Check all your authors for correct format")
     except: 
-        failed=True
+        raise BibImportError("Error importing bibliography") 
 
     items= b.sortedList[:]
 
@@ -133,30 +137,33 @@ def import_bibliography(XML, bibfile):
         # add it to the main XML
         it= b.get_item(entry)
         xml_snippet = it.to_xml()
-        # turn this into an etree
-        publication = etree.fromstring(xml_snippet)
-        # create top of source
-        source = etree.Element("source")
-        # now attach our publication
-        source.append(publication)
-        new_source = single_sourcename(etree.tostring(source,pretty_print=True))
-        source = etree.fromstring(new_source)
+        if xml_snippet != None:
+            # turn this into an etree
+            publication = etree.fromstring(xml_snippet)
+            # create top of source
+            source = etree.Element("source")
+            # now attach our publication
+            source.append(publication)
+            new_source = single_sourcename(etree.tostring(source,pretty_print=True))
+            source = etree.fromstring(new_source)
 
-        # now create tail of source
-        s_tree = etree.SubElement(source, "source_tree")
-        s_tree.tail="\n      "
-       
-        characters = etree.SubElement(s_tree,"character_data")
-        c_data = etree.SubElement(characters,"character")
-        analyses = etree.SubElement(s_tree,"analyses_used")
-        a_data = etree.SubElement(analyses,"analysis")
-        tree = etree.SubElement(s_tree,"tree_data")
-        tree_string = etree.SubElement(tree,"string_value")
+            # now create tail of source
+            s_tree = etree.SubElement(source, "source_tree")
+            s_tree.tail="\n      "
+           
+            characters = etree.SubElement(s_tree,"character_data")
+            c_data = etree.SubElement(characters,"character")
+            analyses = etree.SubElement(s_tree,"analyses_used")
+            a_data = etree.SubElement(analyses,"analysis")
+            tree = etree.SubElement(s_tree,"tree_data")
+            tree_string = etree.SubElement(tree,"string_value")
 
-        source.tail="\n      "
+            source.tail="\n      "
 
-        # append our new source to the main tree
-        sources.append(source)
+            # append our new source to the main tree
+            sources.append(source)
+        else:
+            raise BibImportError("Error with one of the entries in the bib file")
 
     # do we have any empty (define empty?) sources? - i.e. has the user
     # added a source, but not yet filled it in?

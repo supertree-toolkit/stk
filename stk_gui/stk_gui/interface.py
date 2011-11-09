@@ -31,6 +31,7 @@ import pango
 import gobject
 import gtk
 import gtk.glade
+from stk.stk_exceptions import *
 
 plugin_xml = None
 
@@ -933,8 +934,17 @@ class Diamond:
      if (filename == None):
          return
 
-     XML = stk.import_bibliography(XML, filename)
-     ios = StringIO.StringIO(XML)
+     try:
+        XML = stk.import_bibliography(XML, filename)
+        ios = StringIO.StringIO(XML)
+     except BibImportError as detail:
+        dialogs.error(self.main_window,detail.msg)
+        return 
+     except:
+         dialogs.error(self.main_window,"Error importing bib file")
+         return
+
+
      try:
         tree_read = self.s.read(ios)
 

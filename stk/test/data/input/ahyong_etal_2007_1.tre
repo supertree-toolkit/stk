@@ -1,0 +1,106 @@
+#NEXUS
+
+[File saved Thu Nov 03 13:40:37 2011]
+
+BEGIN TAXA;
+	DIMENSIONS NTAX = 45;
+	TAXLABELS
+		Lauridromia_dehaani
+		Paromola_japonica
+		Blepharipoda_occidentalis
+		Emerita_emeritus
+		Lepidopa_californica
+		Oedignathus_inermis
+		Lithodes_santolla
+		Discorsopagurus_schmitti
+		Pagurus_bernhardus
+		Pagurus_longicarpus
+		Bythiopagurus_macroculus
+		Pylocheles_macrops
+		Trizocheles_spinosus
+		Sympagurus_dimorphus
+		Parapagurus_latimanus
+		Lomis_hirta
+		Aegla_uruguyana
+		Aegla_violacea
+		Pseudomunida_fragilis
+		Kiwa_hirsuta
+		Eumunida_sternomaculata
+		Chirostylus_novaecaledoniae
+		Gastroptychus_novaezelandiae
+		Uroptychus_nitidus
+		Uroptychus_scambus
+		Coenobita_compressus
+		Clibanarius_albidigitatus
+		Isocheles_pilosus
+		Calcinus_obscurus
+		Leiogalathea_laevirostris
+		Munidopsis_bairdii
+		Galacantha_rostrata
+		Shinkaia_crosnieri
+		Sadayoshia_sp.
+		Agononida_longipes
+		Agononida_procera
+		Munida_gregaria
+		Cervimunida_johni
+		Munida_quadrispina
+		Pleuroncodes_monodon
+		Galathea_sp.
+		Allogalathea_elegans
+		Porcellanella_triloba
+		Pachycheles_rudis
+		Petrolisthes_armatus
+		;
+ENDBLOCK;
+
+
+BEGIN TREES;
+	TRANSLATE
+		1	Lauridromia_dehaani,
+		2	Paromola_japonica,
+		3	Blepharipoda_occidentalis,
+		4	Emerita_emeritus,
+		5	Lepidopa_californica,
+		6	Oedignathus_inermis,
+		7	Lithodes_santolla,
+		8	Discorsopagurus_schmitti,
+		9	Pagurus_bernhardus,
+		10	Pagurus_longicarpus,
+		11	Bythiopagurus_macroculus,
+		12	Pylocheles_macrops,
+		13	Trizocheles_spinosus,
+		14	Sympagurus_dimorphus,
+		15	Parapagurus_latimanus,
+		16	Lomis_hirta,
+		17	Aegla_uruguyana,
+		18	Aegla_violacea,
+		19	Pseudomunida_fragilis,
+		20	Kiwa_hirsuta,
+		21	Eumunida_sternomaculata,
+		22	Chirostylus_novaecaledoniae,
+		23	Gastroptychus_novaezelandiae,
+		24	Uroptychus_nitidus,
+		25	Uroptychus_scambus,
+		26	Coenobita_compressus,
+		27	Clibanarius_albidigitatus,
+		28	Isocheles_pilosus,
+		29	Calcinus_obscurus,
+		30	Leiogalathea_laevirostris,
+		31	Munidopsis_bairdii,
+		32	Galacantha_rostrata,
+		33	Shinkaia_crosnieri,
+		34	Sadayoshia_sp.,
+		35	Agononida_longipes,
+		36	Agononida_procera,
+		37	Munida_gregaria,
+		38	Cervimunida_johni,
+		39	Munida_quadrispina,
+		40	Pleuroncodes_monodon,
+		41	Galathea_sp.,
+		42	Allogalathea_elegans,
+		43	Porcellanella_triloba,
+		44	Pachycheles_rudis,
+		45	Petrolisthes_armatus
+		;
+	UTREE * tree_1= (1,2,((3,(4,5)),((12,(11,((8,(6,7)),(9,10)))),((((13,(14,15)),(16,(17,18))),(19,(20,(21,(22,(23,(24,25))))))),((26,(27,(28,29))),((30,(31,(32,33))),((34,((35,36),((37,38),(39,40)))),((41,42),(43,(44,45))))))))));
+ENDBLOCK;
