@@ -6,7 +6,9 @@
 #
 UNIT_TESTS = \
 _set_source_name.py \
-_bibliography.py
+_bibliography.py \
+_import_tree.py
+
 
 # default case (and test). Loop through all
 # tests listed above and run them
