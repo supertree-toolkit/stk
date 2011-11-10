@@ -23,13 +23,15 @@ from StringIO import StringIO
 import os
 import sys
 import math
+import re
 import numpy 
 from lxml import etree
 import yapbib.biblist as biblist
 import string
 from stk_exceptions import *
 import traceback
-
+from cStringIO import StringIO
+ 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
 #
@@ -194,15 +196,33 @@ def import_bibliography(XML, bibfile):
 def import_tree(filename, gui=None, tree_no = -1):
     """Takes a NEXUS formatted file and returns a list containing the tree
     strings"""
-   
+  
+# Need to add checks on the file. Problems include:
+# TreeView (Page, 1996):
+# TreeView create a tree with the following description:
+#
+#   UTREE * tree_1 = ((1,(2,(3,(4,5)))),(6,7));
+# UTREE * is not a supported part of the NEXUS format (as far as BioPython).
+# so we need to replace the above with:
+#   tree_1 = [&u] ((1,(2,(3,(4,5)))),(6,7));
+#
+# BioPython doesn throw an exception or anything on these files,
+# So for now glob the file, replace the text, and create a StringIO 
+# object to pass BioPython - MESSY!!
+    f = open(filename)
+    content = f.read()                 # read entire file into memory
+    f.close()
+    treename = m = re.search(r'\UTREE\s?\*\s?(.+)\s?=\s', content)
+    treedata = re.sub("\UTREE\s?\*\s?(.+)\s?=\s","tree "+m.group(1)+" = [&u] ", content)
+    handle = StringIO(treedata)
+    
     if (filename.endswith(".nex") or filename.endswith(".tre")):
-        trees = list(Phylo.parse(filename, "nexus"))
+        trees = list(Phylo.parse(handle, "nexus"))
     elif (filename.endswith("nwk")):
-        trees = list(Phylo.parse(filename, "newick"))
+        trees = list(Phylo.parse(handle, "newick"))
     elif (filename.endswith("phyloxml")):
-        trees = list(Phylo.parse(filename, "phyloxml"))
+        trees = list(Phylo.parse(handle, "phyloxml"))
 
-   
     if (len(trees) > 1 and tree_no == -1):
         message = "Found "+len(trees)+" trees. Which one do you want to load (1-"+len(trees)+"?"
         if (gui==None):
@@ -249,6 +269,25 @@ def draw_tree(tree_string):
     tree = Phylo.read(h, 'newick')
     tree.ladderize()   # Flip branches so deeper clades are displayed at top
     Phylo.draw(tree)
+
+
+def obtain_trees(XML):
+    """ Parse the XML and obtain all tree strings
+    Output: distionay of tree strings, with key indicating treename (unique)
+    """
+
+    xml_root = etree.fromstring(XML)
+    
+    # loop through all sources
+        # for each source, get source name
+        # loop through trees
+        # append to dictionary, with source_name_tree_no = tree_string
+
+
+    return #trees
+
+
+
 
 ################ PRIVATE FUNCTIONS ########################
 
