@@ -31,14 +31,15 @@ import string
 from stk_exceptions import *
 import traceback
 from cStringIO import StringIO
- 
+from collections import defaultdict
+
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
 #
 # All functions take XML and a list of other arguments, process the data and return
 # it back to the user interface handler to save it somewhere
 
-def create_name(authors, year):
+def create_name(authors, year, append=''):
     """ From a list of authors and a year construct a sensible
     source name.
     Input: authors - list of last (family, sur) names (string)
@@ -48,20 +49,23 @@ def create_name(authors, year):
     source_name = None
     if (len(authors) == 1):
         # single name: name_year
-        source_name = authors[0] + "_" + year
+        source_name = authors[0] + "_" + year + append
     elif (len(authors) == 2):
-        source_name = authors[0] + "_" + authors[1] + "_" + year
+        source_name = authors[0] + "_" + authors[1] + "_" + year + append
     else:
-        source_name = authors[0] + "_etal_" + year
+        source_name = authors[0] + "_etal_" + year + append
 
     return source_name
 
 
-def single_sourcename(XML):
+def single_sourcename(XML,append=''):
     """ Create a sensible source name based on the 
     bibliographic data.
-    xml_root should contain the xml_root etree for the source that is to be
-    altered only"""
+    xml_root should contain the xml_root for the source that is to be
+    altered only
+    NOTE: It is the responsibility of the calling process of this 
+          function to check for name uniqueness.
+    """
 
     xml_root = etree.fromstring(XML)
 
@@ -74,7 +78,7 @@ def single_sourcename(XML):
     
     find = etree.XPath("//year/integer_value")
     year = find(xml_root)[0].text
-    source_name = create_name(authors, year)
+    source_name = create_name(authors, year,append)
 
     attributes = xml_root.attrib
     attributes["name"] = source_name
@@ -108,8 +112,75 @@ def all_sourcenames(XML):
     XML = etree.tostring(xml_root,pretty_print=True)
     # gah: the replacement has got rid of line breaks for some reason
     XML = string.replace(XML,"</source><source ", "</source>\n    <source ")
-    XML = string.replace(XML,"</source></sources", "</source>\n  </sources")    
+    XML = string.replace(XML,"</source></sources", "</source>\n  </sources") 
+    XML = set_unique_names(XML)
     return XML
+
+def get_all_source_names(XML):
+    """ From a full XML-PHYML string, extract all source names
+    """
+
+    xml_root = etree.fromstring(XML)
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+    names = []
+    for s in sources:
+        attr = s.attrib
+        name = attr['name']
+        names.append(name)
+    
+    return names
+
+def set_unique_names(XML):
+    """ Ensures all sources have unique names
+    """
+    
+    xml_root = etree.fromstring(XML)
+
+    # All source names
+    source_names = get_all_source_names(XML)
+
+    # get non-unique names and store in a (hopefully!) much
+    # smaller list
+    # The list is stored as a dict, with the key being the name
+    # The value is the number of times this names occurs
+    unique_source_names = defaultdict(int)
+    for n in source_names:
+        unique_source_names[n] += 1
+
+    # if they are unique (i.e. == 1), then make it == 0
+    for k in unique_source_names.iterkeys():
+        if unique_source_names[k] == 1:
+            unique_source_names[k] = 0
+    
+    # Find all "source" trees
+    sources = []
+    for ele in xml_root.iter():
+        if (ele.tag == "source"):
+            sources.append(ele)
+
+    last_name = ''
+    for s in sources:
+        current_name = s.attrib['name']
+        if (unique_source_names[current_name] > 0):
+            number = unique_source_names[current_name]
+            # if there are two entries for this name, we should get 'a' and 'b'
+            # 'a' + 1 == b
+            # 'a' + 0 == a
+            letter = chr(ord('a')+(number-1)) 
+            xml_snippet = etree.tostring(s,pretty_print=True)
+            xml_snippet = single_sourcename(xml_snippet,append=letter)
+            parent = s.getparent()
+            ele_T = etree.fromstring(xml_snippet)
+            parent.replace(s,ele_T)
+            # decrement the value so our letter is not the
+            # same as last time
+            unique_source_names[current_name] -=1
+
+    XML = etree.tostring(xml_root,pretty_print=True)
+
+    return XML
+
 
 def import_bibliography(XML, bibfile):    
     
