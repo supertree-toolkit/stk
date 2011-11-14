@@ -49,8 +49,8 @@ class PluginDetails(object):
       debug.deprint("Warning: plugin %s raised an exception in matching function." % self.name, 0)
       return False
 
-  def execute(self, xml, xpath):
-     self.cb(xml, xpath)
+  def execute(self, xml, xpath, path):
+     self.cb(xml, xpath, path)
      return
 
 

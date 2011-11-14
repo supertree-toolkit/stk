@@ -18,7 +18,7 @@ for plugin in plugin_dirs:
 schema_dirs = ['schema']
 schema_data_files = []
 for s in schema_dirs:
-  schema_data_files.append((destdir + "/usr/local/share/stk/schemata/schema",
+  schema_data_files.append((destdir + "/usr/local/share/stk/schemata/schema/",
     glob.glob(s + '/*.rng')))
 
 

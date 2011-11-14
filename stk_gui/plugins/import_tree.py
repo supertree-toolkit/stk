@@ -13,19 +13,24 @@ def plugin_applies(xpath):
 
 @cb_decorator
 
-def handle_click(xml, xpath, **kwargs):
+def handle_click(xml, xpath, path=None):
     from lxml import etree
 
     xml_root = etree.fromstring(xml)
 
+    if (path == None):
+        path = os.getcwd()
+
     filter_names_and_patterns = {}
+    filter_names_and_patterns['Newick file'] = "*.nwk"
     filter_names_and_patterns['Nexus file'] = "*.nex"
     filter_names_and_patterns['Nexus tree file'] = "*.tre"
-    filter_names_and_patterns['Newick file'] = "*.nwk"
-    filter_names_and_patterns['PhyloXML file'] = "*.phyloxml"    
+   
 
-    filename = dialogs.get_filename(title = "Choose tree file", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = filter_names_and_patterns)
-    #filename = '/home/jhill1/test.nex'
+    filename = dialogs.get_filename(title = "Choose tree file", action = gtk.FILE_CHOOSER_ACTION_OPEN, 
+            filter_names_and_patterns = filter_names_and_patterns,
+            folder_uri = path)
+
     if filename == None:
         return
 

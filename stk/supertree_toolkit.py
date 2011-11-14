@@ -283,8 +283,13 @@ def import_tree(filename, gui=None, tree_no = -1):
     f = open(filename)
     content = f.read()                 # read entire file into memory
     f.close()
-    treename = m = re.search(r'\UTREE\s?\*\s?(.+)\s?=\s', content)
-    treedata = re.sub("\UTREE\s?\*\s?(.+)\s?=\s","tree "+m.group(1)+" = [&u] ", content)
+    # Treeview
+    m = re.search(r'\UTREE\s?\*\s?(.+)\s?=\s', content)
+    if (m != None):
+        treedata = re.sub("\UTREE\s?\*\s?(.+)\s?=\s","tree "+m.group(1)+" = [&u] ", content)
+    else:
+        treedata = content
+
     handle = StringIO(treedata)
     
     if (filename.endswith(".nex") or filename.endswith(".tre")):

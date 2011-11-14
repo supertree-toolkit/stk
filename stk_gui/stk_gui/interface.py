@@ -134,6 +134,7 @@ class Diamond:
     self.plugin_buttonbox.set_layout(gtk.BUTTONBOX_START)
     self.plugin_buttonbox.show()
     self.plugin_buttons = []
+    self.treepath = None
 
     self.scherror  = scherror.DiamondSchemaError(self, gladefile, schemafile, schematron_file)
 
@@ -1616,7 +1617,7 @@ class Diamond:
     f = StringIO.StringIO()
     self.tree.write(f)
     xml = f.getvalue()
-    plugin.execute(xml, self.current_xpath)
+    plugin.execute(xml, self.current_xpath, path=self.file_path)
 
 
   def get_selected_row(self, selection=None):
