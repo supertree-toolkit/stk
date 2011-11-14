@@ -55,9 +55,9 @@
         <character_data>
             <character/>
         </character_data>
-        <analyses_used>
+        <analysis_used>
             <analysis/>
-        </analyses_used>
+        </analysis_used>
         <tree_data>
           <string_value/>
         </tree_data>

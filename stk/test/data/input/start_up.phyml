@@ -29,9 +29,9 @@
         <character_data>
           <character type="molecular" name="12S"/>
         </character_data>
-        <analyses_used>
+        <analysis_used>
           <analysis name="Maximum Parsimony"/>
-        </analyses_used>
+        </analysis_used>
         <tree_data>
           <string_value lines="1"/>
         </tree_data>

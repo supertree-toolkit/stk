@@ -30,7 +30,7 @@
           <character type="molecular" name="16S"/>
         </character>
       </character_data>
-      <analyses_used/>
+      <analysis_used/>
       <tree_data>
         <string_value lines="1">Add your tree here</string_value>
       </tree_data>
@@ -77,7 +77,7 @@
           <character type="molecular" name="16S"/>
         </character>
       </character_data>
-      <analyses_used/>
+      <analysis_used/>
       <tree_data>
         <string_value lines="1">Add your tree here</string_value>
       </tree_data>
@@ -116,7 +116,7 @@
           <character type="molecular" name="16S"/>
         </character>
       </character_data>
-      <analyses_used/>
+      <analysis_used/>
       <tree_data>
         <string_value lines="1">Add your tree here</string_value>
       </tree_data>

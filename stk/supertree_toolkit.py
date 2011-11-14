@@ -229,7 +229,7 @@ def import_bibliography(XML, bibfile):
            
             characters = etree.SubElement(s_tree,"character_data")
             c_data = etree.SubElement(characters,"character")
-            analyses = etree.SubElement(s_tree,"analyses_used")
+            analyses = etree.SubElement(s_tree,"analysis_used")
             a_data = etree.SubElement(analyses,"analysis")
             tree = etree.SubElement(s_tree,"tree_data")
             tree_string = etree.SubElement(tree,"string_value")
