@@ -76,10 +76,10 @@ source tree(s).</a:documentation>
               <ref name="characters"/>
             </element>
           </oneOrMore>
-          <element name="analyses_used">
-            <a:documentation>Which analytical methods were used to create
+          <element name="analysis_used">
+            <a:documentation>Which analytical methods were used to createan
 the source tree?</a:documentation>
-            <ref name="analyses"/>
+            <ref name="analysis"/>
           </element>
           <element name="tree_data">
             <a:documentation>The tree data. This is a Nexus formatted tree string. You can import

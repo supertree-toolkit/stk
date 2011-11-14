@@ -41,6 +41,14 @@
       </element>
       <element name="character">
         <attribute name="name">
+          <value>28S</value>
+        </attribute>
+        <attribute name="type">
+          <value>molecular</value>
+        </attribute>
+      </element>
+      <element name="character">
+        <attribute name="name">
           <a:documentation>Also covers aA-crystallin</a:documentation>
           <value>a-crystallin</value>
         </attribute>
@@ -66,7 +74,15 @@
       </element>
       <element name="character">
         <attribute name="name">
-          <value>ACO1</value>
+          <value>COI</value>
+        </attribute>
+        <attribute name="type">
+          <value>molecular</value>
+        </attribute>
+      </element>
+      <element name="character">
+        <attribute name="name">
+          <value>COII</value>
         </attribute>
         <attribute name="type">
           <value>molecular</value>
@@ -80,10 +96,19 @@
           <value>morphological</value>
         </attribute>
       </element>
+      <element name="character">
+        <attribute name="name">
+          <value>osteology</value>
+        </attribute>
+        <attribute name="type">
+          <value>morphological</value>
+        </attribute>
+      </element>
       <oneOrMore>
         <element name="character">
+          <a:documentation>Mixed morphological characters in crustaceans.</a:documentation>
           <attribute name="name">
-            <value>osteology</value>
+            <value>General morphology</value>
           </attribute>
           <attribute name="type">
             <value>morphological</value>

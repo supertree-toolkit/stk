@@ -17,6 +17,10 @@ characters =
              attribute type { "molecular" }
           }|              
           element character {
+             attribute name { "28S" },
+             attribute type { "molecular" }
+          }|              
+          element character {
              ## Also covers aA-crystallin
              attribute name { "a-crystallin" },
              attribute type { "molecular" }
@@ -30,7 +34,11 @@ characters =
              attribute type { "molecular" }
           }|
           element character {
-             attribute name { "ACO1" },
+             attribute name { "COI" },
+             attribute type { "molecular" }
+          }|
+          element character {
+             attribute name { "COII" },
              attribute type { "molecular" }
           }|
           element character {
@@ -39,6 +47,11 @@ characters =
           }|
           element character {
              attribute name { "osteology" },
+             attribute type { "morphological" }
+          }|
+          ##Mixed morphological characters in crustaceans.
+          element character {
+             attribute name { "General morphology" },
              attribute type { "morphological" }
           }+
     )

@@ -14,12 +14,22 @@
       </element>
       <element name="analysis">
         <attribute name="name">
-          <value>Maximum Liklihood</value>
+          <value>Maximum Likelihood</value>
         </attribute>
       </element>
       <element name="analysis">
         <attribute name="name">
           <value>Bayesian</value>
+        </attribute>
+      </element>
+      <element name="analysis">
+        <attribute name="name">
+          <value>Neighbour Joining</value>
+        </attribute>
+      </element>
+      <element name="analysis">
+        <attribute name="name">
+          <value>UPGMA</value>
         </attribute>
       </element>
     </choice>

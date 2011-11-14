@@ -64,10 +64,10 @@ source=
         element character_data {
             characters
         }+,
-        ## Which analytical methods were used to create
+        ## Which analytical methods were used to createan
         ## the source tree?
-        element analyses_used {
-            analyses
+        element analysis_used {
+            analysis
         },
         ## The tree data. This is a Nexus formatted tree string. You can import
         ## a standard Nexus file using the "Import tree" button below or copy 

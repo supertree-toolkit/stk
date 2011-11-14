@@ -7,9 +7,15 @@ analyses =
         attribute name {"Maximum Parsimony"}
     }|
     element analysis {
-        attribute name {"Maximum Liklihood"}
+        attribute name {"Maximum Likelihood"}
     }|
     element analysis {
         attribute name {"Bayesian"}
+    }|
+    element analysis {
+        attribute name {"Neighbour Joining"}
+    }|
+    element analysis {
+        attribute name {"UPGMA"}
     }
 )
