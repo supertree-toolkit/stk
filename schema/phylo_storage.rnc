@@ -109,10 +109,13 @@ publication=
             element journal {
                 anystring
             }?,
+            element volume {
+                anystring
+            }?,
             element pages {
                 anystring
             }?,
-            element number {
+            element issue {
                 anystring
             }?,
             element doi {

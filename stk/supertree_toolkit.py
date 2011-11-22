@@ -349,18 +349,31 @@ def draw_tree(tree_string):
 
 def obtain_trees(XML):
     """ Parse the XML and obtain all tree strings
-    Output: distionay of tree strings, with key indicating treename (unique)
+    Output: dictionary of tree strings, with key indicating treename (unique)
     """
 
     xml_root = etree.fromstring(XML)
-    
+    # By getting source, we can then loop over each source_tree
+    # within that source and construct a unique name
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+
+    trees = {}
+
     # loop through all sources
+    for s in sources:
         # for each source, get source name
-        # loop through trees
-        # append to dictionary, with source_name_tree_no = tree_string
+        name = s.attrib['name']
+        # get trees
+        tree_no = 1
+        for t in s.xpath("source_tree/tree_data"):
+            t_name = name+"_"+str(tree_no)
+            # append to dictionary, with source_name_tree_no = tree_string
+            trees[t_name] = t.xpath("string_value")[0].text
+            tree_no += 1
 
 
-    return #trees
+    return trees
 
 
 

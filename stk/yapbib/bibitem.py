@@ -481,6 +481,17 @@ class BibItem(dict):
             v = '\n%s<string_value lines="1">%s</string_value>\n%s'%(sp*spc,k,(sp-1)*spc)
             sp-=1
             s+= '%s<publisher>%s</publisher>\n' %(sp*spc,v)
+    
+    # volume
+    if (entry_type == "article"):
+        volume = self.get_field('volume')
+        if (helper.is_string_like(volume)):
+            volume = helper.replace_tags(volume,'xml')
+        if (volume != None):    
+            sp+=1
+            v = '\n%s<string_value lines="1">%s</string_value>\n%s'%(sp*spc,volume,(sp-1)*spc)
+            sp-=1
+            s+= '%s<volume>%s</volume>\n' %(sp*spc,v)
 
     # pages - unless in a book
     if (entry_type != "book"):
@@ -488,7 +499,10 @@ class BibItem(dict):
         lastpage = self.get_field('lastpage')
         firstpage = self.get_field('firstpage')
         if (lastpage != None and firstpage != None):
-            pages = firstpage + "-" + lastpage
+            if (lastpage == ''):
+                pages = firstpage
+            else:
+                pages = firstpage + "-" + lastpage
             sp+=1
             v = '\n%s<string_value lines="1">%s</string_value>\n%s'%(sp*spc,pages,(sp-1)*spc)
             sp-=1
@@ -501,7 +515,7 @@ class BibItem(dict):
             sp+=1
             v = '\n%s<string_value lines="1">%s</string_value>\n%s'%(sp*spc,k,(sp-1)*spc)
             sp-=1
-            s+= '%s<number>%s</number>\n' %(sp*spc,v)
+            s+= '%s<issue>%s</issue>\n' %(sp*spc,v)
     
     # doi - everyone!
     k = self.get_field('doi')

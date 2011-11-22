@@ -131,12 +131,17 @@ in this section. </a:documentation>
           </element>
         </optional>
         <optional>
+          <element name="volume">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
           <element name="pages">
             <ref name="anystring"/>
           </element>
         </optional>
         <optional>
-          <element name="number">
+          <element name="issue">
             <ref name="anystring"/>
           </element>
         </optional>

@@ -33,12 +33,15 @@
           <journal>
             <string_value lines="1">Nature</string_value>
           </journal>
+          <volume>
+            <string_value lines="1">200</string_value>
+          </volume>
           <pages>
             <string_value lines="1">1-4</string_value>
           </pages>
-          <number>
+          <issue>
             <string_value lines="1">5</string_value>
-          </number>
+          </issue>
         </article>
       </source_publication>
       <source_tree>
