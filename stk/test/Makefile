@@ -7,7 +7,7 @@
 UNIT_TESTS = \
 _set_source_name.py \
 _bibliography.py \
-_import_tree.py
+_trees.py
 
 
 # default case (and test). Loop through all
