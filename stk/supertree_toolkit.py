@@ -140,8 +140,6 @@ def set_unique_names(XML):
     # All source names
     source_names = get_all_source_names(XML)
 
-    # get non-unique names and store in a (hopefully!) much
-    # smaller list
     # The list is stored as a dict, with the key being the name
     # The value is the number of times this names occurs
     unique_source_names = defaultdict(int)
@@ -375,9 +373,57 @@ def obtain_trees(XML):
 
     return trees
 
+def get_all_taxa(XML, pretty=False):
+    """ Produce a taxa list by scanning all trees within 
+    a PHYML file. 
+
+    The list is return sorted (alphabetically).
+
+    Setting pretty=True means all underscores will be
+    replaced by spaces"""
+
+    trees = obtain_trees(XML)
+
+    taxa_list = []
+
+    for t in trees.values():
+        handle = StringIO(t)
+        t_obj = list(Phylo.parse(handle, "newick"))
+        t_obj = t_obj[0]
+        terminals = t_obj.get_terminals()
+        for term in terminals:
+            taxa_list.append(str(term))
+
+    # now uniquify the list of taxa
+    taxa_list = _uniquify(taxa_list)
+    taxa_list.sort()
+
+    if (pretty):
+        unpretty_tl = taxa_list
+        taxa_list = []
+        for t in unpretty_tl:
+            taxa_list.append(t.replace('_',' '))
+
+    return taxa_list
+
+def create_matrix(XML, filename):
+
+    # get all trees
+    trees = obtain_trees(XML)
+
+    # and the taxa
+    taxa = get_all_taxa(XML)
+
+    # for each tree
 
 
 
 ################ PRIVATE FUNCTIONS ########################
 
 
+def _uniquify(l):
+    keys = {}
+    for e in l:
+        keys[e] = 1
+
+    return keys.keys()

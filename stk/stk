@@ -31,34 +31,63 @@ import argparse
 def main():
 
     parser = argparse.ArgumentParser(
+         prog="stk",
          description="""stk is the command line interface to the supertree toolkit. """+
                      """It can access all the functionality of the STK that is available in """+
                      """the GUI. """
                      )
     parser.add_argument(
-            '-c', 
-            '--command', 
-            help="Which STK command do you want to use",
-            choices=["", "rename_sources", "import_bib"]
-            )
-
-    parse.add_argument(
-            '-o',
-            '--output',
-            help="Output file"
-            )
-
-    parser.add_argument(
             '-v', 
             '--verbose', 
             action='store_true', 
-            help="Verbose output: mainly progress reports",
+            help="Verbose output: mainly progress reports.",
             default=False
             )
+    subparsers = parser.add_subparsers(help='sub-command help')
+
+    # Here's how we add a new sub-command
+    #
+    # Add a subparser, with some help and a command
+    parser_cm = subparsers.add_parser('create_matrix',
+            help='Create a TNT or Nexus matrix'
+            )
+    # Now add the command line args for this command
+    # This argument is not-optional
+    parser_cm.add_argument('output', 
+            help='The output matrix file')
+    # This one is optional
+    parser_cm.add_argument('-f',
+            '--format', 
+            choices=['tnt', 'nexus'],
+            help='The format of the matrix. tnt or nexus. Default is tnt')
+    # Set the function that gets called when the sub command is activated
+    parser_cm.set_defaults(func=create_matrix)
+
+    args = parser.parse_args()
+    verbose = args.verbose
 
     # All of the rest may or may not apply to the command chosen
     # The rest of this function is effectively checking all of the arguments
     # against the command specified
+    # Each command is given a function to execute via the "set_default" argument
+    args.func(args)
+
+def create_matrix(args):
+    """ This function creates a phylogenetic matrix from a PHYML file
+        by obtaining the tree strings contained in the file. """
+
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    f_format = args.format
+
+    if (f_format == None):
+        f_format = 'tnt'
+
+    print "in create matrix"
+    print verbose
+    print f_format
+    print output_file
 
 if __name__ == "__main__":
     main()

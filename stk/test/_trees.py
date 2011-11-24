@@ -2,7 +2,7 @@ import unittest
 import math
 import sys
 sys.path.append("../")
-from supertree_toolkit import import_tree, obtain_trees 
+from supertree_toolkit import import_tree, obtain_trees, get_all_taxa 
 import os
 from lxml import etree
 from util import *
@@ -31,6 +31,16 @@ class TestImportTree(unittest.TestCase):
         # Tree key is source_name_tree_no, so we should have
         # Hill_2011_1
         self.assert_(tree['Hill_2011_1'] == expected_tree)
+
+    def test_get_all_taxa(self):
+        XML = etree.tostring(etree.parse(single_source_input,parser),pretty_print=True)
+        taxa_list = get_all_taxa(XML)
+        print taxa_list
+
+    def test_get_all_taxa_pretty(self):
+        XML = etree.tostring(etree.parse(single_source_input,parser),pretty_print=True)
+        taxa_list = get_all_taxa(XML,pretty=True)
+        print taxa_list
 
 
 if __name__ == '__main__':
