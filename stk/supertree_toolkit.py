@@ -414,7 +414,39 @@ def create_matrix(XML, filename):
     # and the taxa
     taxa = get_all_taxa(XML)
 
-    # for each tree
+    # our matrix, we'll then append the submatrix
+    # to this to make a 2D matrix
+    # Our matrix is of length nTaxa on the i dimension
+    # and nCharacters in the j direction
+    matrix = []
+    charsets = []
+    current_char = 1
+    for t in trees:
+        submatrix, tree_taxa = _assemble_tree_matrix(t)
+
+        nChars = len(submatrix[0,:])
+        # loop over characters in the submatrix
+        for i in range(nChars):
+            # loop over taxa. Add '?' for an "unknown" taxa, otherwise
+            # get 0 or 1 from submatrix. May as well turn into a string whilst
+            # we're at it
+            current_row = []
+            for taxon in taxa:
+                if (taxon in tree_taxa):
+                    # get taxon index
+                    t_index = tree_taxa.index('taxon')
+                    # then get correct matrix entry - note:
+                    # submatrix transposed wrt main matrix
+                    current_row.append(str(int(submatrix[t_index,i])))
+                else:
+                    current_row.append('?')
+
+            matrix.append(current_row)
+
+    print matrix
+
+
+
 
 
 
@@ -427,3 +459,38 @@ def _uniquify(l):
         keys[e] = 1
 
     return keys.keys()
+
+
+def _assemble_tree_matrix(tree):
+    """ Assembles the MRP matrix for an individual tree
+
+        returns: matrix (2D numpy array: taxa on i, nodes on j)
+                 taxa list: in same order as in the matrix
+    """
+
+    all_nodes = list(tree.get_nonterminals())
+    look_up = {}
+    for i, elem in enumerate(all_nodes):
+        look_up[elem] = i
+
+    all_terms = list(tree.get_terminals())
+    look_up_t = {}
+    names = []
+    for i, elem in enumerate(all_terms):
+        look_up_t[elem] = i
+        names.append(str(elem))
+
+    adjmat = numpy.zeros((len(look_up_t), len(look_up)))
+
+    for i, terminal in enumerate(all_terms):
+        my_parents =  list(tree.get_path(terminal))
+        for j, p in enumerate(my_parents):
+            if (p == terminal):
+                adjmat[look_up_t[terminal],0] = 1
+            else:
+                adjmat[look_up_t[terminal],look_up[p]] = 1
+
+    return adjmat, names
+
+
+        
