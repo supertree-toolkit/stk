@@ -2,7 +2,7 @@ import unittest
 import math
 import sys
 sys.path.append("../")
-from supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix
+from supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix
 import os
 from lxml import etree
 from util import *
@@ -58,6 +58,17 @@ class TestImportTree(unittest.TestCase):
         expected_taxa = ['A','B','F','E','G','H']
         self.assert_(matrix.all() == expected_matrix.all())
         self.assert_(expected_taxa == taxa)
+
+    def test_create_nexus_matrix(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML,format="nexus")
+        print matrix
+
+    def test_create_tnt_matrix(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML)
+        print matrix
+
     
 if __name__ == '__main__':
     unittest.main()

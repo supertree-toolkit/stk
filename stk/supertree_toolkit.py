@@ -406,13 +406,15 @@ def get_all_taxa(XML, pretty=False):
 
     return taxa_list
 
-def create_matrix(XML, filename):
+def create_matrix(XML,format="hennig"):
 
     # get all trees
     trees = obtain_trees(XML)
 
     # and the taxa
-    taxa = get_all_taxa(XML)
+    taxa = []
+    taxa.append("MRPOutgroup")
+    taxa.extend(get_all_taxa(XML))
 
     # our matrix, we'll then append the submatrix
     # to this to make a 2D matrix
@@ -420,13 +422,17 @@ def create_matrix(XML, filename):
     # and nCharacters in the j direction
     matrix = []
     charsets = []
+    names = []
     current_char = 1
-    for t in trees:
-        submatrix, tree_taxa = _assemble_tree_matrix(t)
-
+    for key in trees:
+        names.append(key)
+        handle = StringIO(trees[key])
+        newick_trees = list(Phylo.parse(handle, "newick"))
+        newick_tree = newick_trees[0]
+        submatrix, tree_taxa = _assemble_tree_matrix(newick_tree)
         nChars = len(submatrix[0,:])
         # loop over characters in the submatrix
-        for i in range(nChars):
+        for i in range(1,nChars):
             # loop over taxa. Add '?' for an "unknown" taxa, otherwise
             # get 0 or 1 from submatrix. May as well turn into a string whilst
             # we're at it
@@ -434,16 +440,67 @@ def create_matrix(XML, filename):
             for taxon in taxa:
                 if (taxon in tree_taxa):
                     # get taxon index
-                    t_index = tree_taxa.index('taxon')
+                    t_index = tree_taxa.index(taxon)
                     # then get correct matrix entry - note:
                     # submatrix transposed wrt main matrix
                     current_row.append(str(int(submatrix[t_index,i])))
+                elif (taxon == "MRPOutgroup"):
+                    current_row.append('0')
                 else:
                     current_row.append('?')
-
             matrix.append(current_row)
+        charsets.append(str(current_char) + "-" + str(current_char + nChars-2))
+        current_char += nChars-1
 
-    print matrix
+    matrix = numpy.array(matrix)
+    matrix = matrix.transpose()
+
+    if (format == 'hennig'):
+        matrix_string = "xread\n"
+        matrix_string += str(len(taxa)) + " "+str(current_char-1)+"\n"
+        matrix_string += "\tformat missing = ?"
+        matrix_string += ";\n"
+        matrix_string += "\n\tmatrix\n\n";
+
+        i = 0
+        for taxon in taxa:
+            matrix_string += taxon + "\t"
+            string = ""
+            for t in matrix[i][:]:
+                string += t
+            matrix_string += string + "\n"
+            i += 1
+            
+        matrix_string += "\t;\n"
+        matrix_string += "procedure /;"
+    elif (format == 'nexus'):
+        matrix_string = "#nexus\n\nbegin data;\n"
+        matrix_string += "\tdimensions ntax = "+str(len(taxa)) +" nchar = "+str(current_char-1)+";\n"
+        matrix_string += "\tformat missing = ?"
+        matrix_string += ";\n"
+        matrix_string += "\n\tmatrix\n\n"
+
+        i = 0
+        for taxon in taxa:
+            matrix_string += taxon + "\t"
+            string = ""
+            for t in matrix[i][:]:
+                string += t
+            matrix_string += string + "\n"
+            i += 1
+            
+        matrix_string += "\t;\nend;\n\n"
+        matrix_string += "begin sets;\n"
+        i = 0
+        for char in charsets:
+            matrix_string += "\tcharset "+names[i] + " "
+            matrix_string += char + "\n"
+            i += 1
+        matrix_string += "end;\n\n"
+    else:
+        raise MatrixError("Invalid matrix format")
+
+    return matrix_string
 
 
 
