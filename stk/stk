@@ -24,6 +24,7 @@ import sys
 import math
 import numpy 
 import argparse
+import supertree_toolkit
 
 # STK is the main command line program for the supertree toolkit
 # Using the XML files created by the GUI it can processes the data, without
@@ -52,14 +53,17 @@ def main():
             help='Create a TNT or Nexus matrix'
             )
     # Now add the command line args for this command
-    # This argument is not-optional
+    # These arguments are not-optional
+    parser_cm.add_argument('input', 
+            help='The input phyml file')
     parser_cm.add_argument('output', 
             help='The output matrix file')
+
     # This one is optional
     parser_cm.add_argument('-f',
             '--format', 
-            choices=['tnt', 'nexus'],
-            help='The format of the matrix. tnt or nexus. Default is tnt')
+            choices=['hennig', 'nexus'],
+            help='The format of the matrix. hennig or nexus. Default is hennig')
     # Set the function that gets called when the sub command is activated
     parser_cm.set_defaults(func=create_matrix)
 
@@ -79,15 +83,22 @@ def create_matrix(args):
     # Parse the args
     verbose = args.verbose
     output_file = args.output
+    input_file = args.input
     f_format = args.format
 
     if (f_format == None):
-        f_format = 'tnt'
+        f_format = 'hennig'
+    
+    # check all the options
+    # Does the input file exist?
 
-    print "in create matrix"
-    print verbose
-    print f_format
-    print output_file
+    # Does the output file already exist?
+
+    XML = supertree_toolkit.load_phyml(input_file)
+    matrix = supertree_toolkit.create_matrix(XML,format=f_format)
+    f = open(output_file, "w")
+    f.write(matrix)
+    f.close()
 
 if __name__ == "__main__":
     main()

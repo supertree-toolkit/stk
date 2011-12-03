@@ -502,7 +502,12 @@ def create_matrix(XML,format="hennig"):
 
     return matrix_string
 
-
+def load_phyml(filename):
+    """ Super simple function that returns XML
+        string from PHYML file
+    """
+    parser = etree.XMLParser(remove_blank_text=True)
+    return etree.tostring(etree.parse(filename,parser),pretty_print=True)
 
 
 
