@@ -64,6 +64,11 @@ def main():
             '--format', 
             choices=['hennig', 'nexus'],
             help='The format of the matrix. hennig or nexus. Default is hennig')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the exisitng file without asking for confirmation")
+
     # Set the function that gets called when the sub command is activated
     parser_cm.set_defaults(func=create_matrix)
 
@@ -85,14 +90,37 @@ def create_matrix(args):
     output_file = args.output
     input_file = args.input
     f_format = args.format
-
-    if (f_format == None):
-        f_format = 'hennig'
+    overwrite = args.overwrite
     
     # check all the options
+    if (f_format == None):
+        f_format = 'hennig'
+
+    print f_format
+    if (not f_format == 'nexus' and
+        not f_format == 'hennig'):
+        print "Format must be one of 'hennig' or 'nexus'"
+        sys.exit(-1)
+
     # Does the input file exist?
+    if (not os.path.exists(input_file)):
+        print "Input file cannot be found. Exiting"
+        sys.exit(-1)
 
     # Does the output file already exist?
+    if (os.path.exists(output_file) and not overwrite):
+        print "Output file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            input = sys.stdin.read(1)
+            if input == None:
+                input = 'y'
+            if input == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if input == 'y':
+                break
+
 
     XML = supertree_toolkit.load_phyml(input_file)
     matrix = supertree_toolkit.create_matrix(XML,format=f_format)
