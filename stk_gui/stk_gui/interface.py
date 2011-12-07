@@ -162,7 +162,8 @@ class Diamond:
                     "on_group": self.on_group,
                     "on_ungroup": self.on_ungroup,
                     "on_standardise_names": self.on_standardise_names,
-                    "on_import_bib": self.on_import_bib
+                    "on_import_bib": self.on_import_bib,
+                    "on_create_matrix": self.on_create_matrix
                     }
 
     self.gui.signal_autoconnect(signals)
@@ -206,7 +207,7 @@ class Diamond:
     
     if schematron_file is None:
       # Disable Validate Schematron
-      menu.get_children()[3].get_submenu().get_children()[1].set_property("sensitive", False)
+      menu.get_children()[4].get_submenu().get_children()[1].set_property("sensitive", False)
 
     return
 
@@ -919,6 +920,70 @@ class Diamond:
     self.treeview.get_selection().select_path(path)
  
     return
+
+  def on_create_matrix(self, widget=None):
+    """ Creates a MRP matrix from the data in the phyml. Actually, this function
+        merely opens the dialog form the glade file...
+    """
+
+    signals = {"on_create_matrix_dialog_close": self.on_create_matrix_cancel_button,
+               "on_create_matrix_cancel_clicked": self.on_create_matrix_cancel_button,
+               "on_create_matrix_clicked": self.on_create_matrix_create_matrix_button,
+               "on_create_matrix_broswe_clicked": self.on_create_matrix_browse_button}
+
+    self.create_matrix_gui = gtk.glade.XML(self.gladefile, root="create_matrix_dialog")
+    self.create_matrix_dialog = self.create_matrix_gui.get_widget("create_matrix_dialog")
+    self.create_matrix_gui.signal_autoconnect(signals)
+    matrix_file = self.create_matrix_gui.get_widget("create_matrix_button")
+    matrix_file.connect("activate", self.on_create_matrix_create_matrix_button)
+    self.create_matrix_dialog.show()
+
+    return
+      
+  def on_create_matrix_create_matrix_button(self, button):
+    """
+    create the matrix requested 
+    """
+
+    filename_textbox = self.create_matrix_gui.get_widget("entry1")
+    filename = filename_textbox.get_text()
+    format_radio_1 = self.create_matrix_gui.get_widget("matrix_format_tnt_chooser")
+    format_radio_2 = self.create_matrix_gui.get_widget("matrix_format_nexus_chooser")
+
+    if (format_radio_1.get_active()):
+        format = 'hennig'
+    elif (format_radio_2.get_active()):
+        format = 'nexus'
+    else:
+        format = None
+        dialogs.error(self.main_window,"Error creating matrix. Incorrect format.")
+        return
+
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    matrix = stk.create_matrix(XML,format=format)
+    f = open(filename, "w")
+    f.write(matrix)
+    f.close()    
+    
+    self.create_matrix_dialog.hide()
+
+    return
+
+  def on_create_matrix_cancel_button(self, button):
+      """ Close the create_matrix dialogue
+      """
+
+      self.create_matrix_dialog.hide()
+
+  def on_create_matrix_browse_button(self, button):
+      filter_names_and_patterns = {}
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose output matrix fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+      filename_textbox = self.create_matrix_gui.get_widget("entry1")
+      filename_textbox.set_text(filename)
+
 
   def on_import_bib(self, widget = None):
      """
