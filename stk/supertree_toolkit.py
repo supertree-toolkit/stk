@@ -32,6 +32,7 @@ from stk_exceptions import *
 import traceback
 from cStringIO import StringIO
 from collections import defaultdict
+import p4
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -584,6 +585,7 @@ def _check_uniqueness(XML):
             # if non-unique throw exception
             raise NotUniqueError("The source names in the dataset are not unique." +
                     "Please run the auto-name function on these data. Name: "+name)
+        last_name = name
     return
 
 
@@ -622,5 +624,40 @@ def _delete_taxon(taxon, tree):
     """ Delete a taxon from a tree string
     """
 
-    return
-        
+    # check if taxa is in there first
+    # Prevent error from Bio.Phylo
+    if (tree.find(taxon) == -1):
+        return tree #raise exception?
+
+    handle = StringIO(tree)
+    t_obj = list(Phylo.parse(handle, "newick"))
+    t_obj = t_obj[0]
+    clade = t_obj.prune(taxon)
+    h = StringIO()
+    Phylo.write(t_obj, h, "newick")
+    tree = h.getvalue()
+
+    return tree
+       
+
+def _sub_taxon(old_taxon, new_taxon, tree):
+    """ Simple swap of taxa
+    """
+
+    # swap spaces for _, as we're dealing with Newick strings here
+    new_taxon = new_taxon.replace(" ","_")
+
+    # check if taxa is in there first
+    if (tree.find(old_taxon) == -1):
+        return tree #raise exception?
+
+    # simple text swap
+    new_tree = tree.replace(old_taxon,new_taxon)
+
+    return new_tree
+
+def _swap_tree(XML, tree, name):
+    """ Swap tree with name, 'name' with this new one
+    """
+
+

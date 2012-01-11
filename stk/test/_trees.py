@@ -2,7 +2,7 @@ import unittest
 import math
 import sys
 sys.path.append("../")
-from supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix
+from supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
 import os
 from lxml import etree
 from util import *
@@ -70,6 +70,28 @@ class TestImportTree(unittest.TestCase):
     def test_create_tnt_matrix(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         matrix = create_matrix(XML)
+
+    def test_delete_taxa(self):
+        t = "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;"
+        new_tree = _delete_taxon("H_1", t)
+        self.assert_(new_tree == "((A_1:1.00000,B_1:1.00000)0.00:0.00000,F_1:1.00000,E_1:1.00000,G_1:1.00000)0.00:0.00000;\n")
+
+    def test_delete_taxa_missing(self):
+        t = "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;"
+        new_tree = _delete_taxon("Fred", t)
+        self.assert_(new_tree == "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;")
+
+    def test_sub_taxa(self):
+        t = "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;"
+        new_tree = _sub_taxon("H_1", "blah", t)
+        self.assert_(new_tree == "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,blah:1.00000)0.00000:0.00000)0.00000:0.00000;")
+
+    def test_sub_taxa_missing(self):
+        t = "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;"
+        new_tree = _sub_taxon("Fred", "Blah",  t)
+        self.assert_(new_tree == "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;")
+
+
 
     
 if __name__ == '__main__':
