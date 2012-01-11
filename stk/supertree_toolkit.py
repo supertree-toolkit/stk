@@ -531,22 +531,23 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
     for tree in values(trees):
         i = 0
         for taxon in old_taxa:
-            if (new_taxa == None or new_taxa[i] == None):
-                # we are deleting taxa
-                tree = _delete_taxon(taxon, tree)
-                trees[source] = tree
-            else:
-                # we are substituting
-                tree = _sub_taxon(taxon, new_taxa[i], tree)
-                tree[source] = tree
-
-    new_xml = _insert_trees_into_xml(XML,trees)
+            # tree contains the old_taxon, do something with it
+            if (tree.find(taxon) > 0):
+                if (new_taxa == None or new_taxa[i] == None):
+                    # we are deleting taxa
+                    tree = _delete_taxon(taxon, tree)
+                    XML = _swap_tree_in_XML(XML,tree,t_name)
+                else:
+                    # we are substituting
+                    tree = _sub_taxon(taxon, new_taxa[i], tree)
+                    XML = _swap_tree_in_XML(XML,tree,t_name)
+ 
 
     # now loop over all taxon elements in the XML, and 
     # remove/sub as necessary
 
 
-    return new_xml
+    return XML
 
 ################ PRIVATE FUNCTIONS ########################
 
@@ -656,8 +657,34 @@ def _sub_taxon(old_taxon, new_taxon, tree):
 
     return new_tree
 
-def _swap_tree(XML, tree, name):
+def _swap_tree_in_XML(XML, tree, name):
     """ Swap tree with name, 'name' with this new one
     """
+
+    # tree name has the tree number attached to the source name
+    # The calling function should make sure the names are unique
+    # First thing is to do is find the source name that corresponds to this tree
+
+    # Our input tree has name source_no, so find the source by stripping off the number
+    source_name, number = name.rsplit("_",1)
+    number = number.replace("_","")
+    xml_root = etree.fromstring(XML)
+    # By getting source, we can then loop over each source_tree
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+    # loop through all sources
+    for s in sources:
+        # for each source, get source name
+        name = s.attrib['name']    
+        if source_name == name:
+            # found the bugger!
+            tree_no = 1
+            for t in s.xpath("source_tree/tree_data"):
+                if tree_no == number:
+                   t.xpath("string_value")[0].text = tree
+                   return XML
+                tree_no += 1
+
+    return XML
 
 
