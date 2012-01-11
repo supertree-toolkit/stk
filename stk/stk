@@ -96,7 +96,6 @@ def create_matrix(args):
     if (f_format == None):
         f_format = 'hennig'
 
-    print f_format
     if (not f_format == 'nexus' and
         not f_format == 'hennig'):
         print "Format must be one of 'hennig' or 'nexus'"

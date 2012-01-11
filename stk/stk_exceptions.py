@@ -27,7 +27,6 @@ class BibImportError(Error):
     """Exception raised for errors in the input.
 
     Attributes:
-        expr -- input expression in which the error occurred
         msg  -- explanation of the error
     """
 
@@ -38,11 +37,21 @@ class MatrixError(Error):
     """Exception raised for errors in the input.
 
     Attributes:
-        expr -- input expression in which the error occurred
         msg  -- explanation of the error
     """
 
     def __init__(self, msg):
         self.msg = msg
 
+class NotUniqueError(Error):
+    """Exception raised when source names in
+       dataset are not unique. Many funcitons rely on this
+       fact
+
+       Attributes:
+          msg -- explaination of error
+    """
+
+    def __init__(self, msg):
+        self.msg = msg
 

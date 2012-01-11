@@ -9,6 +9,7 @@ from util import *
 import StringIO
 from Bio import Phylo
 import numpy
+from Bio import AlignIO
 
 # our test dataset
 treeview_file = "data/input/treeview.tre"
@@ -62,12 +63,13 @@ class TestImportTree(unittest.TestCase):
     def test_create_nexus_matrix(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         matrix = create_matrix(XML,format="nexus")
+        handle = StringIO.StringIO(matrix)
         print matrix
+        
 
     def test_create_tnt_matrix(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         matrix = create_matrix(XML)
-        print matrix
 
     
 if __name__ == '__main__':

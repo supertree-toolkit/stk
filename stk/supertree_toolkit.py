@@ -370,7 +370,6 @@ def obtain_trees(XML):
             trees[t_name] = t.xpath("string_value")[0].text
             tree_no += 1
 
-
     return trees
 
 def get_all_taxa(XML, pretty=False):
@@ -510,7 +509,43 @@ def load_phyml(filename):
     return etree.tostring(etree.parse(filename,parser),pretty_print=True)
 
 
+def substitute_taxa(XML, old_taxa, new_taxa=None):
+    """
+    Swap the taxa in the old_taxa array for the ones in the
+    new_taxa array
+    
+    If the new_taxa array is missing, simply delete the old_taxa
 
+    Returns a new XML with the taxa swapped from each tree and any taxon
+    elements for those taxa removed. It's up to the calling function to
+    do something sensible with this infomation
+    """
+
+    # need to check for uniquessness of souce names - error is not unique
+    _check_uniqueness(XML)
+
+    # grab all trees and store as bio.phylo.tree objects
+    trees = obtain_trees(XML)
+
+    for tree in values(trees):
+        i = 0
+        for taxon in old_taxa:
+            if (new_taxa == None or new_taxa[i] == None):
+                # we are deleting taxa
+                tree = _delete_taxon(taxon, tree)
+                trees[source] = tree
+            else:
+                # we are substituting
+                tree = _sub_taxon(taxon, new_taxa[i], tree)
+                tree[source] = tree
+
+    new_xml = _insert_trees_into_xml(XML,trees)
+
+    # now loop over all taxon elements in the XML, and 
+    # remove/sub as necessary
+
+
+    return new_xml
 
 ################ PRIVATE FUNCTIONS ########################
 
@@ -521,6 +556,35 @@ def _uniquify(l):
         keys[e] = 1
 
     return keys.keys()
+
+
+def _check_uniqueness(XML):
+    """ This funciton is an error check for uniqueness in 
+    the keys of the sources
+    """
+
+    xml_root = etree.fromstring(XML)
+    # By getting source, we can then loop over each source_tree
+    # within that source and construct a unique name
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+
+    names = []
+
+    # loop through all sources
+    for s in sources:
+        # for each source, get source name
+        names.append(s.attrib['name'])
+
+    names.sort()
+    last_name = "" # This will actually throw an non-unique error if a name is empty
+    # not great, but still an error!
+    for name in names:
+        if name == last_name:
+            # if non-unique throw exception
+            raise NotUniqueError("The source names in the dataset are not unique." +
+                    "Please run the auto-name function on these data. Name: "+name)
+    return
 
 
 def _assemble_tree_matrix(tree):
@@ -554,5 +618,9 @@ def _assemble_tree_matrix(tree):
 
     return adjmat, names
 
+def _delete_taxon(taxon, tree):
+    """ Delete a taxon from a tree string
+    """
 
+    return
         

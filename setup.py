@@ -30,8 +30,13 @@ setup(
       author = "The STK Team",
       author_email = "jon.hill@imperial.ac.uk",
       url = "https://launchpad.net/supertree-tookit",
-      packages = ['stk', 'stk_gui', 'stk.yapbib', 'dxdiff'],
-      package_dir = {'stk': 'stk', 'stk_gui':'stk_gui/stk_gui', 'stk.yapbib':'stk/yapbib', 'dxdiff':'stk_gui/dxdiff/dxdiff'},
+      packages = ['stk', 'stk_gui', 'stk.yapbib', 'dxdiff', 'stk.p4'],
+      package_dir = {
+          'stk': 'stk', 
+          'stk_gui':'stk_gui/stk_gui', 
+          'stk.yapbib':'stk/yapbib', 
+          'dxdiff':'stk_gui/dxdiff/dxdiff',
+          'stk.p4':'stk/p4'},
       scripts=["stk_gui/bin/stk-gui", "stk/stk"],
       data_files = [(destdir + "/usr/local/share/stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.svg"])] +
                    plugin_data_files + schema_data_files +
