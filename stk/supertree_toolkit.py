@@ -545,9 +545,33 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
 
     # now loop over all taxon elements in the XML, and 
     # remove/sub as necessary
+    i = 0
+    xml_root = etree.fromstring(XML)
+    xml_taxa = []
+    # grab all taxon elements and store
+    # We're going to delete and we can't do that whilst
+    # iterating over the XML. There lies chaos.
+    for ele in xml_root.iter():
+        if (ele.tag == "taxon"):
+            xml_taxa.append(ele)
+
+    for taxon in old_taxa:
+        if (new_taxa == None or new_taxa[i] == None):
+            # need to search for elements that have the right name and delete them
+            for ele in xml_taxa:
+                if (ele.attr['name'] == taxon):
+                    ele.clear()
+        else:
+            # We can't do a simple text replace here as we're 
+            # modifiyng the XML structure from which we generate a 
+            # new XML string, so we replace via a search
+            for ele in xml_taxa:
+                if (ele.attr['name'] == taxon):
+                    ele.attr['name'] = new_taxa[i]
+        i = i+1
 
 
-    return XML
+    return etree.tostring(xml_root,pretty_print=True)
 
 ################ PRIVATE FUNCTIONS ########################
 
