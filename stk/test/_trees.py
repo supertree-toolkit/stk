@@ -3,6 +3,7 @@ import math
 import sys
 sys.path.append("../")
 from supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
+from supertree_toolkit import _swap_tree_in_XML
 import os
 from lxml import etree
 from util import *
@@ -91,6 +92,17 @@ class TestImportTree(unittest.TestCase):
         new_tree = _sub_taxon("Fred", "Blah",  t)
         self.assert_(new_tree == "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;")
 
+
+    def test_insert_tree_XML(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        name = "Hill_Davis_2011_1"
+        tree = "(a,b,c);"
+        new_xml = _swap_tree_in_XML(XML, tree, name)
+        trees = obtain_trees(new_xml)
+        # loop through all trees, checking them
+        self.assert_(trees['Hill_2011_1'] == "((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000)0.00000:0.00000)0.00000:0.00000;")
+        self.assert_(trees['Davis_2011_1'] == "((A:1.00000,B:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;")
+        self.assert_(trees[name] == "(a,b,c);")
 
 
     

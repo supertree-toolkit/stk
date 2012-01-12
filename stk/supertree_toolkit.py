@@ -667,7 +667,7 @@ def _swap_tree_in_XML(XML, tree, name):
 
     # Our input tree has name source_no, so find the source by stripping off the number
     source_name, number = name.rsplit("_",1)
-    number = number.replace("_","")
+    number = int(number.replace("_",""))
     xml_root = etree.fromstring(XML)
     # By getting source, we can then loop over each source_tree
     find = etree.XPath("//source")
@@ -675,14 +675,15 @@ def _swap_tree_in_XML(XML, tree, name):
     # loop through all sources
     for s in sources:
         # for each source, get source name
-        name = s.attrib['name']    
+        name = s.attrib['name']
         if source_name == name:
             # found the bugger!
             tree_no = 1
             for t in s.xpath("source_tree/tree_data"):
                 if tree_no == number:
                    t.xpath("string_value")[0].text = tree
-                   return XML
+                   # We can return as we're only replacing one tree
+                   return etree.tostring(xml_root,pretty_print=True)
                 tree_no += 1
 
     return XML
