@@ -73,6 +73,18 @@ class TestSetSourceNames(unittest.TestCase):
         self.assert_(new_taxa[5] == edge4)
         self.assert_(new_taxa[6] == edge4)
 
+    def test_bad_subs_file(self):
+        """ Tests what happens when an incorrectly formatted subs file is passed in
+        """
+
+        #this test should die, so wrap it up...
+        try:
+            old_taxa, new_taxa = _parse_subs_file('data/input/nonsense.dat'); 
+        except stk_exceptions.UnableToParseSubsFile:
+            self.assert_(True)
+            return
+        self.assert_(False)
+
 
   
 if __name__ == '__main__':
