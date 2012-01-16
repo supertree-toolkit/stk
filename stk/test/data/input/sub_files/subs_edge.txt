@@ -1,0 +1,11 @@
+taxa1 = taxa2, taxa3, taxa2,taxa4
+taxa9+taxa10 = taxa11,taxa12=taxa13,taxa14+taxa15
+taxa16	=	some_thing
+'already=quoted' = some_thing
+taxa2 = taxa3, taxa6, taxa4,
+taxa5
+taxa4 = taxa3, taxa6, taxa4
+taxa5
+taxa5 = taxa3, taxa6, taxa4
+,taxa5
+
