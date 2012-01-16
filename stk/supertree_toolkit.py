@@ -33,6 +33,7 @@ import traceback
 from cStringIO import StringIO
 from collections import defaultdict
 import p4
+import re
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -522,13 +523,26 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
     do something sensible with this infomation
     """
 
+    # are the input values lists or simple strings?
+    if (isinstance(old_taxa,str)):
+        old_taxa = [old_taxa]
+    if (new_taxa and isinstance(new_taxa,str)):
+        new_taxa = [new_taxa]
+
+    # check they are same lengths now
+    if (new_taxa):
+        if (len(old_taxa) != len(new_taxa)):
+            print "Substitution failed. Old and new are different lengths"
+            return # need to raise exception here
+
     # need to check for uniquessness of souce names - error is not unique
     _check_uniqueness(XML)
 
     # grab all trees and store as bio.phylo.tree objects
     trees = obtain_trees(XML)
 
-    for tree in values(trees):
+    for name in trees.iterkeys():
+        tree = trees[name]
         i = 0
         for taxon in old_taxa:
             # tree contains the old_taxon, do something with it
@@ -536,11 +550,12 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
                 if (new_taxa == None or new_taxa[i] == None):
                     # we are deleting taxa
                     tree = _delete_taxon(taxon, tree)
-                    XML = _swap_tree_in_XML(XML,tree,t_name)
+                    XML = _swap_tree_in_XML(XML,tree,name)
                 else:
                     # we are substituting
                     tree = _sub_taxon(taxon, new_taxa[i], tree)
-                    XML = _swap_tree_in_XML(XML,tree,t_name)
+                    XML = _swap_tree_in_XML(XML,tree,name)
+            i += 1
  
 
     # now loop over all taxon elements in the XML, and 
@@ -712,4 +727,59 @@ def _swap_tree_in_XML(XML, tree, name):
 
     return XML
 
+def _parse_subs_file(filename):
+    """ Reads in a subs file and returns two arrays:
+        new_taxa and the corresponding old_taxa
 
+        None is used to indicated deleted taxa
+    """
+
+    try:
+        f = open(filename,'r')
+    except:
+        return None, None # raise exception here
+
+    old_taxa = []
+    new_taxa = []
+    i = 0
+    n_t = ""
+    for line in f.readlines(): 
+        if (re.search('\s+=\s+', line) != None): # new taxa description
+            data = re.split('\s+=\s+', line) # note the spaces!
+            old_taxa.append(data[0].strip())
+            if (i != 0):
+                # append the last lot of new_taxa onto array
+                i += 1
+                if (n_t == ""):
+                    new_taxa.append(None)
+                else:
+                    # strip all spaces out around commas
+                    n_t = n_t.replace(' ,', ',')
+                    n_t = n_t.replace(', ', ',')
+                    new_taxa.append(n_t)
+            # now start parsing n_t
+            n_t = ""
+            if (len(data) > 1):
+                # strip off any quotes - we must add them, but it's easier to strip then add than
+                # check, then add
+                data[1] = re.sub("'","",data[1])
+                # might contain non-standard characters, quote these names
+                data[1] = re.sub(r"(,|^)(?P<name>\w*[=\+]\w*)",r"\1'\g<name>'", data[1])
+                n_t = n_t + data[1].strip()
+                i = i+1
+        else:
+            if (line.strip() != "" and not n_t.endswith(',') and not line.strip().startswith(',')):
+                n_t = n_t + ","
+            n_t = n_t + line.strip()
+
+    f.close()
+    # Add the last new taxa
+    if (n_t == ""):
+        new_taxa.append(None)
+    else:
+        n_t = n_t.replace(' ,', ',')
+        n_t = n_t.replace(', ', ',')
+        new_taxa.append(n_t.strip())
+
+
+    return old_taxa, new_taxa
