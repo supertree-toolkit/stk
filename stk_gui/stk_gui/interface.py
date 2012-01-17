@@ -163,7 +163,8 @@ class Diamond:
                     "on_ungroup": self.on_ungroup,
                     "on_standardise_names": self.on_standardise_names,
                     "on_import_bib": self.on_import_bib,
-                    "on_create_matrix": self.on_create_matrix
+                    "on_create_matrix": self.on_create_matrix,
+                    "on_sub_taxa": self.on_sub_taxa
                     }
 
     self.gui.signal_autoconnect(signals)
@@ -984,7 +985,66 @@ class Diamond:
       filename_textbox = self.create_matrix_gui.get_widget("entry1")
       filename_textbox.set_text(filename)
 
+  def on_sub_taxa(self, widget=None):
+    """ Substitute taxa in the tree. Actually, this function
+        merely opens the dialog form the glade file...
+    """
 
+    signals = {"on_sub_taxa_dialog_close": self.on_sub_taxa_cancel_button,
+               "on_sub_taxa_cancel_clicked": self.on_sub_taxa_cancel_button,
+               "on_sub_taxa_clicked": self.on_sub_taxa_sub_taxa_button,
+               "on_sub_taxa_broswe_clicked": self.on_sub_taxa_browse_button}
+
+    self.sub_taxa_gui = gtk.glade.XML(self.gladefile, root="sub_taxa_dialog")
+    self.sub_taxa_dialog = self.sub_taxa_gui.get_widget("sub_taxa_dialog")
+    self.sub_taxa_gui.signal_autoconnect(signals)
+    matrix_file = self.sub_taxa_gui.get_widget("sub_taxa_button")
+    matrix_file.connect("activate", self.on_sub_taxa_sub_taxa_button)
+    self.sub_taxa_dialog.show()
+
+    return
+      
+  def on_sub_taxa_sub_taxa_button(self, button):
+    """
+    create the matrix requested 
+    """
+
+    filename_textbox = self.sub_taxa_gui.get_widget("entry1")
+    filename = filename_textbox.get_text()
+    old_taxon = self.sub_taxa_gui.get_widget("old_taxon").get_text()
+    new_taxon = self.sub_taxa_gui.get_widget("new_taxon").get_text()
+
+    # check the text entries
+    # is old_taxon in the tree?
+    # is new_taxon already in a tree where old_taxon lives?
+    # is new_taxon == new_taxon or blank?
+    # replace spaces with _ for the actual sub
+
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    XML2 = stk.sub_taxa(XML,old_taxon,new_taxon)
+    f = open(filename, "w")
+    f.write(XML2)
+    f.close()    
+    
+    self.sub_taxa_dialog.hide()
+
+    return
+
+  def on_sub_taxa_cancel_button(self, button):
+      """ Close the sub_taxa dialogue
+      """
+
+      self.sub_taxa_dialog.hide()
+
+  def on_sub_taxa_browse_button(self, button):
+      filter_names_and_patterns = {}
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose output matrix fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+      filename_textbox = self.sub_taxa_gui.get_widget("entry1")
+      filename_textbox.set_text(filename)
+  
   def on_import_bib(self, widget = None):
      """
      Imports a bibtex file and sets up a number of sources

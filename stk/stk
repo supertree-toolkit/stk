@@ -210,7 +210,7 @@ def sub_taxa(args):
                 break
 
 
-    XML = supertree_toolkit.replace_taxa(input_file,old_taxa,new_taxa)
+    XML = supertree_toolkit.substitute_taxa(input_file,old_taxa,new_taxa)
     f = open(output_file,'r')
     f.write(XML)
 
