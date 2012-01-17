@@ -55,3 +55,14 @@ class NotUniqueError(Error):
     def __init__(self, msg):
         self.msg = msg
 
+class UnableToParseSubsFile(Error):
+    """Exception raised when a subs file fails to parse
+       correctly
+
+       Attributes:
+          msg -- explaination of error
+    """
+
+    def __init__(self, msg):
+        self.msg = msg
+

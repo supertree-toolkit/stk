@@ -104,58 +104,113 @@ class TestImportTree(unittest.TestCase):
         self.assert_(trees['Davis_2011_1'] == "((A:1.00000,B:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;")
         self.assert_(trees[name] == "(a,b,c);")
 
-    def test_substitute_taxa_single(self):
-        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
-        XML2 = substitute_taxa(XML, "A", "Fred")
-        taxa = get_all_taxa(XML2)
-        contains_Fred = False
-        contains_A = False
-        for t in taxa:
-            if (t == 'Fred'):
-                contains_Fred = True
-            if (t == "A"):
-                contains_A = True
-
-        self.assert_(contains_Fred)
-        self.assert_(not contains_A) # we should not have A in a tree
-
-
-    def test_delete_taxa_single(self):
-        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
-        XML2 = substitute_taxa(XML, "A")
-        taxa = get_all_taxa(XML2)
-        contains_A = False
-        for t in taxa:
-            if (t == "A"):
-                contains_A = True
-        self.assert_(not contains_A) # we should not have A in a tree
-
-    def test_substitute_taxa_multiple(self):
-        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
-        XML2 = substitute_taxa(XML, ["A","B"], ["Fred","Bob"])
-        taxa = get_all_taxa(XML2)
-        contains_Fred = False
-        contains_Bob = False
-        contains_A = False
-        contains_B = False
-        for t in taxa:
-            if (t == 'Fred'):
-                contains_Fred = True
-            if (t == "A"):
-                contains_A = True
-            if (t == 'Bob'):
-                contains_Bob = True
-            if (t == "B"):
-                contains_B = True
-
-        self.assert_(contains_Fred)
-        self.assert_(not contains_A) # we should not have A in a tree
-        self.assert_(contains_Bob)
-        self.assert_(not contains_B) # we should not have B in a tree
-
+#    def test_substitute_taxa_single(self):
+#        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+#        XML2 = substitute_taxa(XML, "A", "Fred")
+#        taxa = get_all_taxa(XML2)
+#        contains_Fred = False
+#        contains_A = False
+#        for t in taxa:
+#            if (t == 'Fred'):
+#                contains_Fred = True
+#            if (t == "A"):
+#                contains_A = True
+#
+#        self.assert_(contains_Fred)
+#        self.assert_(not contains_A) # we should not have A in a tree
+#
+#        # now need to check the XML for the taxon block has been altered
+#        xml_root = etree.fromstring(XML2)
+#        find = etree.XPath("//taxon")
+#        taxa = find(xml_root)
+#        contains_Fred = False
+#        contains_A = False
+#        for t in taxa:
+#            name = t.attrib['name']
+#            if name == 'Fred':
+#                contains_Fred = True
+#            if name == 'A':
+#                contains_A = True
+#
+#        self.assert_(contains_Fred)
+#        self.assert_(not contains_A) # we should not have A in a tree
+#
+#
+#    def test_delete_taxa_single(self):
+#        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+#        XML2 = substitute_taxa(XML, "A")
+#        taxa = get_all_taxa(XML2)
+#        contains_A = False
+#        for t in taxa:
+#            if (t == "A"):
+#                contains_A = True
+#        self.assert_(not contains_A) # we should not have A in a tree
+#
+#        # now need to check the XML for the taxon block has been altered
+#        xml_root = etree.fromstring(XML2)
+#        find = etree.XPath("//taxon")
+#        taxa = find(xml_root)
+#        contains_A = False
+#        for t in taxa:
+#            name = t.attrib['name']
+#            if name == 'A':
+#                contains_A = True
+#
+#
+#        self.assert_(not contains_A) # we should not have A in a tree
+#
+#
+#
+#    def test_substitute_taxa_multiple(self):
+#        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+#        XML2 = substitute_taxa(XML, ["A","B_b"], ["Fred","Bob"])
+#        taxa = get_all_taxa(XML2)
+#        contains_Fred = False
+#        contains_Bob = False
+#        contains_A = False
+#        contains_B = False
+#        for t in taxa:
+#            if (t == 'Fred'):
+#                contains_Fred = True
+#            if (t == "A"):
+#                contains_A = True
+#            if (t == 'Bob'):
+#                contains_Bob = True
+#            if (t == "B_b"):
+#                contains_B = True
+#
+#        self.assert_(contains_Fred)
+#        self.assert_(not contains_A) # we should not have A in a tree
+#        self.assert_(contains_Bob)
+#        self.assert_(not contains_B) # we should not have B in a tree
+#
+#        # now need to check the XML for the taxon block has been altered
+#        xml_root = etree.fromstring(XML2)
+#        find = etree.XPath("//taxon")
+#        taxa = find(xml_root)
+#        contains_Fred = False
+#        contains_Bob = False
+#        contains_A = False
+#        contains_B = False
+#        for t in taxa:
+#            name = t.attrib['name']
+#            if name == 'Fred':
+#                contains_Fred = True
+#            if name == 'A':
+#                contains_A = True
+#            if name == 'Bob':
+#                contains_Bob = True
+#            if name == 'B_b':
+#                contains_B = True
+#
+#        self.assert_(contains_Fred)
+#        self.assert_(not contains_A) # we should not have A in a tree
+#        self.assert_(contains_Bob)
+#        self.assert_(not contains_B) # we should not have B in a tree
+#
     def test_substitute_taxa_multiple_sub1_del1(self):
-        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
-        XML2 = substitute_taxa(XML, ["A","B"], ["Fred",None])
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        XML2 = substitute_taxa(XML, ["A","B_b"], ["Fred",None])
         taxa = get_all_taxa(XML2)
         contains_Fred = False
         contains_A = False
@@ -165,14 +220,32 @@ class TestImportTree(unittest.TestCase):
                 contains_Fred = True
             if (t == "A"):
                 contains_A = True
-            if (t == "B"):
+            if (t == "B_b"):
                 contains_B = True
 
         self.assert_(contains_Fred)
         self.assert_(not contains_A) # we should not have A in a tree
         self.assert_(not contains_B) # we should not have B in a tree
+        
+        # now need to check the XML for the taxon block has been altered
+        xml_root = etree.fromstring(XML2)
+        find = etree.XPath("//taxon")
+        taxa = find(xml_root)
+        contains_Fred = False
+        contains_A = False
+        contains_B = False
+        for t in taxa:
+            name = t.attrib['name']
+            if name == 'Fred':
+                contains_Fred = True
+            if name == 'A':
+                contains_A = True
+            if name == 'B_b':
+                contains_B = True
 
-
+        self.assert_(contains_Fred)
+        self.assert_(not contains_A) # we should not have A in a tree
+        self.assert_(not contains_B) # we should not have B in a tree
 
     
 if __name__ == '__main__':

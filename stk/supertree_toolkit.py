@@ -570,21 +570,21 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
         if (ele.tag == "taxon"):
             xml_taxa.append(ele)
 
+   
+    i = 0
     for taxon in old_taxa:
         if (new_taxa == None or new_taxa[i] == None):
             # need to search for elements that have the right name and delete them
             for ele in xml_taxa:
-                if (ele.attr['name'] == taxon):
-                    ele.clear()
+                if (ele.attrib['name'] == taxon):
+                    # You remove the element by getting the 
+                    # deleting it from the parent
+                    ele.getparent().remove(ele)
         else:
-            # We can't do a simple text replace here as we're 
-            # modifiyng the XML structure from which we generate a 
-            # new XML string, so we replace via a search
             for ele in xml_taxa:
-                if (ele.attr['name'] == taxon):
-                    ele.attr['name'] = new_taxa[i]
+                if (ele.attrib['name'] == taxon):
+                    ele.attrib['name'] = new_taxa[i]
         i = i+1
-
 
     return etree.tostring(xml_root,pretty_print=True)
 
@@ -737,7 +737,7 @@ def _parse_subs_file(filename):
     try:
         f = open(filename,'r')
     except:
-        return None, None # raise exception here
+        raise UnableToParseSubsFile("Unable to open subs file. Check your path")
 
     old_taxa = []
     new_taxa = []
@@ -781,5 +781,10 @@ def _parse_subs_file(filename):
         n_t = n_t.replace(', ', ',')
         new_taxa.append(n_t.strip())
 
+    if (len(old_taxa) != len(new_taxa)):
+        raise UnableToParseSubsFile("Output arrays are not same length. File incorrectly formatted")
+    if (len(old_taxa) == 0):
+        raise UnableToParseSubsFile("No substitutions found! File incorrectly formatted")
+ 
 
     return old_taxa, new_taxa

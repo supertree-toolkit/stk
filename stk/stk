@@ -72,6 +72,31 @@ def main():
     # Set the function that gets called when the sub command is activated
     parser_cm.set_defaults(func=create_matrix)
 
+
+    parser_cm = subparsers.add_parser('sub_taxa',
+            help='Substitute or delete taxa from the file'
+            )
+    parser_cm.add_argument('input', 
+            help='The input phyml file')
+    parser_cm.add_argument('output', 
+            help='The output phyml file')
+    parser_cm.add_argument('-s',
+            '--subs', 
+            help='A substitution file. See manual for format.')
+    parser_cm.add_argument('-n',
+            '--newtaxon', 
+            help='The new taxon. If you want to delete, leave blank.')
+    parser_cm.add_argument('-o',
+            '--oldtaxon', 
+            help='The old taxon. Must be in the dataset.')
+
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the exisitng file without asking for confirmation")
+
+    # Set the function that gets called when the sub command is activated
+    parser_cm.set_defaults(func=sub_taxa)
     args = parser.parse_args()
     verbose = args.verbose
 
@@ -126,6 +151,65 @@ def create_matrix(args):
     f = open(output_file, "w")
     f.write(matrix)
     f.close()
+
+def sub_taxa(args):
+    """ Substitute or delete taxa from a PHYML file
+    and make a new file with these taxa subbed/removed from all trees
+    and XML
+    """
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    input_file = args.input
+    overwrite = args.overwrite
+    subs_file = args.subs
+    old_taxa = []
+    new_taxa = []
+    old_taxon = args.oldtaxon
+    new_taxon = args.newtaxon
+    
+    # check all the options
+    # We need either a subs file *or* an old taxon, but not both
+    if (old_taxon == None and subs_file == None):
+        print "You need to supply either a subs file or an old_taxon"
+        sys.exit(-1)
+    if (old_taxon != None and subs_file != None):
+        print "You need to supply either a subs file or an old_taxon, not both"
+        sys.exit(-1)
+
+    if (old_taxon != None):
+        old_taxa.append(old_taxon)
+        if (new_taxon != None):
+            new_taxa.append(new_taxon)
+
+    if (subs_file):
+        try:
+            old_taxa, new_taxa = stk_._parse_subs_file(subs_file)
+        except UnableToParseSubsFile as e:
+            print e.msg
+    
+    
+    # Does the input file exist?
+    if (not os.path.exists(input_file)):
+        print "Input file cannot be found. Exiting"
+        sys.exit(-1)
+
+    # Does the output file already exist?
+    if (os.path.exists(output_file) and not overwrite):
+        print "Output file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            input = sys.stdin.read(1)
+            if input == None:
+                input = 'y'
+            if input == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if input == 'y':
+                break
+
+
+    XML = supertree_toolkit.replace_taxa(input_file,old_taxa,new_taxa)
 
 if __name__ == "__main__":
     main()
