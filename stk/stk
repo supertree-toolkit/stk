@@ -187,6 +187,7 @@ def sub_taxa(args):
             old_taxa, new_taxa = stk_._parse_subs_file(subs_file)
         except UnableToParseSubsFile as e:
             print e.msg
+            sys.exit(-1)
     
     
     # Does the input file exist?
@@ -210,6 +211,10 @@ def sub_taxa(args):
 
 
     XML = supertree_toolkit.replace_taxa(input_file,old_taxa,new_taxa)
+    f = open(output_file,'r')
+    f.write(XML)
+
+    sys,exit(0)
 
 if __name__ == "__main__":
     main()
