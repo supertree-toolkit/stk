@@ -128,7 +128,7 @@ def main():
         except OSError:
           pass   
 
-
+  print logofile
   # Let's find a schema.
 
   suffix = "xml"
@@ -151,8 +151,17 @@ def main():
     sys.exit(1)
 
   #schemafile is not given so look up actual path
+  print input_schemafile      
+  
+  for possible_schemafile in [os.path.join(stk_path, "../schema/phylo_storage.rng"), "/usr/local/share/stk/schema/phyml"]:
+    try:
+        os.stat(possible_schemafile)
+        input_schemafile = possible_schemafile
+        break
+    except OSError:
+        pass   
+        
   if input_schemafile is None:
-
     # if the user has specified a file to work on, use the suffix as a key
     if input_filename is not None:
       suffix = input_filename.split(".")[-1]
@@ -220,6 +229,8 @@ def main():
   if gladefile is None:
     debug.deprint("Cannot locate GUI!", 0)
     sys.exit(1)
+    
+  print gladefile
 
   # If input_schemafile doesn't exist, use the fluidity_options schema.
   if input_schemafile is None:

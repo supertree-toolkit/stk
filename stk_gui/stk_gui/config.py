@@ -25,6 +25,7 @@ import debug
 dirs = []
 if sys.platform != "win32" and sys.platform != "win64":
   dirs.append("/usr/local/share/stk/")
+
 dirs.append(os.path.join(os.path.expanduser('~'), ".stk"))
 config = ConfigParser.SafeConfigParser()
 config.read([os.path.join(path, "settings") for path in reversed(dirs)]) #reversed to load usr last
@@ -60,12 +61,12 @@ for dir in [os.path.join(path, "schemata") for path in dirs]:
       # repository and there's pesky .svn folders around.
       try:
         handle = open(os.path.join(dir, file))
-        print file
       except:
         debug.deprint("Failure to examine entry " + file + " in folder " + dir + ".")
         continue
       lines = [x.strip() for x in handle if x.strip()]
       if len(lines) < 2:
+        debug.deprint(os.path.join(dir, file),0)
         debug.deprint("Warning: Found schema registration file \"" + file + "\", but file is improperly formatted - schema type not registered", 0)
         continue
 
