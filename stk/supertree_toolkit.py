@@ -788,3 +788,44 @@ def _parse_subs_file(filename):
  
 
     return old_taxa, new_taxa
+
+def _check_taxa(XML):
+    """ Checks that taxa in the XML are in the tree for the source thay are added to
+    """
+
+    # grab all sources
+    xml_root = etree.fromstring(XML)
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+
+    # for each source
+    for s in sources:
+        # get a list of taxa in the XML
+        this_source = etree.fromstring(etree.tostring(s))
+        find = etree.XPath("//taxon")
+        taxa = find(this_source)
+        trees = obtain_trees(etree.tostring(this_source))
+        for name in trees.iterkeys():
+            tree = trees[name]
+            # are the XML taxa in the tree?
+            for t in taxa:
+                xml_taxon = t.attrib['name']
+                if (tree.find(xml_taxon) == -1):
+                    # no - raise an error!
+                    raise InvalidSTKData("Taxon: "+xml_taxon+" is not in the tree "+name)
+
+    return
+
+def _check_data(XML):
+    """ Function to check various aspects of the dataset, including:
+         - checking taxa in the XML for a source are included in the tree for that source
+         - checking all source names are unique
+    """
+
+    # check all names are unique - this is easy...
+    _check_uniqueness(XML) # this will raise an error is the test is not passed
+
+    # now the taxa
+    _check_taxa(XML) # again will raise an error if test fails
+
+    return

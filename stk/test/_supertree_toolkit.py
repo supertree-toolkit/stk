@@ -2,11 +2,13 @@ import unittest
 import math
 import sys
 sys.path.append("../")
-from supertree_toolkit import _check_uniqueness, _parse_subs_file
+from supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data
 import os
 from lxml import etree
 from util import *
 import stk_exceptions
+parser = etree.XMLParser(remove_blank_text=True)
+
 
 # Class to test all those loverly internal methods
 # or stuff that doesn't fit within the other tests
@@ -85,6 +87,47 @@ class TestSetSourceNames(unittest.TestCase):
             return
         self.assert_(False)
 
+    def test_taxa_tree(self):
+        """Tests the _check_taxa function
+        """
+
+        #this test should pass, but wrap it up anyway
+        try:
+            _check_taxa(etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)); 
+        except e as stk_exceptions.InvalidSTKData:
+            print e.msg
+            self.assert_(False)
+            return
+        self.assert_(True)
+
+    def test_incorrect_taxa_tree(self):
+        """Tests the _check_taxa function
+        """
+
+        #this test should pass, but wrap it up anyway
+        try:
+            _check_taxa(etree.tostring(etree.parse('data/input/check_taxa.phyml',parser),pretty_print=True)); 
+        except stk_exceptions.InvalidSTKData:
+            self.assert_(True)
+            return
+        self.assert_(False)
+
+    def test_check_data(self):
+        """Tests the _check_data function
+        """
+
+        #this test should pass, but wrap it up anyway
+        try:
+            _check_data(etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)); 
+        except e as stk_exceptions.InvalidSTKData:
+            self.assert_(False)
+            print e.msg
+            return
+        except e as stk_exceptions.NotUniqueError:
+            self.assert_(False)
+            print e.msg
+            return
+        self.assert_(True)
 
   
 if __name__ == '__main__':
