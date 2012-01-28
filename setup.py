@@ -8,19 +8,17 @@ try:
   destdir = os.environ["DESTDIR"]
 except KeyError:
   destdir = ""
+try:
+    set
+except NameError:
+    from sets import Set
+  
 
 # Get all the plugin directories we have
 plugin_dirs = ['stk_gui/plugins/']
 plugin_data_files = []
-for plugin in plugin_dirs:
-  plugin_data_files.append((destdir + "/usr/local/share/plugin/phyml/",
-    glob.glob(plugin + '/*.py')))
-
 schema_dirs = ['schema']
 schema_data_files = []
-for s in schema_dirs:
-  schema_data_files.append((destdir + "/usr/local/share/stk/schemata/schema/",
-    glob.glob(s + '/*.rng')))
 
 if sys.platform == 'darwin':
     extra_options = dict(
@@ -30,14 +28,58 @@ if sys.platform == 'darwin':
         # be used for opening files.
         options=dict(py2app=dict(argv_emulation=True)),
     )
+    # populate the directories
+    for plugin in plugin_dirs:
+      plugin_data_files.append(glob.glob(plugin + '/*.py'))
+
+    for s in schema_dirs:
+      schema_data_files.append(glob.glob(s + '/*.rng'))
+      
+    
+    
+    # All this stuff is for packaging on MacOS
+    class stk_recipe(object):
+        def check(self, dist, mf):
+            print "sdsds"
+            m = mf.findNode('supertree-toolkit')
+            if m is None or m.filename is None:
+                print "blah"
+                return None
+            def addpath(f):
+                print f
+                return os.path.join(os.path.dirname(m.filename), f)
+            RESOURCES = []
+            RESOURCES.extend(schema_data_files)
+            RESOURCES.extend(plugin_data_files)
+            return dict(
+                loader_files = [
+                    ('file', map(addpath, RESOURCES)),
+                ],
+            )
+
+    import py2app.recipes
+    py2app.recipes.stk = stk_recipe()
+    
+
 elif sys.platform == 'win32':
     extra_options = dict(
         setup_requires=['py2exe'],
         app=['stk_gui'],
     )
 else:
+    for plugin in plugin_dirs:
+      plugin_data_files.append((destdir + "/usr/local/share/plugin/phyml/",
+        glob.glob(plugin + '/*.py')))
+    
+    for s in schema_dirs:
+      schema_data_files.append((destdir + "/usr/local/share/stk/schemata/schema/",
+        glob.glob(s + '/*.rng')))
+    
     extra_options = dict(
-        app=['stk']
+            app=['stk'],
+            data_files = [(destdir + "/usr/local/share/stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.svg"])] +
+                   plugin_data_files + schema_data_files +
+                   [(destdir + "/usr/local/share/stk/schemata", ["schema/phyml"])]
     )
 
 setup(
@@ -55,9 +97,6 @@ setup(
           'dxdiff':'stk_gui/dxdiff/dxdiff',
           'stk.p4':'stk/p4'},
       scripts=["stk_gui/bin/stk-gui", "stk/stk"],
-      data_files = [(destdir + "/usr/local/share/stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.svg"])] +
-                   plugin_data_files + schema_data_files +
-                   [(destdir + "/usr/local/share/stk/schemata", ["schema/phyml"])],
       **extra_options
     )
 
