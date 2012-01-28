@@ -23,6 +23,8 @@ import ConfigParser
 import debug
 
 dirs = []
+if sys.platform == 'darwin':
+    dirs.append("../Resources/schema/")
 if sys.platform != "win32" and sys.platform != "win64":
   dirs.append("/usr/local/share/stk/")
 

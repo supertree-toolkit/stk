@@ -65,6 +65,8 @@ def configure_plugins(suffix):
       "/usr/local/share/plugin/" + suffix]
   if sys.platform != "win32" and sys.platform != "win64":
     dirs.append("/etc/stk/plugins/" + suffix)
+  if sys.platform == 'darwin':
+    dirs.append("../Resources/plugins/")
 
   for dir in dirs:
     sys.path.insert(0, dir)
