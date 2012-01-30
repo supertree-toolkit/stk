@@ -1,0 +1,26 @@
+#NEXUS
+
+[File saved Mon Jan 30 13:01:51 2012]
+
+BEGIN TAXA;
+	DIMENSIONS NTAX = 5;
+	TAXLABELS
+		Taxon_a
+		Taxon_b
+		Taxon_c
+		Taxon_d
+		Taxon_e
+		;
+ENDBLOCK;
+
+
+BEGIN TREES;
+	TRANSLATE
+		1	Taxon_a,
+		2	Taxon_b,
+		3	Taxon_c,
+		4	Taxon_d,
+		5	Taxon_e
+		;
+	UTREE * tree_1= ((3,(1,2)),(4,5));
+ENDBLOCK;
