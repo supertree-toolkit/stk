@@ -66,3 +66,13 @@ class UnableToParseSubsFile(Error):
     def __init__(self, msg):
         self.msg = msg
 
+class InvalidSTKData(Error):
+    """Exception raised when a the PHYML is inconsistant
+
+       Attributes:
+          msg -- explaination of error
+    """
+
+    def __init__(self, msg):
+        self.msg = msg
+

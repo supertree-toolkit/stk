@@ -287,9 +287,68 @@ def import_tree(filename, gui=None, tree_no = -1):
     m = re.search(r'\UTREE\s?\*\s?(.+)\s?=\s', content)
     if (m != None):
         treedata = re.sub("\UTREE\s?\*\s?(.+)\s?=\s","tree "+m.group(1)+" = [&u] ", content)
-    else:
-        treedata = content
+        content = treedata
+# Now check for Macclade. easy to spot, has MacClade in the text
+# MacClade has a whole heap of other stuff, we just want the tree...
+# Mesquite is similar, but need more processing - see later
+    m = re.search(r'MacClade',content)
+    if (m!=None):
+        # Done on a Mac? Replace ^M with a newline
+        content = string.replace( content, '\r', '\n' )
+        h = StringIO(content)
+        content  = "#NEXUS\n"
+        add_to = False
+        for line in h:
+            if (line.startswith('BEGIN TREES')):
+                add_to = True
+            if (add_to):
+                content += line
+            if (line.startswith('END') and add_to):
+                add_to = False
+                break
 
+# Mesquite is similar to MacClade, but need more processing
+    m = re.search(r'Mesquite',content)
+    if (m!=None):
+        # Done on a Mac? Replace ^M with a newline
+        content = string.replace( content, '\r', '\n' )
+        h = StringIO(content)
+        content  = "#NEXUS\n"
+        add_to = False
+        for line in h:
+            if (line.startswith('BEGIN TREES')):
+                add_to = True
+            if (add_to):
+                # do not add the LINK line
+                mq = re.search(r'LINK',line)
+                if (mq == None):
+                    content += line
+            if (line.startswith('END') and add_to):
+                add_to = False
+                break
+
+# Dendroscope produces non-Nexus trees. but the tree is easy to pick out
+#{TREE 'tree_1'
+#((Taxon_c:1.0,(Taxon_a:1.0,Taxon_b:1.0):1.0):0.5,(Taxon_d:1.0,Taxon_e:1.0):0.5);
+#}
+    m = re.search(r'#DENDRO',content)
+    if (m!=None):
+        h = StringIO(content)
+        content = "#NEXUS\n"
+        content += "begin trees;\ntree tree_1 = [&U] "
+        add_to = False
+        for line in h:
+            if (line.startswith('}') and add_to):
+                add_to = False
+            if (add_to):
+                content += line+"\n"
+            if (line.startswith('{TREE')):
+                add_to = True
+        content += "\nend;"
+        #remove nodal branch lengths
+        content = re.sub("\):\d.\d+","):0.0", content)
+
+    treedata = content
     handle = StringIO(treedata)
     
     if (filename.endswith(".nex") or filename.endswith(".tre")):
@@ -788,3 +847,44 @@ def _parse_subs_file(filename):
  
 
     return old_taxa, new_taxa
+
+def _check_taxa(XML):
+    """ Checks that taxa in the XML are in the tree for the source thay are added to
+    """
+
+    # grab all sources
+    xml_root = etree.fromstring(XML)
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+
+    # for each source
+    for s in sources:
+        # get a list of taxa in the XML
+        this_source = etree.fromstring(etree.tostring(s))
+        find = etree.XPath("//taxon")
+        taxa = find(this_source)
+        trees = obtain_trees(etree.tostring(this_source))
+        for name in trees.iterkeys():
+            tree = trees[name]
+            # are the XML taxa in the tree?
+            for t in taxa:
+                xml_taxon = t.attrib['name']
+                if (tree.find(xml_taxon) == -1):
+                    # no - raise an error!
+                    raise InvalidSTKData("Taxon: "+xml_taxon+" is not in the tree "+name)
+
+    return
+
+def _check_data(XML):
+    """ Function to check various aspects of the dataset, including:
+         - checking taxa in the XML for a source are included in the tree for that source
+         - checking all source names are unique
+    """
+
+    # check all names are unique - this is easy...
+    _check_uniqueness(XML) # this will raise an error is the test is not passed
+
+    # now the taxa
+    _check_taxa(XML) # again will raise an error if test fails
+
+    return
