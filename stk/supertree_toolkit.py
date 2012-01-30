@@ -287,9 +287,68 @@ def import_tree(filename, gui=None, tree_no = -1):
     m = re.search(r'\UTREE\s?\*\s?(.+)\s?=\s', content)
     if (m != None):
         treedata = re.sub("\UTREE\s?\*\s?(.+)\s?=\s","tree "+m.group(1)+" = [&u] ", content)
-    else:
-        treedata = content
+        content = treedata
+# Now check for Macclade. easy to spot, has MacClade in the text
+# MacClade has a whole heap of other stuff, we just want the tree...
+# Mesquite is similar, but need more processing - see later
+    m = re.search(r'MacClade',content)
+    if (m!=None):
+        # Done on a Mac? Replace ^M with a newline
+        content = string.replace( content, '\r', '\n' )
+        h = StringIO(content)
+        content  = "#NEXUS\n"
+        add_to = False
+        for line in h:
+            if (line.startswith('BEGIN TREES')):
+                add_to = True
+            if (add_to):
+                content += line
+            if (line.startswith('END') and add_to):
+                add_to = False
+                break
 
+# Mesquite is similar to MacClade, but need more processing
+    m = re.search(r'Mesquite',content)
+    if (m!=None):
+        # Done on a Mac? Replace ^M with a newline
+        content = string.replace( content, '\r', '\n' )
+        h = StringIO(content)
+        content  = "#NEXUS\n"
+        add_to = False
+        for line in h:
+            if (line.startswith('BEGIN TREES')):
+                add_to = True
+            if (add_to):
+                # do not add the LINK line
+                mq = re.search(r'LINK',line)
+                if (mq == None):
+                    content += line
+            if (line.startswith('END') and add_to):
+                add_to = False
+                break
+
+# Dendroscope produces non-Nexus trees. but the tree is easy to pick out
+#{TREE 'tree_1'
+#((Taxon_c:1.0,(Taxon_a:1.0,Taxon_b:1.0):1.0):0.5,(Taxon_d:1.0,Taxon_e:1.0):0.5);
+#}
+    m = re.search(r'#DENDRO',content)
+    if (m!=None):
+        h = StringIO(content)
+        content = "#NEXUS\n"
+        content += "begin trees;\ntree tree_1 = [&U] "
+        add_to = False
+        for line in h:
+            if (line.startswith('}') and add_to):
+                add_to = False
+            if (add_to):
+                content += line+"\n"
+            if (line.startswith('{TREE')):
+                add_to = True
+        content += "\nend;"
+        #remove nodal branch lengths
+        content = re.sub("\):\d.\d+","):0.0", content)
+
+    treedata = content
     handle = StringIO(treedata)
     
     if (filename.endswith(".nex") or filename.endswith(".tre")):

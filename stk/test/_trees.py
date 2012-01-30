@@ -13,16 +13,38 @@ import numpy
 from Bio import AlignIO
 
 # our test dataset
-treeview_file = "data/input/treeview.tre"
+
 standard_tre = "data/input/test_tree.tre"
 single_source_input = "data/input/single_source.phyml"
-expected_tree = '((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;'
+expected_tree = '((Taxon_c:1.00000,(Taxon_a:1.00000,Taxon_b:1.00000)0.00000:0.00000)0.00000:0.00000,(Taxon_d:1.00000,Taxon_e:1.00000)0.00000:0.00000)0.00000:0.00000;'
 parser = etree.XMLParser(remove_blank_text=True)
 
 class TestImportTree(unittest.TestCase):
 
     def test_import_treeview(self):
-        tree = import_tree(treeview_file)
+        test_file = "data/input/treeview_test.tre"
+        tree = import_tree(test_file)
+        self.assert_(expected_tree+"\n" == tree)
+
+    def test_import_mesquite(self):
+        test_file = "data/input/mesquite_test.tre"
+        tree = import_tree(test_file)
+        self.assert_(expected_tree+"\n" == tree)
+
+    def test_import_figtree(self):
+        test_file = "data/input/figtree_test.tre"
+        tree = import_tree(test_file)
+        self.assert_(expected_tree+"\n" == tree)
+
+    def test_import_dendroscope(self):
+        test_file = "data/input/dendroscope_test.tre"
+        tree = import_tree(test_file)
+        print tree
+        self.assert_(expected_tree+"\n" == tree)
+
+    def test_import_macclade(self):
+        test_file = "data/input/macclade_test.tre"
+        tree = import_tree(test_file)
         self.assert_(expected_tree+"\n" == tree)
 
     def test_get_all_trees(self):
@@ -30,6 +52,7 @@ class TestImportTree(unittest.TestCase):
         tree = obtain_trees(XML)
         # Tree key is source_name_tree_no, so we should have
         # Hill_2011_1
+        expected_tree = '((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;'
         self.assert_(tree['Hill_2011_1'] == expected_tree)
 
     def test_get_all_taxa(self):
