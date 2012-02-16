@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf-8'?>
+<phylo_storage>
+  <project_name>
+    <string_value lines="1">Test</string_value>
+  </project_name>
+  <sources>
+    <source name="Hill_2011">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Hill</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Jon</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">A great paper</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2011</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Nature</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">1-12</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="12S"/>
+        </character_data>
+        <analyses_used>
+          <analysis name="Maximum Parsimony"/>
+        </analyses_used>
+        <tree_data>
+            <string_value lines="1">((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+      </source_tree>
+    </source>
+  </sources>
+  <history/>
+</phylo_storage>
