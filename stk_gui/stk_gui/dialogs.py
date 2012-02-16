@@ -109,6 +109,7 @@ def get_filename(title, action, parent=None, filter_names_and_patterns = {}, fol
     filew.set_current_folder_uri("file://" + os.path.abspath(folder_uri))
 
   for filtername in filter_names_and_patterns:
+    print filtername
     filter = gtk.FileFilter()
     filter.set_name(filtername)
     filter.add_pattern(filter_names_and_patterns[filtername])

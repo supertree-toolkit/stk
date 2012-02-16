@@ -26,7 +26,6 @@ def handle_click(xml, xpath, path=None):
     filter_names_and_patterns['Nexus file'] = "*.nex"
     filter_names_and_patterns['Nexus tree file'] = "*.tre"
    
-
     filename = dialogs.get_filename(title = "Choose tree file", action = gtk.FILE_CHOOSER_ACTION_OPEN, 
             filter_names_and_patterns = filter_names_and_patterns,
             folder_uri = path)
