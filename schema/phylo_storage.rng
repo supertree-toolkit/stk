@@ -69,13 +69,13 @@ used to parse a bibtex citation foe this reference.</a:documentation>
               <data type="string" datatypeLibrary=""/>
             </attribute>
           </oneOrMore>
-          <oneOrMore>
-            <element name="character_data">
-              <a:documentation>This stores the character data used to construct the 
+          <element name="character_data">
+            <a:documentation>This stores the character data used to construct the 
 source tree(s).</a:documentation>
+            <oneOrMore>
               <ref name="characters"/>
-            </element>
-          </oneOrMore>
+            </oneOrMore>
+          </element>
           <element name="analysis_used">
             <a:documentation>Which analytical methods were used to createan
 the source tree?</a:documentation>
