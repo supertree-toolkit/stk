@@ -69,7 +69,7 @@ def single_sourcename(XML,append=''):
           function to check for name uniqueness.
     """
 
-    xml_root = etree.fromstring(XML)
+    xml_root = _parse_xml(XML)
 
     find = etree.XPath("//authors")
     authors_ele = find(xml_root)[0]
@@ -96,7 +96,7 @@ def all_sourcenames(XML):
     dataset. 
     """
 
-    xml_root = etree.fromstring(XML)
+    xml_root = _parse_xml(XML)
 
     # Find all "source" trees
     sources = []
@@ -108,7 +108,7 @@ def all_sourcenames(XML):
         xml_snippet = etree.tostring(s,pretty_print=True)
         xml_snippet = single_sourcename(xml_snippet)
         parent = s.getparent()
-        ele_T = etree.fromstring(xml_snippet)
+        ele_T = _parse_xml(xml_snippet)
         parent.replace(s,ele_T)
 
     XML = etree.tostring(xml_root,pretty_print=True)
@@ -122,7 +122,7 @@ def get_all_source_names(XML):
     """ From a full XML-PHYML string, extract all source names
     """
 
-    xml_root = etree.fromstring(XML)
+    xml_root = _parse_xml(XML)
     find = etree.XPath("//source")
     sources = find(xml_root)
     names = []
@@ -137,7 +137,7 @@ def set_unique_names(XML):
     """ Ensures all sources have unique names
     """
     
-    xml_root = etree.fromstring(XML)
+    xml_root = _parse_xml(XML)
 
     # All source names
     source_names = get_all_source_names(XML)
@@ -171,7 +171,7 @@ def set_unique_names(XML):
             xml_snippet = etree.tostring(s,pretty_print=True)
             xml_snippet = single_sourcename(xml_snippet,append=letter)
             parent = s.getparent()
-            ele_T = etree.fromstring(xml_snippet)
+            ele_T = _parse_xml(xml_snippet)
             parent.replace(s,ele_T)
             # decrement the value so our letter is not the
             # same as last time
@@ -187,7 +187,7 @@ def import_bibliography(XML, bibfile):
     # Out bibliography parser
     b = biblist.BibList()
 
-    xml_root = etree.fromstring(XML)
+    xml_root = _parse_xml(XML)
     
     # Track back along xpath to find the sources where we're about to add a new source
     sources = xml_root.xpath('sources')[0]
@@ -215,13 +215,13 @@ def import_bibliography(XML, bibfile):
         xml_snippet = it.to_xml()
         if xml_snippet != None:
             # turn this into an etree
-            publication = etree.fromstring(xml_snippet)
+            publication = _parse_xml(xml_snippet)
             # create top of source
             source = etree.Element("source")
             # now attach our publication
             source.append(publication)
             new_source = single_sourcename(etree.tostring(source,pretty_print=True))
-            source = etree.fromstring(new_source)
+            source = _parse_xml(new_source)
 
             # now create tail of source
             s_tree = etree.SubElement(source, "source_tree")
@@ -411,7 +411,7 @@ def obtain_trees(XML):
     Output: dictionary of tree strings, with key indicating treename (unique)
     """
 
-    xml_root = etree.fromstring(XML)
+    xml_root = _parse_xml(XML)
     # By getting source, we can then loop over each source_tree
     # within that source and construct a unique name
     find = etree.XPath("//source")
@@ -620,7 +620,7 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
     # now loop over all taxon elements in the XML, and 
     # remove/sub as necessary
     i = 0
-    xml_root = etree.fromstring(XML)
+    xml_root = _parse_xml(XML)
     xml_taxa = []
     # grab all taxon elements and store
     # We're going to delete and we can't do that whilst
@@ -663,7 +663,7 @@ def _check_uniqueness(XML):
     the keys of the sources
     """
 
-    xml_root = etree.fromstring(XML)
+    xml_root = _parse_xml(XML)
     # By getting source, we can then loop over each source_tree
     # within that source and construct a unique name
     find = etree.XPath("//source")
@@ -766,7 +766,7 @@ def _swap_tree_in_XML(XML, tree, name):
     # Our input tree has name source_no, so find the source by stripping off the number
     source_name, number = name.rsplit("_",1)
     number = int(number.replace("_",""))
-    xml_root = etree.fromstring(XML)
+    xml_root = _parse_xml(XML)
     # By getting source, we can then loop over each source_tree
     find = etree.XPath("//source")
     sources = find(xml_root)
@@ -853,14 +853,14 @@ def _check_taxa(XML):
     """
 
     # grab all sources
-    xml_root = etree.fromstring(XML)
+    xml_root = _parse_xml(XML)
     find = etree.XPath("//source")
     sources = find(xml_root)
 
     # for each source
     for s in sources:
         # get a list of taxa in the XML
-        this_source = etree.fromstring(etree.tostring(s))
+        this_source = _parse_xml(etree.tostring(s))
         find = etree.XPath("//taxon")
         taxa = find(this_source)
         trees = obtain_trees(etree.tostring(this_source))
@@ -888,3 +888,16 @@ def _check_data(XML):
     _check_taxa(XML) # again will raise an error if test fails
 
     return
+
+
+def _parse_xml(xml_string):
+    """ Lxml cannot parse non-unicode characters 
+    so we're wrapping this up so we can strip these characters
+    beforehand. We can then send it to lxml.parser as normal
+    """
+
+    xml_string = _removeNonAscii(xml_string)
+    XML = etree.fromstring(xml_string)
+    return XML
+
+def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
