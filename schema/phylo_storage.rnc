@@ -112,6 +112,9 @@ publication=
             element volume {
                 anystring
             }?,
+            element number{
+                anystring
+            }?,
             element pages {
                 anystring
             }?,
