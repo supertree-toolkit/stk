@@ -27,7 +27,6 @@ import Queue
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
 import stk.supertree_toolkit as stk
-from stk.supertree_toolkit import _removeNonAscii
 import pango
 import gobject
 import gtk
@@ -222,8 +221,6 @@ class Diamond:
     xml = f.getvalue()
 
     if plugin_xml:
-      # Need to remove nonunicode characters
-      plugin_xml = _removeNonAscii(plugin_xml)
       ios = StringIO.StringIO(plugin_xml)
 
       try:
@@ -1065,7 +1062,6 @@ class Diamond:
 
      try:
         XML = stk.import_bibliography(XML, filename)
-        XML = _removeNonAscii(XML)
         ios = StringIO.StringIO(XML)
      except BibImportError as detail:
         dialogs.error(self.main_window,detail.msg)
@@ -1120,7 +1116,6 @@ class Diamond:
      self.tree.write(f)
      XML = f.getvalue() 
      XML = stk.all_sourcenames(XML)
-     XML = _removeNonAscii(XML)
      ios = StringIO.StringIO(XML)
      try:
         tree_read = self.s.read(ios)
