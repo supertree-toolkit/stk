@@ -90,7 +90,6 @@ class TestImportTree(unittest.TestCase):
         handle = StringIO.StringIO(matrix)
         print matrix
         
-
     def test_create_tnt_matrix(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         matrix = create_matrix(XML)

@@ -647,6 +647,190 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
 
     return etree.tostring(xml_root,pretty_print=True)
 
+
+def safe_taxonomic_reduction(XML, matrix=None):
+    """ Perform STR on data to remove taxa that 
+    provide no useful additional information
+    """
+
+    # Algorithm descibed by ******
+    # modified for *supertrees*, which mainly involves cutting
+    # out stuff to do with multiple state characters
+
+    missing_char = "?"
+    TotalInvalid = 0
+
+    if (matrix):
+        # a matrix was supplied, so strip out the info needed
+        i = 0
+    else:
+        # create matrix, but keep the matrix as an array
+        # and get the taxa - hence we replicate most
+        # create matrix code
+        # *******REFACTOR: Split create_matrix into multiple 
+        # functions, so we can just call them here and in create_matrix
+        # get all trees
+        trees = obtain_trees(XML)
+        # and the taxa
+        taxa = []
+        taxa.append("MRPOutgroup")
+        taxa.extend(get_all_taxa(XML))
+        # our matrix, we'll then append the submatrix
+        # to this to make a 2D matrix
+        # Our matrix is of length nTaxa on the i dimension
+        # and nCharacters in the j direction
+        matrix = []
+        charsets = []
+        current_char = 1
+        for key in trees:
+            handle = StringIO(trees[key])
+            newick_trees = list(Phylo.parse(handle, "newick"))
+            newick_tree = newick_trees[0]
+            submatrix, tree_taxa = _assemble_tree_matrix(newick_tree)
+            nChars = len(submatrix[0,:])
+            # loop over characters in the submatrix
+            for i in range(1,nChars):
+                # loop over taxa. Add '?' for an "unknown" taxa, otherwise
+                # get 0 or 1 from submatrix. May as well turn into a string whilst
+                # we're at it
+                current_row = []
+                for taxon in taxa:
+                    if (taxon in tree_taxa):
+                        # get taxon index
+                        t_index = tree_taxa.index(taxon)
+                        # then get correct matrix entry - note:
+                        # submatrix transposed wrt main matrix
+                        current_row.append(str(int(submatrix[t_index,i])))
+                    elif (taxon == "MRPOutgroup"):
+                        current_row.append('0')
+                    else:
+                        current_row.append('?')
+                matrix.append(current_row)
+            charsets.append(str(current_char) + "-" + str(current_char + nChars-2))
+            current_char += nChars-1
+        matrix = numpy.array(matrix)
+        matrix = matrix.transpose()
+
+    new_matrix = matrix
+    nChars = len(matrix[0][:])
+    # this is the heavy loop
+    t1 = 0
+    equiv_matrix = []
+    missing_chars = []
+    # count missing chars for each taxon
+    for taxon in taxa:
+        chars_t1 = numpy.asarray(matrix[t1][:])
+        missing = 0
+        for c in chars_t1:
+            if c == missing_char:
+                missing+=1
+        missing_chars.append(missing)
+        t1+=1
+
+    t1 = 0
+    for taxon in taxa:
+        t2 = 0
+        equiv_matrix.append([taxon,missing_chars[t1]])
+        equiv_taxa = []
+        for taxon2 in taxa:
+            if (taxon2 == taxon):
+                t2 += 1
+                continue
+            NonEquiv = 0
+            t2_missing = missing_chars[t2]
+            yMissing = 0
+            xMissing = 0
+            Symmetric = 1
+            xMiss_yCode = 0
+            xCode_yMiss = 0
+            for i in range(nChars):
+                char1 = matrix[t1][i]
+                char2 = matrix[t2][i]
+                if ((char1 != missing_char) and (char2 != missing_char)) :
+                    #print taxon, taxon2, char1, char2
+                    if(char1 != char2):
+                        NonEquiv = 1
+                elif((char1 == missing_char) and (char2 != missing_char)):
+                    TotalInvalid+=1
+                    xMissing = 1
+                    xMiss_yCode = 1
+                    Symmetric = 0
+                elif((char1 != missing_char) and (char2 == missing_char)):
+                    TotalInvalid+=1
+                    yMissing = 1
+                    xCode_yMiss = 1
+                    Symmetric = 0
+                elif((char1 == missing_char) and (char2 == missing_char)):
+                    TotalInvalid+=1
+                    yMissing = 1
+                    xMissing = 1
+			
+            t2 = t2+1
+
+            if (NonEquiv == 1):
+                continue
+            else:
+                if(Symmetric == 1):
+                    if((xMissing == 0) and (yMissing == 0)):
+                        equiv_taxa.append([taxon2,"A",t2_missing])
+                        continue
+                    else:
+                        equiv_taxa.append([taxon2,"B",t2_missing])
+                        continue
+                elif(Symmetric == 0):
+                    if((xMissing == 0) and (yMissing == 1)):
+                        equiv_taxa.append([taxon2,"C",t2_missing])
+                        continue
+                    elif((xMissing == 1) and (yMissing == 0)):
+                        equiv_taxa.append([taxon2,"E",t2_missing])
+                        continue
+                    elif((xMissing == 1) and (yMissing == 1)):
+                        if((xCode_yMiss == 1) and (xMiss_yCode == 1)):
+                            equiv_taxa.append([taxon2,"D",t2_missing])
+                            continue
+                        elif(xMiss_yCode == 0):
+                            equiv_taxa.append([taxon2,"C",t2_missing])
+                            continue
+                        elif(xCode_yMiss == 0):
+                            equiv_taxa.append([taxon2,"E",t2_missing])
+                            continue
+
+            
+        # end of taxa2 loop
+        if (len(equiv_taxa) > 0):
+            equiv_matrix[t1].extend([equiv_taxa])
+        else:
+            equiv_matrix[t1].extend(["No equivalence"])
+        t1 += 1
+            
+    can_replace = []
+    # need to work out which taxa to remove
+    for i in range(len(taxa)):
+        if equiv_matrix[i][2] == 'No equivalence':
+            continue
+        elif equiv_matrix[i][0] in can_replace:
+            # this taxon is already in the deleted list
+            continue
+        else:
+            nMissing_t1 = missing_chars[i]
+            equivs = equiv_matrix[i][2]
+            for e in equivs:
+                if (e[1] == "A" or e[1] == "B" or e[1] == "C"):
+                    # we can delete one of these taxa
+                    # first check which has more missing characters
+                    if nMissing_t1 > e[2]:
+                        can_replace.append(equiv_matrix[i][0])
+                        break # no point checking the rest, we've removed the parent taxon!
+                    else:
+                        can_replace.append(e[0])
+
+
+    print can_replace
+    # create output
+    output_string = ""
+    for i in range(len(taxa)):
+        output_string += equiv_matrix[i][0]
+
 ################ PRIVATE FUNCTIONS ########################
 
 

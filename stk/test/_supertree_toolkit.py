@@ -3,6 +3,7 @@ import math
 import sys
 sys.path.append("../")
 from supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data
+from supertree_toolkit import safe_taxonomic_reduction
 import os
 from lxml import etree
 from util import *
@@ -129,6 +130,12 @@ class TestSetSourceNames(unittest.TestCase):
             return
         self.assert_(True)
 
+    def test_str(self):
+        """Test STR function. Just prints out the equiv matrix
+        """
+
+        safe_taxonomic_reduction(etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)); 
+        self.assert_(True)
   
 if __name__ == '__main__':
     unittest.main()
