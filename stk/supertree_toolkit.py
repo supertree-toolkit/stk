@@ -34,6 +34,7 @@ from cStringIO import StringIO
 from collections import defaultdict
 import p4
 import re
+from indent import *
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -825,11 +826,32 @@ def safe_taxonomic_reduction(XML, matrix=None):
                         can_replace.append(e[0])
 
 
-    print can_replace
     # create output
-    output_string = ""
+    output_string = "Equivalency Matrix\n"
+    labels = ('Taxon', 'No Missing', 'Equivalents')
+    output_data = []
     for i in range(len(taxa)):
-        output_string += equiv_matrix[i][0]
+        equivs = equiv_matrix[i][2]
+        eq = ""
+        if equivs == "No equivalence":
+            eq == equivs
+        else:
+            for e in equivs:
+                eq += e[0]+"("+e[1]+")  "
+        output_data.append([equiv_matrix[i][0],str(missing_chars[i]),eq])
+
+    output_string += indent([labels]+output_data, hasHeader=True, prefix='| ', postfix=' |')
+
+    output_string += "\n\n"
+    output_string += "Recommend you remove the following taxa:\n"
+    if (len(can_replace) == 0):
+        output_string += "No taxa can be removed\n"
+    else:
+        for c in can_replace:
+            output_string += c+"\n"
+
+    return output_string, can_replace
+
 
 ################ PRIVATE FUNCTIONS ########################
 

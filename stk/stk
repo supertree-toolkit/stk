@@ -89,14 +89,26 @@ def main():
     parser_cm.add_argument('-o',
             '--oldtaxon', 
             help='The old taxon. Must be in the dataset.')
-
     parser_cm.add_argument('--overwrite',
             action='store_true',
             default=False,
             help="Overwrite the exisitng file without asking for confirmation")
-
     # Set the function that gets called when the sub command is activated
     parser_cm.set_defaults(func=sub_taxa)
+
+
+
+    parser_cm = subparsers.add_parser('safe_taxonomic_reduction',
+            help='Perform safe taxonomic reduction on the data'
+            )
+    parser_cm.add_argument('input', 
+            help='The input phyml file')
+    parser_cm.add_argument('-s',
+            '--subs', 
+            help='Create a subs file to delete the data with sub_taxa')
+    # Set the function that gets called when the sub command is activated
+    parser_cm.set_defaults(func=safe_taxonomic_reduction)
+
     args = parser.parse_args()
     verbose = args.verbose
 
@@ -214,7 +226,32 @@ def sub_taxa(args):
     f = open(output_file,'r')
     f.write(XML)
 
-    sys,exit(0)
+    sys.exit(0)
+
+def safe_taxonomic_reduction(args):
+    """ Perform STR on a PHYML"""
+
+    # Parse the args
+    verbose = args.verbose
+    input_file = args.input
+    subsfile = args.subs
+    
+    # Does the input file exist?
+    if (not os.path.exists(input_file)):
+        print "Input file cannot be found. Exiting"
+        sys.exit(-1)
+
+    XML = supertree_toolkit.load_phyml(input_file)
+    output, replace_taxa = supertree_toolkit.safe_taxonomic_reduction(XML)
+    if (subsfile):
+        f = open(subsfile, "w")
+        for t in replace_taxa:
+            f.write(t+" = \n")
+        f.close()
+
+    print output
+
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
