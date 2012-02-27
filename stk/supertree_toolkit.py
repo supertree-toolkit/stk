@@ -649,7 +649,7 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
     return etree.tostring(xml_root,pretty_print=True)
 
 
-def safe_taxonomic_reduction(XML, matrix=None):
+def safe_taxonomic_reduction(XML, matrix=None, verbose=False):
     """ Perform STR on data to remove taxa that 
     provide no useful additional information
     """
@@ -728,6 +728,8 @@ def safe_taxonomic_reduction(XML, matrix=None):
         missing_chars.append(missing)
         t1+=1
 
+    nTaxa = len(taxa)
+
     t1 = 0
     for taxon in taxa:
         t2 = 0
@@ -795,14 +797,13 @@ def safe_taxonomic_reduction(XML, matrix=None):
                         elif(xCode_yMiss == 0):
                             equiv_taxa.append([taxon2,"E",t2_missing])
                             continue
-
-            
-        # end of taxa2 loop
         if (len(equiv_taxa) > 0):
             equiv_matrix[t1].extend([equiv_taxa])
         else:
             equiv_matrix[t1].extend(["No equivalence"])
         t1 += 1
+        if (verbose):
+            print "Done taxa "+str(t1)+" of "+str(nTaxa)
             
     can_replace = []
     # need to work out which taxa to remove
@@ -823,10 +824,12 @@ def safe_taxonomic_reduction(XML, matrix=None):
                         can_replace.append(equiv_matrix[i][0])
                         break # no point checking the rest, we've removed the parent taxon!
                     else:
-                        can_replace.append(e[0])
+                        if (not e[0] in can_replace):
+                            can_replace.append(e[0])
 
 
     # create output
+    can_replace.sort()
     output_string = "Equivalency Matrix\n"
     labels = ('Taxon', 'No Missing', 'Equivalents')
     output_data = []
