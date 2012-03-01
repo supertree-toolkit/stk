@@ -32,10 +32,6 @@ import re
 import supertree_toolkit
 from copy import deepcopy
 
-## TODO: remove sys,exits and replace with excpetions
-##       test
-
-
 def export_to_old(phyml_file, output_dir, verbose=False):
 
     """ Create an old STK dataset from a PHYML file. Hopefuly not useful 
@@ -54,12 +50,12 @@ def export_to_old(phyml_file, output_dir, verbose=False):
     try:
         os.mkdir(project_dir)
     except OSError:
-        print "Directory already exists."
-        print "Please check you are trying to output into the correct directory. If so remove "+project_dir
-        sys.exit(-1)
+        msg = "Directory already exists."
+        msg += "Please check you are trying to output into the correct directory. If so remove "+project_dir
+        raise STKImportExportError(msg)
     except:
-        print "Error making project directory: "+os.path.join(output_dir,project_name)
-        sys.exit(-1)
+        msg = "Error making project directory: "+os.path.join(output_dir,project_name)
+        raise STKImportExportError(msg)
 
     # Loop through the sources
     find = etree.XPath("//source")
@@ -71,8 +67,8 @@ def export_to_old(phyml_file, output_dir, verbose=False):
         if (verbose):
             print "----\nWorking on:" +name
         if (name == '' or name == None):
-            print "One of the sources does not have a valid name. Aborting. Sorry about the mess"
-            sys.exit(-1)
+            msg = "One of the sources does not have a valid name. Aborting. Sorry about the mess"
+            raise STKImportExportError(msg)
 
         source_dir = os.path.join(project_dir,name)
         os.mkdir(source_dir)
@@ -148,8 +144,8 @@ def import_old_data(directory, verbose=False):
         nXML += 1
 
     if (nXML == 0):
-        print "Didn't find any XML files in this directory"
-        sys.exit(-1)
+        msg = "Didn't find any XML files in this directory"
+        raise STKImportExportError(msg)
 
     # create all sourcenames
     phyml = supertree_toolkit.all_sourcenames(etree.tostring(xml_root))
@@ -158,27 +154,11 @@ def import_old_data(directory, verbose=False):
     try:
         supertree_toolkit._check_data(phyml)
     except:
-        print "Error with creating data"
-        sys,exit(-1)
+        msg = "Error with creating data"
+        raise STKImportExportError(msg)
 
     return phyml
 
-def already_in_data(new_source,sources):
-    """
-    Is the new source already in the dataset?
-
-    Determine this by searching for the paper title
-    """
-
-    find = etree.XPath('//title/string_value')
-    new_source_title = find(new_source)[0].text
-    current_sources = find(sources)
-    for title in current_sources:
-        t = title.text
-        if t == new_source_title:
-            return title.getparent().getparent().getparent().getparent(), True
-
-    return None, False
 
 def locate(pattern, root=os.curdir):
     """Locate all files matching the pattern with the root dir and
