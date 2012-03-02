@@ -62,8 +62,8 @@ source=
         ## This stores the character data used to construct the 
         ## source tree(s).
         element character_data {
-            characters
-        }+,
+            characters+
+        },
         ## Which analytical methods were used to createan
         ## the source tree?
         element analysis_used {
@@ -110,6 +110,9 @@ publication=
                 anystring
             }?,
             element volume {
+                anystring
+            }?,
+            element number{
                 anystring
             }?,
             element pages {
