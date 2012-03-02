@@ -31,8 +31,11 @@ import parser
 import re
 import supertree_toolkit
 from copy import deepcopy
+from supertree_toolkit import _parse_xml
+from stk_exceptions import *
+from stk_internals import *
 
-def export_to_old(phyml_file, output_dir, verbose=False):
+def export_to_old(xml, output_dir, verbose=False):
 
     """ Create an old STK dataset from a PHYML file. Hopefuly not useful 
     in the long run as all functionality will be replicated, but may 
@@ -40,7 +43,7 @@ def export_to_old(phyml_file, output_dir, verbose=False):
     """
 
     # Parse the file and away we go:
-    xml_root = etree.parse(phyml_file)
+    xml_root = _parse_xml(xml)
 
     # First get project name and create the directory
     find = etree.XPath("//project_name")
@@ -50,7 +53,7 @@ def export_to_old(phyml_file, output_dir, verbose=False):
     try:
         os.mkdir(project_dir)
     except OSError:
-        msg = "Directory already exists."
+        msg = "Directory already exists. "
         msg += "Please check you are trying to output into the correct directory. If so remove "+project_dir
         raise STKImportExportError(msg)
     except:
@@ -67,7 +70,7 @@ def export_to_old(phyml_file, output_dir, verbose=False):
         if (verbose):
             print "----\nWorking on:" +name
         if (name == '' or name == None):
-            msg = "One of the sources does not have a valid name. Aborting. Sorry about the mess"
+            msg = "One of the sources does not have a valid name. Aborting."
             raise STKImportExportError(msg)
 
         source_dir = os.path.join(project_dir,name)
@@ -94,7 +97,7 @@ def export_to_old(phyml_file, output_dir, verbose=False):
             tree_no += 1
 
 
-def import_old_data(directory, verbose=False):
+def import_old_data(input_dir, verbose=False):
     """ Converts an old STK dataset (based on directories) to the new PHYML
     file format. Note: we need XML files to get the meta data and also that
     the data imported may not be complete. It's up to the calling program to save the resulting 
@@ -121,7 +124,6 @@ def import_old_data(directory, verbose=False):
     nXML = 0;
     for xml in locate('*.xml', input_dir):
         # parse XML
-        print xml
         current_xml = etree.parse(xml)
         # convert into PHYML
         new_source = convert_to_phyml_source(current_xml)
@@ -137,7 +139,6 @@ def import_old_data(directory, verbose=False):
             sources.append(deepcopy(new_source)) # deepcopy otherwise it'll add the same one several times :|
         else:
             # we need to find the correct source and append the source_tree to this
-            print append_to_source
             append_to_source.append(deepcopy(source_tree))
             
 
