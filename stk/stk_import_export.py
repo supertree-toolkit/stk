@@ -27,7 +27,7 @@ import math
 import re
 import numpy 
 from lxml import etree
-import parser
+import nameparser.parser as np
 import re
 import supertree_toolkit
 from copy import deepcopy
@@ -103,6 +103,11 @@ def import_old_data(input_dir, verbose=False):
     the data imported may not be complete. It's up to the calling program to save the resulting 
     xml string somewhere sensible.
     """
+
+    # strip trailing path separator if one
+    if (input_dir.endswith(os.path.sep)):
+        t = input_dir[0:-1]
+        input_dir = t
 
     # Parse the file and away we go:
     base_xml = """<?xml version='1.0' encoding='utf-8'?>
@@ -228,16 +233,16 @@ def convert_to_phyml_source(xml_root):
     # now parse authors into something sensible
     # authors - parse into full author names, then use nameparse to extract first and last
     for a in author_list:
-        o = parser.HumanName(a)
+        o = np.HumanName(a)
         a = etree.SubElement(authors,'author')
         surname = etree.SubElement(a,'surname')
         string = etree.SubElement(surname,'string_value')
         string.attrib['lines'] = "1"
-        string.text = o.last
+        string.text = o.last.capitalize()
         first = etree.SubElement(a,'other_names')
         string = etree.SubElement(first,'string_value')
         string.attrib['lines'] = "1"
-        string.text = o.first
+        string.text = o.first.capitalize()
 
     # title and the publication data 
     title = etree.SubElement(article,"title")
@@ -460,4 +465,11 @@ def create_xml_metadata(XML_string, this_source, filename):
     f = open(filename+'.xml','w')
     f.write(xml_string)
     f.close()
+
+#def _capitalise_source_name(name):
+#    "Capiltalises a source name, taking into account etal
+#    smith_jones_2003 -> Smith_Jones_2003
+#    smith_etal_2003 -> Smith_etal_2003
+#    etc
+#    """
 
