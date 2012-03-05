@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<SourceTree>
+    <Source>
+        <!-- If it's a journal, it has a journal name. Book has booktitle -->
+        <Author>Andersson, M.</Author>
+        <Year>1999</Year>
+        <Title>Phylogeny, behaviour, plumage evolution and neoteny in skuas Stercorariidae.</Title>
+        <Journal>Journal of Avian Biology</Journal>
+        <Volume>30</Volume>
+        <Pages>205-215</Pages>
+        <Booktitle/>
+        <Editor/>
+        <Publisher/>
+    </Source>
+    <Taxa fossil="none" number="5">
+        <List>Larus</List>
+        <List>Stercorarius parasiticus</List>
+        <List>Stercorarius longicaudus</List>
+        <List>Stercorarius pomarinus</List>
+        <List>Catharacta skua</List>
+    </Taxa>
+    <Characters>
+        <Molecular/>
+        <Morphological/>
+        <Behavioural number="2">
+        	<Type>Displays</Type>
+        	<Type>Calls</Type>
+        </Behavioural>	
+        <Other/>
+    </Characters>
+    <Analysis>
+        <Type>MP</Type>
+    </Analysis>
+    <Notes>Cladistic phylogeny. Single most parsimonious tree found by exhaustive search.
+	</Notes>
+    <TreeFile>Andersson_1999a_corr.tre</TreeFile>
+</SourceTree>

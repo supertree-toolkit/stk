@@ -1,0 +1,55 @@
+#NEXUS
+
+BEGIN TAXA;
+	DIMENSIONS NTAX = 21;
+	TAXLABELS
+		Lonchura_griseicapilla
+		Lonchura_cucullata
+		Lonchura_bicolor
+		Lonchura_fringilloides
+		Lonchura_cantans
+		Padda_fuscata
+		Lonchura_castaneothorax
+		Lonchura_leucogastroides
+		Lonchura_maja
+		Lonchura_punctulata
+		Lonchura_quinticolor
+		Lonchura_spectabilis
+		Lonchura_striata
+		Taeniopygia_guttata
+		Taeniopygia_bichenovii
+		Poephila_cincta
+		Amadina_fasciata
+		Pytilia_melba
+		Ortygospiza_atricollis
+		Uraeginthus_bengalus
+		Uraeginthus_cyanocephalus
+		;
+ENDBLOCK;
+
+BEGIN TREES;
+	TRANSLATE
+		1 Lonchura_griseicapilla,
+		2 Lonchura_cucullata,
+		3 Lonchura_bicolor,
+		4 Lonchura_fringilloides,
+		5 Lonchura_cantans,
+		6 Padda_fuscata,
+		7 Lonchura_castaneothorax,
+		8 Lonchura_leucogastroides,
+		9 Lonchura_maja,
+		10 Lonchura_punctulata,
+		11 Lonchura_quinticolor,
+		12 Lonchura_spectabilis,
+		13 Lonchura_striata,
+		14 Taeniopygia_guttata,
+		15 Taeniopygia_bichenovii,
+		16 Poephila_cincta,
+		17 Amadina_fasciata,
+		18 Pytilia_melba,
+		19 Ortygospiza_atricollis,
+		20 Uraeginthus_bengalus,
+		21 Uraeginthus_cyanocephalus
+		;
+	TREE tree_1  = [&u] (((1,(2,(3,4))),((5,(6,(7,8,9,10,11,12,13))),(14,(15,16)))),((17,18),(19,(20,21))));
+ENDBLOCK;

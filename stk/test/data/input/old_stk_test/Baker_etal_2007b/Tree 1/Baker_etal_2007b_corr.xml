@@ -1,0 +1,134 @@
+<?xml version="1.0" standalone="yes"?>
+<SourceTree>
+  <Source>
+    <Author>BAKER, A. J., S. L. PEREIRA, AND T. A. PATON</Author>
+    <Year>2007</Year>
+    <Title>Phylogenetic relationships and divergence times of Charadriiformes genera: multigene evidence for the Cretaceous origin of at least 14 clades of shorebirds</Title>
+    <Journal>Biology Letters</Journal>
+    <Volume>3</Volume>
+    <Pages>205-209</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="103" fossil="none">
+    <List>Sterna anaethetus</List>
+    <List>Sterna fuscata</List>
+    <List>Sterna hirundo</List>
+    <List>Sterna sandvicensis</List>
+    <List>Chlidonias leucopterus</List>
+    <List>Gelochelidon nilotica</List>
+    <List>Hydroprogne caspia</List>
+    <List>Larosterna inca</List>
+    <List>Phaetusa simplex</List>
+    <List>Sterna superciliaris</List>
+    <List>Larus marinus</List>
+    <List>Rissa tridactyla</List>
+    <List>Pagophila eburnea</List>
+    <List>Xema sabini</List>
+    <List>Creagrus furcatus</List>
+    <List>Rhodostethia rosea</List>
+    <List>Rynchops niger</List>
+    <List>Gygis alba</List>
+    <List>Anous tenuirostris</List>
+    <List>Alca torda</List>
+    <List>Pinguinus impennis</List>
+    <List>Alle alle</List>
+    <List>Uria lomvia</List>
+    <List>Synthliboramphus antiquus</List>
+    <List>Cepphus columba</List>
+    <List>Brachyramphus brevirostris</List>
+    <List>Aethia cristatella</List>
+    <List>Aethia psittacula</List>
+    <List>Ptychoramphus aleuticus</List>
+    <List>Cerorhinca monocerata</List>
+    <List>Fratercula arctica</List>
+    <List>Catharacta skua</List>
+    <List>Stercorarius longicaudus</List>
+    <List>Glareola maldivarum</List>
+    <List>Glareola nuchalis</List>
+    <List>Stiltia isabella</List>
+    <List>Cursorius temminckii</List>
+    <List>Rhinoptilus chalcopterus</List>
+    <List>Turnix sylvatica</List>
+    <List>Turnix hottentotta</List>
+    <List>Aphriza virgata</List>
+    <List>Calidris canutus</List>
+    <List>Eurynorhynchus pygmeus</List>
+    <List>Limicola falcinellus</List>
+    <List>Philomachus pugnax</List>
+    <List>Calidris himantopus</List>
+    <List>Tryngites subruficollis</List>
+    <List>Arenaria interpres</List>
+    <List>Heteroscelus incanus</List>
+    <List>Tringa melanoleuca</List>
+    <List>Catoptrophorus semipalmatus</List>
+    <List>Actitis hypoleucos</List>
+    <List>Xenus cinereus</List>
+    <List>Phalaropus tricolor</List>
+    <List>Coenocorypha aucklandica</List>
+    <List>Gallinago gallinago</List>
+    <List>Scolopax minor</List>
+    <List>Limnodromus scolopaceus</List>
+    <List>Lymnocryptes minimus</List>
+    <List>Limosa haemastica</List>
+    <List>Bartramia longicauda</List>
+    <List>Numenius minutus</List>
+    <List>Irediparra gallinacea</List>
+    <List>Microparra capensis</List>
+    <List>Actophilornis africanus</List>
+    <List>Hydrophasianus chirurgus</List>
+    <List>Jacana jacana</List>
+    <List>Nycticryphes semicollaris</List>
+    <List>Rostratula benghalensis</List>
+    <List>Attagis gayi</List>
+    <List>Thinocorus rumicivorus</List>
+    <List>Pedionomus torquatus</List>
+    <List>Elseyornis melanops</List>
+    <List>Thinornis novaeseelandiae</List>
+    <List>Charadrius vociferus</List>
+    <List>Eudromias morinellus</List>
+    <List>Phegornis mitchellii</List>
+    <List>Oreopholus ruficollis</List>
+    <List>Anarhynchus frontalis</List>
+    <List>Peltohyas australis</List>
+    <List>Erythrogonys cinctus</List>
+    <List>Vanellus chilensis</List>
+    <List>Cladorhynchus leucocephalus</List>
+    <List>Himantopus mexicanus</List>
+    <List>Recurvirostra americana</List>
+    <List>Haematopus ater</List>
+    <List>Ibidorhyncha struthersii</List>
+    <List>Pluvialis squatarola</List>
+    <List>Pluvianus aegyptius</List>
+    <List>Burhinus vermiculatus</List>
+    <List>Esacus magnirostris</List>
+    <List>Chionis minor</List>
+    <List>Pluvianellus socialis</List>
+    <List>Pterocles orientalis</List>
+    <List>Pterocles namaqua</List>
+    <List>Columba livia</List>
+    <List>Anhima cornuta</List>
+    <List>Chauna torquata</List>
+    <List>Anas</List>
+    <List>Crax blumenbachii</List>
+    <List>Gallus</List>
+    <List>Megapodius</List>
+    <List>Struthio</List>
+  </Taxa>
+  <Characters>
+    <Molecular number="4">
+      <Type>12S</Type>
+      <Type>ND2</Type>
+      <Type>cytb</Type>
+      <Type>RAG1</Type>
+    </Molecular>
+    <Morphological/>
+    <Behavioural/>
+    <Other/></Characters>
+  <Analysis>
+    <Type>Bayesian</Type>
+  </Analysis>
+  <Notes></Notes>
+  <TreeFile>Baker_etal_2007b_corr.tre</TreeFile>
+</SourceTree>
+

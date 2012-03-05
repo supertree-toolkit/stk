@@ -1,0 +1,939 @@
+<?xml version='1.0' encoding='utf-8'?>
+<phylo_storage>
+  <project_name>
+    <string_value lines="1">old_stk_test</string_value>
+  </project_name>
+  <sources>
+    <source name="Allende_etal_2001">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Allende</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">L</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Rubio</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">I</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Ruiz-del-valle</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">V</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Guillen</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">J</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Martinez-laso</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">J</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Lowy</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">E</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Varela</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">P</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Zamora</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">J</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Arnaiz-villena</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">The Old World sparrows (genus Passer) phylogeography and their relative abundance of nuclear mtDNA pseudogenes.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2001</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Journal of Molecular Evolution</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">144-154</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="cytb"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="UPGMA"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(((((((Passer_hispaniolensis:1.00000,Passer_domesticus:1.00000)0.00000:0.00000,Passer_flaveolus:1.00000)0.00000:0.00000,Passer_luteus:1.00000,((Passer_griseus:1.00000,Passer_ammodendri:1.00000)0.00000:0.00000,Passer_melanurus:1.00000)0.00000:0.00000,Passer_montanus:1.00000,Passer_rutilans:1.00000)0.00000:0.00000,Petronia_petronia:1.00000)0.00000:0.00000,(Quelea_cardinalis:1.00000,Lonchura_cucullata:1.00000)0.00000:0.00000)0.00000:0.00000,Fringilla_coelebs:1.00000)0.00000:0.00000,(Spizella_passerina:1.00000,(Chondestes_grammacus:1.00000,Miliaria_calandra:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment>UPGMA dendrogram. Constructed because this type of phylogenetic tree is more suitable for estimating coalescence times than other methods, particularly when a molecular clock exists (as shown in this case by the LINTRE test). Obtained by comparing the mt cyt b DNA sequences of the pheasant and chicken (diverged around 18Ma).</comment>
+      </source_tree>
+    </source>
+    <source name="Andersson_1999b">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Andersson</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">M</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Phylogeny, behaviour, plumage evolution and neoteny in skuas Stercorariidae.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">1999</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Journal of Avian Biology</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">205-215</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="behavioural" name="Displays"/>
+          <character type="behavioural" name="Calls"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="MP"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(Larus:1.00000,((Stercorarius_parasiticus:1.00000,Stercorarius_longicaudus:1.00000)0.00000:0.00000,(Stercorarius_pomarinus:1.00000,Catharacta_skua:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment>Cladistic phylogeny. Single most parsimonious tree found by exhaustive search.</comment>
+      </source_tree>
+    </source>
+    <source name="Baker_etal_2006">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Baker</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Pereira</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">O</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Edge</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">K</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Multiple gene evidence for expansion of extant penguins out of Antarctica due to global cooling.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2006</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Proceedings of the Royal Society B-Biological Sciences</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">11-17</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="RAG1"/>
+          <character type="molecular" name="12S"/>
+          <character type="molecular" name="16S"/>
+          <character type="molecular" name="cytb"/>
+          <character type="molecular" name="COI"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="Bayesian"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(Struthio_camelus:1.00000,(Gavia_immer:1.00000,(Diomedea_exulans:1.00000,((Aptenodytes_forsteri:1.00000,Aptenodytes_patagonicus:1.00000)0.00000:0.00000,(((Megadyptes_antipodes:1.00000,(Eudyptes_sclateri:1.00000,((Eudyptes_chrysocome:1.00000,(Eudyptes_pachyrhynchus:1.00000,Eudyptes_robustus:1.00000)0.00000:0.00000)0.00000:0.00000,(Eudyptes_chrysolophus:1.00000,Eudyptes_schlegeli:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Eudyptula_minor:1.00000,Eudyptula_albosignata:1.00000)0.00000:0.00000,((Spheniscus_humboldti:1.00000,Spheniscus_mendiculus:1.00000)0.00000:0.00000,(Spheniscus_demersus:1.00000,Spheniscus_magellanicus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Pygoscelis_adeliae:1.00000,(Pygoscelis_antarctica:1.00000,Pygoscelis_papua:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Anser_albifrons:1.00000,Gallus_gallus:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+    </source>
+    <source name="Aleixo_2002">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Aleixo</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Molecular systematics and the role of the "Varzea"-"Terra-firme" ecotone in the diversification of Xiphorhynchus woodcreepers (Aves: Dendrocolaptidae).</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2002</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Auk</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">621-640</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="cytb"/>
+          <character type="molecular" name="ND2"/>
+          <character type="molecular" name="ND3"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="MP"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(((((Xiphocolaptes_promeropirhynchus:1.00000,Hylexetastes_perrotii:1.00000)0.00000:0.00000,((Nasica_longirostris:1.00000,Dendrexetastes_rufigula:1.00000)0.00000:0.00000,Dendrocolaptes_certhia:1.00000)0.00000:0.00000)0.00000:0.00000,((((((Xiphorhynchus_susurrans:1.00000,Xiphorhynchus_guttatus:1.00000)0.00000:0.00000,(Xiphorhynchus_lachrymosus:1.00000,Xiphorhynchus_flavigaster:1.00000)0.00000:0.00000)0.00000:0.00000,(Xiphorhynchus_triangularis:1.00000,Xiphorhynchus_erythropygius:1.00000)0.00000:0.00000)0.00000:0.00000,Xiphorhynchus_obsoletus:1.00000)0.00000:0.00000,(((Xiphorhynchus_pardalotus:1.00000,Xiphorhynchus_ocellatus:1.00000)0.00000:0.00000,Xiphorhynchus_spixii:1.00000)0.00000:0.00000,Lepidocolaptes_fuscus:1.00000)0.00000:0.00000)0.00000:0.00000,((Xiphorhynchus_picus:1.00000,Xiphorhynchus_kienerii:1.00000)0.00000:0.00000,((Lepidocolaptes_angustirostris:1.00000,Lepidocolaptes_albolineatus:1.00000)0.00000:0.00000,((Campylorhamphus_trochilirostris:1.00000,Campylorhamphus_procurvoides:1.00000)0.00000:0.00000,Campylorhamphus_falcularius:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,Sittasomus_griseicapillus:1.00000)0.00000:0.00000,Glyphorynchus_spirurus:1.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment>2,430bp of the mitochondrial genes ND2, ND3 and cyt b.
+    
+    		Strict consensus of 2 MP trees (length=3,133, CI-0.35, RI=0.6) obtained with unweighted sequence data.</comment>
+      </source_tree>
+    </source>
+    <source name="Bertelli_etal_2006">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Bertelli</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">S</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Giannini</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">N</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Ksepka</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">D</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Redescription and phylogenetic position of the early Miocene penguin Paraptenodytes antarcticus from Patagonia.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2006</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">American Museum Novitates</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">1-25</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="morphological" name="Osteology"/>
+          <character type="morphological" name="soft tissue"/>
+          <character type="morphological" name="behaviour"/>
+          <character type="morphological" name="oology"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="MP"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(Gavia_stellata:1.00000,((Macronectes_giganteus:1.00000,(Daption_capense:1.00000,((Pterodroma_incerta:1.00000,((Oceanodroma_leucorhoa:1.00000,Oceanites_oceanicus:1.00000)0.00000:0.00000,(Pachyptila_desolata:1.00000,Pelecanoides_urinatrix:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Procellaria_aequinoctialis:1.00000,Puffinus_griseus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Diomedea_melanophris:1.00000,Phoebetria_palpebrata:1.00000)0.00000:0.00000)0.00000:0.00000,(Paraptenodytes_antarcticus:1.00000,((Eudyptula_minor:1.00000,(Spheniscus_demersus:1.00000,Spheniscus_magellanicus:1.00000,(Spheniscus_humboldti:1.00000,Spheniscus_mendiculus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(((Aptenodytes_patagonicus:1.00000,Aptenodytes_forsteri:1.00000)0.00000:0.00000,(Pygoscelis_antarctica:1.00000,(Pygoscelis_papua:1.00000,Pygoscelis_adeliae:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Megadyptes_antipodes:1.00000,(Eudyptes_pachyrhynchus:1.00000,((Eudyptes_robustus:1.00000,Eudyptes_sclateri:1.00000)0.00000:0.00000,(Eudyptes_chrysocome:1.00000,(Eudyptes_schlegeli:1.00000,Eudyptes_chrysolophus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="Molecular"/>
+          <character type="morphological" name="Osteology"/>
+          <character type="morphological" name="soft tissue"/>
+          <character type="morphological" name="behaviour"/>
+          <character type="morphological" name="oology"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="MP"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(Gavia_stellata:1.00000,((Oceanodroma_leucorhoa:1.00000,Oceanites_oceanicus:1.00000)0.00000:0.00000,((Diomedea_melanophris:1.00000,Phoebetria_palpebrata:1.00000)0.00000:0.00000,(((Procellaria_aequinoctialis:1.00000,(Macronectes_giganteus:1.00000,Daption_capense:1.00000)0.00000:0.00000)0.00000:0.00000,(Pachyptila_desolata:1.00000,Pelecanoides_urinatrix:1.00000)0.00000:0.00000)0.00000:0.00000,(Puffinus_griseus:1.00000,Pterodroma_incerta:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Paraptenodytes_antarcticus:1.00000,((((Eudyptula_minor:1.00000,(Spheniscus_demersus:1.00000,Spheniscus_magellanicus:1.00000,(Spheniscus_humboldti:1.00000,Spheniscus_mendiculus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Megadyptes_antipodes:1.00000,(Eudyptes_pachyrhynchus:1.00000,((Eudyptes_robustus:1.00000,Eudyptes_sclateri:1.00000)0.00000:0.00000,(Eudyptes_chrysocome:1.00000,(Eudyptes_schlegeli:1.00000,Eudyptes_chrysolophus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Pygoscelis_adeliae:1.00000,(Pygoscelis_papua:1.00000,Pygoscelis_antarctica:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Aptenodytes_patagonicus:1.00000,Aptenodytes_forsteri:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+      <source_tree>
+        <character_data>
+          <character type="morphological" name="Osteology"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="MP"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(Gavia_stellata:1.00000,(Diomedea_melanophris:1.00000,Phoebetria_palpebrata:1.00000,Macronectes_giganteus:1.00000,Daption_capense:1.00000,Procellaria_aequinoctialis:1.00000,Puffinus_griseus:1.00000,Pterodroma_incerta:1.00000,Pachyptila_desolata:1.00000,Pelecanoides_urinatrix:1.00000,(Oceanodroma_leucorhoa:1.00000,Oceanites_oceanicus:1.00000)0.00000:0.00000)0.00000:0.00000,(Paraptenodytes_antarcticus:1.00000,(Eudyptula_minor:1.00000,(Spheniscus_demersus:1.00000,Spheniscus_magellanicus:1.00000,Spheniscus_humboldti:1.00000,Spheniscus_mendiculus:1.00000)0.00000:0.00000,((Pygoscelis_papua:1.00000,(Aptenodytes_patagonicus:1.00000,Aptenodytes_forsteri:1.00000)0.00000:0.00000,(Pygoscelis_adeliae:1.00000,Pygoscelis_antarctica:1.00000)0.00000:0.00000)0.00000:0.00000,(Megadyptes_antipodes:1.00000,(Eudyptes_pachyrhynchus:1.00000,Eudyptes_robustus:1.00000,Eudyptes_sclateri:1.00000,Eudyptes_chrysocome:1.00000,Eudyptes_chrysolophus:1.00000,Eudyptes_schlegeli:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+    </source>
+    <source name="Baker_etal_2007b">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Baker</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Pereira</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">D</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Elbourne</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">R</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Hassell</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">C</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Mitochondrial-DNA evidence shows the Australian Painted Snipe is a full species, Rostratula australis</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2007</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Emu</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">185-189</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="cytb"/>
+          <character type="molecular" name="ND5"/>
+          <character type="molecular" name="ATPase 6"/>
+          <character type="molecular" name="ATPase 8"/>
+          <character type="molecular" name="COIII"/>
+          <character type="molecular" name="COI"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="Bayesian"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(Jacana_jacana:1.00000,(Nycticryphes_semicollaris:1.00000,(Rostratula_australis:1.00000,Rostratula_benghalensis:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+    </source>
+    <source name="Aragon_etal_1999">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Aragon</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">S</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Moller</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Soler</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">J</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Soler</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">M</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Molecular phylogeny of cuckoos supports a polyphyletic origin of brood parasitism.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">1999</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Journal of Evolutionary Biology</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">495-50</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="cytb"/>
+          <character type="molecular" name="ND2"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="MP"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">((((Neomorphus_geoffroyi:1.00000,Geococcyx_californianus:1.00000)0.00000:0.00000,(Tapera_naevia:1.00000,Dromococcyx_phasianellus:1.00000)0.00000:0.00000,Guira_guira:1.00000)0.00000:0.00000,(((Clamator_jacobinus:1.00000,Clamator_glandarius:1.00000)0.00000:0.00000,Phaenicophaeus_superciliosus:1.00000)0.00000:0.00000,Piaya_cayana:1.00000)0.00000:0.00000,(((Cuculus_canorus:1.00000,Surniculus_lugubris:1.00000,Cuculus_poliocephalus:1.00000,Cercococcyx_montanus:1.00000)0.00000:0.00000,Cacomantis_flabelliformis:1.00000)0.00000:0.00000,Chrysococcyx_osculans:1.00000)0.00000:0.00000)0.00000:0.00000,Gallus_gallus:1.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="cytb"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="FITCH"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(Caprimulgus_longirostris:1.00000,(((((Cuculus_pallidus:1.00000,((Cacomantis_flabelliformis:1.00000,Chrysococcyx_osculans:1.00000)0.00000:0.00000,((Cercococcyx_montanus:1.00000,Cuculus_poliocephalus:1.00000)0.00000:0.00000,(Cuculus_canorus:1.00000,Surniculus_lugubris:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Phaenicophaeus_superciliosus:1.00000,(Clamator_glandarius:1.00000,Clamator_jacobinus:1.00000)0.00000:0.00000)0.00000:0.00000,(Coccyzus_americanus:1.00000,(Piaya_cayana:1.00000,(Coccyzus_erythropthalmus:1.00000,Phaenicophaeus_curvirostris:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Crotophaga_sulcirostris:1.00000,Guira_guira:1.00000)0.00000:0.00000)0.00000:0.00000,(Geococcyx_californianus:1.00000,Neomorphus_geoffroyi:1.00000)0.00000:0.00000)0.00000:0.00000,(Dromococcyx_phasianellus:1.00000,Tapera_naevia:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+    </source>
+    <source name="Baker_etal_2007a">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Baker</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Pereira</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">S</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Paton</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">T</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Phylogenetic relationships and divergence times of Charadriiformes genera: multigene evidence for the Cretaceous origin of at least 14 clades of shorebirds</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2007</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Biology Letters</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">205-209</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="12S"/>
+          <character type="molecular" name="ND2"/>
+          <character type="molecular" name="cytb"/>
+          <character type="molecular" name="RAG1"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="Bayesian"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(Struthio:1.00000,(Columba_livia:1.00000,((((((Anous_tenuirostris:1.00000,(Gygis_alba:1.00000,((((Chlidonias_leucopterus:1.00000,(Sterna_sandvicensis:1.00000,(Sterna_hirundo:1.00000,(Sterna_anaethetus:1.00000,Sterna_fuscata:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Larosterna_inca:1.00000,(Gelochelidon_nilotica:1.00000,Hydroprogne_caspia:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Phaetusa_simplex:1.00000,Sterna_superciliaris:1.00000)0.00000:0.00000)0.00000:0.00000,(Rynchops_niger:1.00000,((Xema_sabini:1.00000,(Pagophila_eburnea:1.00000,(Larus_marinus:1.00000,Rissa_tridactyla:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Creagrus_furcatus:1.00000,Rhodostethia_rosea:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(((Brachyramphus_brevirostris:1.00000,(Cepphus_columba:1.00000,(Synthliboramphus_antiquus:1.00000,(Uria_lomvia:1.00000,(Alle_alle:1.00000,(Alca_torda:1.00000,Pinguinus_impennis:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Ptychoramphus_aleuticus:1.00000,(Aethia_cristatella:1.00000,Aethia_psittacula:1.00000)0.00000:0.00000)0.00000:0.00000,(Cerorhinca_monocerata:1.00000,Fratercula_arctica:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Catharacta_skua:1.00000,Stercorarius_longicaudus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Rhinoptilus_chalcopterus:1.00000,(Cursorius_temminckii:1.00000,(Stiltia_isabella:1.00000,(Glareola_maldivarum:1.00000,Glareola_nuchalis:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Turnix_sylvatica:1.00000,Turnix_hottentotta:1.00000)0.00000:0.00000)0.00000:0.00000,(((Limosa_haemastica:1.00000,(((Arenaria_interpres:1.00000,((Eurynorhynchus_pygmeus:1.00000,(Aphriza_virgata:1.00000,Calidris_canutus:1.00000)0.00000:0.00000)0.00000:0.00000,(Limicola_falcinellus:1.00000,Philomachus_pugnax:1.00000)0.00000:0.00000,(Calidris_himantopus:1.00000,Tryngites_subruficollis:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Phalaropus_tricolor:1.00000,(Xenus_cinereus:1.00000,(Actitis_hypoleucos:1.00000,(Catoptrophorus_semipalmatus:1.00000,(Heteroscelus_incanus:1.00000,Tringa_melanoleuca:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Scolopax_minor:1.00000,(Coenocorypha_aucklandica:1.00000,Gallinago_gallinago:1.00000)0.00000:0.00000)0.00000:0.00000,(Limnodromus_scolopaceus:1.00000,Lymnocryptes_minimus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Bartramia_longicauda:1.00000,Numenius_minutus:1.00000)0.00000:0.00000)0.00000:0.00000,((((Actophilornis_africanus:1.00000,(Irediparra_gallinacea:1.00000,Microparra_capensis:1.00000)0.00000:0.00000)0.00000:0.00000,(Hydrophasianus_chirurgus:1.00000,Jacana_jacana:1.00000)0.00000:0.00000)0.00000:0.00000,(Nycticryphes_semicollaris:1.00000,Rostratula_benghalensis:1.00000)0.00000:0.00000)0.00000:0.00000,(Pedionomus_torquatus:1.00000,(Attagis_gayi:1.00000,Thinocorus_rumicivorus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Pluvianus_aegyptius:1.00000,(((Oreopholus_ruficollis:1.00000,(Phegornis_mitchellii:1.00000,(Eudromias_morinellus:1.00000,(Charadrius_vociferus:1.00000,(Elseyornis_melanops:1.00000,Thinornis_novaeseelandiae:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Vanellus_chilensis:1.00000,(Erythrogonys_cinctus:1.00000,(Anarhynchus_frontalis:1.00000,Peltohyas_australis:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Pluvialis_squatarola:1.00000,((Recurvirostra_americana:1.00000,(Cladorhynchus_leucocephalus:1.00000,Himantopus_mexicanus:1.00000)0.00000:0.00000)0.00000:0.00000,(Haematopus_ater:1.00000,Ibidorhyncha_struthersii:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Burhinus_vermiculatus:1.00000,Esacus_magnirostris:1.00000)0.00000:0.00000,(Chionis_minor:1.00000,Pluvianellus_socialis:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Pterocles_orientalis:1.00000,Pterocles_namaqua:1.00000)0.00000:0.00000)0.00000:0.00000,((Anas:1.00000,(Anhima_cornuta:1.00000,Chauna_torquata:1.00000)0.00000:0.00000)0.00000:0.00000,(Megapodius:1.00000,(Crax_blumenbachii:1.00000,Gallus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+    </source>
+    <source name="Aliabadian_etal_2007">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Aliabadian</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">M</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Kaboli</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">R</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Nijman</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">V</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Vences</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">M</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Phylogeny of Palaearctic wheatears (genus Oenanthe) - Congruence between morphometric and molecular data.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2007</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Molecular Phylogenetics and Evolution</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">665-675</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="morphological" name="Morphometrics"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="UPGMA"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(Luscinia_luscinia:1.00000,Luscinia_megarhynchos:1.00000,(((Oenanthe_moesta:1.00000,((Oenanthe_leucopyga:1.00000,Oenanthe_alboniger:1.00000)0.00000:0.00000,(Oenanthe_picata:1.00000,(Oenanthe_xanthoprymna:1.00000,(Oenanthe_lugens:1.00000,Oenanthe_finschii:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Oenanthe_deserti:1.00000,(Oenanthe_hispanica:1.00000,Oenanthe_pleschanka:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Oenanthe_isabellina:1.00000,Oenanthe_oenanthe:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="16S"/>
+          <character type="molecular" name="COI"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="Bayesian"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(Luscinia_luscinia:1.00000,Luscinia_megarhynchos:1.00000,((Oenanthe_moesta:1.00000,(Oenanthe_picata:1.00000,(Oenanthe_leucopyga:1.00000,(Oenanthe_alboniger:1.00000,(Oenanthe_finschii:1.00000,(Oenanthe_xanthoprymna:1.00000,Oenanthe_lugens:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Oenanthe_deserti:1.00000,Oenanthe_pleschanka:1.00000)0.00000:0.00000,(Oenanthe_isabellina:1.00000,Oenanthe_oenanthe:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+    </source>
+    <source name="Baker_Strauch_1988">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Baker</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Strauch</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">J</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Genetic variation and differentiation in shorebirds.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">1988</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Proceedings of the 19th International Ornithological Congress</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">1639-1645</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="Alleles"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="UPGMA"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">((Limnodromus_griseus:1.00000,(Calidris_ferruginea:1.00000,(Tringa_cinereus:1.00000,(Calidris_canutus:1.00000,(Catoptrophorus_semipalmatus:1.00000,(Calidris_maritima:1.00000,((Calidris_alpina:1.00000,(Calidris_fuscicollis:1.00000,Calidris_minutilla:1.00000)0.00000:0.00000)0.00000:0.00000,(Calidris_mauri:1.00000,Calidris_ruficollis:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(((Charadrius_falklandicus:1.00000,Charadrius_montanus:1.00000)0.00000:0.00000,(Charadrius_semipalmatus:1.00000,Charadrius_vociferus:1.00000)0.00000:0.00000)0.00000:0.00000,(Pluvialis_dominica:1.00000,Pluvialis_squatarola:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+    </source>
+    <source name="Barhoum_Burns_2002">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Barhoum</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">D</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Burns</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">K</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Phylogenetic relationships of the wrentit based on mitochondrial cytochrome b sequences.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2002</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Condor</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">740-749</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="cytb"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="ML"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(((Pomatostomus_isidorei:1.00000,Pomatostomus_ruficeps:1.00000)0.00000:0.00000,((Lophorina_superba:1.00000,Terpsiphone_cinnamomea:1.00000)0.00000:0.00000,(Aphelocoma_coerulescens:1.00000,(Corvus_coronoides:1.00000,Corvus_corax:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Regulus_regulus:1.00000,(((Vidua_chalybeata:1.00000,((Anthus_spinoletta:1.00000,Motacilla_alba:1.00000)0.00000:0.00000,(Piranga_ludoviciana:1.00000,(Passerella_iliaca:1.00000,Melospiza_melodia:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Catharus_guttatus:1.00000,Turdus_migratorius:1.00000)0.00000:0.00000,(Toxostoma_redivivum:1.00000,(Ficedula_parva:1.00000,(Muscicapa_striata:1.00000,(Erithacus_rubecula:1.00000,Copsychus_albospecularis:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Thamnornis_chloropetoides:1.00000,Neomixis_flavoviridis:1.00000)0.00000:0.00000,(((Bradypterus_cinnamomeus:1.00000,(Locustella_fluviatilis:1.00000,Locustella_certhiola:1.00000)0.00000:0.00000)0.00000:0.00000,((Neomixis_striatigula:1.00000,Neomixis_tenella:1.00000)0.00000:0.00000,(Orthotomus_sutorius:1.00000,(Hypergerus_atriceps:1.00000,(Cisticola_juncidis:1.00000,Cisticola_cherina:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Cettia_cetti:1.00000,((Phylloscopus_trochiloides:1.00000,(Phylloscopus_pulcher:1.00000,Phylloscopus_collybita:1.00000)0.00000:0.00000)0.00000:0.00000,(Scotocerca_inquieta:1.00000,(Hippolais_polyglotta:1.00000,(Acrocephalus_stentoreus:1.00000,Chloropeta_gracilirostris:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Chamaea_fasciata:1.00000,(Sylvia_melanocephala:1.00000,(Sylvia_borin:1.00000,Sylvia_atricapilla:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Yuhina_gularis:1.00000,Stachyris_whiteheadi:1.00000)0.00000:0.00000,((Garrulax_leucolophus:1.00000,Leiothrix_lutea:1.00000)0.00000:0.00000,(Pomatorhinus_ochraceiceps:1.00000,Illadopsis_pyrrhoptera:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+    </source>
+    <source name="Baptista_Visser_1999">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Baptista</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">L</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Visser</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">E</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Relationships of some mannikins and waxbills in the Estrilididae.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">1999</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Journal fuer Ornithologie</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">179-192</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="morphological" name="Plumage"/>
+          <character type="behavioural" name="Calls"/>
+          <character type="behavioural" name="Breeding"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="MP"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(((Lonchura_griseicapilla:1.00000,(Lonchura_cucullata:1.00000,(Lonchura_bicolor:1.00000,Lonchura_fringilloides:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Lonchura_cantans:1.00000,(Padda_fuscata:1.00000,(Lonchura_castaneothorax:1.00000,Lonchura_leucogastroides:1.00000,Lonchura_maja:1.00000,Lonchura_punctulata:1.00000,Lonchura_quinticolor:1.00000,Lonchura_spectabilis:1.00000,Lonchura_striata:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Taeniopygia_guttata:1.00000,(Taeniopygia_bichenovii:1.00000,Poephila_cincta:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Amadina_fasciata:1.00000,Pytilia_melba:1.00000)0.00000:0.00000,(Ortygospiza_atricollis:1.00000,(Uraeginthus_bengalus:1.00000,Uraeginthus_cyanocephalus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment>Single MPT.</comment>
+      </source_tree>
+    </source>
+    <source name="Baker_etal_2005">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Baker</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Haddrath</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">O</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Lambert</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">D</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Reconstructing the tempo and mode of evolution in an extinct clade of birds with ancient DNA: the giant moas of New Zealand.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2005</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Proceedings of the National Acadamy of Sciences USA</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">8257-8262</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="mt control region"/>
+          <character type="molecular" name="ATPase 6"/>
+          <character type="molecular" name="ATPase 8"/>
+          <character type="molecular" name="cytb"/>
+          <character type="molecular" name="ND3"/>
+          <character type="molecular" name="ND4"/>
+          <character type="molecular" name="ND5"/>
+          <character type="molecular" name="COIII"/>
+          <character type="molecular" name="12S"/>
+          <character type="molecular" name="tRNA-Lys"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="Bayesian"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">((Megalapteryx_benhami:1.00000,Megalapteryx_didinus:1.00000)0.00000:0.00000,((Dinornis_novaezealandiae:1.00000,Dinornis_giganteus:1.00000)0.00000:0.00000,(((Emeus_crassus:1.00000,Euryapteryx_geranoides:1.00000)0.00000:0.00000,Anomalopteryx_didiformis:1.00000)0.00000:0.00000,((Pachyornis_elephantopus:1.00000,Pachyornis_australis:1.00000)0.00000:0.00000,Pachyornis_mappini:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+    </source>
+    <source name="Andersson_1999a">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Andersson</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">M</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Hybridisation and skua phylogeny.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">1999</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Proceedings of the Royal Society of London B</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">1579-1585</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="morphological" name="Parasites"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="MP"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(Larus_argentatus:1.00000,(Stercorarius_longicaudus:1.00000,Stercorarius_parasiticus:1.00000,((Stercorarius_pomarinus:1.00000,Catharacta_skua:1.00000)0.00000:0.00000,(Catharacta_antarctica:1.00000,Catharacta_chilensis:1.00000,Catharacta_maccormicki:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+      <source_tree>
+        <character_data>
+          <character type="morphological" name="Plumage"/>
+          <character type="morphological" name="Body size"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="MP"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(Larus_argentatus:1.00000,((Stercorarius_pomarinus:1.00000,(Stercorarius_longicaudus:1.00000,Stercorarius_parasiticus:1.00000)0.00000:0.00000)0.00000:0.00000,(Catharacta_hamiltoni:1.00000,Catharacta_skua:1.00000,Catharacta_antarctica:1.00000,Catharacta_chilensis:1.00000,Catharacta_maccormicki:1.00000,Catharacta_lonnbergi:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment/>
+      </source_tree>
+    </source>
+    <source name="Barber_Peterson_2004">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Barber</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">B</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Peterson</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Systematic position of the Socorro mockingbird Mimodes graysoni.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2004</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Journal of Avian Biology</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">195-198</string_value>
+          </pages>
+        </article>
+      </source_publication>
+      <source_tree>
+        <character_data>
+          <character type="molecular" name="ND2"/>
+        </character_data>
+        <analysis_used>
+          <analysis name="ML"/>
+        </analysis_used>
+        <tree_data>
+          <string_value lines="1">(Sturnus_vulgaris:1.00000,((Melanotis_caerulescens:1.00000,(Dumetella_carolinensis:1.00000,(Margarops_fuscus:1.00000,(Ramphocinclus_brachyurus:1.00000,(Melanoptila_glabrirostris:1.00000,(Margarops_fuscatus:1.00000,(Cinclocerthia_gutturalis:1.00000,Cinclocerthia_ruficauda:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Oreoscoptes_montanus:1.00000,(Mimus_saturninus:1.00000,(Mimus_gundlachii:1.00000,(Mimodes_graysoni:1.00000,(Mimus_gilvus:1.00000,Mimus_polyglottos:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Toxostoma_rufum:1.00000,Toxostoma_curvirostre:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+        </tree_data>
+        <comment>Also Bayesian and MP topology.</comment>
+      </source_tree>
+    </source>
+  </sources>
+  <history/>
+</phylo_storage>
