@@ -222,6 +222,11 @@ class Diamond:
     xml = f.getvalue()
 
     if plugin_xml:
+      if (len(plugin_xml) < 10): # should be > 10 characters in the XML...
+        plugin_xml = None  
+        dialogs.error_tb(self.main_window, "Unable to read plugin result")
+        return
+
       # Need to remove nonunicode characters
       plugin_xml = _removeNonAscii(plugin_xml)
       ios = StringIO.StringIO(plugin_xml)
@@ -249,7 +254,7 @@ class Diamond:
       self.treeview.set_model(self.treestore)
       self.treeview.thaw_child_notify()
       self.set_geometry_dim_tree()
-      self.treeview.get_selection().select_path(path)
+      self.treeview.expand_to_path(path)
       self.scherror.destroy_error_list()
       plugin_xml = None
 
@@ -513,6 +518,7 @@ class Diamond:
     """
 
     self.data.store()
+
 
     if self.filename is None:
       return self.on_save_as(widget)
@@ -1093,7 +1099,6 @@ class Diamond:
 
      path = self.treestore.get_path(self.selected_iter)
 
-
      self.set_saved(False)
      self.treeview.freeze_child_notify()
      self.treeview.set_model(None)
@@ -1102,8 +1107,7 @@ class Diamond:
      self.treeview.set_model(self.treestore)
      self.treeview.thaw_child_notify()
      self.treeview.grab_focus()
-     self.treeview.get_selection().select_path(0)
-
+     self.treeview.expand_to_path(path)
      self.selected_node = None
      self.update_options_frame()
   
@@ -1144,11 +1148,8 @@ class Diamond:
      self.set_treestore(None, [self.tree], True)
      self.treeview.set_model(self.treestore)
      self.treeview.thaw_child_notify()
-
      self.set_geometry_dim_tree()
-  
-     self.treeview.get_selection().select_path(path)
-
+     self.treeview.expand_to_path(path)
      self.scherror.destroy_error_list()
      return 
 
