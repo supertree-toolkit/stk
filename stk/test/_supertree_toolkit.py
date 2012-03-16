@@ -162,9 +162,29 @@ class TestSetSourceNames(unittest.TestCase):
 
     def test_data_summary(self):
         XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
-        print data_summary(XML)
+        simple_summary = data_summary(XML)
+        full_summary = data_summary(XML,detailed = True)
 
-        print data_summary(XML,detailed = True)
+        self.assertRegexpMatches(simple_summary,'Number of taxa: 8')
+        self.assertRegexpMatches(simple_summary,'Number of characters: 2')
+        self.assertRegexpMatches(simple_summary,'Number of character types: 2')
+        self.assertRegexpMatches(simple_summary,'Number of trees: 3')
+        self.assertRegexpMatches(simple_summary,'Number of fossil taxa: 2')
+        self.assertRegexpMatches(simple_summary,'Number of analyses: 2')
+        self.assertRegexpMatches(simple_summary,'Data spans: 2010 - 2011')
+
+        self.assertRegexpMatches(full_summary,'Number of taxa: 8')
+        self.assertRegexpMatches(full_summary,'Number of characters: 2')
+        self.assertRegexpMatches(full_summary,'Number of character types: 2')
+        self.assertRegexpMatches(full_summary,'Number of trees: 3')
+        self.assertRegexpMatches(full_summary,'Number of fossil taxa: 2')
+        self.assertRegexpMatches(full_summary,'Number of analyses: 2')
+        self.assertRegexpMatches(full_summary,'Data spans: 2010 - 2011')
+        self.assertRegexpMatches(full_summary,'     morphological')
+        self.assertRegexpMatches(full_summary,'     molecular')
+        self.assertRegexpMatches(full_summary,'Taxa List')
+
+
 
     def test_character_numbers(self):
         XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
