@@ -34,6 +34,7 @@ from cStringIO import StringIO
 from collections import defaultdict
 import p4
 import re
+import operator
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -907,13 +908,30 @@ def data_independence(XML):
     # Then sort based on the character string and taxa_list as secondary sort
     # Doing so means the tree_names that use the same characters
     # are next to each other
+    data_ind.sort(key=operator.itemgetter(1,2))
 
+    print data_ind
     # The loop through this list, and if the character string is the same
     # as the previous one, check the taxa. If the taxa from the 1st
     # source is contained within (or is equal) the taxa list of the 2nd
     # grab the source data - these are not independant.
     # Because we've sorted the data, if the 2nd taxa list will be longer
     # than the previous entry if the first N taxa are the same
+    prev_char = None
+    prev_taxa = None
+    prev_name = None
+    for data in data_ind:
+        name = data[0]
+        char = data[1]
+        taxa = data[2]
+        if (char == prev_char):
+            print "Same char! "+name+" "+prev_name
+            # when sorted, the longer list comes first
+            if set(taxa).issubset(set(prev_taxa)):
+                print "Not independant " + name+" "+prev_name
+        prev_char = char
+        prev_taxa = taxa
+        prev_name = name
 
     # return as a csv string, which can be output as such or parse to 
     # make a pretty GUI

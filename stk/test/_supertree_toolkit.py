@@ -2,7 +2,7 @@ import unittest
 import math
 import sys
 sys.path.append("../")
-from supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters
+from supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters, data_independence
 from supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
 import os
 from lxml import etree
@@ -199,6 +199,10 @@ class TestSetSourceNames(unittest.TestCase):
         expected_analyses = ['Bayesian','MRP']
         self.assertListEqual(analyses,expected_analyses)
 
+    
+    def test_data_independence(self):
+        XML = etree.tostring(etree.parse('data/input/check_data_ind.phyml',parser),pretty_print=True)
+        data_independence(XML)
 
 if __name__ == '__main__':
     unittest.main()
