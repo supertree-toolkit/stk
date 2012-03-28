@@ -432,6 +432,42 @@ def get_all_characters(XML):
 
     return char_dict
 
+def get_characters_from_tree(XML,name,sort=False):
+    """Get the characters that were used in a particular tree
+    """
+
+    characters = []
+    # Our input tree has name source_no, so find the source by stripping off the number
+    source_name, number = name.rsplit("_",1)
+    number = int(number.replace("_",""))
+    xml_root = _parse_xml(XML)
+    # By getting source, we can then loop over each source_tree
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+    # loop through all sources
+    for s in sources:
+        # for each source, get source name
+        name = s.attrib['name']
+        if source_name == name:
+            # found the bugger!
+            tree_no = 1
+            for t in s.xpath("source_tree/tree_data"):
+                if tree_no == number:
+                    # and now we have the correct tree. 
+                    # Now we can get the characters for this tree
+                    chars = t.getparent().xpath("character_data/character")
+                    for c in chars:
+                        characters.append(c.attrib['name'])
+                    if (sort):
+                        characters.sort()
+                    return characters
+
+                tree_no += 1
+
+    # should raise exception here
+    return characters
+
+
 def get_character_numbers(XML):
     """ Return the number of trees that use each character
     """
@@ -447,6 +483,29 @@ def get_character_numbers(XML):
 
     return char_numbers
 
+
+def get_taxa_from_tree(XML, tree_name, sort=False):
+    """Return taxa from a single tree based on name
+    """
+
+    trees = obtain_trees(XML)
+    taxa_list = []
+    for t in trees:
+        if t == tree_name:
+            tree = trees[t]
+            handle = StringIO(tree)
+            t_obj = list(Phylo.parse(handle, "newick"))
+            t_obj = t_obj[0]
+            terminals = t_obj.get_terminals()
+            for term in terminals:
+                taxa_list.append(str(term))
+            if (sort):
+                taxa_list.sort()
+            return taxa_list
+
+    # actually need to raise exception here
+    # and catch it in calling function
+    return taxa_list
 
 
 def get_fossil_taxa(XML):
@@ -820,6 +879,48 @@ def data_summary(XML,detailed=False):
 
 
     return output_string
+
+
+def data_independence(XML):
+    """ Return a list of sources that are not independent.
+    This is decided on the source data and the analysis
+    """
+
+    # data storage:
+    #
+    # tree_name, character string, taxa_list
+    # tree_name, character string, taxa_list
+    # 
+    # smith_2009_1, cytb, a:b:c:d:e
+    # jones_2008_1, cytb:mit, a:b:c:d:e:f
+    # jones_2008_2, cytb:mit, a:b:c:d:e:f:g:h
+    #
+    # The two jones_2008 trees are not independant.
+    data_ind = []
+
+    trees = obtain_trees(XML)
+    for tree_name in trees:
+        taxa = get_taxa_from_tree(XML, tree_name, sort=True)
+        characters = get_characters_from_tree(XML, tree_name, sort=True)
+        data_ind.append([tree_name, characters, taxa])
+    
+    # Then sort based on the character string and taxa_list as secondary sort
+    # Doing so means the tree_names that use the same characters
+    # are next to each other
+
+    # The loop through this list, and if the character string is the same
+    # as the previous one, check the taxa. If the taxa from the 1st
+    # source is contained within (or is equal) the taxa list of the 2nd
+    # grab the source data - these are not independant.
+    # Because we've sorted the data, if the 2nd taxa list will be longer
+    # than the previous entry if the first N taxa are the same
+
+    # return as a csv string, which can be output as such or parse to 
+    # make a pretty GUI
+
+    # for each tree
+        
+
 
 ################ PRIVATE FUNCTIONS ########################
 

@@ -3,7 +3,7 @@ import math
 import sys
 sys.path.append("../")
 from supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
-from supertree_toolkit import _swap_tree_in_XML, substitute_taxa
+from supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_taxa_from_tree, get_characters_from_tree
 import os
 from lxml import etree
 from util import *
@@ -270,7 +270,30 @@ class TestImportTree(unittest.TestCase):
         self.assert_(not contains_A) # we should not have A in a tree
         self.assert_(not contains_B) # we should not have B in a tree
 
-    
+    def test_taxa_from_tree(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        taxa = get_taxa_from_tree(XML,"Hill_2011_1")
+        expected_taxa = ['A','B','F','E']
+        self.assertListEqual(taxa,expected_taxa)
+
+    def test_taxa_from_tree_sort(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        taxa = get_taxa_from_tree(XML,"Hill_2011_1",sort=True)
+        expected_taxa = ['A','B','E','F']
+        self.assertListEqual(taxa,expected_taxa)
+
+    def test_taxa_from_characters(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        chars = get_characters_from_tree(XML,"Hill_Davis_2011_1")
+        expected_chars = ['cytb','12S']
+        self.assertListEqual(chars,expected_chars)
+
+    def test_taxa_from_characters_sort(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        chars = get_characters_from_tree(XML,"Hill_Davis_2011_1",sort=True)
+        expected_chars = ['12S','cytb']
+        self.assertListEqual(chars,expected_chars)
+     
 if __name__ == '__main__':
     unittest.main()
  
