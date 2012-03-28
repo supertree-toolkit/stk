@@ -202,7 +202,9 @@ class TestSetSourceNames(unittest.TestCase):
     
     def test_data_independence(self):
         XML = etree.tostring(etree.parse('data/input/check_data_ind.phyml',parser),pretty_print=True)
-        data_independence(XML)
+        expected_dict = {'Hill_2011_2': ['Hill_2011_1', 1], 'Hill_Davis_2011_1': ['Hill_Davis_2011_2', 0]}
+        non_ind = data_independence(XML)
+        self.assertDictEqual(expected_dict, non_ind)
 
 if __name__ == '__main__':
     unittest.main()

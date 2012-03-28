@@ -36,6 +36,10 @@ import p4
 import re
 import operator
 
+# GLOBAL VARIABLES
+IDENTICAL = 0
+SUBSET = 1
+
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
 #
@@ -910,7 +914,6 @@ def data_independence(XML):
     # are next to each other
     data_ind.sort(key=operator.itemgetter(1,2))
 
-    print data_ind
     # The loop through this list, and if the character string is the same
     # as the previous one, check the taxa. If the taxa from the 1st
     # source is contained within (or is equal) the taxa list of the 2nd
@@ -920,25 +923,24 @@ def data_independence(XML):
     prev_char = None
     prev_taxa = None
     prev_name = None
+    non_ind = {}
     for data in data_ind:
         name = data[0]
         char = data[1]
         taxa = data[2]
         if (char == prev_char):
-            print "Same char! "+name+" "+prev_name
             # when sorted, the longer list comes first
             if set(taxa).issubset(set(prev_taxa)):
-                print "Not independant " + name+" "+prev_name
+                if (taxa == prev_taxa):
+                    non_ind[name] = [prev_name,IDENTICAL]
+                else:
+                    non_ind[name] = [prev_name,SUBSET]
         prev_char = char
         prev_taxa = taxa
         prev_name = name
 
-    # return as a csv string, which can be output as such or parse to 
-    # make a pretty GUI
 
-    # for each tree
-        
-
+    return non_ind
 
 ################ PRIVATE FUNCTIONS ########################
 
