@@ -106,7 +106,7 @@ def main():
             help='The input phyml file')
     parser_cm.add_argument('-o',
             '--output',
-            default=True,
+            default=False,
             const=True,
             nargs='?',
             help='Save output to a file, rather than to screen. '+
