@@ -447,12 +447,7 @@ def get_all_taxa(XML, pretty=False):
     taxa_list = []
 
     for t in trees.values():
-        handle = StringIO(t)
-        t_obj = list(Phylo.parse(handle, "newick"))
-        t_obj = t_obj[0]
-        terminals = t_obj.get_terminals()
-        for term in terminals:
-            taxa_list.append(str(term))
+        taxa_list.extend(_get_taxa_from_tree(t))
 
     # now uniquify the list of taxa
     taxa_list = _uniquify(taxa_list)
@@ -901,3 +896,66 @@ def _parse_xml(xml_string):
     return XML
 
 def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
+
+def _get_taxa_from_tree(tree):
+    """ Get taxa from a single tree
+    """
+
+    taxa_list = []
+
+    handle = StringIO(tree)
+    t_obj = list(Phylo.parse(handle, "newick"))
+    t_obj = t_obj[0]
+    terminals = t_obj.get_terminals()
+    for term in terminals:
+        taxa_list.append(str(term))
+    
+    return taxa_list
+
+def _create_connectivity_graph(XML,overlap_number,condensed=True,graphic_output=False):
+    """ Create a connectivity graph where the nodes are
+    trees and the edges are formed when a tree contains sufficient
+    overlap with another tree.
+
+    Condensed format shows the number of clusters, rather than individual trees.
+    The condensed format should therefore contain a single node. 
+    """
+
+    # first let's get the trees
+    trees = obtain_trees(XML)
+
+    # first we make a 2D array of matches, trees x trees
+    total_matches = []
+    for i in range(len(trees)):
+        # get taxa from tree
+        taxa = _get_taxa_from_tree(trees[i])
+        matches = []
+        for j in range(0,i):
+            # set all previous tree matches to zero - we caught 'em earlier
+            matches.append(0)
+        
+        # now do the unknown matches
+        for j in range(i,len(trees)):
+            taxa2 = _get_taxa_from_tree(trees[j])
+            # count number of of matches between taxa and taxa2
+            count = 0
+            matches.append(count)
+
+
+    # we now have a 2D array that contains the number of matches between tree N and tree M
+    # This is an upper-diagnal array, the lower diagnal contains zeros
+        # construct graph - node=tree, edge=satisfies minimum taxa connectivity
+    # First add all nodes
+    #for ( my $i = 0; $i < $number; $i++ ) {
+    #    $graph->add_vertex($i);
+    #}
+    # now add edges between nodes
+    #for ( my $i = 0; $i < $number; $i++ ) {
+    #    for ( my $j = 0; $j < $number; $j++ ) {
+    #        if ($totalMatches[$i][$j] >= $nCluster) {
+    #            $graph->add_edge($i,$j);
+    #        }
+    #    }
+    #}
+
+
