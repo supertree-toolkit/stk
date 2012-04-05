@@ -76,3 +76,13 @@ class InvalidSTKData(Error):
     def __init__(self, msg):
         self.msg = msg
 
+class STKImportExportError(Error):
+    """Exception raised when import or export fails
+
+       Attributes:
+          msg -- explaination of error
+    """
+
+    def __init__(self, msg):
+        self.msg = msg
+

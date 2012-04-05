@@ -2,12 +2,13 @@ import unittest
 import math
 import sys
 sys.path.append("../")
-from supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data
-from supertree_toolkit import safe_taxonomic_reduction
+from supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters, safe_taxonomic_reduction
+from supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
 import os
 from lxml import etree
 from util import *
 import stk_exceptions
+from collections import defaultdict
 parser = etree.XMLParser(remove_blank_text=True)
 
 
@@ -133,10 +134,80 @@ class TestSetSourceNames(unittest.TestCase):
     def test_str(self):
         """Test STR function. Just prints out the equiv matrix
         """
-
         safe_taxonomic_reduction(etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)); 
         self.assert_(True)
+        # Need a better test here
   
+    def test_get_all_characters(self):
+        """ Check the characters dictionary
+        """
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        characters = get_all_characters(XML)
+        expected_keys = ['molecular', 'morphological']
+        key = characters.keys()
+        key.sort()
+        self.assertListEqual(key,expected_keys)
+        
+        self.assertListEqual(characters['molecular'],['12S'])
+        self.assertListEqual(characters['morphological'],['feathers'])
+
+
+    def test_get_fossil_taxa(self):
+        """ Check the fossil taxa function
+        """
+        XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
+        fossils = get_fossil_taxa(XML)
+        expected_fossils = ['A','B']
+        self.assertListEqual(fossils,expected_fossils)
+        
+    def test_get_publication_years(self):
+        XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
+        years = get_publication_years(XML)
+        self.assert_(years[2011] == 2)
+        self.assert_(years[2010] == 1)
+        self.assert_(years[2009] == 0) 
+
+    def test_data_summary(self):
+        XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
+        simple_summary = data_summary(XML)
+        full_summary = data_summary(XML,detailed = True)
+
+        self.assertRegexpMatches(simple_summary,'Number of taxa: 8')
+        self.assertRegexpMatches(simple_summary,'Number of characters: 2')
+        self.assertRegexpMatches(simple_summary,'Number of character types: 2')
+        self.assertRegexpMatches(simple_summary,'Number of trees: 3')
+        self.assertRegexpMatches(simple_summary,'Number of fossil taxa: 2')
+        self.assertRegexpMatches(simple_summary,'Number of analyses: 2')
+        self.assertRegexpMatches(simple_summary,'Data spans: 2010 - 2011')
+
+        self.assertRegexpMatches(full_summary,'Number of taxa: 8')
+        self.assertRegexpMatches(full_summary,'Number of characters: 2')
+        self.assertRegexpMatches(full_summary,'Number of character types: 2')
+        self.assertRegexpMatches(full_summary,'Number of trees: 3')
+        self.assertRegexpMatches(full_summary,'Number of fossil taxa: 2')
+        self.assertRegexpMatches(full_summary,'Number of analyses: 2')
+        self.assertRegexpMatches(full_summary,'Data spans: 2010 - 2011')
+        self.assertRegexpMatches(full_summary,'     morphological')
+        self.assertRegexpMatches(full_summary,'     molecular')
+        self.assertRegexpMatches(full_summary,'Taxa List')
+
+
+
+    def test_character_numbers(self):
+        XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
+        characters = get_character_numbers(XML)
+        self.assert_(characters['feathers'] == 1)
+        self.assert_(characters['12S'] == 2)
+        self.assert_(characters['nonsense'] == 0)
+
+    def test_analyses(self):
+        XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
+        analyses = get_analyses_used(XML)
+        expected_analyses = ['Bayesian','MRP']
+        self.assertListEqual(analyses,expected_analyses)
+
+
+
 if __name__ == '__main__':
     unittest.main()
  
