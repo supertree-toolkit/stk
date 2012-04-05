@@ -168,7 +168,8 @@ class Diamond:
                     "on_create_matrix": self.on_create_matrix,
                     "on_export": self.on_export,
                     "on_import": self.on_import,
-                    "on_sub_taxa": self.on_sub_taxa
+                    "on_sub_taxa": self.on_sub_taxa,
+                    "on_data_summary": self.on_data_summary
                     }
 
     self.gui.signal_autoconnect(signals)
@@ -927,6 +928,50 @@ class Diamond:
     self.treeview.get_selection().select_path(path)
  
     return
+
+
+  def on_data_summary(self, widget=None):
+    """ Summarises the data to a few key facts
+    """
+
+    signals = {"data_summary_save_clicked": self.on_data_summary_save_clicked,
+               "data_summary_output_close": self.on_data_summary_output_close}
+    
+    self.data_summary_gui = gtk.glade.XML(self.gladefile, root="data_summary_output")
+    self.data_summary_dialog = self.data_summary_gui.get_widget("data_summary_output")
+    textbox = self.data_summary_gui.get_widget("textview1")
+    self.data_summary_gui.signal_autoconnect(signals)
+    summary_button = self.data_summary_gui.get_widget("data_summary_save_button")
+    summary_button.connect("activate", self.on_data_summary_save_clicked) 
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    data_summary = stk.data_summary(XML,detailed=True)
+    textbox.get_buffer().set_text(data_summary)
+    textbox.set_editable(False)
+    self.data_summary_dialog.show()
+
+    return
+
+
+  def on_data_summary_output_close(self, widget=None):
+
+    self.data_summary_dialog.hide() 
+
+  
+  def on_data_summary_save_clicked(self, widget=None):
+    """ Save the data_summary
+    """
+
+    textbox = self.data_summary_gui.get_widget("textview1")
+    buf = textbox.get_buffer()
+    summary = buf.get_text(buf.get_start_iter(), buf.get_end_iter())
+    filter_names_and_patterns = {}
+    # open file dialog
+    filename = dialogs.get_filename(title = "Choose output file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+    f = open(filename,'w')
+    f.write(summary)
+    f.close()
 
   def on_create_matrix(self, widget=None):
     """ Creates a MRP matrix from the data in the phyml. Actually, this function

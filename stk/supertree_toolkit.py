@@ -405,6 +405,106 @@ def draw_tree(tree_string):
     tree.ladderize()   # Flip branches so deeper clades are displayed at top
     Phylo.draw(tree)
 
+def get_all_characters(XML):
+    """Returns a dictionary containing a list of characters within each 
+    character type"""
+
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//character")
+    characters = find(xml_root)
+
+    # grab all character types first
+    types = []
+    for c in characters:
+        types.append(c.attrib['type'])
+
+    u_types = _uniquify(types)
+    u_types.sort()
+
+    char_dict = {}
+    for t in u_types:
+        char = []
+        for c in characters:
+            if (c.attrib['type'] == t):
+                if (not c.attrib['name'] in char):
+                    char.append(c.attrib['name'])
+        char_dict[t] = char       
+
+    return char_dict
+
+def get_character_numbers(XML):
+    """ Return the number of trees that use each character
+    """
+
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//character")
+    characters = find(xml_root)
+
+    char_numbers = defaultdict(int)
+
+    for c in characters:
+        char_numbers[c.attrib['name']] += 1
+
+    return char_numbers
+
+
+
+def get_fossil_taxa(XML):
+    """Return a list of fossil taxa
+    """
+
+    f_ = []
+
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//fossil")
+    fossils = find(xml_root)
+
+    for f in fossils:
+        name = f.getparent().attrib['name']
+        f_.append(name)
+
+    fossil_taxa = _uniquify(f_) 
+    
+    return fossil_taxa
+
+
+def get_analyses_used(XML):
+    """ Return a sorted, unique array of all analyses types used
+    in this dataset
+    """
+
+    a_ = []
+
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//analysis")
+    analyses = find(xml_root)
+
+    for a in analyses:
+        name = a.attrib['name']
+        a_.append(name)
+
+    analyses = _uniquify(a_) 
+    analyses.sort()
+
+    return analyses
+
+
+
+def get_publication_years(XML):
+    """Return a dictionary of years and the number of publications
+    within that year
+    """
+
+    year_dict = defaultdict(int)
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//year")
+    years = find(xml_root)
+
+    for y in years:
+        year = int(y.xpath('integer_value')[0].text)
+        year_dict[year] += 1
+
+    return year_dict
 
 def obtain_trees(XML):
     """ Parse the XML and obtain all tree strings
@@ -446,7 +546,8 @@ def get_all_taxa(XML, pretty=False):
 
     taxa_list = []
 
-    for t in trees.values():
+    for tname in trees.keys():
+        t = trees[tname]
         handle = StringIO(t)
         t_obj = list(Phylo.parse(handle, "newick"))
         t_obj = t_obj[0]
@@ -646,6 +747,80 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
         i = i+1
 
     return etree.tostring(xml_root,pretty_print=True)
+
+
+def data_summary(XML,detailed=False):
+    """Creates a text string that summarises the current data set via a number of 
+    statistics such as the number of character types, distribution of years of publication,
+    etc.
+
+    Up to the calling function to display string nicely
+    """
+
+    xml_root = _parse_xml(XML)
+    proj_name = xml_root.xpath('/phylo_storage/project_name/string_value')[0].text
+
+    output_string  = "======================\n"
+    output_string += " Data summary of: " + proj_name + "\n" 
+    output_string += "======================\n\n"
+
+    trees = obtain_trees(XML)
+    taxa = get_all_taxa(XML, pretty=True)
+    characters = get_all_characters(XML)
+    char_numbers = get_character_numbers(XML)
+    fossils = get_fossil_taxa(XML)
+    publication_years = get_publication_years(XML)
+    analyses = get_analyses_used(XML)
+    years = publication_years.keys()
+    years.sort()
+    chars = char_numbers.keys()
+    chars.sort()
+
+    output_string += "Number of taxa: "+str(len(taxa))+"\n"
+    output_string += "Number of characters: "+str(len(chars))+"\n"
+    output_string += "Number of character types: "+str(len(characters))+"\n"
+    output_string += "Number of trees: "+str(len(trees))+"\n"
+    output_string += "Number of fossil taxa: "+str(len(fossils))+"\n"
+    output_string += "Number of analyses: "+str(len(analyses))+"\n"
+    output_string += "Data spans: "+str(years[0])+" - "+str(years[-1])+"\n"
+
+
+    if (detailed):
+        # append additional info including full list of characters
+        # full list of taxa and full list of fossil taxa
+        output_string += "\nPublication years:\n"
+        output_string += "----------------------\n"
+        for i in range(years[0],years[-1]+1):
+            output_string += "    "+str(i)+": "+str(publication_years[i])+"\n"
+        output_string += "----------------------\n"
+
+        output_string += "\n\nCharacter Type List:\n"
+        output_string += "----------------------\n"
+        for c in characters:
+            output_string += "     "+c+"    " + "\n"
+        output_string += "----------------------\n"
+
+        output_string += "\n\nAnalyses Used:\n"
+        output_string += "----------------------\n"
+        for a in analyses:
+            output_string += "     "+a+"\n"
+        output_string += "----------------------\n"
+
+
+        output_string += "\n\nCharacter List:\n"
+        output_string += "----------------------\n"
+        for c in chars:
+            output_string += "     "+c+"    "+str(char_numbers[c])+"("+str(float(char_numbers[c])/float(len(trees))*100.)+"%)\n"
+        output_string += "----------------------\n"
+        
+        output_string += "\n\nTaxa List:\n"
+        output_string += "----------------------\n"
+        for t in taxa:
+            output_string += "     "+t+"\n"
+        output_string += "----------------------\n"
+
+
+    return output_string
 
 ################ PRIVATE FUNCTIONS ########################
 
