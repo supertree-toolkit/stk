@@ -1027,7 +1027,6 @@ def data_summary(XML,detailed=False):
 
 
     return output_string
->>>>>>> MERGE-SOURCE
 
 ################ PRIVATE FUNCTIONS ########################
 
