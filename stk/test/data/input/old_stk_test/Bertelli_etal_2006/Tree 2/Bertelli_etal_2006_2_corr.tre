@@ -1,0 +1,73 @@
+#NEXUS
+
+BEGIN TAXA;
+	DIMENSIONS NTAX = 30;
+	TAXLABELS
+		Gavia_stellata
+		Macronectes_giganteus
+		Daption_capense
+		Pterodroma_incerta
+		Oceanodroma_leucorhoa
+		Oceanites_oceanicus
+		Pachyptila_desolata
+		Pelecanoides_urinatrix
+		Procellaria_aequinoctialis
+		Puffinus_griseus
+		Diomedea_melanophris
+		Phoebetria_palpebrata
+		Paraptenodytes_antarcticus
+		Eudyptula_minor
+		Spheniscus_demersus
+		Spheniscus_magellanicus
+		Spheniscus_humboldti
+		Spheniscus_mendiculus
+		Aptenodytes_patagonicus
+		Aptenodytes_forsteri
+		Pygoscelis_antarctica
+		Pygoscelis_papua
+		Pygoscelis_adeliae
+		Megadyptes_antipodes
+		Eudyptes_pachyrhynchus
+		Eudyptes_robustus
+		Eudyptes_sclateri
+		Eudyptes_chrysocome
+		Eudyptes_schlegeli
+		Eudyptes_chrysolophus
+		;
+ENDBLOCK;
+
+BEGIN TREES;
+	TRANSLATE
+		1 Gavia_stellata,
+		2 Macronectes_giganteus,
+		3 Daption_capense,
+		4 Pterodroma_incerta,
+		5 Oceanodroma_leucorhoa,
+		6 Oceanites_oceanicus,
+		7 Pachyptila_desolata,
+		8 Pelecanoides_urinatrix,
+		9 Procellaria_aequinoctialis,
+		10 Puffinus_griseus,
+		11 Diomedea_melanophris,
+		12 Phoebetria_palpebrata,
+		13 Paraptenodytes_antarcticus,
+		14 Eudyptula_minor,
+		15 Spheniscus_demersus,
+		16 Spheniscus_magellanicus,
+		17 Spheniscus_humboldti,
+		18 Spheniscus_mendiculus,
+		19 Aptenodytes_patagonicus,
+		20 Aptenodytes_forsteri,
+		21 Pygoscelis_antarctica,
+		22 Pygoscelis_papua,
+		23 Pygoscelis_adeliae,
+		24 Megadyptes_antipodes,
+		25 Eudyptes_pachyrhynchus,
+		26 Eudyptes_robustus,
+		27 Eudyptes_sclateri,
+		28 Eudyptes_chrysocome,
+		29 Eudyptes_schlegeli,
+		30 Eudyptes_chrysolophus
+		;
+	TREE tree_1  = [&u] (1,((2,(3,((4,((5,6),(7,8))),(9,10)))),(11,12)),(13,((14,(15,16,(17,18))),(((19,20),(21,(22,23))),(24,(25,((26,27),(28,(29,30)))))))));
+ENDBLOCK;

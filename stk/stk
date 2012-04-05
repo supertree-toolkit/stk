@@ -25,6 +25,7 @@ import math
 import numpy 
 import argparse
 import supertree_toolkit
+import stk_import_export
 
 # STK is the main command line program for the supertree toolkit
 # Using the XML files created by the GUI it can processes the data, without
@@ -91,17 +92,41 @@ def main():
             action='store_true',
             default=False,
             help="Overwrite the exisitng file without asking for confirmation")
-
-    # Set the function that gets called when the sub command is activated
     parser_cm.set_defaults(func=sub_taxa)
+
+    
+    parser_cm = subparsers.add_parser('import_data',
+            help='Import data from old STK dataset.'
+            )
+    parser_cm.add_argument('input',
+            help='The input directory')
+    parser_cm.add_argument('output', 
+            help='The output phyml file')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the exisitng file without asking for confirmation")
+    parser_cm.set_defaults(func=import_data)
+
+
+    parser_cm = subparsers.add_parser('export_data',
+            help='Export data to old STK dataset.'
+            )
+    parser_cm.add_argument('input',
+            help='The input file')
+    parser_cm.add_argument('output', 
+            help='The output directory')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the exisitng directory without asking for confirmation")
+    parser_cm.set_defaults(func=export_data) 
 
 
     # Data summary command
     parser_cm = subparsers.add_parser('data_summary',
             help='Summary of this dataset'
             )
-    # Now add the command line args for this command
-    # These arguments are not-optional
     parser_cm.add_argument('input', 
             help='The input phyml file')
     parser_cm.add_argument('-o',
@@ -117,14 +142,12 @@ def main():
             action='store_true',
             default=False,
             help="Output a detailed version of the summary")
-    # Set the function that gets called when the sub command is activated
     parser_cm.set_defaults(func=data_summary)
 
 
     # parse the arguments, and strip out the common options
     args = parser.parse_args()
     verbose = args.verbose
-
     # All of the rest may or may not apply to the command chosen
     # The rest of this function is effectively checking all of the arguments
     # against the command specified
@@ -268,7 +291,61 @@ def sub_taxa(args):
     f = open(output_file,'r')
     f.write(XML)
 
-    sys,exit(0)
+    sys.exit(0)
+
+# Note data import is *not* perfect due:
+#   - more data in the new format
+#   - more detail in new format for fossil data
+#   - more comments and notes
+def import_data(args):
+    """ Import old (directory based) STK data into a PHYML file.
+        Note the data copy is not perfect.
+    """
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    input_dir = args.input
+    overwrite = args.overwrite
+
+    if (not os.path.exists(input_dir)):
+        print "Input directory cannot be found. Exiting"
+        sys.exit(-1)
+
+    if (os.path.exists(output_file) and not overwrite):
+        print "Output file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            input = sys.stdin.read(1)
+            if input == None:
+                input = 'y'
+            if input == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if input == 'y':
+                break
+
+    phyml = stk_import_export.import_old_data(input_dir,verbose=verbose) 
+    f = open(output_file, "w")
+    f.write(phyml)
+    f.close()
+
+def export_data(args):
+    """ Export a PHYML to an old-style STK format (directory based).
+    """
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    input_file = args.input
+
+    if (not os.path.exists(input)):
+        print "Input phyml cannot be found. Exiting"
+        sys.exit(-1)
+
+    if (os.path.exists(output)):
+        print "Output directory exists."
+        sys.exit(-1)
+
+    stk_import_export.export_to_old(input,output_dir,verbose=verbose) 
 
 if __name__ == "__main__":
     main()

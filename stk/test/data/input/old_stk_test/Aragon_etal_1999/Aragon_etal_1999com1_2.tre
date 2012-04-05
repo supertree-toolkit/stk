@@ -1,0 +1,45 @@
+#NEXUS
+
+BEGIN TAXA;
+	DIMENSIONS NTAX = 16;
+	TAXLABELS
+		Neomorphus_geoffroyi
+		Geococcyx_californianus
+		Tapera_naevia
+		Dromococcyx_phasianellus
+		Guira_guira
+		Clamator_jacobinus
+		Clamator_glandarius
+		Phaenicophaeus_superciliosus
+		Piaya_cayana
+		Cuculus_canorus
+		Surniculus_lugubris
+		Cuculus_poliocephalus
+		Cercococcyx_montanus
+		Cacomantis_flabelliformis
+		Chrysococcyx_osculans
+		Gallus_gallus
+		;
+ENDBLOCK;
+
+BEGIN TREES;
+	TRANSLATE
+		1 Neomorphus_geoffroyi,
+		2 Geococcyx_californianus,
+		3 Tapera_naevia,
+		4 Dromococcyx_phasianellus,
+		5 Guira_guira,
+		6 Clamator_jacobinus,
+		7 Clamator_glandarius,
+		8 Phaenicophaeus_superciliosus,
+		9 Piaya_cayana,
+		10 Cuculus_canorus,
+		11 Surniculus_lugubris,
+		12 Cuculus_poliocephalus,
+		13 Cercococcyx_montanus,
+		14 Cacomantis_flabelliformis,
+		15 Chrysococcyx_osculans,
+		16 Gallus_gallus
+		;
+	TREE tree_1  = [&u] ((((1,2),(3,4),5),(((6,7),8),9),(((10,11,12,13),14),15)),16);
+ENDBLOCK;
