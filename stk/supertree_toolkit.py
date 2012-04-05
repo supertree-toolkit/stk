@@ -546,7 +546,8 @@ def get_all_taxa(XML, pretty=False):
 
     taxa_list = []
 
-    for t in trees.values():
+    for tname in trees.keys():
+        t = trees[tname]
         handle = StringIO(t)
         t_obj = list(Phylo.parse(handle, "newick"))
         t_obj = t_obj[0]
