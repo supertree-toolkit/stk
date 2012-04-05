@@ -129,6 +129,8 @@ def import_old_data(input_dir, verbose=False):
     nXML = 0;
     for xml in locate('*.xml', input_dir):
         # parse XML
+        if (verbose):
+            #print "Parsing: "+xml
         current_xml = etree.parse(xml)
         # convert into PHYML
         new_source = convert_to_phyml_source(current_xml)
