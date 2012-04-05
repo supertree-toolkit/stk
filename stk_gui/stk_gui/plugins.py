@@ -63,6 +63,7 @@ def configure_plugins(suffix):
   homedir = os.path.expanduser('~')
   dirs = [os.path.join(homedir, ".stk", "plugins", suffix),
       "/usr/local/share/plugin/" + suffix]
+  dirs.append('plugins/')
   if sys.platform != "win32" and sys.platform != "win64":
     dirs.append("/etc/stk/plugins/" + suffix)
   if sys.platform == 'darwin':
