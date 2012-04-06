@@ -64,6 +64,8 @@ def main():
     file = open(str_file)
     i = 0
     replacements = []
+    all_C_taxa = []
+    to_remove = []
     for line in file:
         if (i < 3):
             i += 1
@@ -85,10 +87,21 @@ def main():
             replace = ""
             for e in pot_equivs:
                 if (e[-3:] == '(C)'):
-                    replace += e[:-3]+","
+                    if  (not e[:-3] in all_C_taxa):
+                        replace += e[:-3]+","
+                    else:
+                        # add it to the need to remove list as it appear multiple times
+                        to_remove.append(e[:-3])
             if (not replace == ""):
+                all_C_taxa.extend(replace[:-1].split(','))
                 replacements.append(index+" = "+replace+index)
 
+    # now need to remove the list in the to_remove list from the RHS
+    for i in range(len(replacements)):
+        for t in to_remove:
+            replacements[i] = replacements[i].replace(t+",","")
+
+    
     # save file
     f = open(subs_file,'w')
     for r in replacements:
