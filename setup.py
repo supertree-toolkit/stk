@@ -85,18 +85,20 @@ else:
 
 setup(
       name='supertree-toolkit',
-      version='0.1',
+      version='0.1.1',
       description="Supertree data source management",
       author = "The STK Team",
       author_email = "jon.hill@imperial.ac.uk",
       url = "https://launchpad.net/supertree-tookit",
-      packages = ['stk', 'stk_gui', 'stk.yapbib', 'dxdiff', 'stk.p4'],
+      packages = ['stk', 'stk_gui', 'yapbib', 'dxdiff', 'p4.stk'],
       package_dir = {
           'stk': 'stk', 
           'stk_gui':'stk_gui/stk_gui', 
-          'stk.yapbib':'stk/yapbib', 
+          'yapbib':'stk/yapbib', 
           'dxdiff':'stk_gui/dxdiff/dxdiff',
-          'stk.p4':'stk/p4'},
+          # Note, we use out own P4 - better tested within STK this way and removes the requirement
+          # of pre-installing it. It also means we don't overwrite any previous p4 install.
+          'p4.stk':'stk/p4'},
       scripts=["stk_gui/bin/stk-gui", "stk/stk"],
       **extra_options
     )
