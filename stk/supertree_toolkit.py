@@ -561,16 +561,6 @@ def create_matrix(XML,format="hennig"):
     taxa.append("MRPOutgroup")
     taxa.extend(get_all_taxa(XML))
 
-def create_matrix(XML,format="hennig"):
-
-    # get all trees
-    trees = obtain_trees(XML)
-
-    # and the taxa
-    taxa = []
-    taxa.append("MRPOutgroup")
-    taxa.extend(get_all_taxa(XML))
-
     # our matrix, we'll then append the submatrix
     # to this to make a 2D matrix
     # Our matrix is of length nTaxa on the i dimension
