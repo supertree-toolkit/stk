@@ -19,7 +19,6 @@
 #
 #    Jon Hill. jon.hill@imperial.ac.uk. 
 
-from Bio import Phylo
 from StringIO import StringIO
 import os
 import sys

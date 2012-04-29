@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #    Jon Hill. jon.hill@imperial.ac.uk. 
-from Bio import Phylo
 from StringIO import StringIO
 import os
 import sys
@@ -32,8 +31,9 @@ from stk_exceptions import *
 import traceback
 from cStringIO import StringIO
 from collections import defaultdict
-import p4
+import stk.p4 as p4
 import re
+import stk.p4.MRP as MRP
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -273,13 +273,10 @@ def import_tree(filename, gui=None, tree_no = -1):
 # TreeView create a tree with the following description:
 #
 #   UTREE * tree_1 = ((1,(2,(3,(4,5)))),(6,7));
-# UTREE * is not a supported part of the NEXUS format (as far as BioPython).
+# UTREE * is not a supported part of the NEXUS format.
 # so we need to replace the above with:
 #   tree_1 = [&u] ((1,(2,(3,(4,5)))),(6,7));
 #
-# BioPython doesn throw an exception or anything on these files,
-# So for now glob the file, replace the text, and create a StringIO 
-# object to pass BioPython - MESSY!!
     f = open(filename)
     content = f.read()                 # read entire file into memory
     f.close()
@@ -349,14 +346,16 @@ def import_tree(filename, gui=None, tree_no = -1):
         content = re.sub("\):\d.\d+","):0.0", content)
 
     treedata = content
-    handle = StringIO(treedata)
     
-    if (filename.endswith(".nex") or filename.endswith(".tre")):
-        trees = list(Phylo.parse(handle, "nexus"))
-    elif (filename.endswith("nwk")):
-        trees = list(Phylo.parse(handle, "newick"))
-    elif (filename.endswith("phyloxml")):
-        trees = list(Phylo.parse(handle, "phyloxml"))
+    try:
+        p4.var.warnReadNoFile = False
+        p4.var.trees = []
+        p4.read(treedata)
+        p4.var.warnReadNoFile = True
+    except:
+        raise TreeParseError("Error parsing " + filename)
+    trees = p4.var.trees
+    p4.var.trees = []
 
     if (len(trees) > 1 and tree_no == -1):
         message = "Found "+len(trees)+" trees. Which one do you want to load (1-"+len(trees)+"?"
@@ -392,18 +391,8 @@ def import_tree(filename, gui=None, tree_no = -1):
     else:
         tree_no = 0
 
-    h = StringIO()
-    Phylo.write(trees[tree_no], h, "newick")
-    tree = h.getvalue()
-
-    return tree
-
-def draw_tree(tree_string):
-    
-    h = StringIO(tree_string)
-    tree = Phylo.read(h, 'newick')
-    tree.ladderize()   # Flip branches so deeper clades are displayed at top
-    Phylo.draw(tree)
+    tree = trees[tree_no]
+    return tree.writeNewick(fName=None,toString=True).strip()
 
 def get_all_characters(XML):
     """Returns a dictionary containing a list of characters within each 
@@ -548,12 +537,7 @@ def get_all_taxa(XML, pretty=False):
 
     for tname in trees.keys():
         t = trees[tname]
-        handle = StringIO(t)
-        t_obj = list(Phylo.parse(handle, "newick"))
-        t_obj = t_obj[0]
-        terminals = t_obj.get_terminals()
-        for term in terminals:
-            taxa_list.append(str(term))
+        taxa_list.extend(_getTaxaFromNewick(t))
 
     # now uniquify the list of taxa
     taxa_list = _uniquify(taxa_list)
@@ -587,10 +571,7 @@ def create_matrix(XML,format="hennig"):
     current_char = 1
     for key in trees:
         names.append(key)
-        handle = StringIO(trees[key])
-        newick_trees = list(Phylo.parse(handle, "newick"))
-        newick_tree = newick_trees[0]
-        submatrix, tree_taxa = _assemble_tree_matrix(newick_tree)
+        submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
         nChars = len(submatrix[0,:])
         # loop over characters in the submatrix
         for i in range(1,nChars):
@@ -863,34 +844,30 @@ def _check_uniqueness(XML):
     return
 
 
-def _assemble_tree_matrix(tree):
+def _assemble_tree_matrix(tree_string):
     """ Assembles the MRP matrix for an individual tree
 
         returns: matrix (2D numpy array: taxa on i, nodes on j)
                  taxa list: in same order as in the matrix
     """
 
-    all_nodes = list(tree.get_nonterminals())
-    look_up = {}
-    for i, elem in enumerate(all_nodes):
-        look_up[elem] = i
-
-    all_terms = list(tree.get_terminals())
-    look_up_t = {}
+    p4.var.warnReadNoFile = False    
+    p4.var.trees = []
+    p4.read(tree_string)
+    tree = p4.var.trees[0]    
+    mrp = MRP.mrp([tree])
+    adjmat = []
     names = []
-    for i, elem in enumerate(all_terms):
-        look_up_t[elem] = i
-        names.append(str(elem))
+    for i in range(0,mrp.nTax):
+        seq = (mrp.sequences[i].sequence)
+        names.append(mrp.taxNames[i])
+        chars = []
+        chars.append(1)
+        for c in seq:
+            chars.append(int(c))
+        adjmat.append(chars)
 
-    adjmat = numpy.zeros((len(look_up_t), len(look_up)))
-
-    for i, terminal in enumerate(all_terms):
-        my_parents =  list(tree.get_path(terminal))
-        for j, p in enumerate(my_parents):
-            if (p == terminal):
-                adjmat[look_up_t[terminal],0] = 1
-            else:
-                adjmat[look_up_t[terminal],look_up[p]] = 1
+    adjmat = numpy.array(adjmat)
 
     return adjmat, names
 
@@ -899,19 +876,20 @@ def _delete_taxon(taxon, tree):
     """
 
     # check if taxa is in there first
-    # Prevent error from Bio.Phylo
     if (tree.find(taxon) == -1):
         return tree #raise exception?
+    p4.var.warnReadNoFile = False    
+    p4.var.trees = []
+    p4.read(tree)
+    tree_obj = p4.var.trees[0]
+    for node in tree_obj.iterNodes():
+        if node.name == taxon:
+            tree_obj.removeNode(node.nodeNum)
+            break
+    p4.var.warnReadNoFile = True    
 
-    handle = StringIO(tree)
-    t_obj = list(Phylo.parse(handle, "newick"))
-    t_obj = t_obj[0]
-    clade = t_obj.prune(taxon)
-    h = StringIO()
-    Phylo.write(t_obj, h, "newick")
-    tree = h.getvalue()
 
-    return tree
+    return tree_obj.writeNewick(fName=None,toString=True).strip()
        
 
 def _sub_taxon(old_taxon, new_taxon, tree):
@@ -1076,3 +1054,17 @@ def _parse_xml(xml_string):
     return XML
 
 def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
+
+def _getTaxaFromNewick(tree):
+    """ Get the terminal nodes from a Newick string"""
+
+    p4.var.warnReadNoFile = False    
+    p4.var.trees = []
+    p4.read(tree)
+    t_obj = p4.var.trees[0]
+    terminals = t_obj.getAllLeafNames(0)
+    p4.var.warnReadNoFile = True    
+
+    return terminals
+
+    
