@@ -19,7 +19,6 @@
 #
 #    Jon Hill. jon.hill@imperial.ac.uk. 
 
-from Bio import Phylo
 from StringIO import StringIO
 import os
 import sys
@@ -34,6 +33,7 @@ from copy import deepcopy
 from supertree_toolkit import _parse_xml
 from stk_exceptions import *
 from stk_internals import *
+import stk.p4
 
 def export_to_old(xml, output_dir, verbose=False):
 
@@ -83,13 +83,17 @@ def export_to_old(xml, output_dir, verbose=False):
             tree_dir = os.path.join(source_dir,"Tree_"+str(tree_no))
             os.mkdir(tree_dir)
             # save the tree data
-            handle = StringIO(t.xpath("tree_data/string_value")[0].text)
-            tree = Phylo.parse(handle, 'newick')
+            tree = t.xpath("tree_data/string_value")[0].text
+            stk.p4.var.warnReadNoFile = False
+            stk.p4.var.trees = []
+            stk.p4.read(tree)
+            stk.p4.var.warnReadNoFile = True
+            trees = stk.p4.var.trees
+            stk.p4.var.trees = []
+            tree = trees[0].writeNewick(fName=None,toString=True).strip()
             out_tree_file = open(os.path.join(tree_dir,name+"_tree_"+str(tree_no)+".tre"),"w")
             out_tree_file.write('#NEXUS\nBEGIN TREES;\nTree tree_1 = [&u] ')
-            handler_out = StringIO()
-            Phylo.NewickIO.write(tree, handler_out, plain=True)
-            out_tree_file.write(handler_out.getvalue())
+            out_tree_file.write(tree)
             out_tree_file.write("\nENDBLOCK;")
             out_tree_file.close()
             # create and save XML
@@ -337,11 +341,18 @@ def create_xml_metadata(XML_string, this_source, filename):
     source_XML = etree.fromstring(this_source)
 
     # from file name we can construct new tree object
-    tree = Phylo.read(filename+'.tre','nexus')
-    taxa_list = tree.get_terminals()
+    try:
+        stk.p4.var.warnReadNoFile = False
+        stk.p4.var.trees = []
+        stk.p4.read(filename+'.tre')
+        stk.p4.var.warnReadNoFile = True
+    except:
+        raise TreeParseError("Error parsing " + filename)
+    trees = stk.p4.var.trees
+    stk.p4.var.trees = []
+    tree = trees[0]
+    taxa_list = tree.getAllLeafNames(0)
     
-    # Then get all taxa:
-    taxa_list = tree.get_terminals()
     new_xml = etree.Element("SourceTree")
 
     # The source publication info
@@ -393,9 +404,8 @@ def create_xml_metadata(XML_string, this_source, filename):
     # add List for the number of taxa
     for t in taxa_list:
         l = etree.SubElement(taxa, "List")
-        taxon = t.name
-        taxon = taxon.replace('_',' ')
-        l.text = taxon
+        t = t.replace('_',' ')
+        l.text = t
 
     # if we find any taxa will fossil switched on, then add fossil attribute
     find_fossil = etree.XPath("//fossil")

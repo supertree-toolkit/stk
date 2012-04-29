@@ -273,7 +273,7 @@ def import_tree(filename, gui=None, tree_no = -1):
 # TreeView create a tree with the following description:
 #
 #   UTREE * tree_1 = ((1,(2,(3,(4,5)))),(6,7));
-# UTREE * is not a supported part of the NEXUS format (as far as BioPython).
+# UTREE * is not a supported part of the NEXUS format.
 # so we need to replace the above with:
 #   tree_1 = [&u] ((1,(2,(3,(4,5)))),(6,7));
 #
