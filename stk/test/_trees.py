@@ -8,10 +8,8 @@ import os
 from lxml import etree
 from util import *
 import StringIO
-from Bio import Phylo
 import numpy
-from Bio import AlignIO
-
+import p4
 # our test dataset
 
 standard_tre = "data/input/test_tree.tre"
@@ -21,31 +19,42 @@ parser = etree.XMLParser(remove_blank_text=True)
 
 class TestImportTree(unittest.TestCase):
 
+    def test_import_quoted_tree(self):
+        test_file = "data/input/quoted_taxa.tre"
+        e_tree = "(('Taxon (c)', (Taxon_a, Taxon_b)), (Taxon_d, Taxon_e));"
+        tree = import_tree(test_file)
+        self.assert_(e_tree == tree)
+
+
     def test_import_treeview(self):
         test_file = "data/input/treeview_test.tre"
         tree = import_tree(test_file)
-        self.assert_(expected_tree+"\n" == tree)
+        expected_tree = "((Taxon_c, (Taxon_a, Taxon_b)), (Taxon_d, Taxon_e));"        
+        self.assert_(expected_tree == tree)
 
     def test_import_mesquite(self):
         test_file = "data/input/mesquite_test.tre"
+        expected_tree = "((Taxon_c, (Taxon_a, Taxon_b)), (Taxon_d, Taxon_e));" 
         tree = import_tree(test_file)
-        self.assert_(expected_tree+"\n" == tree)
+        self.assert_(expected_tree == tree)
 
     def test_import_figtree(self):
         test_file = "data/input/figtree_test.tre"
         tree = import_tree(test_file)
-        self.assert_(expected_tree+"\n" == tree)
+        expected_tree = "((Taxon_c, (Taxon_a, Taxon_b)), (Taxon_d, Taxon_e));" 
+        self.assert_(expected_tree == tree)
 
     def test_import_dendroscope(self):
         test_file = "data/input/dendroscope_test.tre"
         tree = import_tree(test_file)
-        print tree
-        self.assert_(expected_tree+"\n" == tree)
+        expected_tree = "((Taxon_c:1, (Taxon_a:1, Taxon_b:1):0):0, (Taxon_d:1, Taxon_e:1):0);" 
+        self.assert_(expected_tree == tree)
 
     def test_import_macclade(self):
         test_file = "data/input/macclade_test.tre"
         tree = import_tree(test_file)
-        self.assert_(expected_tree+"\n" == tree)
+        expected_tree = "((Taxon_c, (Taxon_a, Taxon_b)), (Taxon_d, Taxon_e));" 
+        self.assert_(expected_tree == tree)
 
     def test_get_all_trees(self):
         XML = etree.tostring(etree.parse(single_source_input,parser),pretty_print=True)
@@ -68,10 +77,8 @@ class TestImportTree(unittest.TestCase):
         self.assert_(expected_taxa == taxa_list)
 
     def test_assemble_tree_matrix(self):
-        handle = StringIO.StringIO('((A,B),F,E,(G,H));')
-        trees = list(Phylo.parse(handle, "newick"))
-        tree = trees[0]
-        matrix, taxa = _assemble_tree_matrix(tree)
+        input_tree = '((A,B),F,E,(G,H));'
+        matrix, taxa = _assemble_tree_matrix(input_tree)
         # this should give us:
         expected_matrix = numpy.array(
                           [[1, 1, 0],
@@ -96,9 +103,9 @@ class TestImportTree(unittest.TestCase):
         matrix = create_matrix(XML)
 
     def test_delete_taxa(self):
-        t = "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;"
+        t = "((A_1,B_1),F_1,E_1,(G_1,H_1));"
         new_tree = _delete_taxon("H_1", t)
-        self.assert_(new_tree == "((A_1:1.00000,B_1:1.00000)0.00:0.00000,F_1:1.00000,E_1:1.00000,G_1:1.00000)0.00:0.00000;\n")
+        self.assert_(new_tree == "((A_1, B_1), F_1, E_1, G_1);")
 
     def test_delete_taxa_missing(self):
         t = "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;"
