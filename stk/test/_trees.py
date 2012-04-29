@@ -9,7 +9,7 @@ from lxml import etree
 from util import *
 import StringIO
 import numpy
-import p4
+import stk.p4 as p4
 # our test dataset
 
 standard_tre = "data/input/test_tree.tre"
