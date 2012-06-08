@@ -6,6 +6,9 @@ import traceback
 import gtk.gdk
 
 import debug
+# do this right at the start
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir )
+sys.path.insert(0, stk_path)
 
 import time
 from stk_gui.interface import plugin_xml
@@ -60,6 +63,7 @@ def register_plugin(applies, name, cb):
   plugins.append(p)
 
 def configure_plugins(suffix):
+  print "In configure plugins:"
   homedir = os.path.expanduser('~')
   dirs = [os.path.join(homedir, ".stk", "plugins", suffix),
       "/usr/local/share/plugin/" + suffix]
@@ -67,12 +71,13 @@ def configure_plugins(suffix):
   if sys.platform != "win32" and sys.platform != "win64":
     dirs.append("/etc/stk/plugins/" + suffix)
   if sys.platform == 'darwin':
-    dirs.append("../Resources/plugins/")
+    dirs.append(os.path.join(stk_path,"plugins"))
 
   for dir in dirs:
-    sys.path.insert(0, dir)
+    print dir
+    sys.path.insert(0, os.path.join(dir,"phyml"))
     try:
-      for file in os.listdir(dir):
+      for file in os.listdir(os.path.join(dir,"phyml")):
         module_name, ext = os.path.splitext(file)
         if ext == ".py":
           try:

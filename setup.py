@@ -27,7 +27,7 @@ if sys.platform == 'win32':
     )
 elif sys.platform == 'darwin':
     for plugin in plugin_dirs:
-      plugin_data_files.append((destdir + "./plugin/phyml/",
+      plugin_data_files.append((destdir + "./plugins/phyml/",
         glob.glob(plugin + '/*.py')))
         
     extra_options = dict(
