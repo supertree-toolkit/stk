@@ -24,8 +24,11 @@ import sys
 import math
 import numpy 
 import argparse
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir )
+sys.path.insert(0, stk_path)
 import supertree_toolkit
 import stk_import_export
+
 
 # STK is the main command line program for the supertree toolkit
 # Using the XML files created by the GUI it can processes the data, without
