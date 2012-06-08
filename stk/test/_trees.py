@@ -1,9 +1,9 @@
 import unittest
 import math
 import sys
-sys.path.append("../")
-from supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
-from supertree_toolkit import _swap_tree_in_XML, substitute_taxa
+sys.path.append("../../")
+from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
+from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa
 import os
 from lxml import etree
 from util import *
