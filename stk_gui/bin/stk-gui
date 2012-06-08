@@ -32,6 +32,9 @@ gobject.threads_init()
 # do this right at the start, so we can find the stk_gui modules
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir )
 sys.path.insert(0, stk_path)
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
+sys.path.insert(0, stk_path)
+
 dxdiff_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, "dxdiff" )
 sys.path.insert(0, dxdiff_path)
 
@@ -150,10 +153,8 @@ def main():
     debug.deprint("-s and -a are mutually exclusive", 0)
     sys.exit(1)
 
-  #schemafile is not given so look up actual path
-  print input_schemafile      
-  
-  for possible_schemafile in [os.path.join(stk_path, "../schema/phylo_storage.rng"), "/usr/local/share/stk/schema/phyml"]:
+  #schemafile is not given so look up actual path  
+  for possible_schemafile in [os.path.join(stk_path, "../../../../share/schemata/stk/phylo_storage.rng"), "/usr/local/share/stk/schema/phyml"]:
     try:
         os.stat(possible_schemafile)
         input_schemafile = possible_schemafile
@@ -193,12 +194,13 @@ def main():
   #endif
 
   # ensure that the specified schema actually exists!
-  try:
-    if 'http' not in input_schemafile:
-      os.stat(input_schemafile)
-  except OSError:
-    debug.deprint("Could not find schemafile %s!" % input_schemafile, 0)
-    sys.exit(1)
+  if 'http' not in input_schemafile:
+      if (not os.path.exists(input_schemafile)):
+      	input_schemafile = os.path.join(os.path.realpath(os.path.dirname(__file__)), os.pardir,input_schemafile)
+        if (not os.path.exists(input_schemafile)):
+            print os.path.join(stk_path,input_schemafile)
+            debug.deprint("Could not find schemafile %s!" % input_schemafile, 0)
+            sys.exit(1)
 
   if input_schematron_file is not None:
     # ensure that the specified schematron file actually exists!
@@ -218,9 +220,12 @@ def main():
 
   gladefile = None
   for possible_gladefile in [os.path.join(stk_path, "gui", "gui.glade"),
+  							 os.path.join(stk_path, "gui.glade"),
+  							 os.path.join(stk_path, os.pardir, "gui.glade"),
                              os.path.join(stk_path, "share", "stk", "gui", "gui.glade"),
                              "/usr/local/share/stk/gui.glade"]:
     try:
+      print possible_gladefile
       os.stat(possible_gladefile)
       gladefile = possible_gladefile
       break

@@ -24,7 +24,7 @@ import debug
 
 dirs = []
 if sys.platform == 'darwin':
-    dirs.append("../Resources/schema/")
+    dirs.append("../../../../../../share/")
 if sys.platform != "win32" and sys.platform != "win64":
   dirs.append("/usr/local/share/stk/")
 
@@ -49,7 +49,7 @@ __set_default("subupdate", "cornflowerblue")
 __set_default("diffadd", "lightgreen")
 __set_default("diffsub", "indianred")
 
-# Here we hard-code a default for flml
+# Here we hard-code a default for phyml
 # so that users don't have to tweak this to run it.
 schemata = {'phyml': ('Phylogenetic Storage Language', { None: dirs[0]})}
 

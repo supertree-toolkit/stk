@@ -13,7 +13,7 @@ APPDIR=/Applications/$INSTALLDIR
 LOCALDIR=/opt/gtk
 
 # set up our virtual python environment
-virtualenv --python=python$PYVER --no-site-packages $INSTALLDIR
+virtualenv --python=python$PYVER $INSTALLDIR
 
 # install stk in it
 $INSTALLDIR/bin/python setup.py install
@@ -41,10 +41,13 @@ Phylogenetics Markup Language
 EOF
 rm -rf $INSTALLDIR/share/schemata/stk
 mkdir $INSTALLDIR/share/schemata/stk
-cp schemas/*.rng $INSTALLDIR/share/schemata/stk/
+cp schema/*.rng $INSTALLDIR/share/schemata/stk/
 
 # Let's get lxml installed
 $INSTALLDIR/bin/easy_install --allow-hosts=lxml.de,*.python.org lxml
+# Numpy
+$INSTALLDIR/bin/easy_install numpy
+
 
 # Temp. solution - Just manually copy stuff we know we need
 SITEPACKAGES=$LIBDIR/python$PYVER/site-packages
@@ -142,12 +145,11 @@ VERSION=0.01
 # we now need to fiddle with the Python run path on the diamond script
 # COMMENT THESE OUT IF YOU WANT TO TEST YOUR APP WITHOUT INSTALLING
 # EDIT AS REQUIRED
-sed -i -e 's|/Users/amcg/Software/spud/mac_port/stk|/Applications|' $INSTALLDIR/lib/python2.7/site-packages/stk-1.0-py2.7.egg/EGG-INFO/scripts/diamond
-sed -i -e 's|/Users/amcg/Software/spud/mac_port/stk|/Applications|' $INSTALLDIR/MacOS/stk
+sed -i -e 's|/Users/amcg/Software/stk/mac_port/|/Applications/|' $INSTALLDIR/lib/python2.7/site-packages/supertree-toolkit-0.1.1-py2.7.egg/EGG-INFO/scripts/stk_gui		
+sed -i -e 's|/Users/amcg/Software/stk/mac_port/|/Applications/|' $INSTALLDIR/MacOS/stk
 
 zip -rq STK-$VERSION-osx.zip $APP
-hdiutil create -srcfolder $APP STK-$VERSION.dmg
-
+hdiutil create -srcfolder $APP STK-$VERSION.dmg		
 
 # To test, temporarily move your /opt/gtk folder
 # Move the Diamond.app folder to /Applications and go

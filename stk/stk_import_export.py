@@ -26,7 +26,7 @@ import math
 import re
 import numpy 
 from lxml import etree
-import nameparser.parser as np
+import stk.nameparser.parser as np
 import re
 import supertree_toolkit
 from copy import deepcopy
