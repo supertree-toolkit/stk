@@ -62,8 +62,8 @@ def register_plugin(applies, name, cb):
   p = PluginDetails(applies, name, cb)
   plugins.append(p)
 
+
 def configure_plugins(suffix):
-  print "In configure plugins:"
   homedir = os.path.expanduser('~')
   dirs = [os.path.join(homedir, ".stk", "plugins", suffix),
       "/usr/local/share/plugin/" + suffix]
@@ -71,13 +71,13 @@ def configure_plugins(suffix):
   if sys.platform != "win32" and sys.platform != "win64":
     dirs.append("/etc/stk/plugins/" + suffix)
   if sys.platform == 'darwin':
-    dirs.append(os.path.join(stk_path,"plugins"))
+    dirs.append(os.path.join(stk_path,"plugins",suffix))
 
   for dir in dirs:
-    print dir
-    sys.path.insert(0, os.path.join(dir,"phyml"))
+    sys.path.insert(0, dir)
     try:
-      for file in os.listdir(os.path.join(dir,"phyml")):
+      dir_list = os.listdir(dir)
+      for file in dir_list:
         module_name, ext = os.path.splitext(file)
         if ext == ".py":
           try:

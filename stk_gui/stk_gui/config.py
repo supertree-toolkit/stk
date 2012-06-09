@@ -23,6 +23,7 @@ import ConfigParser
 import debug
 
 dirs = []
+dirs.append("../")
 if sys.platform == 'darwin':
     dirs.append("../../../../../../share/")
 if sys.platform != "win32" and sys.platform != "win64":
