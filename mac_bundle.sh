@@ -11,6 +11,7 @@ INSTALLDIR=$APP/Contents
 LIBDIR=$INSTALLDIR/lib
 APPDIR=/Applications/$INSTALLDIR
 LOCALDIR=/opt/gtk
+export DESTDIR="./"
 
 # set up our virtual python environment
 virtualenv --python=python$PYVER $INSTALLDIR
@@ -145,7 +146,7 @@ VERSION=0.01
 # we now need to fiddle with the Python run path on the diamond script
 # COMMENT THESE OUT IF YOU WANT TO TEST YOUR APP WITHOUT INSTALLING
 # EDIT AS REQUIRED
-sed -i -e 's|/Users/amcg/Software/stk/mac_port/|/Applications/|' $INSTALLDIR/lib/python2.7/site-packages/supertree-toolkit-0.1.1-py2.7.egg/EGG-INFO/scripts/stk_gui		
+sed -i -e 's|/Users/amcg/Software/stk/mac_port/|/Applications/|' $INSTALLDIR/lib/python2.7/site-packages/supertree_toolkit-0.1.1-py2.7.egg/EGG-INFO/scripts/stk-gui	
 sed -i -e 's|/Users/amcg/Software/stk/mac_port/|/Applications/|' $INSTALLDIR/MacOS/stk
 
 zip -rq STK-$VERSION-osx.zip $APP

@@ -7,7 +7,7 @@ import sys
 try:
   destdir = os.environ["DESTDIR"]
 except KeyError:
-  destdir = ""
+  destdir = "/usr/local/share/"
 try:
     set
 except NameError:
@@ -27,7 +27,7 @@ if sys.platform == 'win32':
     )
 elif sys.platform == 'darwin':
     for plugin in plugin_dirs:
-      plugin_data_files.append((destdir + "./plugins/phyml/",
+      plugin_data_files.append((destdir + "plugins/phyml/",
         glob.glob(plugin + '/*.py')))
         
     extra_options = dict(
@@ -37,18 +37,18 @@ elif sys.platform == 'darwin':
     )
 else:
     for plugin in plugin_dirs:
-      plugin_data_files.append((destdir + "/usr/local/share/plugin/phyml/",
+      plugin_data_files.append((destdir + "plugins/phyml/",
         glob.glob(plugin + '/*.py')))
     
     for s in schema_dirs:
-      schema_data_files.append((destdir + "/usr/local/share/stk/schemata/schema/",
+      schema_data_files.append((destdir + "stk/schemata/schema/",
         glob.glob(s + '/*.rng')))
     
     extra_options = dict(
             app=['stk'],
-            data_files = [(destdir + "/usr/local/share/stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.svg"])] +
+            data_files = [(destdir + "stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.svg"])] +
                    plugin_data_files + schema_data_files +
-                   [(destdir + "/usr/local/share/stk/schemata", ["schema/phyml"])]
+                   [(destdir + "stk/schemata", ["schema/phyml"])]
     )
 
 setup(
