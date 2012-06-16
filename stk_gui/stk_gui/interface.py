@@ -981,7 +981,7 @@ class Diamond:
     signals = {"on_create_matrix_dialog_close": self.on_create_matrix_cancel_button,
                "on_create_matrix_cancel_clicked": self.on_create_matrix_cancel_button,
                "on_create_matrix_clicked": self.on_create_matrix_create_matrix_button,
-               "on_create_matrix_broswe_clicked": self.on_create_matrix_browse_button}
+               "on_create_matrix_browse_clicked": self.on_create_matrix_browse_button}
 
     self.create_matrix_gui = gtk.glade.XML(self.gladefile, root="create_matrix_dialog")
     self.create_matrix_dialog = self.create_matrix_gui.get_widget("create_matrix_dialog")
@@ -1032,6 +1032,7 @@ class Diamond:
   def on_create_matrix_browse_button(self, button):
       filter_names_and_patterns = {}
       # open file dialog
+      print "Opening file chooser"
       filename = dialogs.get_filename(title = "Choose output matrix fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
       filename_textbox = self.create_matrix_gui.get_widget("entry1")
       filename_textbox.set_text(filename)
