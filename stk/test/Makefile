@@ -8,7 +8,8 @@ UNIT_TESTS = \
 _set_source_name.py \
 _bibliography.py \
 _trees.py \
-_supertree_toolkit.py
+_supertree_toolkit.py \
+_import_export.py
 
 # default case (and test). Loop through all
 # tests listed above and run them

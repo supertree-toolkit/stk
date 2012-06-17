@@ -30,12 +30,20 @@ import gobject
 gobject.threads_init()
 
 # do this right at the start, so we can find the stk_gui modules
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir, "stk_gui" )
+sys.path.insert(0, stk_path)
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, "stk_gui" )
+sys.path.insert(0, stk_path)
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
+sys.path.insert(0, stk_path)
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir )
 sys.path.insert(0, stk_path)
-dxdiff_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir, "dxdiff" )
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
+
+dxdiff_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, "dxdiff" )
 sys.path.insert(0, dxdiff_path)
 
-import stk_gui.debug as debug
+import debug
 
 def Help():
   """
@@ -112,7 +120,10 @@ def main():
 
   logofile = None
   if platform.system() == 'Linux':
-      for possible_logofile in [os.path.join(stk_path, "gui", "stk.svg"), "/usr/local/share/stk/stk.svg"]:
+      for possible_logofile in [
+      			os.path.join(stk_path, "gui", "stk.svg"),
+      			 "/usr/local/share/stk/stk.svg",
+      			 "../gui/stk.svg"]:
         try:
           os.stat(possible_logofile)
           logofile = possible_logofile
@@ -120,7 +131,10 @@ def main():
         except OSError:
           pass
   else:
-      for possible_logofile in [os.path.join(stk_path, "gui", "stk.png"), "/usr/local/share/stk/stk.png"]:
+      for possible_logofile in [
+      			os.path.join(stk_path, "gui", "stk.png"), 
+      			"/usr/local/share/stk/stk.png",
+      			os.path.join(os.path.realpath(os.path.dirname(__file__)),"../gui/stk.png")]:
         try:
           os.stat(possible_logofile)
           logofile = possible_logofile
@@ -131,7 +145,7 @@ def main():
   print logofile
   # Let's find a schema.
 
-  suffix = "xml"
+  suffix = "phyml"
 
   # if the user specifies a schema on the command line, use that.
 
@@ -150,17 +164,18 @@ def main():
     debug.deprint("-s and -a are mutually exclusive", 0)
     sys.exit(1)
 
-  #schemafile is not given so look up actual path
-  print input_schemafile      
-  
-  for possible_schemafile in [os.path.join(stk_path, "../schema/phylo_storage.rng"), "/usr/local/share/stk/schema/phyml"]:
+  #schemafile is not given so look up actual path  
+  for possible_schemafile in [
+  						os.path.join(stk_path, "../../../../share/schemata/stk/phylo_storage.rng"), 
+  						"/usr/local/share/stk/schema/phylo_storage.rng",
+  						os.path.join(os.path.realpath(os.path.dirname(__file__)),"../../schema/phylo_storage.rng")]:
     try:
         os.stat(possible_schemafile)
         input_schemafile = possible_schemafile
         break
     except OSError:
         pass   
-        
+
   if input_schemafile is None:
     # if the user has specified a file to work on, use the suffix as a key
     if input_filename is not None:
@@ -193,12 +208,13 @@ def main():
   #endif
 
   # ensure that the specified schema actually exists!
-  try:
-    if 'http' not in input_schemafile:
-      os.stat(input_schemafile)
-  except OSError:
-    debug.deprint("Could not find schemafile %s!" % input_schemafile, 0)
-    sys.exit(1)
+  if 'http' not in input_schemafile:
+      if (not os.path.exists(input_schemafile)):
+      	input_schemafile = os.path.join(os.path.realpath(os.path.dirname(__file__)), os.pardir,input_schemafile)
+        if (not os.path.exists(input_schemafile)):
+            print os.path.join(stk_path,input_schemafile)
+            debug.deprint("Could not find schemafile %s!" % input_schemafile, 0)
+            sys.exit(1)
 
   if input_schematron_file is not None:
     # ensure that the specified schematron file actually exists!
@@ -218,7 +234,10 @@ def main():
 
   gladefile = None
   for possible_gladefile in [os.path.join(stk_path, "gui", "gui.glade"),
+  							 os.path.join(stk_path, "gui.glade"),
+  							 os.path.join(stk_path, os.pardir, "gui.glade"),
                              os.path.join(stk_path, "share", "stk", "gui", "gui.glade"),
+                             "../gui/gui.glade",
                              "/usr/local/share/stk/gui.glade"]:
     try:
       os.stat(possible_gladefile)
@@ -230,9 +249,7 @@ def main():
     debug.deprint("Cannot locate GUI!", 0)
     sys.exit(1)
     
-  print gladefile
-
-  # If input_schemafile doesn't exist, use the fluidity_options schema.
+  # If input_schemafile doesn't exist
   if input_schemafile is None:
     debug.deprint("Cannot locate schemafile!", 0)
     sys.exit(1)

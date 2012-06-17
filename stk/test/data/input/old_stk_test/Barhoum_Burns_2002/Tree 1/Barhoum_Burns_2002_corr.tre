@@ -1,0 +1,113 @@
+#NEXUS
+
+BEGIN TAXA;
+	DIMENSIONS NTAX = 50;
+	TAXLABELS
+		Pomatostomus_isidorei
+		Pomatostomus_ruficeps
+		Lophorina_superba
+		Terpsiphone_cinnamomea
+		Aphelocoma_coerulescens
+		Corvus_coronoides
+		Corvus_corax
+		Regulus_regulus
+		Vidua_chalybeata
+		Anthus_spinoletta
+		Motacilla_alba
+		Piranga_ludoviciana
+		Passerella_iliaca
+		Melospiza_melodia
+		Catharus_guttatus
+		Turdus_migratorius
+		Toxostoma_redivivum
+		Ficedula_parva
+		Muscicapa_striata
+		Erithacus_rubecula
+		Copsychus_albospecularis
+		Thamnornis_chloropetoides
+		Neomixis_flavoviridis
+		Bradypterus_cinnamomeus
+		Locustella_fluviatilis
+		Locustella_certhiola
+		Neomixis_striatigula
+		Neomixis_tenella
+		Orthotomus_sutorius
+		Hypergerus_atriceps
+		Cisticola_juncidis
+		Cisticola_cherina
+		Cettia_cetti
+		Phylloscopus_trochiloides
+		Phylloscopus_pulcher
+		Phylloscopus_collybita
+		Scotocerca_inquieta
+		Hippolais_polyglotta
+		Acrocephalus_stentoreus
+		Chloropeta_gracilirostris
+		Chamaea_fasciata
+		Sylvia_melanocephala
+		Sylvia_borin
+		Sylvia_atricapilla
+		Yuhina_gularis
+		Stachyris_whiteheadi
+		Garrulax_leucolophus
+		Leiothrix_lutea
+		Pomatorhinus_ochraceiceps
+		Illadopsis_pyrrhoptera
+		;
+ENDBLOCK;
+
+BEGIN TREES;
+	TRANSLATE
+		1 Pomatostomus_isidorei,
+		2 Pomatostomus_ruficeps,
+		3 Lophorina_superba,
+		4 Terpsiphone_cinnamomea,
+		5 Aphelocoma_coerulescens,
+		6 Corvus_coronoides,
+		7 Corvus_corax,
+		8 Regulus_regulus,
+		9 Vidua_chalybeata,
+		10 Anthus_spinoletta,
+		11 Motacilla_alba,
+		12 Piranga_ludoviciana,
+		13 Passerella_iliaca,
+		14 Melospiza_melodia,
+		15 Catharus_guttatus,
+		16 Turdus_migratorius,
+		17 Toxostoma_redivivum,
+		18 Ficedula_parva,
+		19 Muscicapa_striata,
+		20 Erithacus_rubecula,
+		21 Copsychus_albospecularis,
+		22 Thamnornis_chloropetoides,
+		23 Neomixis_flavoviridis,
+		24 Bradypterus_cinnamomeus,
+		25 Locustella_fluviatilis,
+		26 Locustella_certhiola,
+		27 Neomixis_striatigula,
+		28 Neomixis_tenella,
+		29 Orthotomus_sutorius,
+		30 Hypergerus_atriceps,
+		31 Cisticola_juncidis,
+		32 Cisticola_cherina,
+		33 Cettia_cetti,
+		34 Phylloscopus_trochiloides,
+		35 Phylloscopus_pulcher,
+		36 Phylloscopus_collybita,
+		37 Scotocerca_inquieta,
+		38 Hippolais_polyglotta,
+		39 Acrocephalus_stentoreus,
+		40 Chloropeta_gracilirostris,
+		41 Chamaea_fasciata,
+		42 Sylvia_melanocephala,
+		43 Sylvia_borin,
+		44 Sylvia_atricapilla,
+		45 Yuhina_gularis,
+		46 Stachyris_whiteheadi,
+		47 Garrulax_leucolophus,
+		48 Leiothrix_lutea,
+		49 Pomatorhinus_ochraceiceps,
+		50 Illadopsis_pyrrhoptera
+		;
+	TREE tree_1  = [&u] (((1,2),((3,4),(5,(6,7)))),(8,(((9,((10,11),(12,(13,14)))),((15,16),(17,(18,(19,(20,21)))))),((22,23),(((24,(25,26)),((27,28),(29,(30,(31,32))))),((33,((34,(35,36)),(37,(38,(39,40))))),((41,(42,(43,44))),((45,46),((47,48),(49,50))))))))));
+ENDBLOCK;

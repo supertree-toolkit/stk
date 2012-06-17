@@ -76,3 +76,24 @@ class InvalidSTKData(Error):
     def __init__(self, msg):
         self.msg = msg
 
+class STKImportExportError(Error):
+    """Exception raised when import or export fails
+
+       Attributes:
+          msg -- explaination of error
+    """
+
+    def __init__(self, msg):
+        self.msg = msg
+
+class TreeParseError(Error):
+    """Exception raised when a tree file fails to parse
+       Basically cleans up p4 exceptions
+
+       Attributes:
+          msg -- explaination of error
+    """
+
+    def __init__(self, msg):
+        self.msg = msg
+

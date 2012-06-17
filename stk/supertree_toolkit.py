@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #    Jon Hill. jon.hill@imperial.ac.uk. 
-from Bio import Phylo
 from StringIO import StringIO
 import os
 import sys
@@ -32,8 +31,9 @@ from stk_exceptions import *
 import traceback
 from cStringIO import StringIO
 from collections import defaultdict
-import p4
+import stk.p4 as p4
 import re
+import stk.p4.MRP as MRP
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -273,13 +273,10 @@ def import_tree(filename, gui=None, tree_no = -1):
 # TreeView create a tree with the following description:
 #
 #   UTREE * tree_1 = ((1,(2,(3,(4,5)))),(6,7));
-# UTREE * is not a supported part of the NEXUS format (as far as BioPython).
+# UTREE * is not a supported part of the NEXUS format.
 # so we need to replace the above with:
 #   tree_1 = [&u] ((1,(2,(3,(4,5)))),(6,7));
 #
-# BioPython doesn throw an exception or anything on these files,
-# So for now glob the file, replace the text, and create a StringIO 
-# object to pass BioPython - MESSY!!
     f = open(filename)
     content = f.read()                 # read entire file into memory
     f.close()
@@ -349,14 +346,16 @@ def import_tree(filename, gui=None, tree_no = -1):
         content = re.sub("\):\d.\d+","):0.0", content)
 
     treedata = content
-    handle = StringIO(treedata)
     
-    if (filename.endswith(".nex") or filename.endswith(".tre")):
-        trees = list(Phylo.parse(handle, "nexus"))
-    elif (filename.endswith("nwk")):
-        trees = list(Phylo.parse(handle, "newick"))
-    elif (filename.endswith("phyloxml")):
-        trees = list(Phylo.parse(handle, "phyloxml"))
+    try:
+        p4.var.warnReadNoFile = False
+        p4.var.trees = []
+        p4.read(treedata)
+        p4.var.warnReadNoFile = True
+    except:
+        raise TreeParseError("Error parsing " + filename)
+    trees = p4.var.trees
+    p4.var.trees = []
 
     if (len(trees) > 1 and tree_no == -1):
         message = "Found "+len(trees)+" trees. Which one do you want to load (1-"+len(trees)+"?"
@@ -392,19 +391,109 @@ def import_tree(filename, gui=None, tree_no = -1):
     else:
         tree_no = 0
 
-    h = StringIO()
-    Phylo.write(trees[tree_no], h, "newick")
-    tree = h.getvalue()
+    tree = trees[tree_no]
+    return tree.writeNewick(fName=None,toString=True).strip()
 
-    return tree
+def get_all_characters(XML):
+    """Returns a dictionary containing a list of characters within each 
+    character type"""
 
-def draw_tree(tree_string):
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//character")
+    characters = find(xml_root)
+
+    # grab all character types first
+    types = []
+    for c in characters:
+        types.append(c.attrib['type'])
+
+    u_types = _uniquify(types)
+    u_types.sort()
+
+    char_dict = {}
+    for t in u_types:
+        char = []
+        for c in characters:
+            if (c.attrib['type'] == t):
+                if (not c.attrib['name'] in char):
+                    char.append(c.attrib['name'])
+        char_dict[t] = char       
+
+    return char_dict
+
+def get_character_numbers(XML):
+    """ Return the number of trees that use each character
+    """
+
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//character")
+    characters = find(xml_root)
+
+    char_numbers = defaultdict(int)
+
+    for c in characters:
+        char_numbers[c.attrib['name']] += 1
+
+    return char_numbers
+
+
+
+def get_fossil_taxa(XML):
+    """Return a list of fossil taxa
+    """
+
+    f_ = []
+
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//fossil")
+    fossils = find(xml_root)
+
+    for f in fossils:
+        name = f.getparent().attrib['name']
+        f_.append(name)
+
+    fossil_taxa = _uniquify(f_) 
     
-    h = StringIO(tree_string)
-    tree = Phylo.read(h, 'newick')
-    tree.ladderize()   # Flip branches so deeper clades are displayed at top
-    Phylo.draw(tree)
+    return fossil_taxa
 
+
+def get_analyses_used(XML):
+    """ Return a sorted, unique array of all analyses types used
+    in this dataset
+    """
+
+    a_ = []
+
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//analysis")
+    analyses = find(xml_root)
+
+    for a in analyses:
+        name = a.attrib['name']
+        a_.append(name)
+
+    analyses = _uniquify(a_) 
+    analyses.sort()
+
+    return analyses
+
+
+
+def get_publication_years(XML):
+    """Return a dictionary of years and the number of publications
+    within that year
+    """
+
+    year_dict = defaultdict(int)
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//year")
+    years = find(xml_root)
+
+    for y in years:
+        year = int(y.xpath('integer_value')[0].text)
+        year_dict[year] += 1
+
+    return year_dict
 
 def obtain_trees(XML):
     """ Parse the XML and obtain all tree strings
@@ -446,8 +535,9 @@ def get_all_taxa(XML, pretty=False):
 
     taxa_list = []
 
-    for t in trees.values():
-        taxa_list.extend(_get_taxa_from_tree(t))
+    for tname in trees.keys():
+        t = trees[tname]
+        taxa_list.extend(_getTaxaFromNewick(t))
 
     # now uniquify the list of taxa
     taxa_list = _uniquify(taxa_list)
@@ -481,10 +571,7 @@ def create_matrix(XML,format="hennig"):
     current_char = 1
     for key in trees:
         names.append(key)
-        handle = StringIO(trees[key])
-        newick_trees = list(Phylo.parse(handle, "newick"))
-        newick_tree = newick_trees[0]
-        submatrix, tree_taxa = _assemble_tree_matrix(newick_tree)
+        submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
         nChars = len(submatrix[0,:])
         # loop over characters in the submatrix
         for i in range(1,nChars):
@@ -642,6 +729,80 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
 
     return etree.tostring(xml_root,pretty_print=True)
 
+
+def data_summary(XML,detailed=False):
+    """Creates a text string that summarises the current data set via a number of 
+    statistics such as the number of character types, distribution of years of publication,
+    etc.
+
+    Up to the calling function to display string nicely
+    """
+
+    xml_root = _parse_xml(XML)
+    proj_name = xml_root.xpath('/phylo_storage/project_name/string_value')[0].text
+
+    output_string  = "======================\n"
+    output_string += " Data summary of: " + proj_name + "\n" 
+    output_string += "======================\n\n"
+
+    trees = obtain_trees(XML)
+    taxa = get_all_taxa(XML, pretty=True)
+    characters = get_all_characters(XML)
+    char_numbers = get_character_numbers(XML)
+    fossils = get_fossil_taxa(XML)
+    publication_years = get_publication_years(XML)
+    analyses = get_analyses_used(XML)
+    years = publication_years.keys()
+    years.sort()
+    chars = char_numbers.keys()
+    chars.sort()
+
+    output_string += "Number of taxa: "+str(len(taxa))+"\n"
+    output_string += "Number of characters: "+str(len(chars))+"\n"
+    output_string += "Number of character types: "+str(len(characters))+"\n"
+    output_string += "Number of trees: "+str(len(trees))+"\n"
+    output_string += "Number of fossil taxa: "+str(len(fossils))+"\n"
+    output_string += "Number of analyses: "+str(len(analyses))+"\n"
+    output_string += "Data spans: "+str(years[0])+" - "+str(years[-1])+"\n"
+
+
+    if (detailed):
+        # append additional info including full list of characters
+        # full list of taxa and full list of fossil taxa
+        output_string += "\nPublication years:\n"
+        output_string += "----------------------\n"
+        for i in range(years[0],years[-1]+1):
+            output_string += "    "+str(i)+": "+str(publication_years[i])+"\n"
+        output_string += "----------------------\n"
+
+        output_string += "\n\nCharacter Type List:\n"
+        output_string += "----------------------\n"
+        for c in characters:
+            output_string += "     "+c+"    " + "\n"
+        output_string += "----------------------\n"
+
+        output_string += "\n\nAnalyses Used:\n"
+        output_string += "----------------------\n"
+        for a in analyses:
+            output_string += "     "+a+"\n"
+        output_string += "----------------------\n"
+
+
+        output_string += "\n\nCharacter List:\n"
+        output_string += "----------------------\n"
+        for c in chars:
+            output_string += "     "+c+"    "+str(char_numbers[c])+"("+str(float(char_numbers[c])/float(len(trees))*100.)+"%)\n"
+        output_string += "----------------------\n"
+        
+        output_string += "\n\nTaxa List:\n"
+        output_string += "----------------------\n"
+        for t in taxa:
+            output_string += "     "+t+"\n"
+        output_string += "----------------------\n"
+
+
+    return output_string
+
 ################ PRIVATE FUNCTIONS ########################
 
 
@@ -683,34 +844,30 @@ def _check_uniqueness(XML):
     return
 
 
-def _assemble_tree_matrix(tree):
+def _assemble_tree_matrix(tree_string):
     """ Assembles the MRP matrix for an individual tree
 
         returns: matrix (2D numpy array: taxa on i, nodes on j)
                  taxa list: in same order as in the matrix
     """
 
-    all_nodes = list(tree.get_nonterminals())
-    look_up = {}
-    for i, elem in enumerate(all_nodes):
-        look_up[elem] = i
-
-    all_terms = list(tree.get_terminals())
-    look_up_t = {}
+    p4.var.warnReadNoFile = False    
+    p4.var.trees = []
+    p4.read(tree_string)
+    tree = p4.var.trees[0]    
+    mrp = MRP.mrp([tree])
+    adjmat = []
     names = []
-    for i, elem in enumerate(all_terms):
-        look_up_t[elem] = i
-        names.append(str(elem))
+    for i in range(0,mrp.nTax):
+        seq = (mrp.sequences[i].sequence)
+        names.append(mrp.taxNames[i])
+        chars = []
+        chars.append(1)
+        for c in seq:
+            chars.append(int(c))
+        adjmat.append(chars)
 
-    adjmat = numpy.zeros((len(look_up_t), len(look_up)))
-
-    for i, terminal in enumerate(all_terms):
-        my_parents =  list(tree.get_path(terminal))
-        for j, p in enumerate(my_parents):
-            if (p == terminal):
-                adjmat[look_up_t[terminal],0] = 1
-            else:
-                adjmat[look_up_t[terminal],look_up[p]] = 1
+    adjmat = numpy.array(adjmat)
 
     return adjmat, names
 
@@ -719,19 +876,20 @@ def _delete_taxon(taxon, tree):
     """
 
     # check if taxa is in there first
-    # Prevent error from Bio.Phylo
     if (tree.find(taxon) == -1):
         return tree #raise exception?
+    p4.var.warnReadNoFile = False    
+    p4.var.trees = []
+    p4.read(tree)
+    tree_obj = p4.var.trees[0]
+    for node in tree_obj.iterNodes():
+        if node.name == taxon:
+            tree_obj.removeNode(node.nodeNum)
+            break
+    p4.var.warnReadNoFile = True    
 
-    handle = StringIO(tree)
-    t_obj = list(Phylo.parse(handle, "newick"))
-    t_obj = t_obj[0]
-    clade = t_obj.prune(taxon)
-    h = StringIO()
-    Phylo.write(t_obj, h, "newick")
-    tree = h.getvalue()
 
-    return tree
+    return tree_obj.writeNewick(fName=None,toString=True).strip()
        
 
 def _sub_taxon(old_taxon, new_taxon, tree):
@@ -897,65 +1055,16 @@ def _parse_xml(xml_string):
 
 def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
 
-def _get_taxa_from_tree(tree):
-    """ Get taxa from a single tree
-    """
+def _getTaxaFromNewick(tree):
+    """ Get the terminal nodes from a Newick string"""
 
-    taxa_list = []
+    p4.var.warnReadNoFile = False    
+    p4.var.trees = []
+    p4.read(tree)
+    t_obj = p4.var.trees[0]
+    terminals = t_obj.getAllLeafNames(0)
+    p4.var.warnReadNoFile = True    
 
-    handle = StringIO(tree)
-    t_obj = list(Phylo.parse(handle, "newick"))
-    t_obj = t_obj[0]
-    terminals = t_obj.get_terminals()
-    for term in terminals:
-        taxa_list.append(str(term))
+    return terminals
+
     
-    return taxa_list
-
-def _create_connectivity_graph(XML,overlap_number,condensed=True,graphic_output=False):
-    """ Create a connectivity graph where the nodes are
-    trees and the edges are formed when a tree contains sufficient
-    overlap with another tree.
-
-    Condensed format shows the number of clusters, rather than individual trees.
-    The condensed format should therefore contain a single node. 
-    """
-
-    # first let's get the trees
-    trees = obtain_trees(XML)
-
-    # first we make a 2D array of matches, trees x trees
-    total_matches = []
-    for i in range(len(trees)):
-        # get taxa from tree
-        taxa = _get_taxa_from_tree(trees[i])
-        matches = []
-        for j in range(0,i):
-            # set all previous tree matches to zero - we caught 'em earlier
-            matches.append(0)
-        
-        # now do the unknown matches
-        for j in range(i,len(trees)):
-            taxa2 = _get_taxa_from_tree(trees[j])
-            # count number of of matches between taxa and taxa2
-            count = 0
-            matches.append(count)
-
-
-    # we now have a 2D array that contains the number of matches between tree N and tree M
-    # This is an upper-diagnal array, the lower diagnal contains zeros
-        # construct graph - node=tree, edge=satisfies minimum taxa connectivity
-    # First add all nodes
-    #for ( my $i = 0; $i < $number; $i++ ) {
-    #    $graph->add_vertex($i);
-    #}
-    # now add edges between nodes
-    #for ( my $i = 0; $i < $number; $i++ ) {
-    #    for ( my $j = 0; $j < $number; $j++ ) {
-    #        if ($totalMatches[$i][$j] >= $nCluster) {
-    #            $graph->add_edge($i,$j);
-    #        }
-    #    }
-    #}
-
-

@@ -1,12 +1,14 @@
 import unittest
 import math
 import sys
-sys.path.append("../")
-from supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data
+sys.path.append("../../")
+from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters
+from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
 import os
 from lxml import etree
 from util import *
-import stk_exceptions
+from stk.stk_exceptions import *
+from collections import defaultdict
 parser = etree.XMLParser(remove_blank_text=True)
 
 
@@ -19,7 +21,7 @@ class TestSetSourceNames(unittest.TestCase):
         non_unique_names = etree.parse("data/input/non_unique_names.phyml")
         try:
             _check_uniqueness(etree.tostring(non_unique_names))
-        except stk_exceptions.NotUniqueError:
+        except NotUniqueError:
             self.assert_(True)
             return
             
@@ -82,7 +84,7 @@ class TestSetSourceNames(unittest.TestCase):
         #this test should die, so wrap it up...
         try:
             old_taxa, new_taxa = _parse_subs_file('data/input/nonsense.dat'); 
-        except stk_exceptions.UnableToParseSubsFile:
+        except UnableToParseSubsFile:
             self.assert_(True)
             return
         self.assert_(False)
@@ -94,7 +96,7 @@ class TestSetSourceNames(unittest.TestCase):
         #this test should pass, but wrap it up anyway
         try:
             _check_taxa(etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)); 
-        except e as stk_exceptions.InvalidSTKData:
+        except e as InvalidSTKData:
             print e.msg
             self.assert_(False)
             return
@@ -107,7 +109,7 @@ class TestSetSourceNames(unittest.TestCase):
         #this test should pass, but wrap it up anyway
         try:
             _check_taxa(etree.tostring(etree.parse('data/input/check_taxa.phyml',parser),pretty_print=True)); 
-        except stk_exceptions.InvalidSTKData:
+        except InvalidSTKData:
             self.assert_(True)
             return
         self.assert_(False)
@@ -119,17 +121,85 @@ class TestSetSourceNames(unittest.TestCase):
         #this test should pass, but wrap it up anyway
         try:
             _check_data(etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)); 
-        except e as stk_exceptions.InvalidSTKData:
+        except e as InvalidSTKData:
             self.assert_(False)
             print e.msg
             return
-        except e as stk_exceptions.NotUniqueError:
+        except e as NotUniqueError:
             self.assert_(False)
             print e.msg
             return
         self.assert_(True)
 
-  
+    def test_get_all_characters(self):
+        """ Check the characters dictionary
+        """
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        characters = get_all_characters(XML)
+        expected_keys = ['molecular', 'morphological']
+        key = characters.keys()
+        key.sort()
+        self.assertListEqual(key,expected_keys)
+        
+        self.assertListEqual(characters['molecular'],['12S'])
+        self.assertListEqual(characters['morphological'],['feathers'])
+
+
+    def test_get_fossil_taxa(self):
+        """ Check the fossil taxa function
+        """
+        XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
+        fossils = get_fossil_taxa(XML)
+        expected_fossils = ['A','B']
+        self.assertListEqual(fossils,expected_fossils)
+        
+    def test_get_publication_years(self):
+        XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
+        years = get_publication_years(XML)
+        self.assert_(years[2011] == 2)
+        self.assert_(years[2010] == 1)
+        self.assert_(years[2009] == 0) 
+
+    def test_data_summary(self):
+        XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
+        simple_summary = data_summary(XML)
+        full_summary = data_summary(XML,detailed = True)
+
+        self.assertRegexpMatches(simple_summary,'Number of taxa: 8')
+        self.assertRegexpMatches(simple_summary,'Number of characters: 2')
+        self.assertRegexpMatches(simple_summary,'Number of character types: 2')
+        self.assertRegexpMatches(simple_summary,'Number of trees: 3')
+        self.assertRegexpMatches(simple_summary,'Number of fossil taxa: 2')
+        self.assertRegexpMatches(simple_summary,'Number of analyses: 2')
+        self.assertRegexpMatches(simple_summary,'Data spans: 2010 - 2011')
+
+        self.assertRegexpMatches(full_summary,'Number of taxa: 8')
+        self.assertRegexpMatches(full_summary,'Number of characters: 2')
+        self.assertRegexpMatches(full_summary,'Number of character types: 2')
+        self.assertRegexpMatches(full_summary,'Number of trees: 3')
+        self.assertRegexpMatches(full_summary,'Number of fossil taxa: 2')
+        self.assertRegexpMatches(full_summary,'Number of analyses: 2')
+        self.assertRegexpMatches(full_summary,'Data spans: 2010 - 2011')
+        self.assertRegexpMatches(full_summary,'     morphological')
+        self.assertRegexpMatches(full_summary,'     molecular')
+        self.assertRegexpMatches(full_summary,'Taxa List')
+
+
+
+    def test_character_numbers(self):
+        XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
+        characters = get_character_numbers(XML)
+        self.assert_(characters['feathers'] == 1)
+        self.assert_(characters['12S'] == 2)
+        self.assert_(characters['nonsense'] == 0)
+
+    def test_analyses(self):
+        XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
+        analyses = get_analyses_used(XML)
+        expected_analyses = ['Bayesian','MRP']
+        self.assertListEqual(analyses,expected_analyses)
+
+
 if __name__ == '__main__':
     unittest.main()
  
