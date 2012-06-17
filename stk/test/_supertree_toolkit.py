@@ -1,13 +1,13 @@
 import unittest
 import math
 import sys
-sys.path.append("../")
-from supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters, safe_taxonomic_reduction
-from supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
+sys.path.append("../../")
+from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters, safe_taxonomic_reduction
+from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
 import os
 from lxml import etree
 from util import *
-import stk_exceptions
+from stk.stk_exceptions import *
 from collections import defaultdict
 parser = etree.XMLParser(remove_blank_text=True)
 
@@ -21,7 +21,7 @@ class TestSetSourceNames(unittest.TestCase):
         non_unique_names = etree.parse("data/input/non_unique_names.phyml")
         try:
             _check_uniqueness(etree.tostring(non_unique_names))
-        except stk_exceptions.NotUniqueError:
+        except NotUniqueError:
             self.assert_(True)
             return
             
@@ -84,7 +84,7 @@ class TestSetSourceNames(unittest.TestCase):
         #this test should die, so wrap it up...
         try:
             old_taxa, new_taxa = _parse_subs_file('data/input/nonsense.dat'); 
-        except stk_exceptions.UnableToParseSubsFile:
+        except UnableToParseSubsFile:
             self.assert_(True)
             return
         self.assert_(False)
@@ -96,7 +96,7 @@ class TestSetSourceNames(unittest.TestCase):
         #this test should pass, but wrap it up anyway
         try:
             _check_taxa(etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)); 
-        except e as stk_exceptions.InvalidSTKData:
+        except e as InvalidSTKData:
             print e.msg
             self.assert_(False)
             return
@@ -109,7 +109,7 @@ class TestSetSourceNames(unittest.TestCase):
         #this test should pass, but wrap it up anyway
         try:
             _check_taxa(etree.tostring(etree.parse('data/input/check_taxa.phyml',parser),pretty_print=True)); 
-        except stk_exceptions.InvalidSTKData:
+        except InvalidSTKData:
             self.assert_(True)
             return
         self.assert_(False)
@@ -121,11 +121,11 @@ class TestSetSourceNames(unittest.TestCase):
         #this test should pass, but wrap it up anyway
         try:
             _check_data(etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)); 
-        except e as stk_exceptions.InvalidSTKData:
+        except e as InvalidSTKData:
             self.assert_(False)
             print e.msg
             return
-        except e as stk_exceptions.NotUniqueError:
+        except e as NotUniqueError:
             self.assert_(False)
             print e.msg
             return

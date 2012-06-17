@@ -1,14 +1,14 @@
 import unittest
 import math
 import sys
-sys.path.append("../")
-from stk_import_export import export_to_old, import_old_data
-from supertree_toolkit import _parse_xml
+sys.path.append("../../")
+from stk.stk_import_export import export_to_old, import_old_data
+from stk.supertree_toolkit import _parse_xml
 import os
 from lxml import etree
 from util import *
 import shutil
-from stk_exceptions import *
+from stk.stk_exceptions import *
 
 
 class TestImportExport(unittest.TestCase):

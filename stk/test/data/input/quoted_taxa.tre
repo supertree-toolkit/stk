@@ -1,0 +1,6 @@
+#NEXUS
+
+BEGIN TREES;
+        tree tree_1 = [&U] (('Taxon (c)',(Taxon_a,Taxon_b)),(Taxon_d,Taxon_e));
+end;
+

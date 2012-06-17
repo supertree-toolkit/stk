@@ -1,12 +1,12 @@
 import unittest
 import math
 import sys
-sys.path.append("../")
-from supertree_toolkit import import_bibliography 
+sys.path.append("../../")
+from stk.supertree_toolkit import import_bibliography 
 import os
 from lxml import etree
 from util import *
-import stk_exceptions
+from stk.stk_exceptions import *
 
 parser = etree.XMLParser(remove_blank_text=True)
 xml_start = etree.parse("data/input/start_up.phyml")
@@ -45,7 +45,7 @@ class TestBibliography(unittest.TestCase):
         xml = etree.tostring(xml_start)
         try:
             new_xml = import_bibliography(xml, bib_book)
-        except stk_exceptions.BibImportError as details:
+        except BibImportError as details:
            self.assert_(details.msg == "Error importing bib file. Check all your authors for correct format")
         except:
            return False
@@ -55,7 +55,7 @@ class TestBibliography(unittest.TestCase):
         xml = etree.tostring(xml_start)
         try:
             new_xml = import_bibliography(xml, bib_book)
-        except stk_exceptions.BibImportError as details:
+        except BibImportError as details:
            self.assert_(details.msg == "Error importing bib file. Check all your entry keys")
         except:
            return False

@@ -1,8 +1,8 @@
 import unittest
 import math
 import sys
-sys.path.append("../")
-from supertree_toolkit import create_name, single_sourcename, all_sourcenames, get_all_source_names
+sys.path.append("../../")
+from stk.supertree_toolkit import create_name, single_sourcename, all_sourcenames, get_all_source_names
 import os
 from lxml import etree
 from util import *
