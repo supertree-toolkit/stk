@@ -1118,6 +1118,7 @@ class Diamond:
         XML = stk_import_export.import_old_data(filename,verbose=False)
     except:
            dialogs.error_tb(self.main_window, "Error parsing the old-style XML files. Please see the manual for the correct XML syntax.")
+           return
     XML = _removeNonAscii(XML)
     # Add a history event
     XML = stk.add_historical_event(XML, "Data imported from: "+filename)
