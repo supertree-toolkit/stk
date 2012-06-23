@@ -1114,11 +1114,15 @@ class Diamond:
     filename_textbox = self.import_gui.get_widget("entry1")
     filename = filename_textbox.get_text()
 
-    #try:
-    XML = stk_import_export.import_old_data(filename,verbose=False)
+    try:
+        XML = stk_import_export.import_old_data(filename,verbose=False)
+    except:
+           dialogs.error_tb(self.main_window, "Error parsing the old-style XML files. Please see the manual for the correct XML syntax.")
+           return
     XML = _removeNonAscii(XML)
+    # Add a history event
+    XML = stk.add_historical_event(XML, "Data imported from: "+filename)
     ios = StringIO.StringIO(XML)
-
 
     try:
         tree_read = self.s.read(ios)
@@ -1167,7 +1171,7 @@ class Diamond:
     return
 
   def on_import_cancel_button(self, button):
-      """ Close the export dialogue
+      """ Close the import dialogue
       """
 
       self.import_dialog.hide()
@@ -1193,8 +1197,8 @@ class Diamond:
     self.sub_taxa_gui = gtk.glade.XML(self.gladefile, root="sub_taxa_dialog")
     self.sub_taxa_dialog = self.sub_taxa_gui.get_widget("sub_taxa_dialog")
     self.sub_taxa_gui.signal_autoconnect(signals)
-    matrix_file = self.sub_taxa_gui.get_widget("sub_taxa_button")
-    matrix_file.connect("activate", self.on_sub_taxa_sub_taxa_button)
+    sub_taxa_button = self.sub_taxa_gui.get_widget("sub_taxa_button")
+    sub_taxa_button.connect("activate", self.on_sub_taxa_sub_taxa_button)
     self.sub_taxa_dialog.show()
 
     return
@@ -1218,6 +1222,9 @@ class Diamond:
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
+    # Add an event to the history of the file
+    event_desc = "Taxa substitution from "+old_taxa+" to "+new_taxa+" via GUI using files: "+self.filename+" to "+filename
+    XML = stk.add_historical_event(XML,event_desc) 
     XML2 = stk.sub_taxa(XML,old_taxon,new_taxon)
     f = open(filename, "w")
     f.write(XML2)
