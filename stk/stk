@@ -28,8 +28,8 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir 
 sys.path.insert(0, stk_path)
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir ,os.pardir)
 sys.path.insert(0, stk_path)
-import stk.supertree_toolkit
-import stk.stk_import_export
+import stk.supertree_toolkit as supertree_toolkit
+import stk.stk_import_export as supertree_import_export
 
 
 # STK is the main command line program for the supertree toolkit
@@ -272,7 +272,7 @@ def sub_taxa(args):
             sys.exit(-1)
     
     
-    # Does the input file exist?
+    # Does the input file exist
     if (not os.path.exists(input_file)):
         print "Input file cannot be found. Exiting"
         sys.exit(-1)
@@ -291,9 +291,11 @@ def sub_taxa(args):
             if input == 'y':
                 break
 
-
-    XML = supertree_toolkit.substitute_taxa(input_file,old_taxa,new_taxa)
-    f = open(output_file,'r')
+    XML = supertree_toolkit.load_phyml(input_file)
+    XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa)
+    # Add an event to the history of the file
+    XML = supertree_toolkit.add_historical_event(XML, "Taxa substituted using command: " +" ".join(sys.argv)) 
+    f = open(output_file,'w')
     f.write(XML)
 
     sys.exit(0)
@@ -330,6 +332,8 @@ def import_data(args):
                 break
 
     phyml = stk_import_export.import_old_data(input_dir,verbose=verbose) 
+    # Add an event to the history of the file
+    phyml = supertree_toolkit.add_historical_event(phyml, "Data created using: "+ " ".join(sys.argv)) 
     f = open(output_file, "w")
     f.write(phyml)
     f.close()
