@@ -34,6 +34,9 @@ from collections import defaultdict
 import stk.p4 as p4
 import re
 import stk.p4.MRP as MRP
+import networkx as nx
+import pylab as plt
+from matplotlib.ticker import MaxNLocator
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -436,8 +439,6 @@ def get_character_numbers(XML):
 
     return char_numbers
 
-
-
 def get_fossil_taxa(XML):
     """Return a list of fossil taxa
     """
@@ -455,7 +456,6 @@ def get_fossil_taxa(XML):
     fossil_taxa = _uniquify(f_) 
     
     return fossil_taxa
-
 
 def get_analyses_used(XML):
     """ Return a sorted, unique array of all analyses types used
@@ -476,8 +476,6 @@ def get_analyses_used(XML):
     analyses.sort()
 
     return analyses
-
-
 
 def get_publication_years(XML):
     """Return a dictionary of years and the number of publications
@@ -802,6 +800,129 @@ def data_summary(XML,detailed=False):
 
 
     return output_string
+
+def data_overlap(XML, overlap_amount=2, filename=None, detailed=False):
+    """ Calculate the amount of taxonomic overlap between source trees.
+    The output is a True/False by default, but you can specify an 
+    optional filename, which will save a nice graphic. For the GUI,
+    the output can also be a PNG graphic to display (and then save).
+
+    If filename is None, no graphic is generated. Otherwise a simple
+    graphic is generated showing the number of cluster. If detailed is set to
+    true, a graphic is generated showing *all* trees. For data containing >200
+    source tres this could be very big and take along time. More likely, you'll run
+    out of memory.
+    """
+
+    sufficient_overlap = False
+    key_list = None
+
+    # Create triangular matrix of connectivity
+    # This can then be used to create the graph
+    # We don't need to record which taxa overlap, just the total number
+
+    # First grab all trees
+    trees = obtain_trees(XML)
+
+    # Get some basic stats about them (how many, etc)
+    tree_keys = trees.keys()
+    nTrees = len(tree_keys)
+    
+    # Allocate out numpy NxN matrix
+    connectivity = numpy.zeros((nTrees,nTrees))
+
+    # Out matrix indices
+    i = 0; j = 0
+
+    # loop over trees (i=0, N)
+    for i in range(0,nTrees):
+        # Grab the taxa from tree i
+        taxa_list_i = _getTaxaFromNewick(trees[tree_keys[i]])
+        taxa_set = set(taxa_list_i)
+
+        # loop over tree i+1 to end (j=i+1,N)
+        for j in range(i+1,nTrees):
+            matches = 0
+            # grab the taxa from tree j
+            taxa_list_j = _getTaxaFromNewick(trees[tree_keys[j]])
+
+            # Inspired by: http://stackoverflow.com/questions/1388818/how-can-i-compare-two-lists-in-python-and-return-matches
+            matches = len(taxa_set.intersection(taxa_list_j)) 
+
+            connectivity[i][j] = matches
+            
+    # For each pair of trees we now have the number of connective taxa between them.
+    # Now check for any trees that don't have sufficent matches to any other tree
+    # We create an undirected graph, joining trees that have sufficient conenctivity
+    G=nx.Graph()
+    G.add_nodes_from(tree_keys)
+    for i in range(0,nTrees):
+        for j in range(i+1,nTrees):
+            if (connectivity[i][j] >= overlap_amount):
+                G.add_edge(tree_keys[i],tree_keys[j])
+
+    # That's out graph set up. Dead easy to test all nodes are connected - we can even get the number of seperate connected parts
+    connected_components = nx.connected_components(G)
+    #print connected_components, connectivity
+    if len(connected_components) == 1:
+        sufficient_overlap = True
+
+    # The above list actually contains which components are seperate from each other
+
+    if (not filename == None):
+        # create a graphic and save the file there
+        if detailed:
+            # set the key_list to the keys - see below as to why we do this
+            key_list = tree_keys
+            # we want a detailed graphic instead
+            # Turn tree names into integers
+            G_relabelled = nx.convert_node_labels_to_integers(G)
+            # The integer labelling will match the order in which we set
+            # up the nodes, which matches tree_keys
+            degrees = G.degree() # we colour nodes by number of edges
+            # However, this is a dict and the colour argument of draw need an array of floats
+            colours = []
+            for key in tree_keys:
+                colours.append(degrees[key])
+            fig = plt.figure(figsize=(8,8))
+            ax = fig.add_subplot(111)
+            cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,node_color=colours,cmap=plt.cm.Blues,edge_color='k')
+            limits=plt.axis('off')
+            ticks = MaxNLocator(integer=True,nbins=9)
+            pp=plt.colorbar(cs, orientation='horizontal', format='%d', ticks=ticks)
+            pp.set_label("No. connected edges")
+            fig.savefig(filename,format='png')
+    
+        else:
+            # Here, out key_list is our connectivity info
+            key_list = connected_components
+            # Summary graph - here we just graph the connected bits
+            G_new = nx.Graph()
+            # Add nodes (no edges this time)
+            # Set the colour and size according to the number of trees in each cluster
+            # Unless there's only one cluster...
+            colours = []
+            sizes = []
+            for c in connected_components:
+                G_new.add_node(c)
+                colours.append(len(c))
+                sizes.append(300*len(c))
+            G_relabelled = nx.convert_node_labels_to_integers(G_new)
+            fig = plt.figure(figsize=(8,8))
+            ax = fig.add_subplot(111)
+            if (len(colours) > 1):
+                cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,node_size=sizes,node_color=colours,cmap=plt.cm.Blues,edge_color='k')
+                ticks = MaxNLocator(integer=True,nbins=9)
+                pp=plt.colorbar(cs, orientation='horizontal', format='%d', ticks=ticks)
+                pp.set_label("No. connected edges")
+            else:
+                cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,edge_color='k')
+            
+            limits=plt.axis('off')
+            fig.savefig(filename,format='png')
+
+    return sufficient_overlap, key_list
+
 
 ################ PRIVATE FUNCTIONS ########################
 

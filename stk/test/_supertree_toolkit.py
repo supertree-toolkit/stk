@@ -1,14 +1,16 @@
 import unittest
 import math
 import sys
-sys.path.append("../../")
+sys.path.insert(0,"../../")
 from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
+from stk.supertree_toolkit import data_overlap
 import os
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
 from collections import defaultdict
+import tempfile
 parser = etree.XMLParser(remove_blank_text=True)
 
 
@@ -184,8 +186,6 @@ class TestSetSourceNames(unittest.TestCase):
         self.assertRegexpMatches(full_summary,'     molecular')
         self.assertRegexpMatches(full_summary,'Taxa List')
 
-
-
     def test_character_numbers(self):
         XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
         characters = get_character_numbers(XML)
@@ -198,6 +198,25 @@ class TestSetSourceNames(unittest.TestCase):
         analyses = get_analyses_used(XML)
         expected_analyses = ['Bayesian','MRP']
         self.assertListEqual(analyses,expected_analyses)
+
+    def test_overlap(self):
+        XML = etree.tostring(etree.parse('data/input/check_overlap_ok.phyml',parser),pretty_print=True)
+        overlap_ok,keys = data_overlap(XML)
+        self.assert_(overlap_ok)
+        # Increase number required for sufficient overlap - this should fail
+        overlap_ok,keys = data_overlap(XML,overlap_amount=3)
+        self.assert_(not overlap_ok)
+        # Now plot some graphics - kinda hard to test this, but not failing will suffice for now
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".png")
+        overlap_ok,keys = data_overlap(XML,filename=temp_file,detailed=True)
+        self.assert_(overlap_ok)
+        #os.remove(temp_file)
+        overlap_ok,keys = data_overlap(XML,filename=temp_file)
+        self.assert_(overlap_ok)
+        print temp_file
+        #os.remove(temp_file)
+
+
 
 
 if __name__ == '__main__':
