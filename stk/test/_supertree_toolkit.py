@@ -203,18 +203,19 @@ class TestSetSourceNames(unittest.TestCase):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         import datetime
         now1 = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        XML2 = add_historical_event(XML, "An event")
+        XML2 = add_historical_event(XML, "An event 1")
         import time
         time.sleep(1) # so we have a differet timestamp
         XML2 = add_historical_event(XML2, "An event 2")
-        now2 = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         self.assertRegexpMatches(XML2, r'<history>')
         self.assertRegexpMatches(XML2, r'<event>')
         self.assertRegexpMatches(XML2, r'<datetime>')
-        # That's some tags found, now let's get the datetimes
+        self.assertRegexpMatches(XML2, r'An event 2')
+        self.assertRegexpMatches(XML2, r'An event 1')
+        # That's some tags found, now let's get the datetimes (they have the same unless by some completely random
+        # coincedence the two calls straddle a minute - can't really test for that without lots of parsing, etc, so
+        # let's just settle with the correct datetime being found
         self.assertRegexpMatches(XML2, now1)
-        self.assertRegexpMatches(XML2, now2)
-
 
 if __name__ == '__main__':
     unittest.main()
