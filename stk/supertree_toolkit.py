@@ -804,9 +804,9 @@ def data_summary(XML,detailed=False):
 
     return output_string
 
-def add_historical_event(XML, event):
+def add_historical_event(XML, event_description):
 
-    now  = datetime.datetime.now("%Y-%m-%d %H:%M:%S")
+    now  = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     xml_root = _parse_xml(XML)
 
     find = etree.XPath("//history")
@@ -817,7 +817,7 @@ def add_historical_event(XML, event):
     string = etree.SubElement(date,'string_value')
     string.text = now
     string = etree.SubElement(action,'string_value')
-    string.text = event
+    string.text = event_description
 
     XML = etree.tostring(xml_root,pretty_print=True)
 

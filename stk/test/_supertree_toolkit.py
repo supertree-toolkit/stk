@@ -1,16 +1,18 @@
 import unittest
 import math
 import sys
-sys.path.append("../../")
+import os
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
+sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
-import os
+from stk.supertree_toolkit import add_historical_event
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
 from collections import defaultdict
 parser = etree.XMLParser(remove_blank_text=True)
-
+import re
 
 # Class to test all those loverly internal methods
 # or stuff that doesn't fit within the other tests
@@ -184,8 +186,6 @@ class TestSetSourceNames(unittest.TestCase):
         self.assertRegexpMatches(full_summary,'     molecular')
         self.assertRegexpMatches(full_summary,'Taxa List')
 
-
-
     def test_character_numbers(self):
         XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
         characters = get_character_numbers(XML)
@@ -198,6 +198,22 @@ class TestSetSourceNames(unittest.TestCase):
         analyses = get_analyses_used(XML)
         expected_analyses = ['Bayesian','MRP']
         self.assertListEqual(analyses,expected_analyses)
+
+    def test_add_event(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        import datetime
+        now1 = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        XML2 = add_historical_event(XML, "An event")
+        import time
+        time.sleep(1) # so we have a differet timestamp
+        XML2 = add_historical_event(XML2, "An event 2")
+        now2 = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        self.assertRegexpMatches(XML2, r'<history>')
+        self.assertRegexpMatches(XML2, r'<event>')
+        self.assertRegexpMatches(XML2, r'<datetime>')
+        # That's some tags found, now let's get the datetimes
+        self.assertRegexpMatches(XML2, now1)
+        self.assertRegexpMatches(XML2, now2)
 
 
 if __name__ == '__main__':
