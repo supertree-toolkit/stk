@@ -897,16 +897,17 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False):
             # Here, out key_list is our connectivity info
             key_list = connected_components
             # Summary graph - here we just graph the connected bits
+            Hs = nx.connected_component_subgraphs(G)
             G_new = nx.Graph()
             # Add nodes (no edges this time)
+            G_new.add_nodes_from(Hs)
             # Set the colour and size according to the number of trees in each cluster
             # Unless there's only one cluster...
             colours = []
             sizes = []
-            for c in connected_components:
-                G_new.add_node(c)
-                colours.append(len(c))
-                sizes.append(300*len(c))
+            for H in Hs:
+                colours.append(H.number_of_nodes())
+                sizes.append(300*H.number_of_nodes())
             G_relabelled = nx.convert_node_labels_to_integers(G_new)
             fig = plt.figure(figsize=(8,8))
             ax = fig.add_subplot(111)
@@ -916,7 +917,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False):
                 pp=plt.colorbar(cs, orientation='horizontal', format='%d', ticks=ticks)
                 pp.set_label("No. connected edges")
             else:
-                cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,edge_color='k')
+                cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,edge_color='k',node_color='w',node_size=2000)
             
             limits=plt.axis('off')
             fig.savefig(filename,format='png')
