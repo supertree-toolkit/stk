@@ -210,11 +210,10 @@ class TestSetSourceNames(unittest.TestCase):
         temp_file_handle, temp_file = tempfile.mkstemp(suffix=".png")
         overlap_ok,keys = data_overlap(XML,filename=temp_file,detailed=True)
         self.assert_(overlap_ok)
-        #os.remove(temp_file)
+        os.remove(temp_file)
         overlap_ok,keys = data_overlap(XML,filename=temp_file)
         self.assert_(overlap_ok)
-        print temp_file
-        #os.remove(temp_file)
+        os.remove(temp_file)
 
 
 
