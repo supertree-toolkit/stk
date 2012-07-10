@@ -331,7 +331,7 @@ def import_data(args):
             if input == 'y':
                 break
 
-    phyml = stk_import_export.import_old_data(input_dir,verbose=verbose) 
+    phyml = supertree_import_export.import_old_data(input_dir,verbose=verbose) 
     # Add an event to the history of the file
     phyml = supertree_toolkit.add_historical_event(phyml, "Data created using: "+ " ".join(sys.argv)) 
     f = open(output_file, "w")
@@ -354,7 +354,7 @@ def export_data(args):
         print "Output directory exists."
         sys.exit(-1)
 
-    stk_import_export.export_to_old(input,output_dir,verbose=verbose) 
+    supertree_import_export.export_to_old(input,output_dir,verbose=verbose) 
 
 if __name__ == "__main__":
     main()

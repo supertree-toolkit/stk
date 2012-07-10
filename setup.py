@@ -60,7 +60,7 @@ setup(
       url = "https://launchpad.net/supertree-tookit",
       packages = ['stk', 'stk_gui', 'yapbib', 'dxdiff', 'stk.p4','stk.nameparser'],
       package_dir = {
-          'stk': 'stk', 
+          'stk': 'stk/', 
           'stk_gui':'stk_gui/stk_gui', 
           'yapbib':'stk/yapbib', 
           'dxdiff':'stk_gui/dxdiff/dxdiff',
