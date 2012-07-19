@@ -35,6 +35,7 @@ import stk.p4 as p4
 import re
 from indent import *
 import stk.p4.MRP as MRP
+import datetime
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -1008,6 +1009,29 @@ def data_summary(XML,detailed=False):
 
 
     return output_string
+
+def add_historical_event(XML, event_description):
+
+    now  = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    xml_root = _parse_xml(XML)
+
+    find = etree.XPath("//history")
+    history = find(xml_root)[0]
+    event = etree.SubElement(history,"event") 
+    date = etree.SubElement(event,"datetime")
+    action = etree.SubElement(event,"action")
+    string = etree.SubElement(date,'string_value')
+    string.text = now
+    string = etree.SubElement(action,'string_value')
+    string.text = event_description
+
+    XML = etree.tostring(xml_root,pretty_print=True)
+
+    return XML
+    
+
+
+    
 
 ################ PRIVATE FUNCTIONS ########################
 
