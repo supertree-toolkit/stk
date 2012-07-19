@@ -224,7 +224,10 @@ def convert_to_phyml_source(xml_root):
                 i += 1
     else:
         author_list = input_author.split(' and ')
-
+        
+    if (len(author_list) == 0):
+	author_list.append(input_author)
+   
     phyml_root = etree.Element("source")
     publication = etree.SubElement(phyml_root,"source_publication")
     # does it contain a booktitle?
@@ -240,15 +243,20 @@ def convert_to_phyml_source(xml_root):
     # authors - parse into full author names, then use nameparse to extract first and last
     for a in author_list:
         o = np.HumanName(a)
-        a = etree.SubElement(authors,'author')
-        surname = etree.SubElement(a,'surname')
+        ae = etree.SubElement(authors,'author')
+        surname = etree.SubElement(ae,'surname')
         string = etree.SubElement(surname,'string_value')
         string.attrib['lines'] = "1"
         string.text = o.last.capitalize()
-        first = etree.SubElement(a,'other_names')
+        if (o.last.capitalize() == ''):
+	    string.text = a
+        first = etree.SubElement(ae,'other_names')
         string = etree.SubElement(first,'string_value')
         string.attrib['lines'] = "1"
         string.text = o.first.capitalize()
+        # reset to empty if needed
+        if (o.last == None):
+            string.text = ''
 
     # title and the publication data 
     title = etree.SubElement(article,"title")
