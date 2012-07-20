@@ -1,10 +1,11 @@
 import unittest
 import math
 import sys
-sys.path.append("../../")
+sys.path.insert(0,"../../")
 from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa
 import os
+import stk
 from lxml import etree
 from util import *
 import StringIO
@@ -91,11 +92,25 @@ class TestImportTree(unittest.TestCase):
         self.assert_(matrix.all() == expected_matrix.all())
         self.assert_(expected_taxa == taxa)
 
+        input_tree = '(A,B,C,D,E,F);'
+        matrix, taxa = _assemble_tree_matrix(input_tree)
+        # this should give us:
+        expected_matrix = numpy.array(
+                          [[1],
+                           [1],
+                           [1], 
+                           [1], 
+                           [1],
+                           [1]])
+        expected_taxa = ['A','B','C','D','E','F']        
+        self.assert_(matrix.all() == expected_matrix.all())
+        self.assert_(expected_taxa == taxa)
+
+
     def test_create_nexus_matrix(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         matrix = create_matrix(XML,format="nexus")
         handle = StringIO.StringIO(matrix)
-        print matrix
         
     def test_create_tnt_matrix(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)

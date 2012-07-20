@@ -767,10 +767,9 @@ def safe_taxonomic_reduction(XML, matrix=None, verbose=False):
         charsets = []
         current_char = 1
         for key in trees:
-            handle = StringIO(trees[key])
-            newick_trees = list(Phylo.parse(handle, "newick"))
-            newick_tree = newick_trees[0]
-            submatrix, tree_taxa = _assemble_tree_matrix(newick_tree)
+            if (verbose):
+                print "Reading tree: "+key
+            submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
             nChars = len(submatrix[0,:])
             # loop over characters in the submatrix
             for i in range(1,nChars):
@@ -938,6 +937,56 @@ def safe_taxonomic_reduction(XML, matrix=None, verbose=False):
 
     return output_string, can_replace
 
+def subs_file_from_str(str_output):
+    """From the textual output from STR (above), create
+    the subs file to put the C category taxa back into
+    the dataset. We work with the text out as it's the same as other software, 
+    which means this might work from them also...
+    """
+
+    file = StringIO(str_output)
+    i = 0
+    replacements = []
+    all_C_taxa = []
+    to_remove = []
+    for line in file:
+        if (i < 3):
+            i += 1
+            continue
+        else:
+            line = line.strip()
+            # remove the leading and trailing '|' so we get correct number
+            # of columns
+            line = line.strip('|')
+            data = line.split('|')
+            # data[0] = index taxa
+            # data[1] = missing characters
+            # data[2] = potential equivs
+            # we might have done with the table
+            if (not len(data) == 3):
+                break
+            index = data[0].strip()
+            pot_equivs = data[2].strip().split()
+            replace = ""
+            for e in pot_equivs:
+                if (e[-3:] == '(C)'):
+                    if  (not e[:-3] in all_C_taxa):
+                        replace += e[:-3]+","
+                    else:
+                        # add it to the need to remove list as it appear multiple times
+                        to_remove.append(e[:-3])
+            if (not replace == ""):
+                all_C_taxa.extend(replace[:-1].split(','))
+                replacements.append(index+" = "+replace+index)
+
+    # now need to remove the list in the to_remove list from the RHS
+    for i in range(len(replacements)):
+        for t in to_remove:
+            replacements[i] = replacements[i].replace(t+",","")
+
+    
+    return replacements
+
 def data_summary(XML,detailed=False):
     """Creates a text string that summarises the current data set via a number of 
     statistics such as the number of character types, distribution of years of publication,
@@ -1084,22 +1133,33 @@ def _assemble_tree_matrix(tree_string):
     p4.var.warnReadNoFile = False    
     p4.var.trees = []
     p4.read(tree_string)
-    tree = p4.var.trees[0]    
-    mrp = MRP.mrp([tree])
-    adjmat = []
-    names = []
-    for i in range(0,mrp.nTax):
-        seq = (mrp.sequences[i].sequence)
-        names.append(mrp.taxNames[i])
-        chars = []
-        chars.append(1)
-        for c in seq:
-            chars.append(int(c))
-        adjmat.append(chars)
+    tree = p4.var.trees[0]
+    try:
+        mrp = MRP.mrp([tree])
+        adjmat = []
+        names = []
+        for i in range(0,mrp.nTax):
+            seq = (mrp.sequences[i].sequence)
+            names.append(mrp.taxNames[i])
+            chars = []
+            chars.append(1)
+            for c in seq:
+                chars.append(int(c))
+            adjmat.append(chars)
 
-    adjmat = numpy.array(adjmat)
+        adjmat = numpy.array(adjmat)
+
+    except p4.Glitch:
+        names = _getTaxaFromNewick(tree_string)
+        adjmat = []
+        for i in range(0,len(names)):
+            adjmat.append([1])
+        adjmat = numpy.array(adjmat)
+
+        print "Warning: Found uninformative tree in data. Including it in the matric anyway"
 
     return adjmat, names
+
 
 def _delete_taxon(taxon, tree):
     """ Delete a taxon from a tree string

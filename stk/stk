@@ -155,9 +155,11 @@ def main():
             )
     parser_cm.add_argument('input', 
             help='The input phyml file')
-    #parser_cm.add_argument('-s',
-    #        '--subs', 
-    #        help='Create a subs file to delete the data with sub_taxa')
+    parser_cm.add_argument('-s',
+            '--subs', 
+            help="""Create two subs file to delete the data with sub_taxa and to replace C category"""+
+                  """taxa back in afterwards.
+                  The files withh be called sub_delete and sub_replace""")
     parser_cm.add_argument('-o',
             '--output', 
             help='Output to file, rather than stdout')    
@@ -185,11 +187,31 @@ def safe_taxonomic_reduction(args):
     input_file = args.input
     subs = args.subs
 
-
     XML = supertree_toolkit.load_phyml(input_file)
-    output, can_replace = supertree_toolkit.safe_taxonomic_reduction(XML,detailed=detailed)
-    print output
-    print can_replace
+    output, can_replace = supertree_toolkit.safe_taxonomic_reduction(XML,verbose=verbose)
+    if (not subs == None or not subs):
+        substitutions = supertree_toolkit.subs_file_from_str(output)
+
+    # Now save things if required
+    if (output_file == False or
+        output_file == None):
+        print data_summary
+    else:
+        f = open(output_file, "w")
+        f.write(output)
+        f.close()
+    subs_replace = "subs_replace"
+    subs_delete = "subs_delete"
+    if (not subs == False or
+        not subs == None):
+            f = open(subs_replace, "w")
+            for r in substitutions:
+                f.write(r+"\n")
+            f.close()
+            f = open(subs_delete, "w")
+            for d in can_replace:
+                f.write(d+" = \n")
+            f.close()
 
 
 def data_summary(args):
