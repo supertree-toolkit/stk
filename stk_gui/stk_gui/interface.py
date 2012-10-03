@@ -169,7 +169,8 @@ class Diamond:
                     "on_export": self.on_export,
                     "on_import": self.on_import,
                     "on_sub_taxa": self.on_sub_taxa,
-                    "on_data_summary": self.on_data_summary
+                    "on_data_summary": self.on_data_summary,
+                    "on_data_overlap": self.on_data_overlap
                     }
 
     self.gui.signal_autoconnect(signals)
@@ -972,6 +973,15 @@ class Diamond:
     f = open(filename,'w')
     f.write(summary)
     f.close()
+
+
+  def on_data_overlap(self, widget=None):
+   
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    stk.data_overlap(XML,show=True,detailed=True)
+
 
   def on_create_matrix(self, widget=None):
     """ Creates a MRP matrix from the data in the phyml. Actually, this function

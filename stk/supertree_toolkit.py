@@ -801,7 +801,7 @@ def data_summary(XML,detailed=False):
 
     return output_string
 
-def data_overlap(XML, overlap_amount=2, filename=None, detailed=False):
+def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=False, verbose=False):
     """ Calculate the amount of taxonomic overlap between source trees.
     The output is a True/False by default, but you can specify an 
     optional filename, which will save a nice graphic. For the GUI,
@@ -816,10 +816,12 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False):
 
     sufficient_overlap = False
     key_list = None
-
     # Create triangular matrix of connectivity
     # This can then be used to create the graph
     # We don't need to record which taxa overlap, just the total number
+
+    if (verbose):
+        print "\tObtianing trees from dataset"
 
     # First grab all trees
     trees = obtain_trees(XML)
@@ -834,6 +836,8 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False):
     # Out matrix indices
     i = 0; j = 0
 
+    if (verbose):
+        print "\tCalculating connectivity"
     # loop over trees (i=0, N)
     for i in range(0,nTrees):
         # Grab the taxa from tree i
@@ -854,6 +858,8 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False):
     # For each pair of trees we now have the number of connective taxa between them.
     # Now check for any trees that don't have sufficent matches to any other tree
     # We create an undirected graph, joining trees that have sufficient conenctivity
+    if (verbose):
+        print "\tCreating graph"
     G=nx.Graph()
     G.add_nodes_from(tree_keys)
     for i in range(0,nTrees):
@@ -869,9 +875,14 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False):
 
     # The above list actually contains which components are seperate from each other
 
-    if (not filename == None):
+    if (not filename == None or show):
+        if (verbose):
+            print "\tCreating graphic:"
         # create a graphic and save the file there
+        plt.ioff()
         if detailed:
+            if (verbose):
+                print "\t\tdetailed graphic in file: "+filename
             # set the key_list to the keys - see below as to why we do this
             key_list = tree_keys
             # we want a detailed graphic instead
@@ -882,18 +893,41 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False):
             degrees = G.degree() # we colour nodes by number of edges
             # However, this is a dict and the colour argument of draw need an array of floats
             colours = []
-            for key in tree_keys:
-                colours.append(degrees[key])
-            fig = plt.figure(figsize=(8,8))
+            for key in G_relabelled.nodes_iter():
+                colours.append(len(G_relabelled.neighbors(key)))
+            # Define our colourmap, such that unconnected nodes stand out in red, with
+            # a smooth white to blue transition above this
+            # We need to normalize the colours arrat from (0,1) and find out where
+            # our minimum overlap value sits in there
+            from matplotlib.colors import LinearSegmentedColormap
+            cdict = {'red':   ((0.0, 1.0, 1.0),
+                               (0.0, 1.0, 1.0),
+                               (1.0, 0.1, 0.1)),
+                     'green': ((0.0, 0.0, 0.0),
+                               (0.0, 0.0, 1.0),
+                               (1.0, 0.1, 0.1)),
+                     'blue':  ((0.0, 0.0, 0.0),
+                               (0.0, 0.0, 1.0),
+                               (1.0, 1.0, 1.0))}
+            custom = LinearSegmentedColormap('custom', cdict)
+
+            fig = plt.figure(figsize=(10,10), dpi=200)
             ax = fig.add_subplot(111)
-            cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,node_color=colours,cmap=plt.cm.Blues,edge_color='k')
+            cs = nx.draw_circular(G_relabelled,with_labels=True,ax=ax,node_color=colours,cmap=custom,edge_color='k',node_size=100,font_size=8)
             limits=plt.axis('off')
+            plt.axis('equal')
             ticks = MaxNLocator(integer=True,nbins=9)
             pp=plt.colorbar(cs, orientation='horizontal', format='%d', ticks=ticks)
             pp.set_label("No. connected edges")
-            fig.savefig(filename,format='png')
+            if (show):
+                fig.show()
+            else:
+                fig.savefig(filename,format='png')
     
         else:
+            if (verbose):
+                print "\t\tsummmart graphic in file: "+filename
+
             # Here, out key_list is our connectivity info
             key_list = connected_components
             # Summary graph - here we just graph the connected bits
@@ -909,7 +943,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False):
                 colours.append(H.number_of_nodes())
                 sizes.append(300*H.number_of_nodes())
             G_relabelled = nx.convert_node_labels_to_integers(G_new)
-            fig = plt.figure(figsize=(8,8))
+            fig = plt.figure(figsize=(10,10))
             ax = fig.add_subplot(111)
             if (len(colours) > 1):
                 cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,node_size=sizes,node_color=colours,cmap=plt.cm.Blues,edge_color='k')
@@ -920,7 +954,10 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False):
                 cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,edge_color='k',node_color='w',node_size=2000)
             
             limits=plt.axis('off')
-            fig.savefig(filename,format='png')
+            if show:
+                fig.show()
+            else:
+                fig.savefig(filename,format='png')
 
     return sufficient_overlap, key_list
 

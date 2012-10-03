@@ -28,8 +28,8 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir 
 sys.path.insert(0, stk_path)
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir ,os.pardir)
 sys.path.insert(0, stk_path)
-import stk.supertree_toolkit
-import stk.stk_import_export
+import stk.supertree_toolkit as supertree_toolkit
+import stk.stk_import_export as stk_import_export
 
 
 # STK is the main command line program for the supertree toolkit
@@ -77,6 +77,7 @@ def main():
     parser_cm.set_defaults(func=create_matrix)
 
 
+    # substitue taxa command
     parser_cm = subparsers.add_parser('sub_taxa',
             help='Substitute or delete taxa from the file'
             )
@@ -100,6 +101,7 @@ def main():
     parser_cm.set_defaults(func=sub_taxa)
 
     
+    # import data command
     parser_cm = subparsers.add_parser('import_data',
             help='Import data from old STK dataset.'
             )
@@ -114,6 +116,7 @@ def main():
     parser_cm.set_defaults(func=import_data)
 
 
+    # export data command
     parser_cm = subparsers.add_parser('export_data',
             help='Export data to old STK dataset.'
             )
@@ -148,6 +151,34 @@ def main():
             default=False,
             help="Output a detailed version of the summary")
     parser_cm.set_defaults(func=data_summary)
+
+
+    # Data overlap command
+    parser_cm = subparsers.add_parser('data_overlap',
+            help='Check these data are sufficiently well connected'
+            )
+    parser_cm.add_argument('input', 
+            help='The input phyml file')
+    parser_cm.add_argument('-n',
+            '--number_overlap',
+            type=int,
+            help="Number of taxa in common for two trees to be connected. Default is 2.",
+            required=False,
+            )
+    parser_cm.add_argument('-g',
+            '--graphic',
+            default=False,
+            const=True,
+            nargs='?',
+            help='Save a graphical representation of the connectivity. This is in the form of a graph. '+
+            'You can specifiy a file name, or a filename will be automatically generated for you and '+
+            'saved in the same directory as the input file. A key.csv file will also be generated.')
+    parser_cm.add_argument('-d',
+            '--detailed',
+            action='store_true',
+            default=False,
+            help="Output a detailed version of the graph. For more than 200 source trees this could take a while.")
+    parser_cm.set_defaults(func=data_overlap)
 
 
     # parse the arguments, and strip out the common options
@@ -351,6 +382,51 @@ def export_data(args):
         sys.exit(-1)
 
     stk_import_export.export_to_old(input,output_dir,verbose=verbose) 
+
+
+def data_overlap(args):
+    """ Check the data are sufficient well connected in terms of their taxonomic overlap
+    """
+
+    verbose = args.verbose
+    input_file = args.input
+    output_file = None
+    if args.number_overlap == None:
+        overlap = 2
+    else:
+        overlap = args.number_overlap
+    if args.graphic == None:
+        graphic = False
+    else:
+        graphic = True
+        if args.graphic == True:
+            # generate filename
+            filename =  os.path.splitext(input_file)[0]
+            output_file = filename+"_"+str(overlap)+".png"
+        else:
+            output_file = args.graphic
+            # check it ends in .png...
+            extension = os.path.splitext(output_file)[1]
+            if (not extension == '.png'):
+                print "Warning: output file is a PNG file. Correcting the output file you gave"
+                output_file = os.path.splitext(output_file)[0]+".png"
+
+    XML = supertree_toolkit.load_phyml(input_file)
+    overlap_ok, key_list = supertree_toolkit.data_overlap(XML,  overlap_amount=overlap, filename=output_file, detailed=args.detailed, verbose=verbose)
+    if (graphic):
+        # generate key file
+        filename =  os.path.splitext(input_file)[0]
+        csv_file = filename+'_key_list_'+str(overlap)+".csv"
+        i = 0
+        f = open(csv_file,"w")
+        for key in key_list:
+            if type(key).__name__=='list':
+                f.write(str(i)+","+",".join(key)+"\n")
+            else:
+                f.write(str(i)+","+key+"\n")
+            i = i+1
+        f.close()
+
 
 if __name__ == "__main__":
     main()

@@ -981,6 +981,17 @@
                       </widget>
                     </child>
                     <child>
+                      <widget class="GtkMenuItem" id="data_overlap">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Check the taxonomic overlap of the data</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Data Overlap</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_data_overlap" swapped="no"/>
+                      </widget>
+                    </child>
+                    <child>
                       <widget class="GtkMenuItem" id="data_summary">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
