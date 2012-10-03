@@ -886,7 +886,7 @@ def data_summary(XML,detailed=False):
     return output_string
 
 
-def data_independence(XML):
+def data_independence(XML,make_new_xml=False):
     """ Return a list of sources that are not independent.
     This is decided on the source data and the analysis
     """
@@ -939,11 +939,16 @@ def data_independence(XML):
         prev_taxa = taxa
         prev_name = name
 
-
-    return non_ind
+    if (make_new_xml):
+        new_xml = XML
+        for name in non_ind:
+            if (non_ind[name][1] == SUBSET):
+                new_xml = _swap_tree_in_XML(new_xml,None,name) 
+        return non_ind, new_xml
+    else:
+        return non_ind
 
 ################ PRIVATE FUNCTIONS ########################
-
 
 def _uniquify(l):
     keys = {}
@@ -1051,7 +1056,8 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     return new_tree
 
 def _swap_tree_in_XML(XML, tree, name):
-    """ Swap tree with name, 'name' with this new one
+    """ Swap tree with name, 'name' with this new one.
+        If tree is Non, name is removed
     """
 
     # tree name has the tree number attached to the source name
@@ -1065,6 +1071,8 @@ def _swap_tree_in_XML(XML, tree, name):
     # By getting source, we can then loop over each source_tree
     find = etree.XPath("//source")
     sources = find(xml_root)
+    if (tree == None):
+        delete_me = []
     # loop through all sources
     for s in sources:
         # for each source, get source name
@@ -1074,9 +1082,13 @@ def _swap_tree_in_XML(XML, tree, name):
             tree_no = 1
             for t in s.xpath("source_tree/tree_data"):
                 if tree_no == number:
-                   t.xpath("string_value")[0].text = tree
-                   # We can return as we're only replacing one tree
-                   return etree.tostring(xml_root,pretty_print=True)
+                    if (not tree == None): 
+                        t.xpath("string_value")[0].text = tree
+                        # We can return as we're only replacing one tree
+                        return etree.tostring(xml_root,pretty_print=True)
+                    else:
+                        s.remove(t.getparent())
+                        return etree.tostring(xml_root,pretty_print=True)
                 tree_no += 1
 
     return XML

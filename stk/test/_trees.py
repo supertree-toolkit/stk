@@ -39,7 +39,6 @@ class TestImportTree(unittest.TestCase):
     def test_import_dendroscope(self):
         test_file = "data/input/dendroscope_test.tre"
         tree = import_tree(test_file)
-        print tree
         self.assert_(expected_tree+"\n" == tree)
 
     def test_import_macclade(self):
@@ -126,6 +125,17 @@ class TestImportTree(unittest.TestCase):
         self.assert_(trees['Hill_2011_1'] == "((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000)0.00000:0.00000)0.00000:0.00000;")
         self.assert_(trees['Davis_2011_1'] == "((A:1.00000,B:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;")
         self.assert_(trees[name] == "(a,b,c);")
+
+    def test_delete_tree_XML(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        name = "Hill_Davis_2011_1"
+        trees = obtain_trees(XML)
+        old_len = len(trees)
+        new_xml = _swap_tree_in_XML(XML, None, name)
+        trees = obtain_trees(new_xml)
+        # loop through all trees, checking them
+        self.assert_(trees['Davis_2011_1'] == "((A:1.00000,B:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;")
+        self.assert_(len(trees) == old_len-1)
 
     def test_substitute_taxa_single(self):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)

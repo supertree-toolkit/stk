@@ -206,6 +206,16 @@ class TestSetSourceNames(unittest.TestCase):
         non_ind = data_independence(XML)
         self.assertDictEqual(expected_dict, non_ind)
 
+    def test_data_independence(self):
+        XML = etree.tostring(etree.parse('data/input/check_data_ind.phyml',parser),pretty_print=True)
+        expected_dict = {'Hill_2011_2': ['Hill_2011_1', 1], 'Hill_Davis_2011_1': ['Hill_Davis_2011_2', 0]}
+        non_ind, new_xml = data_independence(XML,make_new_xml=True)
+        self.assertDictEqual(expected_dict, non_ind)
+        # check the second tree has not been removed
+        self.assertRegexpMatches(new_xml,re.escape('((A:1.00000,B:1.00000)0.00000:0.00000,F:1.00000,E:1.00000,(G:1.00000,H:1.00000)0.00000:0.00000)0.00000:0.00000;'))
+        # check that the first tree is removed
+        self.assertNotRegexpMatches(new_xml,re.escape('((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000)0.00000:0.00000)0.00000:0.00000;'))
+
 if __name__ == '__main__':
     unittest.main()
  
