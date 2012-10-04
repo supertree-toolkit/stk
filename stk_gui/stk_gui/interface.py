@@ -1276,7 +1276,12 @@ class Diamond:
      f = StringIO.StringIO()
      self.tree.write(f)
      XML = f.getvalue() 
-     XML = stk.all_sourcenames(XML)
+     try:
+        XML = stk.all_sourcenames(XML)
+     except NoAuthors as detail:
+        dialogs.error(self.main_window,detail.msg)
+        return 
+         
      XML = _removeNonAscii(XML)
      # Add a history event
      XML = stk.add_historical_event(XML, "Source names standardised")

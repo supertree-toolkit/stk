@@ -50,6 +50,9 @@ def create_name(authors, year, append=''):
     Output: source_name - (string)"""
 
     source_name = None
+    if (authors[0] == None):
+        # No authors yet!
+        raise NoAuthors("No authors found to sort") 
     if (len(authors) == 1):
         # single name: name_year
         source_name = authors[0] + "_" + year + append
@@ -82,7 +85,7 @@ def single_sourcename(XML,append=''):
     find = etree.XPath("//year/integer_value")
     year = find(xml_root)[0].text
     source_name = create_name(authors, year,append)
-
+    
     attributes = xml_root.attrib
     attributes["name"] = source_name
 
