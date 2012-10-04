@@ -973,6 +973,15 @@ class Diamond:
     f.write(summary)
     f.close()
 
+    # Add a history event
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    XML = stk.add_historical_event(XML, "Data summary written to : "+filename)
+    ios = StringIO.StringIO(XML)
+
+
+
   def on_create_matrix(self, widget=None):
     """ Creates a MRP matrix from the data in the phyml. Actually, this function
         merely opens the dialog form the glade file...
@@ -1018,6 +1027,15 @@ class Diamond:
     f = open(filename, "w")
     f.write(matrix)
     f.close()    
+
+    # Add a history event
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    XML = stk.add_historical_event(XML, "Matrix written to: "+filename)
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (create matrix) to XML", skip_warning=True)
+
     
     self.create_matrix_dialog.hide()
 
@@ -1072,6 +1090,10 @@ class Diamond:
         dialogs.error(self.main_window, "Error exporting.")
     
     self.export_dialog.hide()
+    # Add a history event
+    XML = stk.add_historical_event(XML, "Data exported to: "+filename)
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (data export) to XML",skip_warning=True)
 
     return
 
@@ -1088,8 +1110,7 @@ class Diamond:
       filename_textbox = self.export_gui.get_widget("entry1")
       filename_textbox.set_text(filename)
 
-
-
+      return
 
   def on_import(self, widget=None):
     """ Export data to old-style STK data
@@ -1123,41 +1144,7 @@ class Diamond:
     # Add a history event
     XML = stk.add_historical_event(XML, "Data imported from: "+filename)
     ios = StringIO.StringIO(XML)
-
-    try:
-        tree_read = self.s.read(ios)
-
-        if tree_read is None:
-           dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
-           return
-        
-        errors = self.s.read_errors()
-        lost_eles, added_eles, lost_attrs, added_attrs = errors
-        if (len(lost_eles) > 0 or len(lost_attrs) > 0):
-            self.display_validation_errors(self.s.read_errors())
-        self.tree = tree_read
-    except:
-        dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
-        return
-
-    path = self.treestore.get_path(self.selected_iter)
-
-
-    self.set_saved(False)
-    self.treeview.freeze_child_notify()
-    self.treeview.set_model(None)
-    self.signals = {}
-    self.set_treestore(None, [self.tree], True)
-    self.treeview.set_model(self.treestore)
-    self.treeview.thaw_child_notify()
-    self.treeview.grab_focus()
-    self.treeview.get_selection().select_path(0)
-
-    self.selected_node = None
-    self.update_options_frame()
-  
-    self.scherror.destroy_error_list()
-
+    self.update_data(ios, "Error importing data whilst checking XML")
 
     #except STKImportExportError as e:
     #    dialogs.error(self.main_window, e.msg)
@@ -1225,6 +1212,9 @@ class Diamond:
     # Add an event to the history of the file
     event_desc = "Taxa substitution from "+old_taxa+" to "+new_taxa+" via GUI using files: "+self.filename+" to "+filename
     XML = stk.add_historical_event(XML,event_desc) 
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (taxa sub) to XML",skip_warning=True)
+    
     XML2 = stk.sub_taxa(XML,old_taxon,new_taxon)
     f = open(filename, "w")
     f.write(XML2)
@@ -1265,6 +1255,7 @@ class Diamond:
      try:
         XML = stk.import_bibliography(XML, filename)
         XML = _removeNonAscii(XML)
+        XML = stk.add_historical_event(XML, "Bibliographic information imported from: "+filename)
         ios = StringIO.StringIO(XML)
      except BibImportError as detail:
         dialogs.error(self.main_window,detail.msg)
@@ -1273,40 +1264,7 @@ class Diamond:
          dialogs.error(self.main_window,"Error importing bib file")
          return
 
-
-     try:
-        tree_read = self.s.read(ios)
-
-        if tree_read is None:
-           dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
-           return
-        
-        errors = self.s.read_errors()
-        lost_eles, added_eles, lost_attrs, added_attrs = errors
-        if (len(lost_eles) > 0 or len(lost_attrs) > 0):
-            self.display_validation_errors(self.s.read_errors())
-        self.tree = tree_read
-     except:
-        dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
-        return
-
-     path = self.treestore.get_path(self.selected_iter)
-
-
-     self.set_saved(False)
-     self.treeview.freeze_child_notify()
-     self.treeview.set_model(None)
-     self.signals = {}
-     self.set_treestore(None, [self.tree], True)
-     self.treeview.set_model(self.treestore)
-     self.treeview.thaw_child_notify()
-     self.treeview.grab_focus()
-     self.treeview.get_selection().select_path(0)
-
-     self.selected_node = None
-     self.update_options_frame()
-  
-     self.scherror.destroy_error_list()
+     self.update_data(ios, "Error converting bib file to XML", skip_warning=True)
      
      return  
 
@@ -1320,18 +1278,32 @@ class Diamond:
      XML = f.getvalue() 
      XML = stk.all_sourcenames(XML)
      XML = _removeNonAscii(XML)
+     # Add a history event
+     XML = stk.add_historical_event(XML, "Source names standardised")
      ios = StringIO.StringIO(XML)
+
+     self.update_data(ios, "Error standardising names")
+
+     return 
+
+
+  def update_data(self,ios, error, skip_warning=False):
+
      try:
         tree_read = self.s.read(ios)
 
         if tree_read is None:
-           dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
+           dialogs.error_tb(self.main_window, error)
            return
 
-        self.display_validation_errors(self.s.read_errors())
+        if (not skip_warning):
+           errors = self.s.read_errors()
+           lost_eles, added_eles, lost_attrs, added_attrs = errors
+           if (len(lost_eles) > 0 or len(lost_attrs) > 0):
+              self.display_validation_errors(self.s.read_errors())
         self.tree = tree_read
      except:
-        dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
+        dialogs.error_tb(self.main_window, error)
         return
 
      path = self.treestore.get_path(self.selected_iter)
@@ -1343,13 +1315,11 @@ class Diamond:
      self.set_treestore(None, [self.tree], True)
      self.treeview.set_model(self.treestore)
      self.treeview.thaw_child_notify()
-
      self.set_geometry_dim_tree()
-  
      self.treeview.get_selection().select_path(path)
-
      self.scherror.destroy_error_list()
-     return 
+
+     return
 
   ## LHS ###
 
