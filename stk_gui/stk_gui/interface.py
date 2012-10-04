@@ -1050,7 +1050,6 @@ class Diamond:
   def on_create_matrix_browse_button(self, button):
       filter_names_and_patterns = {}
       # open file dialog
-      print "Opening file chooser"
       filename = dialogs.get_filename(title = "Choose output matrix fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
       filename_textbox = self.create_matrix_gui.get_widget("entry1")
       filename_textbox.set_text(filename)
@@ -1833,8 +1832,6 @@ class Diamond:
 
     self.selected_iter = iter = self.treestore.get_iter(path)
     choice_or_tree, active_tree = self.treestore.get(iter, 0, 1)
-
-    debug.dprint(active_tree)
 
     self.selected_node = self.get_painted_tree(iter)
     self.update_options_frame()
