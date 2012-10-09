@@ -659,7 +659,7 @@ class Diamond:
 
   def on_about(self, widget=None):
     """
-    Tell the user how fecking great we are.
+    Tell the user how great we are.
     """
 
     about = gtk.AboutDialog()
@@ -677,7 +677,7 @@ class Diamond:
                       "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"+
                       "GNU General Public License for more details.\n"+
                       "You should have received a copy of the GNU General Public License\n"+
-                      "along with Diamond.  If not, see http://www.gnu.org/licenses/.")
+                      "along with the Supertree Toolkit.  If not, see http://www.gnu.org/licenses/.")
 
     if self.logofile is not None:
       logo = gtk.gdk.pixbuf_new_from_file(self.logofile)
@@ -689,7 +689,8 @@ class Diamond:
     except:
       pass
     
-    about.show()
+    about.run()
+    about.destroy()
 
     return
 
