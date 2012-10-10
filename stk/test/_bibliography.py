@@ -46,7 +46,8 @@ class TestBibliography(unittest.TestCase):
         try:
             new_xml = import_bibliography(xml, bib_book)
         except BibImportError as details:
-           self.assert_(details.msg == "Error importing bib file. Check all your authors for correct format")
+           # Check that an entry with dodgy author entry reports the correct key to help the user find it
+           self.assert_(details.msg == "Error importing bib file. Check all your authors for correct format:Porter2005")
         except:
            return False
 

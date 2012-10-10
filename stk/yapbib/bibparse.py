@@ -18,6 +18,22 @@ latex.register()
 
 import helper
 
+
+# Some exception classes
+class Error(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+class BibAuthorError(Error):
+    """Exception raised for errors in the input.
+
+    Attributes:
+        msg  -- explanation of the error
+    """
+
+    def __init__(self, msg):
+        self.msg = msg
+
 def process_pages(pages):
   """ Returns a 2-tuple (firstpage,lastpage) from a string"""
   pp=pages.split('-')
@@ -98,8 +114,7 @@ def create_entrycode(b={}):
   try:
     aut= helper.capitalizestring('%s%s'%(b['author'][0][0],b['author'][0][1]))
   except:
-    print b['author']
-    print b['_code']
+    raise BibAuthorError(b['_code'])
   aut=helper.oversimplify(aut)
   if len(aut) > len_aut:
     bibid=aut[:len_aut]

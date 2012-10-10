@@ -26,6 +26,7 @@ import re
 import numpy 
 from lxml import etree
 import yapbib.biblist as biblist
+import yapbib.bibparse as bibparse
 import string
 from stk_exceptions import *
 import traceback
@@ -201,9 +202,9 @@ def import_bibliography(XML, bibfile):
 
     try: 
         b.import_bibtex(bibfile)
-    except UnboundLocalError:
+    except bibparse.BibAuthorError as e:
         # This seems to be raised if the authors aren't formatted correctly
-        raise BibImportError("Error importing bib file. Check all your authors for correct format")
+        raise BibImportError("Error importing bib file. Check all your authors for correct format:" + e.msg)
     except AttributeError:
         # This seems to occur if the keys are not set for the entry
         raise BibImportError("Error importing bib file. Check all your entry keys")
