@@ -34,6 +34,16 @@ class BibAuthorError(Error):
     def __init__(self, msg):
         self.msg = msg
 
+class BibKeyError(Error):
+    """Exception raised for errors in the input.
+
+    Attributes:
+        msg  -- explanation of the error
+    """
+
+    def __init__(self, msg):
+        self.msg = msg
+
 def process_pages(pages):
   """ Returns a 2-tuple (firstpage,lastpage) from a string"""
   pp=pages.split('-')
@@ -229,9 +239,18 @@ def parseentry(source):
   elif arttype in helper.alltypes:
     # Then it is a publication that we want to keep
     p = re.match('([^,]+),', s[2] ) # Look for the key followed by a comma
-    entry['_type']= arttype
-    entry['_code']= p.group()[:-1]
 
+    entry['_type']= arttype
+    try:
+        entry['_code']= p.group()[:-1]
+    except:
+        if len(s[2]) < 100:
+            err = s[2]
+        else:
+            err = s[2][1:100]+"..."
+        raise BibKeyError("Error parsing: "+err+"\nMissing Bibtex Key")
+
+ 
     ff= get_fields(s[2][p.end():])
     for n,d in ff:
       if n == 'author' or n == 'editor':
@@ -242,6 +261,7 @@ def parseentry(source):
         entry[n]= d.strip('.')
       else:
         entry[n]=d
+
     return None,entry
 
   elif arttype == 'comment' or arttype == 'preamble':

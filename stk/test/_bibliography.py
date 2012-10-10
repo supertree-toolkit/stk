@@ -57,7 +57,7 @@ class TestBibliography(unittest.TestCase):
         try:
             new_xml = import_bibliography(xml, bib_book)
         except BibImportError as details:
-           self.assert_(details.msg == "Error importing bib file. Check all your entry keys")
+           self.assert_(details.msg == "Error importing bib file. Error parsing:  author = {Ahyong, S. T. and O'Meally, D.}, title = {Phylogeny of the Decapoda reptantia: Resolutio...\nMissing Bibtex Key")
         except:
            return False
 #    def test_import_single_incollection(self):

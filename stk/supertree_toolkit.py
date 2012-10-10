@@ -205,6 +205,8 @@ def import_bibliography(XML, bibfile):
     except bibparse.BibAuthorError as e:
         # This seems to be raised if the authors aren't formatted correctly
         raise BibImportError("Error importing bib file. Check all your authors for correct format:" + e.msg)
+    except bibparse.BibKeyError as e:
+        raise BibImportError("Error importing bib file. " + e.msg)
     except AttributeError:
         # This seems to occur if the keys are not set for the entry
         raise BibImportError("Error importing bib file. Check all your entry keys")
