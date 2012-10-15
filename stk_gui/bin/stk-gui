@@ -146,40 +146,16 @@ def main():
     except OSError:
       pass   
 
-  #schemafile is not given so look up actual path  
   if input_schemafile is None:
-    # if the user has specified a file to work on, use the suffix as a key
-    if input_filename is not None:
-      suffix = input_filename.split(".")[-1]
-      try:
-        schemata = config.schemata[suffix]
-      except:
-        # This needs to be a error box, not console
-        debug.deprint("Could not find schema matching suffix %s." % suffix, 0)
-        debug.deprint("Please report this bug on //bugs.launchpad.net/supertree-toolkit")
-        sys.exit(1)
+    # This would be better as an option box, but there's no interface or window yet...
+    message = "Could not find schema matching suffix: "+ suffix
+    message += "\nPlease report this bug on //bugs.launchpad.net/supertree-toolkit"
+    error_dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, message)
+    error_dialog.run()
+    error_dialog.destroy()
+    debug.deprint(message,0)
+    sys.exit(1)
       
-    # if there is only one schema, use that
-    elif len(config.schemata) == 1:
-      suffix = config.schemata.keys()[0]
-      schemata = config.schemata[suffix]
-    
-    # otherwise ask the user to choose
-    else:
-      choices = [key + ": " + value[0] for key, value in config.schemata.iteritems()]
-      choice = dialogs.radio_dialog("Choose a schema", "Choose a schema to use:", choices, logofile[0])
-      suffix = choice.split(":")[0]
-      schemata = config.schemata[suffix]
-
-    try:
-      #if input_alias is None it will just use the default
-      input_schemafile = schemata[1][input_alias]
-    except KeyError:
-      debug.deprint("""Could not find alias "%s"!""" % (input_alias or "default"), 0)
-      sys.exit(1)
-
-  #endif
-
   # ensure that the specified schema actually exists!
   try:
       os.stat(input_schemafile)
