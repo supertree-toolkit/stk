@@ -147,30 +147,14 @@ def main():
       pass   
 
   if input_schemafile is None:
-    # This would be better as an option box, but there's no interface or window yet...
-    message = "Could not find schema matching suffix: "+ suffix
-    message += "\nPlease report this bug on //bugs.launchpad.net/supertree-toolkit"
+    message = "Could not find schema files in the usual places"
+    message += "\nPlease report this bug on bugs.launchpad.net/supertree-toolkit"
     error_dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, message)
     error_dialog.run()
     error_dialog.destroy()
     debug.deprint(message,0)
     sys.exit(1)
       
-  # ensure that the specified schema actually exists!
-  try:
-      os.stat(input_schemafile)
-  except OSError:
-      debug.deprint("Could not find schemafile %s!" % input_schemafile, 0)
-      sys.exit(1)
-
-  if input_schematron_file is not None:
-    # ensure that the specified schematron file actually exists!
-    try:
-      os.stat(input_schematron_file)
-    except OSError:
-      debug.deprint("Could not find Schematron file %s!" % input_schematron_file, 0)
-      sys.exit(1)
-
   if input_filename is not None:
     try:
       os.stat(input_filename)
@@ -178,7 +162,6 @@ def main():
        pass
 
   # Import the GUI Glade file.
-
   gladefile = None
   for possible_gladefile in [os.path.join(stk_path, "gui", "gui.glade"),
   							 os.path.join(stk_path, "gui.glade"),
@@ -193,12 +176,12 @@ def main():
     except OSError:
       pass
   if gladefile is None:
-    debug.deprint("Cannot locate GUI!", 0)
-    sys.exit(1)
-    
-  # If input_schemafile doesn't exist
-  if input_schemafile is None:
-    debug.deprint("Cannot locate schemafile!", 0)
+    message = "Could not find GUI Glade file in the usual places"
+    message += "\nPlease report this bug on bugs.launchpad.net/supertree-toolkit"
+    error_dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, message)
+    error_dialog.run()
+    error_dialog.destroy()
+    debug.deprint(message,0)
     sys.exit(1)
 
   debug.dprint("\n" + \
