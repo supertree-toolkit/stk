@@ -109,9 +109,9 @@ def main():
     input_filename = None
 
   logofile = None
-  for possible_logofile in [os.path.join(stk_path, "gui", "stk.svg"), 
+  for possible_logofile in [os.path.join(stk_path, "../gui/stk.svg"), 
                             "/usr/share/diamond/gui/stk.svg",
-                            os.path.join(stk_path, "gui", "stk.png"),]:
+                            os.path.join(stk_path, "../gui/stk.png"),]:
       try:
         os.stat(possible_logofile)
       
@@ -244,8 +244,4 @@ def main():
   return
 
 if __name__ == "__main__":
-#  import hotshot
-#  prof = hotshot.Profile("hotshot_stats.prof")
-#  prof.runcall(main)
-#  prof.close()
   sys.exit(main())

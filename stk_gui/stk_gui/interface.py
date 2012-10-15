@@ -182,7 +182,7 @@ class Diamond:
 
     self.logofile = logofile
     if self.logofile is not None:
-      gtk.window_set_default_icon_from_file(self.logofile)
+      gtk.window_set_default_icon_from_file(self.logofile[0])
 
     self.init_treemodel()
 
@@ -680,7 +680,7 @@ class Diamond:
                       "along with the Supertree Toolkit.  If not, see http://www.gnu.org/licenses/.")
 
     if self.logofile is not None:
-      logo = gtk.gdk.pixbuf_new_from_file(self.logofile)
+      logo = gtk.gdk.pixbuf_new_from_file(self.logofile[0])
       about.set_logo(logo)
       
     try:
