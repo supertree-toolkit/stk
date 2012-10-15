@@ -30,16 +30,8 @@ import gobject
 gobject.threads_init()
 
 # do this right at the start, so we can find the stk_gui modules
-stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir, "stk_gui" )
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, "stk_gui")
 sys.path.insert(0, stk_path)
-stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, "stk_gui" )
-sys.path.insert(0, stk_path)
-stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
-sys.path.insert(0, stk_path)
-stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir )
-sys.path.insert(0, stk_path)
-stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
-
 dxdiff_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, "dxdiff" )
 sys.path.insert(0, dxdiff_path)
 
@@ -60,8 +52,6 @@ def Help():
                "-h               Display this message\n" + \
                "-f               Forks at startup\n" + \
                "-s [SCHEMAFILE]  Use the supplied schema file *\n" + \
-               "-a [ALIAS]       Use the supplied alias, if not given use \"default\"\n" + \
-               "-t [TRONFILE]    Use the supplied schematron file for extended validation\n" + \
                "-d [FILE]        Diff against the supplied file. (FILE must be specified)\n" + \
                "-u [DIRECTORY]   Find unused schema entries in the given directory\n" + \
                "--ub [DIRECTORY] Find unused schema entries, batch mode\n" + \
@@ -76,7 +66,7 @@ def Help():
 def main():
 
   try:
-    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvfs:a:t:d:u:", ["ub="])
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvfs:d:u:", ["ub="])
   except:
     Help()
     sys.exit(1)
@@ -119,63 +109,44 @@ def main():
     input_filename = None
 
   logofile = None
-  if platform.system() == 'Linux':
-      for possible_logofile in [
-      			os.path.join(stk_path, "gui", "stk.svg"),
-      			 "/usr/local/share/stk/stk.svg",
-      			 "../gui/stk.svg"]:
-        try:
-          os.stat(possible_logofile)
-          logofile = possible_logofile
-          break
-        except OSError:
-          pass
-  else:
-      for possible_logofile in [
-      			os.path.join(stk_path, "gui", "stk.png"), 
-      			"/usr/local/share/stk/stk.png",
-      			os.path.join(os.path.realpath(os.path.dirname(__file__)),"../gui/stk.png")]:
-        try:
-          os.stat(possible_logofile)
-          logofile = possible_logofile
-          break
-        except OSError:
+  for possible_logofile in [os.path.join(stk_path, "gui", "stk.svg"), 
+                            "/usr/share/diamond/gui/stk.svg",
+                            os.path.join(stk_path, "gui", "stk.png"),]:
+      try:
+        os.stat(possible_logofile)
+      
+        if logofile == None:
+          logofile = []
+        logofile.append(possible_logofile)
+      
+      except OSError:
           pass   
 
-  print logofile
-  # Let's find a schema.
 
+  # Let's find a schema.
   suffix = "phyml"
 
   # if the user specifies a schema on the command line, use that.
-
   input_schemafile = None
   input_alias = None
   input_schematron_file = None
   for opt in opts:
     if opt[0] == "-s":
       input_schemafile = opt[1]
-    elif opt[0] == "-a":
-      input_alias = opt[1]    
-    elif opt[0] == "-t":
-      input_schematron_file = opt[1]
-
-  if input_schemafile is not None and input_alias is not None:
-    debug.deprint("-s and -a are mutually exclusive", 0)
-    sys.exit(1)
 
   #schemafile is not given so look up actual path  
   for possible_schemafile in [
-  						os.path.join(stk_path, "../../../../share/schemata/stk/phylo_storage.rng"), 
-  						"/usr/local/share/stk/schema/phylo_storage.rng",
-  						os.path.join(os.path.realpath(os.path.dirname(__file__)),"../../schema/phylo_storage.rng")]:
+        os.path.join(stk_path, "../../../../share/schemata/stk/phylo_storage.rng"),
+        "/usr/local/share/stk/schema/phylo_storage.rng",
+        os.path.join(os.path.realpath(os.path.dirname(__file__)),"../../schema/phylo_storage.rng")]:
     try:
-        os.stat(possible_schemafile)
-        input_schemafile = possible_schemafile
-        break
+      os.stat(possible_schemafile)
+      input_schemafile = possible_schemafile
+      break
     except OSError:
-        pass   
+      pass   
 
+  #schemafile is not given so look up actual path  
   if input_schemafile is None:
     # if the user has specified a file to work on, use the suffix as a key
     if input_filename is not None:
@@ -183,7 +154,9 @@ def main():
       try:
         schemata = config.schemata[suffix]
       except:
+        # This needs to be a error box, not console
         debug.deprint("Could not find schema matching suffix %s." % suffix, 0)
+        debug.deprint("Please report this bug on //bugs.launchpad.net/supertree-toolkit")
         sys.exit(1)
       
     # if there is only one schema, use that
@@ -194,7 +167,7 @@ def main():
     # otherwise ask the user to choose
     else:
       choices = [key + ": " + value[0] for key, value in config.schemata.iteritems()]
-      choice = dialogs.radio_dialog("Choose a schema", "Choose a schema to use:", choices, logofile)
+      choice = dialogs.radio_dialog("Choose a schema", "Choose a schema to use:", choices, logofile[0])
       suffix = choice.split(":")[0]
       schemata = config.schemata[suffix]
 
@@ -208,13 +181,11 @@ def main():
   #endif
 
   # ensure that the specified schema actually exists!
-  if 'http' not in input_schemafile:
-      if (not os.path.exists(input_schemafile)):
-      	input_schemafile = os.path.join(os.path.realpath(os.path.dirname(__file__)), os.pardir,input_schemafile)
-        if (not os.path.exists(input_schemafile)):
-            print os.path.join(stk_path,input_schemafile)
-            debug.deprint("Could not find schemafile %s!" % input_schemafile, 0)
-            sys.exit(1)
+  try:
+      os.stat(input_schemafile)
+  except OSError:
+      debug.deprint("Could not find schemafile %s!" % input_schemafile, 0)
+      sys.exit(1)
 
   if input_schematron_file is not None:
     # ensure that the specified schematron file actually exists!
@@ -235,7 +206,7 @@ def main():
   gladefile = None
   for possible_gladefile in [os.path.join(stk_path, "gui", "gui.glade"),
   							 os.path.join(stk_path, "gui.glade"),
-  							 os.path.join(stk_path, os.pardir, "gui.glade"),
+  							 os.path.join(stk_path, os.pardir, "gui", "gui.glade"),
                              os.path.join(stk_path, "share", "stk", "gui", "gui.glade"),
                              "../gui/gui.glade",
                              "/usr/local/share/stk/gui.glade"]:
