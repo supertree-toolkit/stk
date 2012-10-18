@@ -56,6 +56,13 @@ class TestImportTree(unittest.TestCase):
         expected_tree = "((Taxon_c, (Taxon_a, Taxon_b)), (Taxon_d, Taxon_e));" 
         self.assert_(expected_tree == tree)
 
+    def test_import_paup(self):
+        test_file = "data/input/paup_tree.tre"
+        tree = import_tree(test_file)
+        expected_tree = "(Mimodes_graysoni, (Mimus_gilvus, Mimus_polyglottos), ((Mimus_gundlachii, (Nesomimus_macdonaldi, Nesomimus_melanotis, Nesomimus_parvulus, Nesomimus_trifasciatus)), ((Mimus_longicaudatus, ((Mimus_patagonicus, Mimus_thenca), (Mimus_saturninus, Mimus_triurus))), (Oreoscoptes_montanus, (Toxostoma_curvirostre, Toxostoma_rufum)))));" 
+        self.assert_(expected_tree == tree)
+
+
     def test_get_all_trees(self):
         XML = etree.tostring(etree.parse(single_source_input,parser),pretty_print=True)
         tree = obtain_trees(XML)
@@ -95,7 +102,6 @@ class TestImportTree(unittest.TestCase):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         matrix = create_matrix(XML,format="nexus")
         handle = StringIO.StringIO(matrix)
-        print matrix
         
 
     def test_create_tnt_matrix(self):
