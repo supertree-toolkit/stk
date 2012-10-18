@@ -352,6 +352,26 @@ def import_tree(filename, gui=None, tree_no = -1):
         #remove nodal branch lengths
         content = re.sub("\):\d.\d+","):0.0", content)
 
+# Comments. This is p4's issue as it uses glob.glob to find out if
+# the incoming "thing" is a file or string. Comments in nexus files are
+# [ ], which in glob.glob means something, so we need to delete content
+# that is between the [] before passing to p4. We're going to cheat and 
+# just pull out the tree
+    m = re.search(r'\[\!',content)
+    if (m!=None):
+        h = StringIO(content)
+        content = "#NEXUS\n"
+        content += "begin trees;\n"
+        add_to = False
+        for line in h:
+            if (line.strip().lower().startswith('end')):
+                add_to = False
+            if (line.strip().lower().startswith('tree')):
+                add_to = True
+            if (add_to):
+                content += line+"\n"
+        content += "\nend;"
+    
     treedata = content
     
     try:
