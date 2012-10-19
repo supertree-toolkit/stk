@@ -368,19 +368,21 @@ def import_tree(filename, gui=None, tree_no = -1):
                 add_to = False
             if (line.strip().lower().startswith('tree')):
                 add_to = True
+            if (line.strip().lower().startswith('translate')):
+                add_to=True
             if (add_to):
                 content += line+"\n"
         content += "\nend;"
     
     treedata = content
     
-    try:
-        p4.var.warnReadNoFile = False
-        p4.var.trees = []
-        p4.read(treedata)
-        p4.var.warnReadNoFile = True
-    except:
-        raise TreeParseError("Error parsing " + filename)
+    #try:
+    p4.var.warnReadNoFile = False
+    p4.var.trees = []
+    p4.read(treedata)
+    p4.var.warnReadNoFile = True
+    #except:
+        #raise TreeParseError("Error parsing " + filename)
     trees = p4.var.trees
     p4.var.trees = []
 
