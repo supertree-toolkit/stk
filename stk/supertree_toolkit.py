@@ -182,6 +182,7 @@ def set_unique_names(XML):
             # same as last time
             unique_source_names[current_name] -=1
 
+    
     XML = etree.tostring(xml_root,pretty_print=True)
 
     return XML
@@ -267,6 +268,7 @@ def import_bibliography(XML, bibfile):
             parent.remove(s)
 
     # sort sources in alphabetical order
+    xml_root = _sort_data(xml_root)
     XML = etree.tostring(xml_root,pretty_print=True)
     
     return XML
@@ -1119,4 +1121,21 @@ def _getTaxaFromNewick(tree):
 
     return terminals
 
-    
+
+def _sort_data(xml_root):
+    """ Grab all source names and sort them alphabetically, 
+    spitting out a new XML """
+
+    # this element holds the phonebook entries
+    container = xml_root.find("sources")
+
+    data = []
+    for elem in container:
+        key = elem.attrib['name']
+        data.append((key, elem))
+
+    data.sort()
+
+    # insert the last item from each tuple
+    container[:] = [item[-1] for item in data]
+    return xml_root

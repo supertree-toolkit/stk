@@ -14,7 +14,12 @@ from stk.stk_exceptions import *
 class TestImportExport(unittest.TestCase):
 
     def test_import_data(self):
-        phyml = import_old_data('data/input/old_stk_test/',verbose=False)
+        try:
+            phyml = import_old_data('data/input/old_stk_test/',verbose=False)
+        except STKImportExportError as e:
+            print e.msg
+            self.assert_(False) # fail the test
+
         # parse XML and check various things
         XML = _parse_xml(phyml)
         name = XML.xpath('/phylo_storage/project_name/string_value')[0].text
@@ -43,6 +48,8 @@ class TestImportExport(unittest.TestCase):
                 'Andersson_1999a',
                 'Baptista_Visser_1999'
                 ]
+        # names are sorted now, so...
+        expected_names = sorted(expected_names)
         for s in sources:
             name = s.attrib['name']
             self.assert_(name in expected_names)

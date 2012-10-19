@@ -343,18 +343,18 @@ def export_data(args):
     """
     # Parse the args
     verbose = args.verbose
-    output_file = args.output
+    output_dir = args.output
     input_file = args.input
 
-    if (not os.path.exists(input)):
+    if (not os.path.exists(input_file)):
         print "Input phyml cannot be found. Exiting"
         sys.exit(-1)
 
-    if (os.path.exists(output)):
-        print "Output directory exists."
-        sys.exit(-1)
-
-    supertree_import_export.export_to_old(input,output_dir,verbose=verbose) 
+    XML = supertree_toolkit.load_phyml(input_file)
+    try:
+        supertree_import_export.export_to_old(XML,output_dir,verbose=verbose) 
+    except STKImportExportError as e:
+        print e.msg
 
 if __name__ == "__main__":
     main()

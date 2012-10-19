@@ -165,8 +165,16 @@ def import_old_data(input_dir, verbose=False):
     # run data check
     try:
         supertree_toolkit._check_data(phyml)
+    except NotUniqueError as e:
+        msg = "Error with creating data\n"
+        msg += e.msg
+        raise STKImportExportError(msg)
+    except InvalidSTKData as e:
+        msg = "Error with creating data\n"
+        msg += e.msg
+        raise STKImportExportError(msg)
     except:
-        msg = "Error with creating data"
+        msg = "Error with creating data\n"
         raise STKImportExportError(msg)
 
     return phyml
@@ -390,7 +398,12 @@ def create_xml_metadata(XML_string, this_source, filename):
         book.text = XML.xpath("//booktitle/string_value")[0].text
     page = etree.SubElement(source,"Pages")
     if (len(XML.xpath("//pages/string_value")) > 0):
-        page.text = XML.xpath("//pages/string_value")[0].text
+        tmp_txt =  XML.xpath("//pages/string_value")[0].text
+        if not tmp_txt == None:
+            tmp_txt = tmp_txt.replace("&#8211;","-")
+        else:
+            tmp_txt = ""
+        page.text = tmp_txt
     editor = etree.SubElement(source,"Editor")
     find_editors= etree.XPath("//editor/surname")
     surnames = find_editors(XML)
@@ -427,7 +440,7 @@ def create_xml_metadata(XML_string, this_source, filename):
 
     # character data
     character = etree.SubElement(new_xml,"Characters")
-    find_characters = etree.XPath("//character_data")
+    find_characters = etree.XPath("//character")
     characters_phyml = find_characters(source_XML)
     nMolecular = 0
     nMorpho = 0
@@ -438,21 +451,21 @@ def create_xml_metadata(XML_string, this_source, filename):
     behavioural = etree.SubElement(character,"Behavioural")
     other = etree.SubElement(character,"Other")
     for c in characters_phyml:
-        if c.xpath("character")[0].attrib['type'] == 'molecular':
+        if c.attrib['type'] == 'molecular':
             l = etree.SubElement(molecular,"Type")
-            l.text = c.xpath("character")[0].attrib['name']
+            l.text = c.attrib['name']
             nMolecular += 1
-        if c.xpath("character")[0].attrib['type'] == 'behavioural':
+        if c.attrib['type'] == 'behavioural':
             l = etree.SubElement(behavioural,"Type")
-            l.text = c.xpath("character")[0].attrib['name']
+            l.text = c.attrib['name']
             nBehaviour += 1
-        if c.xpath("character")[0].attrib['type'] == 'morphological':
+        if c.attrib['type'] == 'morphological':
             l = etree.SubElement(morphological,"Type")
-            l.text = c.xpath("character")[0].attrib['name']
+            l.text = c.attrib['name']
             nMorpho += 1
-        if c.xpath("character")[0].attrib['type'] == 'other':
+        if c.attrib['type'] == 'other':
             l = etree.SubElement(other,"Type")
-            l.text = c.xpath("character")[0].attrib['name']
+            l.text = c.attrib['name']
             nOther += 0
 
     if (nMolecular > 0):
