@@ -312,6 +312,8 @@ def import_tree(filename, gui=None, tree_no = -1):
             if (line.startswith('END') and add_to):
                 add_to = False
                 break
+        # tidy up and remove the *
+        content = string.replace( content, '* ', '')
 
 # Mesquite is similar to MacClade, but need more processing
     m = re.search(r'Mesquite',content)
@@ -378,13 +380,15 @@ def import_tree(filename, gui=None, tree_no = -1):
     
     treedata = content
     
-    #try:
-    p4.var.warnReadNoFile = False
-    p4.var.trees = []
-    p4.read(treedata)
-    p4.var.warnReadNoFile = True
-    #except:
-        #raise TreeParseError("Error parsing " + filename)
+    try:
+        p4.var.warnReadNoFile = False
+        p4.var.nexus_warnSkipUnknownBlock = False
+        p4.var.trees = []
+        p4.read(treedata)
+        p4.var.nexus_warnSkipUnknownBlock = True
+        p4.var.warnReadNoFile = True
+    except:
+        raise TreeParseError("Error parsing " + filename)
     trees = p4.var.trees
     p4.var.trees = []
 
