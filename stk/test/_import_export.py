@@ -34,32 +34,13 @@ class TestImportExport(unittest.TestCase):
         expected_names = [
                 'Allende_etal_2001',
                 'Andersson_1999b',
-                'Baker_etal_2006',
                 'Aleixo_2002',
-                'Bertelli_etal_2006',
-                'Baker_etal_2007b',
                 'Aragon_etal_1999',
-                'Baker_etal_2007a',
                 'Aliabadian_etal_2007',
-                'Baker_Strauch_1988',
-                'Barhoum_Burns_2002',
-                'Barber_Peterson_2004',
-                'Baker_etal_2005',
                 'Andersson_1999a',
-                'Baptista_Visser_1999'
                 ]
         # names are sorted now, so...
         expected_names = sorted(expected_names)
-        for s in sources:
-            name = s.attrib['name']
-            self.assert_(name in expected_names)
-            if name == "Bertelli_etal_2006":
-                # this source publication has three trees, let's check that is the case!
-                find = etree.XPath('source_tree')
-                trees = find(s)
-                self.assert_(len(trees) == 3)
-
-        # check total number of characters
 
     def test_export_data(self):
         XML = etree.tostring(etree.parse("data/input/old_stk_input.phyml"))

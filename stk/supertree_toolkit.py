@@ -121,6 +121,7 @@ def all_sourcenames(XML):
     XML = string.replace(XML,"</source><source ", "</source>\n    <source ")
     XML = string.replace(XML,"</source></sources", "</source>\n  </sources") 
     XML = set_unique_names(XML)
+    
     return XML
 
 def get_all_source_names(XML):
@@ -182,7 +183,9 @@ def set_unique_names(XML):
             # same as last time
             unique_source_names[current_name] -=1
 
-    
+    # sort new name
+    xml_root = _sort_data(xml_root)
+
     XML = etree.tostring(xml_root,pretty_print=True)
 
     return XML
@@ -1142,4 +1145,5 @@ def _sort_data(xml_root):
 
     # insert the last item from each tuple
     container[:] = [item[-1] for item in data]
+    
     return xml_root
