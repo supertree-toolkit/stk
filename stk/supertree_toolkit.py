@@ -351,11 +351,20 @@ def import_tree(filename, gui=None, tree_no = -1):
     if (m!=None):
         h = StringIO(content)
         content = "#NEXUS\n"
-        content += "begin trees;\ntree tree_1 = [&U] "
+        content += "begin trees;\n"
+        translate_block = False
         for line in h:
+            if (translate_block):
+                content += line+"\n"
+                if (line.strip().startswith(";")):
+                        translate_block = False
             if (line.strip().startswith('tree')):
                 index = line.index("(")
-                content += line[index:-1]+"\n"
+                content += "tree tree_1 = [&U] " + line[index:-1]+"\n"
+            if (line.strip().lower().startswith('translate')):
+                    translate_block = True
+                    content += "TRANSLATE\n"
+
         content+="end;\n"
 
     treedata = content
