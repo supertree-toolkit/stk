@@ -346,6 +346,18 @@ def import_tree(filename, gui=None, tree_no = -1):
         #remove nodal branch lengths
         content = re.sub("\):\d.\d+","):0.0", content)
 
+# Combined trees that are output from Paup
+    m = re.search(r'\[\!',content)
+    if (m!=None):
+        h = StringIO(content)
+        content = "#NEXUS\n"
+        content += "begin trees;\ntree tree_1 = [&U] "
+        for line in h:
+            if (line.strip().startswith('tree')):
+                index = line.index("(")
+                content += line[index:-1]+"\n"
+        content+="end;\n"
+
     treedata = content
     
     try:
