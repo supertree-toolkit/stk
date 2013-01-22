@@ -1,0 +1,29 @@
+#NEXUS 
+
+Begin trees;  [Treefile saved Sat Apr 25 14:56:40 2009]
+[!
+>Consensus of 3 trees
+>
+>Source of trees from which consensus(es) calculated...
+>Branch-and-bound search settings:
+>  Optimality criterion = parsimony
+>    Character-status summary:
+>      Of 28 total characters:
+>        All characters are of type 'unord'
+>        All characters have equal weight
+>        All characters are parsimony-informative
+>  Initial upper bound: unknown (compute heuristically)
+>  Addition sequence: furthest
+>  Initial 'MaxTrees' setting = 100
+>  Branches collapsed (creating polytomies) if maximum branch length is zero
+>  'MulTrees' option in effect
+>  Topological constraints not enforced
+>  Trees are unrooted
+>
+>Branch-and-bound search completed:
+>   Score of best tree found = 30
+>   Number of trees retained = 3
+>   Time used = 0.00 sec
+]
+	tree Strict = [&U] (Mimodes_graysoni,(Mimus_gilvus,Mimus_polyglottos),((Mimus_gundlachii,(Nesomimus_macdonaldi,Nesomimus_melanotis,Nesomimus_parvulus,Nesomimus_trifasciatus)),((Mimus_longicaudatus,((Mimus_patagonicus,Mimus_thenca),(Mimus_saturninus,Mimus_triurus))),(Oreoscoptes_montanus,(Toxostoma_curvirostre,Toxostoma_rufum)))));
+end;

@@ -18,6 +18,11 @@ single_source_input = "data/input/single_source.phyml"
 expected_tree = '((Taxon_c:1.00000,(Taxon_a:1.00000,Taxon_b:1.00000)0.00000:0.00000)0.00000:0.00000,(Taxon_d:1.00000,Taxon_e:1.00000)0.00000:0.00000)0.00000:0.00000;'
 parser = etree.XMLParser(remove_blank_text=True)
 
+# running individual tests:
+#python -m unittest _trees
+#python -m unittest _trees.TestImportTrees
+#python -m unittest _trees.TestImportTress.test_import_quoted_tree
+
 class TestImportTree(unittest.TestCase):
 
     def test_import_quoted_tree(self):
@@ -56,6 +61,19 @@ class TestImportTree(unittest.TestCase):
         tree = import_tree(test_file)
         expected_tree = "((Taxon_c, (Taxon_a, Taxon_b)), (Taxon_d, Taxon_e));" 
         self.assert_(expected_tree == tree)
+
+    # combined tree after some processing
+    def test_import_combined(self):
+        test_file = "data/input/processed_tree.tre"
+        tree = import_tree(test_file)
+        expected_tree = "(Mimodes_graysoni, (Mimus_gilvus, Mimus_polyglottos), ((Mimus_gundlachii, (Nesomimus_macdonaldi, Nesomimus_melanotis, Nesomimus_parvulus, Nesomimus_trifasciatus)), ((Mimus_longicaudatus, ((Mimus_patagonicus, Mimus_thenca), (Mimus_saturninus, Mimus_triurus))), (Oreoscoptes_montanus, (Toxostoma_curvirostre, Toxostoma_rufum)))));" 
+        self.assert_(expected_tree == tree)
+        test_file = "data/input/processed_tree_translate.tre"
+        tree = import_tree(test_file)
+        expected_tree = "(Cettia_fortipes, ((((Garrulax_squamatus, Minla_ignotincta), ((Stachyris_chrysaea, Stachyris_ruficeps), Stachyris_nigriceps)), (((((Stachyris_whiteheadi, ((Zosterops_erythropleurus, Zosterops_japonicus), Zosterops_palpebrosus)), ((Yuhina_bakeri, Yuhina_flavicollis), (Yuhina_gularis, Yuhina_occipitalis))), (Yuhina_castaniceps, Yuhina_everetti)), (Yuhina_brunneiceps, Yuhina_nigrimenta)), Yuhina_diademata)), Yuhina_zantholeuca));" 
+        self.assert_(expected_tree == tree)
+
+
 
     def test_get_all_trees(self):
         XML = etree.tostring(etree.parse(single_source_input,parser),pretty_print=True)

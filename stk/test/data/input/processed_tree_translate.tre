@@ -1,0 +1,49 @@
+#NEXUS 
+
+Begin trees;  [Treefile saved Mon Apr 20 22:11:40 2009]
+[!
+>Data file = C:\Documents and Settings\Owner\My Documents\PhD\Research\Avian supertree update\Full dataset 20-04-09\Zhang_etal_2007\MRPmatrix.nex
+>Branch-and-bound search settings:
+>  Optimality criterion = parsimony
+>    Character-status summary:
+>      Of 34 total characters:
+>        All characters are of type 'unord'
+>        All characters have equal weight
+>        All characters are parsimony-informative
+>  Initial upper bound: unknown (compute heuristically)
+>  Addition sequence: furthest
+>  Initial 'MaxTrees' setting = 100
+>  Branches collapsed (creating polytomies) if maximum branch length is zero
+>  'MulTrees' option in effect
+>  Topological constraints not enforced
+>  Trees are unrooted
+>
+>Branch-and-bound search completed:
+>   Score of best tree found = 34
+>   Number of trees retained = 1
+>   Time used = 0.00 sec
+]
+	Translate
+		1 Cettia_fortipes,
+		2 Garrulax_squamatus,
+		3 Minla_ignotincta,
+		4 Stachyris_chrysaea,
+		5 Stachyris_nigriceps,
+		6 Stachyris_ruficeps,
+		7 Stachyris_whiteheadi,
+		8 Yuhina_bakeri,
+		9 Yuhina_brunneiceps,
+		10 Yuhina_castaniceps,
+		11 Yuhina_diademata,
+		12 Yuhina_everetti,
+		13 Yuhina_flavicollis,
+		14 Yuhina_gularis,
+		15 Yuhina_nigrimenta,
+		16 Yuhina_occipitalis,
+		17 Yuhina_zantholeuca,
+		18 Zosterops_erythropleurus,
+		19 Zosterops_japonicus,
+		20 Zosterops_palpebrosus
+		;
+tree PAUP_1 = [&U] (1,((((2,3),((4,6),5)),(((((7,((18,19),20)),((8,13),(14,16))),(10,12)),(9,15)),11)),17));
+End;
