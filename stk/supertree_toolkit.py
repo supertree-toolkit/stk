@@ -832,7 +832,6 @@ def safe_taxonomic_reduction(XML, matrix=None, verbose=False):
                 char1 = matrix[t1][i]
                 char2 = matrix[t2][i]
                 if ((char1 != missing_char) and (char2 != missing_char)) :
-                    #print taxon, taxon2, char1, char2
                     if(char1 != char2):
                         NonEquiv = 1
                 elif((char1 == missing_char) and (char2 != missing_char)):
