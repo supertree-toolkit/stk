@@ -2,58 +2,96 @@ characters =
     (
           element character {
              attribute name { string },
-             attribute type { "morphological"|"molecular"|"behavioural"|"other" } 
+             attribute type { "morphological"|"molecular"|"behavioural"|"other" },
+             char_info 
           }|
           element character {
              attribute name { "12S" },
-             attribute type { "molecular" }
+             attribute type { "molecular" },
+             char_info
           }|              
           element character {
              attribute name { "16S" },
-             attribute type { "molecular" }
+             attribute type { "molecular" },
+             char_info
           }|
           element character {
              attribute name { "18S" },
-             attribute type { "molecular" }
+             attribute type { "molecular" },
+             char_info
           }|              
           element character {
              attribute name { "28S" },
-             attribute type { "molecular" }
+             attribute type { "molecular" },
+             char_info
           }|              
           element character {
              ## Also covers aA-crystallin
              attribute name { "a-crystallin" },
-             attribute type { "molecular" }
+             attribute type { "molecular" },
+             char_info
           }|
           element character {
              attribute name { "a-globin" },
-             attribute type { "molecular" }
+             attribute type { "molecular" },
+             char_info
           }|
           element character {
              attribute name { "cytb" },
-             attribute type { "molecular" }
+             attribute type { "molecular" },
+             char_info
           }|
           element character {
              attribute name { "COI" },
-             attribute type { "molecular" }
+             attribute type { "molecular" },
+             char_info
           }|
           element character {
              attribute name { "COII" },
-             attribute type { "molecular" }
+             attribute type { "molecular" },
+             char_info
           }|
           element character {
              attribute name { "feathers" },
-             attribute type { "morphological" }
+             attribute type { "morphological" },
+             char_info
           }|
           element character {
              attribute name { "osteology" },
-             attribute type { "morphological" }
+             attribute type { "morphological" },
+             char_info
           }|
           ##Mixed morphological characters in crustaceans.
           element character {
              attribute name { "General morphology" },
-             attribute type { "morphological" }
+             attribute type { "morphological" },
+             char_info
           }+
     )
 
-
+char_info=
+(
+    element accession_number {
+        anystring
+    }?,
+    element database_url {
+        anystring
+    }?,
+    ## Is the data online anywhere, e.g. as a NEXUS file?
+    element url {
+        anystring
+    }?,
+    element alignment_method {
+        element algorithm {
+            string
+        }?,
+        software?,
+        element parameters {
+            anystring
+        }?,
+        ## was the alignment corrected in any way?
+        element corrected {
+            empty
+        }?
+    }?
+)

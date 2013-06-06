@@ -206,7 +206,6 @@ def convert_to_phyml_source(xml_root):
     a = input_author.lower()
     if isinstance(a, unicode):
         a = unicodedata.normalize('NFKD', a).encode('ascii','ignore')
-        print a
     authors_t = a.split(',')
     authors_temp = []
     for a in authors_t:
