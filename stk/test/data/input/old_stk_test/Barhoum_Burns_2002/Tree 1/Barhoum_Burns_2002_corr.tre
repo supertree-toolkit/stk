@@ -1,0 +1,11 @@
+#NEXUS
+
+BEGIN TAXA;
+	DIMENSIONS ntax=50;
+	TAXLABELS  Pomatostomus_isidorei Pomatostomus_ruficeps Lophorina_superba Terpsiphone_cinnamomea Aphelocoma_coerulescens Corvus_coronoides Corvus_corax Regulus_regulus Vidua_chalybeata Anthus_spinoletta Motacilla_alba Piranga_ludoviciana Passerella_iliaca Melospiza_melodia Catharus_guttatus Turdus_migratorius Toxostoma_redivivum Ficedula_parva Muscicapa_striata Erithacus_rubecula Copsychus_albospecularis Thamnornis_chloropetoides Neomixis_flavoviridis Bradypterus_cinnamomeus Locustella_fluviatilis Locustella_certhiola Neomixis_striatigula Neomixis_tenella Orthotomus_sutorius Hypergerus_atriceps Cisticola_juncidis Cisticola_cherinus Cettia_cetti Phylloscopus_trochiloides Phylloscopus_pulcher Phylloscopus_collybita Scotocerca_inquieta Hippolais_polyglotta Acrocephalus_stentoreus Chloropeta_gracilirostris Chamaea_fasciata Sylvia_melanocephala Sylvia_borin Sylvia_atricapilla Yuhina_gularis Stachyris_whiteheadi Garrulax_leucolophus Leiothrix_lutea Pomatorhinus_ochraceiceps Illadopsis_pyrrhoptera;
+END;
+
+BEGIN TREES;
+	TREE tree_1 = (((Pomatostomus_isidorei,Pomatostomus_ruficeps),((Lophorina_superba,Terpsiphone_cinnamomea),(Aphelocoma_coerulescens,(Corvus_coronoides,Corvus_corax)))),(Regulus_regulus,(((Vidua_chalybeata,((Anthus_spinoletta,Motacilla_alba),(Piranga_ludoviciana,(Passerella_iliaca,Melospiza_melodia)))),((Catharus_guttatus,Turdus_migratorius),(Toxostoma_redivivum,(Ficedula_parva,(Muscicapa_striata,(Erithacus_rubecula,Copsychus_albospecularis)))))),((Thamnornis_chloropetoides,Neomixis_flavoviridis),(((Bradypterus_cinnamomeus,(Locustella_fluviatilis,Locustella_certhiola)),((Neomixis_striatigula,Neomixis_tenella),(Orthotomus_sutorius,(Hypergerus_atriceps,(Cisticola_juncidis,Cisticola_cherinus))))),((Cettia_cetti,((Phylloscopus_trochiloides,(Phylloscopus_pulcher,Phylloscopus_collybita)),(Scotocerca_inquieta,(Hippolais_polyglotta,(Acrocephalus_stentoreus,Chloropeta_gracilirostris))))),((Chamaea_fasciata,(Sylvia_melanocephala,(Sylvia_borin,Sylvia_atricapilla))),((Yuhina_gularis,Stachyris_whiteheadi),((Garrulax_leucolophus,Leiothrix_lutea),(Pomatorhinus_ochraceiceps,Illadopsis_pyrrhoptera))))))))));
+END;
+

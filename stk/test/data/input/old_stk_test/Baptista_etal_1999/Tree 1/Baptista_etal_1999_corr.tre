@@ -1,0 +1,11 @@
+#NEXUS
+
+BEGIN TAXA;
+	DIMENSIONS ntax=21;
+	TAXLABELS  Lonchura_griseicapilla Lonchura_cucullata Lonchura_bicolor Lonchura_fringilloides Lonchura_cantans Lonchura_fuscata Lonchura_castaneothorax Lonchura_leucogastroides Lonchura_maja Lonchura_punctulata Lonchura_quinticolor Lonchura_spectabilis Lonchura_striata Taeniopygia_guttata Taeniopygia_bichenovii Poephila_cincta Amadina_fasciata Pytilia_melba Ortygospiza_atricollis Uraeginthus_bengalus Uraeginthus_cyanocephalus;
+END;
+
+BEGIN TREES;
+	TREE tree_1 = (((Lonchura_griseicapilla,(Lonchura_cucullata,(Lonchura_bicolor,Lonchura_fringilloides))),((Lonchura_cantans,(Lonchura_fuscata,(Lonchura_castaneothorax,Lonchura_leucogastroides,Lonchura_maja,Lonchura_punctulata,Lonchura_quinticolor,Lonchura_spectabilis,Lonchura_striata))),(Taeniopygia_guttata,(Taeniopygia_bichenovii,Poephila_cincta)))),((Amadina_fasciata,Pytilia_melba),(Ortygospiza_atricollis,(Uraeginthus_bengalus,Uraeginthus_cyanocephalus))));
+END;
+

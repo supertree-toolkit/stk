@@ -1,0 +1,53 @@
+<?xml version='1.0' standalone='yes'?>
+<SourceTree>
+  <Analysis>
+    <Type>MP</Type>
+  </Analysis>
+  <Characters>
+    <Behavioural number="2">
+      <Type>Calls</Type>
+      <Type>Breeding</Type>
+    </Behavioural>
+    <Molecular></Molecular>
+    <Morphological number="1">
+      <Type>Plumage</Type>
+    </Morphological>
+    <Other></Other>
+  </Characters>
+  <Notes>Single MPT.</Notes>
+  <Source>
+    <Author>Baptista, L. F. Lawson, R. Visser, E. Bell, D. A.</Author>
+    <Booktitle></Booktitle>
+    <Editor></Editor>
+    <Journal>Journal fuer Ornithologie</Journal>
+    <Pages>179-192</Pages>
+    <Publisher></Publisher>
+    <Title>Relationships of some mannikins and waxbills in the Estrilididae.</Title>
+    <Volume>140</Volume>
+    <Year>1999</Year>
+  </Source>
+  <Taxa fossil="none" number="21">
+    <List>Lonchura bicolor</List>
+    <List>Lonchura fringilloides</List>
+    <List>Lonchura cucullata</List>
+    <List>Lonchura griseicapilla</List>
+    <List>Lonchura castaneothorax</List>
+    <List>Lonchura leucogastroides</List>
+    <List>Lonchura maja</List>
+    <List>Lonchura punctulata</List>
+    <List>Lonchura quinticolor</List>
+    <List>Lonchura spectabilis</List>
+    <List>Lonchura striata</List>
+    <List>Lonchura cantans</List>
+    <List>Taeniopygia guttata</List>
+    <List>Taeniopygia bichenovii</List>
+    <List>Poephila cincta</List>
+    <List>Amadina fasciata</List>
+    <List>Pytilia melba</List>
+    <List>Uraeginthus bengalus</List>
+    <List>Uraeginthus cyanocephalus</List>
+    <List>Ortygospiza atricollis</List>
+    <List>Lonchura fuscata</List>
+  </Taxa>
+  <TreeFile>Baptista_etal_1999_corr.tre</TreeFile>
+</SourceTree>

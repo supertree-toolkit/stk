@@ -56,6 +56,12 @@ source=
         ## Some notes on this action
         comment
     },
+    ## Contributer - information about the person adding this 
+    ## data to the file.
+    element contributor {
+        attribute name { string },
+        attribute institution { string }
+    },
     ## This is a source tree and associated meta-data
     element source_tree {
         attribute name { string }+,
@@ -69,12 +75,53 @@ source=
         element analysis_used {
             analysis
         },
+        ## Tree information
+        ## Figure legend, figure number, etc
+        element tree_information {
+            element figure_legend {
+                anystring
+            }?,
+            element figure_number {
+                integer
+            }?,
+            element page_number {
+                integer
+            }?,
+            element tree_topology {
+                attribute type { "Rooted" | "Unrooted" }
+            }?,
+            element outgroup {
+                taxon
+            }?  
+        },
+        ## Information on how the tree was created, software, etc
+        element tree_inference {
+	        element optimality_criterion {
+                anystring
+            }?,
+            software?,
+            ## Did the authors give the command or parameters used to 
+            ## create the tree?
+	        element parameters_used {
+                anystring
+            }?,
+	        element evolution_model {
+                anystring
+            }?,
+	        element character_weights {
+                anystring
+            }?,
+	        element consensus_type {
+                anystring
+            }?
+        },
         ## The tree data. This is a Nexus formatted tree string. You can import
         ## a standard Nexus file using the "Import tree" button below or copy 
         ## paste a string.
         element tree_data {
             anystring
         },
+        ## Scoring infotmation; e.g. how are support values recorded?
         element score_information {
             anystring
         }?,
@@ -123,7 +170,11 @@ publication=
             }?,
             element doi {
                 anystring
+            }?,
+            element url {
+                anystring
             }?
+
         }|
         element book {
             ## Enter each author seperately
@@ -152,6 +203,9 @@ publication=
                 anystring
             }?,
             element doi {
+                anystring
+            }?,
+            element url {
                 anystring
             }?
         }|
@@ -222,6 +276,9 @@ publication=
             }?,
             element doi {
                 anystring
+            }?,
+            element url {
+                anystring
             }?
         }
 )
@@ -240,12 +297,41 @@ person=
 taxon=
 (
     element taxon {
+        ## Name is exactly as in paper
         attribute name { string },
+        ## Clean version is tidied for parsing etc and <b>not</b> corrected 
+        ## in any way
+        attribute clean_name { string },
+        ## Accession number/specimen identifier
+        element id {
+            anystring
+        },
         element fossil {
             element location {
                 anystring
             }?,
             element date {
+                anystring
+            }?,
+            element stratigraphic_range {
+                anystring
+            }?,
+            element first_occurrance {
+                anystring
+            }?,
+            element last_occurrance {
+                anystring
+            }?
+        }?,
+        element extant {
+            element locality {
+                anystring
+            }?,
+            ## GPS, etc
+	        element precise_georeference {
+                anystring
+            }?,
+	        element conservation_status {
                 anystring
             }?
         }?,
@@ -255,6 +341,15 @@ taxon=
             }*
         }?
     }*
+)
+
+software=
+(
+    ## Name and version of the software used
+    element software {
+        attribute name {string},
+        attribute version {string}
+    }
 )
 
 # Any value in the xml file can be accompanied by a comment

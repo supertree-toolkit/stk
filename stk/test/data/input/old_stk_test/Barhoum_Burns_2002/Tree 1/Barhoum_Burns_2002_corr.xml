@@ -1,0 +1,79 @@
+<?xml version='1.0' standalone='yes'?>
+<SourceTree>
+  <Analysis>
+    <Type>ML</Type>
+  </Analysis>
+  <Characters>
+    <Behavioural></Behavioural>
+    <Molecular number="1">
+      <Type>cytb</Type>
+    </Molecular>
+    <Morphological></Morphological>
+    <Other></Other>
+  </Characters>
+  <Notes></Notes>
+  <Source>
+    <Author>Barhoum, D. N. Burns, K. J.</Author>
+    <Booktitle></Booktitle>
+    <Editor></Editor>
+    <Journal>Condor</Journal>
+    <Pages>740-749</Pages>
+    <Publisher></Publisher>
+    <Title>Phylogenetic relationships of the wrentit based on mitochondrial cytochrome b sequences.</Title>
+    <Volume>104</Volume>
+    <Year>2002</Year>
+  </Source>
+  <Taxa fossil="none" number="50">
+    <List>Pomatostomus isidorei</List>
+    <List>Pomatostomus ruficeps</List>
+    <List>Lophorina superba</List>
+    <List>Terpsiphone cinnamomea</List>
+    <List>Aphelocoma coerulescens</List>
+    <List>Corvus coronoides</List>
+    <List>Corvus corax</List>
+    <List>Regulus regulus</List>
+    <List>Vidua chalybeata</List>
+    <List>Anthus spinoletta</List>
+    <List>Motacilla alba</List>
+    <List>Piranga ludoviciana</List>
+    <List>Passerella iliaca</List>
+    <List>Melospiza melodia</List>
+    <List>Catharus guttatus</List>
+    <List>Turdus migratorius</List>
+    <List>Toxostoma redivivum</List>
+    <List>Ficedula parva</List>
+    <List>Muscicapa striata</List>
+    <List>Erithacus rubecula</List>
+    <List>Copsychus albospecularis</List>
+    <List>Thamnornis chloropetoides</List>
+    <List>Neomixis flavoviridis</List>
+    <List>Bradypterus cinnamomeus</List>
+    <List>Locustella fluviatilis</List>
+    <List>Locustella certhiola</List>
+    <List>Neomixis striatigula</List>
+    <List>Neomixis tenella</List>
+    <List>Orthotomus sutorius</List>
+    <List>Hypergerus atriceps</List>
+    <List>Cisticola juncidis</List>
+    <List>Cettia cetti</List>
+    <List>Phylloscopus trochiloides</List>
+    <List>Phylloscopus pulcher</List>
+    <List>Phylloscopus collybita</List>
+    <List>Scotocerca inquieta</List>
+    <List>Hippolais polyglotta</List>
+    <List>Acrocephalus stentoreus</List>
+    <List>Chloropeta gracilirostris</List>
+    <List>Chamaea fasciata</List>
+    <List>Sylvia melanocephala</List>
+    <List>Sylvia borin</List>
+    <List>Sylvia atricapilla</List>
+    <List>Yuhina gularis</List>
+    <List>Stachyris whiteheadi</List>
+    <List>Garrulax leucolophus</List>
+    <List>Leiothrix lutea</List>
+    <List>Pomatorhinus ochraceiceps</List>
+    <List>Illadopsis pyrrhoptera</List>
+    <List>Cisticola cherinus</List>
+  </Taxa>
+  <TreeFile>Barhoum_Burns_2002_corr.tre</TreeFile>
+</SourceTree>

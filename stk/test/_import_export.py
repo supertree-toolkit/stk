@@ -28,7 +28,12 @@ class TestImportExport(unittest.TestCase):
         # check numebr of souces
         find = etree.XPath('//source')
         sources = find(XML)
-        self.assert_(len(sources) == 15)
+        self.assert_(len(sources) == 6)
+
+        # grab source names
+        source_names = []
+        for s in sources:
+            source_names.append(s.attrib['name'])
 
         # check names of sources:
         expected_names = [
@@ -41,6 +46,7 @@ class TestImportExport(unittest.TestCase):
                 ]
         # names are sorted now, so...
         expected_names = sorted(expected_names)
+        self.assertItemsEqual(expected_names,source_names)
 
     def test_export_data(self):
         XML = etree.tostring(etree.parse("data/input/old_stk_input.phyml"))

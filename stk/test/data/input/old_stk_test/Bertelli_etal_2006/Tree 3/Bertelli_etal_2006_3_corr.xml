@@ -1,0 +1,64 @@
+<?xml version="1.0" standalone="yes"?>
+<SourceTree>
+  <Source>
+    <Author>BERTELLI, S., N. P. GIANNINI, AND D. T. KSEPKA</Author>
+    <Year>2006</Year>
+    <Title>Redescription and phylogenetic position of the early Miocene penguin Paraptenodytes antarcticus from Patagonia.</Title>
+    <Journal>American Museum Novitates</Journal>
+    <Volume>3525</Volume>
+    <Pages>1-25</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="30" fossil="some">
+    <List>Gavia stellata</List>
+    <List>Oceanodroma leucorhoa</List>
+    <List>Oceanites oceanicus</List>
+    <List>Diomedea melanophris</List>
+    <List>Phoebetria palpebrata</List>
+    <List>Macronectes giganteus</List>
+    <List>Daption capense</List>
+    <List>Procellaria aequinoctialis</List>
+    <List>Puffinus griseus</List>
+    <List>Pterodroma incerta</List>
+    <List>Pachyptila desolata</List>
+    <List>Pelecanoides urinatrix</List>
+    <List>Paraptenodytes antarcticus</List>
+    <List>Eudyptula minor</List>
+    <List>Spheniscus demersus</List>
+    <List>Spheniscus magellanicus</List>
+    <List>Spheniscus humboldti</List>
+    <List>Spheniscus mendiculus</List>
+    <List>Aptenodytes patagonicus</List>
+    <List>Aptenodytes forsteri</List>
+    <List>Pygoscelis papua</List>
+    <List>Pygoscelis adeliae</List>
+    <List>Pygoscelis antarctica</List>
+    <List>Megadyptes antipodes</List>
+    <List>Eudyptes pachyrhynchus</List>
+    <List>Eudyptes robustus</List>
+    <List>Eudyptes sclateri</List>
+    <List>Eudyptes chrysocome</List>
+    <List>Eudyptes chrysolophus</List>
+    <List>Eudyptes schlegeli</List>
+  </Taxa>
+  <Characters>
+     <Molecular number="1">
+    	<Type>Molecular</Type>
+    </Molecular>
+    <Morphological number="3">
+      <Type>Osteology</Type>
+      <Type>soft tissue</Type>
+      <Type>oology</Type>
+    </Morphological>
+    <Behavioural number ="1">
+          <Type>behaviour</Type>
+    </Behavioural>
+    <Other/></Characters>
+  <Analysis>
+    <Type>MP</Type>
+  </Analysis>
+  <Notes></Notes>
+  <TreeFile>Bertelli_etal_2006_3_corr.tre</TreeFile>
+</SourceTree>
+

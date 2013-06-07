@@ -380,7 +380,7 @@ def import_tree(filename, gui=None, tree_no = -1):
             if (add_to):
                 content += line+"\n"
         content += "\nend;"
-    
+
     treedata = content
     
     try:

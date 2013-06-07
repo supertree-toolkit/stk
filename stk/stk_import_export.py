@@ -34,6 +34,7 @@ from supertree_toolkit import _parse_xml
 from stk_exceptions import *
 from stk_internals import *
 import stk.p4
+import unicodedata
 
 def export_to_old(xml, output_dir, verbose=False):
 
@@ -211,6 +212,8 @@ def convert_to_phyml_source(xml_root):
     author_list = []
     # split the string using ',', then stich together is needed
     a = input_author.lower()
+    if isinstance(a, unicode):
+        a = unicodedata.normalize('NFKD', a).encode('ascii','ignore')
     authors_t = a.split(',')
     authors_temp = []
     for a in authors_t:
