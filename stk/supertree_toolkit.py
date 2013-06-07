@@ -853,7 +853,9 @@ def add_historical_event(XML, event_description):
     action = etree.SubElement(event,"action")
     string = etree.SubElement(date,'string_value')
     string.text = now
+    string.attrib['lines'] = "1"
     string = etree.SubElement(action,'string_value')
+    string.attrib['lines'] = "1"
     string.text = event_description
 
     XML = etree.tostring(xml_root,pretty_print=True)
