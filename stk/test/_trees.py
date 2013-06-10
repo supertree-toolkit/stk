@@ -1,7 +1,8 @@
 import unittest
 import math
 import sys
-sys.path.append("../../")
+# so we import local stk before any other
+sys.path.insert(0,"../../")
 from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa
 import os

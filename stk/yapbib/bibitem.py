@@ -221,7 +221,7 @@ class BibItem(dict):
     try:
       aa=auth[A_FIRST].split()
     except:
-      print auth
+      print "Blah", auth
       sys.exit()
     for d in aa:
       if Initial or len(d)==1:
