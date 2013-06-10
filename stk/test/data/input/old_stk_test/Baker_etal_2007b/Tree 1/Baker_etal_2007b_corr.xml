@@ -1,37 +1,23 @@
-<?xml version='1.0' standalone='yes'?>
+<?xml version="1.0" standalone="yes"?>
 <SourceTree>
-  <Analysis>
-    <Type>Bayesian</Type>
-  </Analysis>
-  <Characters>
-    <Behavioural></Behavioural>
-    <Molecular number="4">
-      <Type>12S</Type>
-      <Type>ND2</Type>
-      <Type>cytb</Type>
-      <Type>RAG1</Type>
-    </Molecular>
-    <Morphological></Morphological>
-    <Other></Other>
-  </Characters>
-  <Notes></Notes>
   <Source>
     <Author>BAKER, A. J., S. L. PEREIRA, AND T. A. PATON</Author>
-    <Booktitle></Booktitle>
-    <Editor></Editor>
-    <Journal>Biology Letters</Journal>
-    <Pages>205-209</Pages>
-    <Publisher></Publisher>
-    <Title>Phylogenetic relationships and divergence times of Charadriiformes genera: multigene evidence for the Cretaceous origin of at least 14 clades of shorebirds</Title>
-    <Volume>3</Volume>
     <Year>2007</Year>
-  </Source>
-  <Taxa fossil="none" number="160">
+    <Title>Phylogenetic relationships and divergence times of Charadriiformes genera: multigene evidence for the Cretaceous origin of at least 14 clades of shorebirds</Title>
+    <Journal>Biology Letters</Journal>
+    <Volume>3</Volume>
+    <Pages>205-209</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="103" fossil="none">
     <List>Sterna anaethetus</List>
     <List>Sterna fuscata</List>
     <List>Sterna hirundo</List>
     <List>Sterna sandvicensis</List>
     <List>Chlidonias leucopterus</List>
+    <List>Gelochelidon nilotica</List>
+    <List>Hydroprogne caspia</List>
     <List>Larosterna inca</List>
     <List>Phaetusa simplex</List>
     <List>Sterna superciliaris</List>
@@ -56,6 +42,7 @@
     <List>Ptychoramphus aleuticus</List>
     <List>Cerorhinca monocerata</List>
     <List>Fratercula arctica</List>
+    <List>Catharacta skua</List>
     <List>Stercorarius longicaudus</List>
     <List>Glareola maldivarum</List>
     <List>Glareola nuchalis</List>
@@ -99,6 +86,7 @@
     <List>Elseyornis melanops</List>
     <List>Thinornis novaeseelandiae</List>
     <List>Charadrius vociferus</List>
+    <List>Eudromias morinellus</List>
     <List>Phegornis mitchellii</List>
     <List>Oreopholus ruficollis</List>
     <List>Anarhynchus frontalis</List>
@@ -121,72 +109,26 @@
     <List>Columba livia</List>
     <List>Anhima cornuta</List>
     <List>Chauna torquata</List>
+    <List>Anas</List>
     <List>Crax blumenbachii</List>
-    <List>Sterna caspia</List>
-    <List>Sterna nilotica</List>
-    <List>Anas acuta</List>
-    <List>Anas americana</List>
-    <List>Anas aucklandica</List>
-    <List>Anas bahamensis</List>
-    <List>Anas bernieri</List>
-    <List>Anas capensis</List>
-    <List>Anas carolinensis</List>
-    <List>Anas castanea</List>
-    <List>Anas chlorotis</List>
-    <List>Anas clypeata</List>
-    <List>Anas crecca</List>
-    <List>Anas cyanoptera</List>
-    <List>Anas diazi</List>
-    <List>Anas discors</List>
-    <List>Anas eatoni</List>
-    <List>Anas erythrorhyncha</List>
-    <List>Anas falcata</List>
-    <List>Anas flavirostris</List>
-    <List>Anas formosa</List>
-    <List>Anas fulvigula</List>
-    <List>Anas georgica</List>
-    <List>Anas gibberifrons</List>
-    <List>Anas gracilis</List>
-    <List>Anas hottentota</List>
-    <List>Anas laysanensis</List>
-    <List>Anas luzonica</List>
-    <List>Anas melleri</List>
-    <List>Anas nesiotis</List>
-    <List>Anas oustaleti</List>
-    <List>Anas penelope</List>
-    <List>Anas platalea</List>
-    <List>Anas platyrhynchos</List>
-    <List>Anas poecilorhyncha</List>
-    <List>Anas puna</List>
-    <List>Anas querquedula</List>
-    <List>Anas rhynchotis</List>
-    <List>Anas rubripes</List>
-    <List>Anas sibilatrix</List>
-    <List>Anas smithii</List>
-    <List>Anas sparsa</List>
-    <List>Anas specularis</List>
-    <List>Anas strepera</List>
-    <List>Anas superciliosa</List>
-    <List>Anas undulata</List>
-    <List>Anas versicolor</List>
-    <List>Anas wyvilliana</List>
-    <List>Anas zonorhyncha</List>
-    <List>Gallus gallus</List>
-    <List>Gallus lafayettii</List>
-    <List>Gallus sonneratii</List>
-    <List>Gallus varius</List>
-    <List>Megapodius cumingii</List>
-    <List>Megapodius decollatus</List>
-    <List>Megapodius eremita</List>
-    <List>Megapodius forstenii</List>
-    <List>Megapodius freycinet</List>
-    <List>Megapodius layardi</List>
-    <List>Megapodius pritchardii</List>
-    <List>Megapodius reinwardt</List>
-    <List>Megapodius tenimberensis</List>
-    <List>Struthio camelus</List>
-    <List>Stercorarius skua</List>
-    <List>Charadrius morinellus</List>
+    <List>Gallus</List>
+    <List>Megapodius</List>
+    <List>Struthio</List>
   </Taxa>
+  <Characters>
+    <Molecular number="4">
+      <Type>12S</Type>
+      <Type>ND2</Type>
+      <Type>cytb</Type>
+      <Type>RAG1</Type>
+    </Molecular>
+    <Morphological/>
+    <Behavioural/>
+    <Other/></Characters>
+  <Analysis>
+    <Type>Bayesian</Type>
+  </Analysis>
+  <Notes></Notes>
   <TreeFile>Baker_etal_2007b_corr.tre</TreeFile>
 </SourceTree>
+

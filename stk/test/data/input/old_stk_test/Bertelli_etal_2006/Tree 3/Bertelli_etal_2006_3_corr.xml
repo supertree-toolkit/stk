@@ -46,14 +46,13 @@
      <Molecular number="1">
     	<Type>Molecular</Type>
     </Molecular>
-    <Morphological number="3">
+    <Morphological number="4">
       <Type>Osteology</Type>
       <Type>soft tissue</Type>
+      <Type>behaviour</Type>
       <Type>oology</Type>
     </Morphological>
-    <Behavioural number ="1">
-          <Type>behaviour</Type>
-    </Behavioural>
+    <Behavioural/>
     <Other/></Characters>
   <Analysis>
     <Type>MP</Type>
