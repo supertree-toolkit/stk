@@ -1,7 +1,8 @@
 import unittest
 import math
 import sys
-sys.path.append("../../")
+# so we import local stk before any other
+sys.path.insert(0,"../../")
 from stk.supertree_toolkit import create_name, single_sourcename, all_sourcenames, get_all_source_names
 import os
 from lxml import etree
@@ -64,19 +65,19 @@ class TestSetSourceNames(unittest.TestCase):
         input_data = etree.tostring(xml_full_c)
         names = get_all_source_names(input_data)
         expected_names = ['Hill_1996', 'Hill_etal_1996', 'Hill_Davis_1996']
-        self.assert_(expected_names == names)
+        self.assert_(expected_names.sort() == names.sort())
 
     def test_all_unique_names_not_altered(self):
         new_xml = all_sourcenames(etree.tostring(xml_full))
         names = get_all_source_names(new_xml)
         expected_names = ['Hill_1996', 'Hill_etal_1996', 'Hill_Davis_1996']
-        self.assert_(expected_names == names)
+        self.assert_(expected_names.sort() == names.sort())
        
     def test_all_unique_names_altered(self):
         new_xml = all_sourcenames(etree.tostring(non_unique_names))
         names = get_all_source_names(new_xml)
         expected_names = ['Hill_1996b', 'Hill_1996a', 'Hill_etal_1996', 'Hill_Davis_1996']
-        self.assert_(expected_names == names)
+        self.assert_(expected_names.sort() == names.sort())
 
 if __name__ == '__main__':
     unittest.main()

@@ -29,8 +29,13 @@ sys.path.insert(0, stk_path)
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir ,os.pardir)
 sys.path.insert(0, stk_path)
 import stk.supertree_toolkit as supertree_toolkit
-import stk.stk_import_export as stk_import_export
+import stk.stk_import_export as supertree_import_export
+from stk.stk_exceptions import *
+import Getch
+import string
 
+# Set up a global Getch class for all functions to use
+inkey = Getch._Getch()
 
 # STK is the main command line program for the supertree toolkit
 # Using the XML files created by the GUI it can processes the data, without
@@ -249,14 +254,13 @@ def create_matrix(args):
         print "Output file exists. Either remove the file or use the --overwrite flag."
         print "Do you wish to continue? [Y/n]"
         while True:
-            input = sys.stdin.read(1)
-            if input == None:
-                input = 'y'
-            if input == 'n':
+            k=inkey()
+            if k.lower() == 'n':
                 print "Exiting..."
                 sys.exit(0)
-            if input == 'y':
+            if k.lower() == 'y':
                 break
+
 
 
     XML = supertree_toolkit.load_phyml(input_file)
@@ -303,7 +307,7 @@ def sub_taxa(args):
             sys.exit(-1)
     
     
-    # Does the input file exist?
+    # Does the input file exist
     if (not os.path.exists(input_file)):
         print "Input file cannot be found. Exiting"
         sys.exit(-1)
@@ -313,18 +317,18 @@ def sub_taxa(args):
         print "Output file exists. Either remove the file or use the --overwrite flag."
         print "Do you wish to continue? [Y/n]"
         while True:
-            input = sys.stdin.read(1)
-            if input == None:
-                input = 'y'
-            if input == 'n':
+            k=inkey()
+            if k.lower() == 'n':
                 print "Exiting..."
                 sys.exit(0)
-            if input == 'y':
+            if k.lower() == 'y':
                 break
 
-
-    XML = supertree_toolkit.substitute_taxa(input_file,old_taxa,new_taxa)
-    f = open(output_file,'r')
+    XML = supertree_toolkit.load_phyml(input_file)
+    XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa)
+    # Add an event to the history of the file
+    XML = supertree_toolkit.add_historical_event(XML, "Taxa substituted using command: " +" ".join(sys.argv)) 
+    f = open(output_file,'w')
     f.write(XML)
 
     sys.exit(0)
@@ -351,16 +355,16 @@ def import_data(args):
         print "Output file exists. Either remove the file or use the --overwrite flag."
         print "Do you wish to continue? [Y/n]"
         while True:
-            input = sys.stdin.read(1)
-            if input == None:
-                input = 'y'
-            if input == 'n':
+            k=inkey()
+            if k.lower() == 'n':
                 print "Exiting..."
                 sys.exit(0)
-            if input == 'y':
+            if k.lower() == 'y':
                 break
 
-    phyml = stk_import_export.import_old_data(input_dir,verbose=verbose) 
+    phyml = supertree_import_export.import_old_data(input_dir,verbose=verbose) 
+    # Add an event to the history of the file
+    phyml = supertree_toolkit.add_historical_event(phyml, "Data created using: "+ " ".join(sys.argv)) 
     f = open(output_file, "w")
     f.write(phyml)
     f.close()
@@ -370,18 +374,18 @@ def export_data(args):
     """
     # Parse the args
     verbose = args.verbose
-    output_file = args.output
+    output_dir = args.output
     input_file = args.input
 
-    if (not os.path.exists(input)):
+    if (not os.path.exists(input_file)):
         print "Input phyml cannot be found. Exiting"
         sys.exit(-1)
 
-    if (os.path.exists(output)):
-        print "Output directory exists."
-        sys.exit(-1)
-
-    stk_import_export.export_to_old(input,output_dir,verbose=verbose) 
+    XML = supertree_toolkit.load_phyml(input_file)
+    try:
+        supertree_import_export.export_to_old(XML,output_dir,verbose=verbose) 
+    except STKImportExportError as e:
+        print e.msg
 
 
 def data_overlap(args):
@@ -430,3 +434,5 @@ def data_overlap(args):
 
 if __name__ == "__main__":
     main()
+
+

@@ -331,6 +331,7 @@ def read(stuff):
         readFile(stuff)
     else:
         # Is it a glob?
+        # Need to escape it first
         myFlist = glob.glob(stuff)
         #print "read(). stuff=%s,  glob result: %s" % (stuff, myFlist)
         if myFlist: # It appears to be a glob

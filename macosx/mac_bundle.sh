@@ -14,34 +14,34 @@ LOCALDIR=/opt/gtk
 export DESTDIR="./"
 
 # set up our virtual python environment
-virtualenv --python=python$PYVER $INSTALLDIR
+virtualenv --python=python$PYVER --no-site-packages $INSTALLDIR 
 
 # install stk in it
-$INSTALLDIR/bin/python setup.py install
+sed -i .bak 's/packaging=False/packaging=True/' setup.py
+macosx/$INSTALLDIR/bin/python setup.py install
 
-# This has placed a bin/stk_gui file which just launches our bin/stk_gui
-# Unfortunately, it's in the wrong place, so move it 
 mkdir $INSTALLDIR/MacOS
+mkdir $INSTALLDIR/Resources
+cd macosx;
 
 # Sort out the MacResources
-cp MacOS_Resources/PkgInfo $INSTALLDIR/
-cp MacOS_Resources/Info.plist $INSTALLDIR/
-cp MacOS_Resources/pango_rc $INSTALLDIR/
+cp PkgInfo $INSTALLDIR/
+cp Info.plist $INSTALLDIR/
+cp pango_rc $INSTALLDIR/
 mkdir $INSTALLDIR/Resources
-cp MacOS_Resources/stk.icns $INSTALLDIR/Resources/
-cp MacOS_Resources/stk $INSTALLDIR/MacOS
+cp stk.icns $INSTALLDIR/Resources/
+cp stk $INSTALLDIR/MacOS
 
 # Now we have to feed the app some schemas or it's all for nothing
 # Set up the schema folders
 mkdir -p $INSTALLDIR/share/schemata
 # Make the schemata description
-# The path of the RNG is relative to stk.egg/EGG_INFO directory
-cat > $INSTALLDIR/share/schemata/phyml << EOF
+rm -rf $INSTALLDIR/Resources/schemata/stk
+mkdir -p $INSTALLDIR/Resources/schemata/stk
+cat > $INSTALLDIR/Resources/schemata/phyml << EOF
 Phylogenetics Markup Language
-../../../../../share/schemata/stk/phylo_storage.rng
+/Applications/STK.app/Contents/Resources/schemata/stk/phylo_storage.rng
 EOF
-rm -rf $INSTALLDIR/share/schemata/stk
-mkdir $INSTALLDIR/share/schemata/stk
 cp schema/*.rng $INSTALLDIR/share/schemata/stk/
 
 # Let's get lxml installed
@@ -134,10 +134,10 @@ done
 
 
 # Fix config files
-sed -i -e 's#/opt/gtk/#'$APPDIR'/#' $INSTALLDIR/etc/pango/pango.modules 
-sed -i -e 's#/opt/gtk/#'$APPDIR'/#' $INSTALLDIR/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
-sed -i -e 's#/opt/gtk/#'$APPDIR'/#' $INSTALLDIR/Resources/etc/pango/pango.modules 
-sed -i -e 's#/opt/gtk/#'$APPDIR'/#' $INSTALLDIR/Resources/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
+sed -i .bak 's#/opt/gtk/#'$APPDIR'/#' $INSTALLDIR/etc/pango/pango.modules 
+sed -i .bak 's#/opt/gtk/#'$APPDIR'/#' $INSTALLDIR/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
+sed -i .bak 's#/opt/gtk/#'$APPDIR'/#' $INSTALLDIR/Resources/etc/pango/pango.modules 
+sed -i .bak 's#/opt/gtk/#'$APPDIR'/#' $INSTALLDIR/Resources/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
 
 
 
@@ -146,8 +146,8 @@ VERSION=0.01
 # we now need to fiddle with the Python run path on the diamond script
 # COMMENT THESE OUT IF YOU WANT TO TEST YOUR APP WITHOUT INSTALLING
 # EDIT AS REQUIRED
-sed -i -e 's|/Users/amcg/Software/stk/mac_port/|/Applications/|' $INSTALLDIR/lib/python2.7/site-packages/supertree_toolkit-0.1.1-py2.7.egg/EGG-INFO/scripts/stk-gui	
-sed -i -e 's|/Users/amcg/Software/stk/mac_port/|/Applications/|' $INSTALLDIR/MacOS/stk
+sed -i .bak 's|/Users/amcg/Software/stk/mac_port/|/Applications/|' $INSTALLDIR/lib/python2.7/site-packages/supertree_toolkit-0.1.1-py2.7.egg/EGG-INFO/scripts/stk-gui	
+sed -i .bak 's|/Users/amcg/Software/stk/mac_port/|/Applications/|' $INSTALLDIR/MacOS/stk
 
 zip -rq STK-$VERSION-osx.zip $APP
 hdiutil create -srcfolder $APP STK-$VERSION.dmg		

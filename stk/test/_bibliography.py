@@ -1,7 +1,8 @@
 import unittest
 import math
 import sys
-sys.path.append("../../")
+# so we import local stk before any other
+sys.path.insert(0,"../../")
 from stk.supertree_toolkit import import_bibliography 
 import os
 from lxml import etree
@@ -46,7 +47,8 @@ class TestBibliography(unittest.TestCase):
         try:
             new_xml = import_bibliography(xml, bib_book)
         except BibImportError as details:
-           self.assert_(details.msg == "Error importing bib file. Check all your authors for correct format")
+           # Check that an entry with dodgy author entry reports the correct key to help the user find it
+           self.assert_(details.msg == "Error importing bib file. Check all your authors for correct format: Porter2005")
         except:
            return False
 
@@ -56,7 +58,7 @@ class TestBibliography(unittest.TestCase):
         try:
             new_xml = import_bibliography(xml, bib_book)
         except BibImportError as details:
-           self.assert_(details.msg == "Error importing bib file. Check all your entry keys")
+           self.assert_(details.msg == "Error importing bib file. Error parsing:  author = {Ahyong, S. T. and O'Meally, D.}, title = {Phylogeny of the Decapoda reptantia: Resolutio...\nMissing Bibtex Key")
         except:
            return False
 #    def test_import_single_incollection(self):

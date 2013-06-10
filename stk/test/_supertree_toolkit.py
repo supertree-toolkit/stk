@@ -1,18 +1,20 @@
 import unittest
 import math
 import sys
-sys.path.insert(0,"../../")
+import os
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
+sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
 from stk.supertree_toolkit import data_overlap
-import os
+from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
 from collections import defaultdict
 import tempfile
 parser = etree.XMLParser(remove_blank_text=True)
-
+import re
 
 # Class to test all those loverly internal methods
 # or stuff that doesn't fit within the other tests
@@ -215,8 +217,40 @@ class TestSetSourceNames(unittest.TestCase):
         self.assert_(overlap_ok)
         os.remove(temp_file)
 
+    def test_sort_data(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        xml_root = _parse_xml(XML)
+        xml_root = _sort_data(xml_root)
+        # By getting source, we can then loop over each source_tree
+        # within that source and construct a unique name
+        find = etree.XPath("//source")
+        sources = find(xml_root)
+        names = []
+        for s in sources:
+            # for each source, get source name
+            names.append(s.attrib['name'])
+
+        expected_names = ['Davis_2011','Hill_2011','Hill_Davis_2011']
+        self.assertListEqual(names,expected_names)
 
 
+    def test_add_event(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        import datetime
+        now1 = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        XML2 = add_historical_event(XML, "An event 1")
+        import time
+        time.sleep(1) # so we have a differet timestamp
+        XML2 = add_historical_event(XML2, "An event 2")
+        self.assertRegexpMatches(XML2, r'<history>')
+        self.assertRegexpMatches(XML2, r'<event>')
+        self.assertRegexpMatches(XML2, r'<datetime>')
+        self.assertRegexpMatches(XML2, r'An event 2')
+        self.assertRegexpMatches(XML2, r'An event 1')
+        # That's some tags found, now let's get the datetimes (they have the same unless by some completely random
+        # coincidence the two calls straddle a minute - can't really test for that without lots of parsing, etc, so
+        # let's just settle with the correct datetime being found
+        self.assertRegexpMatches(XML2, now1)
 
 if __name__ == '__main__':
     unittest.main()

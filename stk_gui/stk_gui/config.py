@@ -30,6 +30,9 @@ if sys.platform != "win32" and sys.platform != "win64":
   dirs.append("/usr/local/share/stk/")
 
 dirs.append(os.path.join(os.path.expanduser('~'), ".stk"))
+dirs.append(os.path.join(os.path.join(os.path.realpath(os.path.dirname(__file__)), "../../../../share/schemata/stk/phylo_storage.rng")))
+dirs.append("/usr/local/share/stk/schema/phylo_storage.rng")
+
 config = ConfigParser.SafeConfigParser()
 config.read([os.path.join(path, "settings") for path in reversed(dirs)]) #reversed to load usr last
 
