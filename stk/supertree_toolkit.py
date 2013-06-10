@@ -967,19 +967,9 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             pp=plt.colorbar(cs, orientation='horizontal', format='%d', ticks=ticks)
             pp.set_label("No. connected edges")
             if (show):
-                win = gtk.Window()
-                win.connect("destroy", lambda x: gtk.main_quit())
-                vBox = gtk.VBox()
-                figureWidget = backends.backend_gtk.FigureCanvasGTK(fig)
-                toolbarWidget = backends.backend_gtk.NavigationToolbar2GTK(figureWidget, None)
-                vBox.pack_start(figureWidget)
-                vBox.pack_end(toolbarWidget, expand = False, fill = False)
-                win.set_default_size(400,300)
-                win.set_title("Data Overlap")
-                win.add(vBox)
-
-                win.show_all()
-                gtk.main()
+                from mpldatacursor import datacursor
+                datacursor(formatter='{label}'.format)
+                plt.show()
             else:
                 fig.savefig(filename,format='png')
     
