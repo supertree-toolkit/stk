@@ -166,8 +166,16 @@ def import_old_data(input_dir, verbose=False):
     # run data check
     try:
         supertree_toolkit._check_data(phyml)
+    except NotUniqueError as e:
+        msg = "Error with creating data\n"
+        msg += e.msg
+        raise STKImportExportError(msg)
+    except InvalidSTKData as e:
+        msg = "Error with creating data\n"
+        msg += e.msg
+        raise STKImportExportError(msg)
     except:
-        msg = "Error with creating data"
+        msg = "Error with creating data\n"
         raise STKImportExportError(msg)
 
     return phyml
@@ -215,7 +223,7 @@ def convert_to_phyml_source(xml_root):
         i = 0
         while i<len(authors_temp):
             if (i+1 < len(authors_temp)):
-                m = re.search(r'.', authors_temp[i+1])
+                m = re.search('\.', authors_temp[i+1])
                 if (m != None):
                     # next token contains a full stop so is probably an initial
                     author_list.append(str.strip(authors_temp[i+1]) + " " + str.strip(authors_temp[i]))
@@ -227,7 +235,7 @@ def convert_to_phyml_source(xml_root):
                 i += 1
     else:
         author_list = input_author.split(' and ')
-        
+
     if (len(author_list) == 0):
 	author_list.append(input_author)
    
@@ -252,13 +260,14 @@ def convert_to_phyml_source(xml_root):
         string.attrib['lines'] = "1"
         string.text = o.last.capitalize()
         if (o.last.capitalize() == ''):
-	    string.text = a
+	        string.text = a
         first = etree.SubElement(ae,'other_names')
         string = etree.SubElement(first,'string_value')
         string.attrib['lines'] = "1"
-        string.text = o.first.capitalize()
+        other = o.first.capitalize()
+        string.text = other
         # reset to empty if needed
-        if (o.last == None):
+        if (o.first == None):
             string.text = ''
 
     # title and the publication data 
@@ -369,13 +378,21 @@ def create_xml_metadata(XML_string, this_source, filename):
     # The source publication info
     source = etree.SubElement(new_xml,"Source")
     author = etree.SubElement(source,"Author")
-    find_authors = etree.XPath("//author/surname")
-    surnames = find_authors(XML)
+    find_authors = etree.XPath("//author")
+    authors = find_authors(XML)
     authors_list = ''
-    for s in surnames:
+    for a in authors:
+        s = a.xpath('surname/string_value')[0].text
+        o = ''
+        try:
+            o = a.xpath('other_names/string_value')[0].text
+        except:
+            pass
         if (authors_list != ''):
             authors_list = authors_list+" and "
-        authors_list += s.xpath('string_value')[0].text
+        authors_list += s
+        if (not o == ''):
+            authors_list += ", "+o+"."
         
     author.text = authors_list
     year = etree.SubElement(source,"Year")
@@ -393,7 +410,12 @@ def create_xml_metadata(XML_string, this_source, filename):
         book.text = XML.xpath("//booktitle/string_value")[0].text
     page = etree.SubElement(source,"Pages")
     if (len(XML.xpath("//pages/string_value")) > 0):
-        page.text = XML.xpath("//pages/string_value")[0].text
+        tmp_txt =  XML.xpath("//pages/string_value")[0].text
+        if not tmp_txt == None:
+            tmp_txt = tmp_txt.replace("&#8211;","-")
+        else:
+            tmp_txt = ""
+        page.text = tmp_txt
     editor = etree.SubElement(source,"Editor")
     find_editors= etree.XPath("//editor/surname")
     surnames = find_editors(XML)
@@ -430,7 +452,7 @@ def create_xml_metadata(XML_string, this_source, filename):
 
     # character data
     character = etree.SubElement(new_xml,"Characters")
-    find_characters = etree.XPath("//character_data")
+    find_characters = etree.XPath("//character")
     characters_phyml = find_characters(source_XML)
     nMolecular = 0
     nMorpho = 0
@@ -441,21 +463,21 @@ def create_xml_metadata(XML_string, this_source, filename):
     behavioural = etree.SubElement(character,"Behavioural")
     other = etree.SubElement(character,"Other")
     for c in characters_phyml:
-        if c.xpath("character")[0].attrib['type'] == 'molecular':
+        if c.attrib['type'] == 'molecular':
             l = etree.SubElement(molecular,"Type")
-            l.text = c.xpath("character")[0].attrib['name']
+            l.text = c.attrib['name']
             nMolecular += 1
-        if c.xpath("character")[0].attrib['type'] == 'behavioural':
+        if c.attrib['type'] == 'behavioural':
             l = etree.SubElement(behavioural,"Type")
-            l.text = c.xpath("character")[0].attrib['name']
+            l.text = c.attrib['name']
             nBehaviour += 1
-        if c.xpath("character")[0].attrib['type'] == 'morphological':
+        if c.attrib['type'] == 'morphological':
             l = etree.SubElement(morphological,"Type")
-            l.text = c.xpath("character")[0].attrib['name']
+            l.text = c.attrib['name']
             nMorpho += 1
-        if c.xpath("character")[0].attrib['type'] == 'other':
+        if c.attrib['type'] == 'other':
             l = etree.SubElement(other,"Type")
-            l.text = c.xpath("character")[0].attrib['name']
+            l.text = c.attrib['name']
             nOther += 0
 
     if (nMolecular > 0):
@@ -481,7 +503,20 @@ def create_xml_metadata(XML_string, this_source, filename):
     tree_file_only += '.tre'
     tree_f.text = tree_file_only
 
-    etree.SubElement(new_xml,'Notes')
+    # Grab any comments under the tree and add it here
+    notes = etree.SubElement(new_xml,'Notes')
+    find_comments = etree.XPath("//comment")
+    comments_phyml = find_comments(source_XML)
+    comments = ""
+    for c in comments_phyml:
+        if (not c.text == None):
+            if (not comments == ""):
+                comments = "\n" + c.text
+            else:
+                comments += c.text
+
+    notes.text = comments
+
 
     xml_string = etree.tostring(new_xml, encoding='iso-8859-1', pretty_print=True)
 

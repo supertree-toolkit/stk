@@ -70,7 +70,7 @@ source=
         element character_data {
             characters+
         },
-        ## Which analytical methods were used to createan
+        ## Which analytical methods were used to create
         ## the source tree?
         element analysis_used {
             analysis

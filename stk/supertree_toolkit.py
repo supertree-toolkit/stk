@@ -26,6 +26,7 @@ import re
 import numpy 
 from lxml import etree
 import yapbib.biblist as biblist
+import yapbib.bibparse as bibparse
 import string
 from stk_exceptions import *
 import traceback
@@ -50,6 +51,9 @@ def create_name(authors, year, append=''):
     Output: source_name - (string)"""
 
     source_name = None
+    if (authors[0] == None):
+        # No authors yet!
+        raise NoAuthors("No authors found to sort") 
     if (len(authors) == 1):
         # single name: name_year
         source_name = authors[0] + "_" + year + append
@@ -82,7 +86,7 @@ def single_sourcename(XML,append=''):
     find = etree.XPath("//year/integer_value")
     year = find(xml_root)[0].text
     source_name = create_name(authors, year,append)
-
+    
     attributes = xml_root.attrib
     attributes["name"] = source_name
 
@@ -117,6 +121,7 @@ def all_sourcenames(XML):
     XML = string.replace(XML,"</source><source ", "</source>\n    <source ")
     XML = string.replace(XML,"</source></sources", "</source>\n  </sources") 
     XML = set_unique_names(XML)
+    
     return XML
 
 def get_all_source_names(XML):
@@ -178,6 +183,9 @@ def set_unique_names(XML):
             # same as last time
             unique_source_names[current_name] -=1
 
+    # sort new name
+    xml_root = _sort_data(xml_root)
+
     XML = etree.tostring(xml_root,pretty_print=True)
 
     return XML
@@ -198,9 +206,11 @@ def import_bibliography(XML, bibfile):
 
     try: 
         b.import_bibtex(bibfile)
-    except UnboundLocalError:
+    except bibparse.BibAuthorError as e:
         # This seems to be raised if the authors aren't formatted correctly
-        raise BibImportError("Error importing bib file. Check all your authors for correct format")
+        raise BibImportError("Error importing bib file. Check all your authors for correct format: " + e.msg)
+    except bibparse.BibKeyError as e:
+        raise BibImportError("Error importing bib file. " + e.msg)
     except AttributeError:
         # This seems to occur if the keys are not set for the entry
         raise BibImportError("Error importing bib file. Check all your entry keys")
@@ -261,6 +271,7 @@ def import_bibliography(XML, bibfile):
             parent.remove(s)
 
     # sort sources in alphabetical order
+    xml_root = _sort_data(xml_root)
     XML = etree.tostring(xml_root,pretty_print=True)
     
     return XML
@@ -304,6 +315,8 @@ def import_tree(filename, gui=None, tree_no = -1):
             if (line.startswith('END') and add_to):
                 add_to = False
                 break
+        # tidy up and remove the *
+        content = string.replace( content, '* ', '')
 
 # Mesquite is similar to MacClade, but need more processing
     m = re.search(r'Mesquite',content)
@@ -346,33 +359,36 @@ def import_tree(filename, gui=None, tree_no = -1):
         #remove nodal branch lengths
         content = re.sub("\):\d.\d+","):0.0", content)
 
-# Combined trees that are output from Paup
+# Comments. This is p4's issue as it uses glob.glob to find out if
+# the incoming "thing" is a file or string. Comments in nexus files are
+# [ ], which in glob.glob means something, so we need to delete content
+# that is between the [] before passing to p4. We're going to cheat and 
+# just pull out the tree
     m = re.search(r'\[\!',content)
     if (m!=None):
         h = StringIO(content)
         content = "#NEXUS\n"
         content += "begin trees;\n"
-        translate_block = False
+        add_to = False
         for line in h:
-            if (translate_block):
-                content += line+"\n"
-                if (line.strip().startswith(";")):
-                        translate_block = False
-            if (line.strip().startswith('tree')):
-                index = line.index("(")
-                content += "tree tree_1 = [&U] " + line[index:-1]+"\n"
+            if (line.strip().lower().startswith('end')):
+                add_to = False
+            if (line.strip().lower().startswith('tree')):
+                add_to = True
             if (line.strip().lower().startswith('translate')):
-                    translate_block = True
-                    content += "TRANSLATE\n"
-
-        content+="end;\n"
+                add_to=True
+            if (add_to):
+                content += line+"\n"
+        content += "\nend;"
 
     treedata = content
     
     try:
         p4.var.warnReadNoFile = False
+        p4.var.nexus_warnSkipUnknownBlock = False
         p4.var.trees = []
         p4.read(treedata)
+        p4.var.nexus_warnSkipUnknownBlock = True
         p4.var.warnReadNoFile = True
     except:
         raise TreeParseError("Error parsing " + filename)
@@ -837,7 +853,9 @@ def add_historical_event(XML, event_description):
     action = etree.SubElement(event,"action")
     string = etree.SubElement(date,'string_value')
     string.text = now
+    string.attrib['lines'] = "1"
     string = etree.SubElement(action,'string_value')
+    string.attrib['lines'] = "1"
     string.text = event_description
 
     XML = etree.tostring(xml_root,pretty_print=True)
@@ -1112,4 +1130,22 @@ def _getTaxaFromNewick(tree):
 
     return terminals
 
+
+def _sort_data(xml_root):
+    """ Grab all source names and sort them alphabetically, 
+    spitting out a new XML """
+
+    # this element holds the phonebook entries
+    container = xml_root.find("sources")
+
+    data = []
+    for elem in container:
+        key = elem.attrib['name']
+        data.append((key, elem))
+
+    data.sort()
+
+    # insert the last item from each tuple
+    container[:] = [item[-1] for item in data]
     
+    return xml_root

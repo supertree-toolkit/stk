@@ -1,7 +1,8 @@
 import unittest
 import math
 import sys
-sys.path.append("../../")
+# so we import local stk before any other
+sys.path.insert(0,"../../")
 from stk.stk_import_export import export_to_old, import_old_data
 from stk.supertree_toolkit import _parse_xml
 import os
@@ -76,7 +77,8 @@ class TestImportExport(unittest.TestCase):
             self.assert_(False)
         
         try:
-            shutil.rmtree('data/output/old_stk_test')
+            pass
+            #shutil.rmtree('data/output/old_stk_test')
         except:
             return
 

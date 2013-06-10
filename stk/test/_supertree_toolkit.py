@@ -6,7 +6,7 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir,
 sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
-from stk.supertree_toolkit import add_historical_event
+from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -198,6 +198,23 @@ class TestSetSourceNames(unittest.TestCase):
         analyses = get_analyses_used(XML)
         expected_analyses = ['Bayesian','MRP']
         self.assertListEqual(analyses,expected_analyses)
+
+    def test_sort_data(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        xml_root = _parse_xml(XML)
+        xml_root = _sort_data(xml_root)
+        # By getting source, we can then loop over each source_tree
+        # within that source and construct a unique name
+        find = etree.XPath("//source")
+        sources = find(xml_root)
+        names = []
+        for s in sources:
+            # for each source, get source name
+            names.append(s.attrib['name'])
+
+        expected_names = ['Davis_2011','Hill_2011','Hill_Davis_2011']
+        self.assertListEqual(names,expected_names)
+
 
     def test_add_event(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
