@@ -286,13 +286,11 @@ def sub_taxa(args):
         print "Output file exists. Either remove the file or use the --overwrite flag."
         print "Do you wish to continue? [Y/n]"
         while True:
-            input = sys.stdin.read(1)
-            if input == None:
-                input = 'y'
-            if input == 'n':
+            k=inkey()
+            if k.lower() == 'n':
                 print "Exiting..."
                 sys.exit(0)
-            if input == 'y':
+            if k.lower() == 'y':
                 break
 
     XML = supertree_toolkit.load_phyml(input_file)
@@ -326,13 +324,11 @@ def import_data(args):
         print "Output file exists. Either remove the file or use the --overwrite flag."
         print "Do you wish to continue? [Y/n]"
         while True:
-            input = sys.stdin.read(1)
-            if input == None:
-                input = 'y'
-            if input == 'n':
+            k=inkey()
+            if k.lower() == 'n':
                 print "Exiting..."
                 sys.exit(0)
-            if input == 'y':
+            if k.lower() == 'y':
                 break
 
     phyml = supertree_import_export.import_old_data(input_dir,verbose=verbose) 
