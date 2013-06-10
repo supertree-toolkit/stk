@@ -38,7 +38,12 @@ import stk.p4.MRP as MRP
 import networkx as nx
 import pylab as plt
 from matplotlib.ticker import MaxNLocator
+from matplotlib import backends
 import datetime
+import gtk
+from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
+
+#plt.ion()
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -935,30 +940,46 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                 colours.append(len(G_relabelled.neighbors(key)))
             # Define our colourmap, such that unconnected nodes stand out in red, with
             # a smooth white to blue transition above this
-            # We need to normalize the colours arrat from (0,1) and find out where
+            # We need to normalize the colours array from (0,1) and find out where
             # our minimum overlap value sits in there
+            norm_cutoff = 1.0/max(colours)
+            # Our cut off is at 1 - i.e. one connected edge. 
             from matplotlib.colors import LinearSegmentedColormap
             cdict = {'red':   ((0.0, 1.0, 1.0),
-                               (0.0, 1.0, 1.0),
+                               (norm_cutoff, 1.0, 1.0),
                                (1.0, 0.1, 0.1)),
                      'green': ((0.0, 0.0, 0.0),
-                               (0.0, 0.0, 1.0),
+                               (norm_cutoff, 0.0, 1.0),
                                (1.0, 0.1, 0.1)),
                      'blue':  ((0.0, 0.0, 0.0),
-                               (0.0, 0.0, 1.0),
+                               (norm_cutoff, 0.0, 1.0),
                                (1.0, 1.0, 1.0))}
             custom = LinearSegmentedColormap('custom', cdict)
 
-            fig = plt.figure(figsize=(10,10), dpi=90)
+            fig = plt.figure(dpi=90)
             ax = fig.add_subplot(111)
             cs = nx.draw_circular(G_relabelled,with_labels=True,ax=ax,node_color=colours,cmap=custom,edge_color='k',node_size=100,font_size=8)
             limits=plt.axis('off')
+            vmin, vmax = plt.gci().get_clim()
+            plt.clim(0,vmax)
             plt.axis('equal')
             ticks = MaxNLocator(integer=True,nbins=9)
             pp=plt.colorbar(cs, orientation='horizontal', format='%d', ticks=ticks)
             pp.set_label("No. connected edges")
             if (show):
-                fig.show()
+                win = gtk.Window()
+                win.connect("destroy", lambda x: gtk.main_quit())
+                vBox = gtk.VBox()
+                figureWidget = backends.backend_gtk.FigureCanvasGTK(fig)
+                toolbarWidget = backends.backend_gtk.NavigationToolbar2GTK(figureWidget, None)
+                vBox.pack_start(figureWidget)
+                vBox.pack_end(toolbarWidget, expand = False, fill = False)
+                win.set_default_size(400,300)
+                win.set_title("Data Overlap")
+                win.add(vBox)
+
+                win.show_all()
+                gtk.main()
             else:
                 fig.savefig(filename,format='png')
     
