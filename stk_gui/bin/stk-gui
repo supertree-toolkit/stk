@@ -30,6 +30,8 @@ import gobject
 gobject.threads_init()
 
 # do this right at the start, so we can find the stk_gui modules
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir)
+sys.path.insert(0, stk_path)
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, "stk_gui")
 sys.path.insert(0, stk_path)
 dxdiff_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, "dxdiff" )
