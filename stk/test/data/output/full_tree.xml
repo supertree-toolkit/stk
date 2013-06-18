@@ -34,7 +34,46 @@
         <string_value lines="1">Add your tree here</string_value>
       </tree_data>
     </source>
-    <source name="Hill_etal_1996">
+    <source name="Hill_Davis_1996">
+      <source_publication>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Hill</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Jon</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Davis</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Katie</string_value>
+              </other_names>
+          </author>
+          </authors>
+          <title>
+            <string_value lines="1">A great paper</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">1996</integer_value>
+          </year>
+        </article>
+      </source_publication>
+      <character_data>
+        <character>
+          <character type="molecular" name="16S"/>
+        </character>
+      </character_data>
+      <analysis_used/>
+      <tree_data>
+        <string_value lines="1">Add your tree here</string_value>
+      </tree_data>
+    </source>
+  <source name="Hill_etal_1996">
       <source_publication>
         <article>
           <authors>
@@ -81,45 +120,6 @@
         <string_value lines="1">Add your tree here</string_value>
       </tree_data>
     </source>
-    <source name="Hill_Davis_1996">
-      <source_publication>
-        <article>
-          <authors>
-            <author>
-              <surname>
-                <string_value lines="1">Hill</string_value>
-              </surname>
-              <other_names>
-                <string_value lines="1">Jon</string_value>
-              </other_names>
-            </author>
-            <author>
-              <surname>
-                <string_value lines="1">Davis</string_value>
-              </surname>
-              <other_names>
-                <string_value lines="1">Katie</string_value>
-              </other_names>
-          </author>
-          </authors>
-          <title>
-            <string_value lines="1">A great paper</string_value>
-          </title>
-          <year>
-            <integer_value rank="0">1996</integer_value>
-          </year>
-        </article>
-      </source_publication>
-      <character_data>
-        <character>
-          <character type="molecular" name="16S"/>
-        </character>
-      </character_data>
-      <analysis_used/>
-      <tree_data>
-        <string_value lines="1">Add your tree here</string_value>
-      </tree_data>
-    </source>
-  </sources>
+    </sources>
   <history/>
 </phylo_storage>

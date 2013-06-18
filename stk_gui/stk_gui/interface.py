@@ -27,6 +27,7 @@ import Queue
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
 import stk.supertree_toolkit as stk
+import stk.stk_import_export as stk_import_export
 from stk.supertree_toolkit import _removeNonAscii
 import pango
 import gobject
@@ -165,6 +166,8 @@ class Diamond:
                     "on_standardise_names": self.on_standardise_names,
                     "on_import_bib": self.on_import_bib,
                     "on_create_matrix": self.on_create_matrix,
+                    "on_export": self.on_export,
+                    "on_import": self.on_import,
                     "on_sub_taxa": self.on_sub_taxa,
                     "on_data_summary": self.on_data_summary
                     }
@@ -179,7 +182,7 @@ class Diamond:
 
     self.logofile = logofile
     if self.logofile is not None:
-      gtk.window_set_default_icon_from_file(self.logofile)
+      gtk.window_set_default_icon_from_file(self.logofile[0])
 
     self.init_treemodel()
 
@@ -656,7 +659,7 @@ class Diamond:
 
   def on_about(self, widget=None):
     """
-    Tell the user how fecking great we are.
+    Tell the user how great we are.
     """
 
     about = gtk.AboutDialog()
@@ -674,10 +677,10 @@ class Diamond:
                       "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"+
                       "GNU General Public License for more details.\n"+
                       "You should have received a copy of the GNU General Public License\n"+
-                      "along with Diamond.  If not, see http://www.gnu.org/licenses/.")
+                      "along with the Supertree Toolkit.  If not, see http://www.gnu.org/licenses/.")
 
     if self.logofile is not None:
-      logo = gtk.gdk.pixbuf_new_from_file(self.logofile)
+      logo = gtk.gdk.pixbuf_new_from_file(self.logofile[0])
       about.set_logo(logo)
       
     try:
@@ -686,7 +689,8 @@ class Diamond:
     except:
       pass
     
-    about.show()
+    about.run()
+    about.destroy()
 
     return
 
@@ -926,6 +930,7 @@ class Diamond:
  
     return
 
+
   def on_data_summary(self, widget=None):
     """ Summarises the data to a few key facts
     """
@@ -968,7 +973,15 @@ class Diamond:
     f = open(filename,'w')
     f.write(summary)
     f.close()
-  
+
+    # Add a history event
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    XML = stk.add_historical_event(XML, "Data summary written to : "+filename)
+    ios = StringIO.StringIO(XML)
+
+
 
   def on_create_matrix(self, widget=None):
     """ Creates a MRP matrix from the data in the phyml. Actually, this function
@@ -978,7 +991,7 @@ class Diamond:
     signals = {"on_create_matrix_dialog_close": self.on_create_matrix_cancel_button,
                "on_create_matrix_cancel_clicked": self.on_create_matrix_cancel_button,
                "on_create_matrix_clicked": self.on_create_matrix_create_matrix_button,
-               "on_create_matrix_broswe_clicked": self.on_create_matrix_browse_button}
+               "on_create_matrix_browse_clicked": self.on_create_matrix_browse_button}
 
     self.create_matrix_gui = gtk.glade.XML(self.gladefile, root="create_matrix_dialog")
     self.create_matrix_dialog = self.create_matrix_gui.get_widget("create_matrix_dialog")
@@ -1015,6 +1028,15 @@ class Diamond:
     f = open(filename, "w")
     f.write(matrix)
     f.close()    
+
+    # Add a history event
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    XML = stk.add_historical_event(XML, "Matrix written to: "+filename)
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (create matrix) to XML", skip_warning=True)
+
     
     self.create_matrix_dialog.hide()
 
@@ -1033,6 +1055,122 @@ class Diamond:
       filename_textbox = self.create_matrix_gui.get_widget("entry1")
       filename_textbox.set_text(filename)
 
+
+  def on_export(self, widget=None):
+    """ Export data to old-style STK data
+    """
+
+    signals = {"on_export_dialog_close": self.on_export_cancel_button,
+               "on_export_cancel_clicked": self.on_export_cancel_button,
+               "on_export_button_clicked": self.on_export_button,
+               "on_export_browse_clicked": self.on_export_browse_button}
+
+    self.export_gui = gtk.glade.XML(self.gladefile, root="export_data_dialog")
+    self.export_dialog = self.export_gui.get_widget("export_data_dialog")
+    self.export_gui.signal_autoconnect(signals)
+    export_button = self.export_gui.get_widget("export_button")
+    export_button.connect("activate", self.on_export_button)
+    self.export_dialog.show()
+
+    return
+      
+  def on_export_button(self, button):
+
+    filename_textbox = self.export_gui.get_widget("entry1")
+    filename = filename_textbox.get_text()
+
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    try:
+        stk_import_export.export_to_old(XML,filename,verbose=False) 
+    except STKImportExportError as e:
+        dialogs.error(self.main_window, e.msg)
+    except:
+        dialogs.error(self.main_window, "Error exporting.")
+    
+    self.export_dialog.hide()
+    # Add a history event
+    XML = stk.add_historical_event(XML, "Data exported to: "+filename)
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (data export) to XML",skip_warning=True)
+
+    return
+
+  def on_export_cancel_button(self, button):
+      """ Close the export dialogue
+      """
+
+      self.export_dialog.hide()
+
+  def on_export_browse_button(self, button):
+      filter_names_and_patterns = {}
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose export directory", action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+      filename_textbox = self.export_gui.get_widget("entry1")
+      filename_textbox.set_text(filename)
+
+      return
+
+  def on_import(self, widget=None):
+    """ Export data to old-style STK data
+    """
+
+    signals = {"on_import_dialog_close": self.on_import_cancel_button,
+               "on_import_cancel_clicked": self.on_import_cancel_button,
+               "on_import_button_clicked": self.on_import_button,
+               "on_import_browse_clicked": self.on_import_browse_button}
+
+    self.import_gui = gtk.glade.XML(self.gladefile, root="import_data_dialog")
+    self.import_dialog = self.import_gui.get_widget("import_data_dialog")
+    self.import_gui.signal_autoconnect(signals)
+    import_button = self.import_gui.get_widget("import_button")
+    import_button.connect("activate", self.on_import_button)
+    self.import_dialog.show()
+
+    return
+      
+  def on_import_button(self, button):
+
+    filename_textbox = self.import_gui.get_widget("entry1")
+    filename = filename_textbox.get_text()
+
+    try:
+        XML = stk_import_export.import_old_data(filename,verbose=False)
+    except:
+           dialogs.error_tb(self.main_window, "Error parsing the old-style XML files. Please see the manual for the correct XML syntax.")
+           return
+    XML = _removeNonAscii(XML)
+    # Add a history event
+    XML = stk.add_historical_event(XML, "Data imported from: "+filename)
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error importing data whilst checking XML")
+
+    #except STKImportExportError as e:
+    #    dialogs.error(self.main_window, e.msg)
+    #except:
+    #    dialogs.error(self.main_window, "Error importing.")
+
+
+    
+    self.import_dialog.hide()
+
+    return
+
+  def on_import_cancel_button(self, button):
+      """ Close the import dialogue
+      """
+
+      self.import_dialog.hide()
+
+  def on_import_browse_button(self, button):
+      filter_names_and_patterns = {}
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose import directory", action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+      filename_textbox = self.import_gui.get_widget("entry1")
+      filename_textbox.set_text(filename)
+
+
   def on_sub_taxa(self, widget=None):
     """ Substitute taxa in the tree. Actually, this function
         merely opens the dialog form the glade file...
@@ -1046,8 +1184,8 @@ class Diamond:
     self.sub_taxa_gui = gtk.glade.XML(self.gladefile, root="sub_taxa_dialog")
     self.sub_taxa_dialog = self.sub_taxa_gui.get_widget("sub_taxa_dialog")
     self.sub_taxa_gui.signal_autoconnect(signals)
-    matrix_file = self.sub_taxa_gui.get_widget("sub_taxa_button")
-    matrix_file.connect("activate", self.on_sub_taxa_sub_taxa_button)
+    sub_taxa_button = self.sub_taxa_gui.get_widget("sub_taxa_button")
+    sub_taxa_button.connect("activate", self.on_sub_taxa_sub_taxa_button)
     self.sub_taxa_dialog.show()
 
     return
@@ -1071,6 +1209,12 @@ class Diamond:
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
+    # Add an event to the history of the file
+    event_desc = "Taxa substitution from "+old_taxa+" to "+new_taxa+" via GUI using files: "+self.filename+" to "+filename
+    XML = stk.add_historical_event(XML,event_desc) 
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (taxa sub) to XML",skip_warning=True)
+    
     XML2 = stk.sub_taxa(XML,old_taxon,new_taxon)
     f = open(filename, "w")
     f.write(XML2)
@@ -1111,6 +1255,7 @@ class Diamond:
      try:
         XML = stk.import_bibliography(XML, filename)
         XML = _removeNonAscii(XML)
+        XML = stk.add_historical_event(XML, "Bibliographic information imported from: "+filename)
         ios = StringIO.StringIO(XML)
      except BibImportError as detail:
         dialogs.error(self.main_window,detail.msg)
@@ -1119,40 +1264,7 @@ class Diamond:
          dialogs.error(self.main_window,"Error importing bib file")
          return
 
-
-     try:
-        tree_read = self.s.read(ios)
-
-        if tree_read is None:
-           dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
-           return
-        
-        errors = self.s.read_errors()
-        lost_eles, added_eles, lost_attrs, added_attrs = errors
-        if (len(lost_eles) > 0 or len(lost_attrs) > 0):
-            self.display_validation_errors(self.s.read_errors())
-        self.tree = tree_read
-     except:
-        dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
-        return
-
-     path = self.treestore.get_path(self.selected_iter)
-
-
-     self.set_saved(False)
-     self.treeview.freeze_child_notify()
-     self.treeview.set_model(None)
-     self.signals = {}
-     self.set_treestore(None, [self.tree], True)
-     self.treeview.set_model(self.treestore)
-     self.treeview.thaw_child_notify()
-     self.treeview.grab_focus()
-     self.treeview.get_selection().select_path(0)
-
-     self.selected_node = None
-     self.update_options_frame()
-  
-     self.scherror.destroy_error_list()
+     self.update_data(ios, "Error converting bib file to XML", skip_warning=True)
      
      return  
 
@@ -1164,20 +1276,39 @@ class Diamond:
      f = StringIO.StringIO()
      self.tree.write(f)
      XML = f.getvalue() 
-     XML = stk.all_sourcenames(XML)
+     try:
+        XML = stk.all_sourcenames(XML)
+     except NoAuthors as detail:
+        dialogs.error(self.main_window,detail.msg)
+        return 
+         
      XML = _removeNonAscii(XML)
+     # Add a history event
+     XML = stk.add_historical_event(XML, "Source names standardised")
      ios = StringIO.StringIO(XML)
+
+     self.update_data(ios, "Error standardising names")
+
+     return 
+
+
+  def update_data(self,ios, error, skip_warning=False):
+
      try:
         tree_read = self.s.read(ios)
 
         if tree_read is None:
-           dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
+           dialogs.error_tb(self.main_window, error)
            return
 
-        self.display_validation_errors(self.s.read_errors())
+        if (not skip_warning):
+           errors = self.s.read_errors()
+           lost_eles, added_eles, lost_attrs, added_attrs = errors
+           if (len(lost_eles) > 0 or len(lost_attrs) > 0):
+              self.display_validation_errors(self.s.read_errors())
         self.tree = tree_read
      except:
-        dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
+        dialogs.error_tb(self.main_window, error)
         return
 
      path = self.treestore.get_path(self.selected_iter)
@@ -1189,13 +1320,11 @@ class Diamond:
      self.set_treestore(None, [self.tree], True)
      self.treeview.set_model(self.treestore)
      self.treeview.thaw_child_notify()
-
      self.set_geometry_dim_tree()
-  
      self.treeview.get_selection().select_path(path)
-
      self.scherror.destroy_error_list()
-     return 
+
+     return
 
   ## LHS ###
 
@@ -1704,8 +1833,6 @@ class Diamond:
 
     self.selected_iter = iter = self.treestore.get_iter(path)
     choice_or_tree, active_tree = self.treestore.get(iter, 0, 1)
-
-    debug.dprint(active_tree)
 
     self.selected_node = self.get_painted_tree(iter)
     self.update_options_frame()

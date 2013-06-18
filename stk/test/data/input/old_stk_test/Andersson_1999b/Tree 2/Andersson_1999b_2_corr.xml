@@ -1,0 +1,36 @@
+<?xml version="1.0" standalone="yes"?>
+<SourceTree>
+  <Source>
+    <Author>Andersson, M.</Author>
+    <Year>1999</Year>
+    <Title>Hybridisation and skua phylogeny.</Title>
+    <Journal>Proceedings of the Royal Society of London B</Journal>
+    <Volume>266</Volume>
+    <Pages>1579-1585</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="8" fossil="none">
+    <List>Stercorarius longicaudus</List>
+    <List>Stercorarius parasiticus</List>
+    <List>Stercorarius pomarinus</List>
+    <List>Catharacta skua</List>
+    <List>Catharacta antarctica</List>
+    <List>Catharacta chilensis</List>
+    <List>Catharacta maccormicki</List>
+    <List>Larus argentatus</List>
+  </Taxa>
+  <Characters>
+    <Molecular/>
+    <Morphological number="1">
+      <Type>Parasites</Type>
+    </Morphological>
+    <Behavioural/>
+    <Other/></Characters>
+  <Analysis>
+    <Type>MP</Type>
+  </Analysis>
+  <Notes></Notes>
+  <TreeFile>Andersson_1999b_2_corr.tre</TreeFile>
+</SourceTree>
+

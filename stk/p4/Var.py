@@ -94,6 +94,8 @@ class Var(object):
                                                      # may not have a taxon name.  If it is a root on a stick,
                                                      # it is by default considered a leaf, and if it has no
                                                      # name then a warning is given, if this is set.
+        self.fixRootedTrees = True # See above. If this is the case, then Supertree scores won't work. 
+                                   # This option removes the (un-named) root, fixing this issue
                                                      
         self.doTreeReadMcmcModelUsageComments = 0  # These comments are always read in by TreePartitions
                                                    # objects.  This says whether they are read

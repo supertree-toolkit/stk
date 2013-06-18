@@ -1,12 +1,13 @@
 import unittest
 import math
 import sys
-sys.path.append("../")
-from supertree_toolkit import import_bibliography 
+# so we import local stk before any other
+sys.path.insert(0,"../../")
+from stk.supertree_toolkit import import_bibliography 
 import os
 from lxml import etree
 from util import *
-import stk_exceptions
+from stk.stk_exceptions import *
 
 parser = etree.XMLParser(remove_blank_text=True)
 xml_start = etree.parse("data/input/start_up.phyml")
@@ -45,8 +46,9 @@ class TestBibliography(unittest.TestCase):
         xml = etree.tostring(xml_start)
         try:
             new_xml = import_bibliography(xml, bib_book)
-        except stk_exceptions.BibImportError as details:
-           self.assert_(details.msg == "Error importing bib file. Check all your authors for correct format")
+        except BibImportError as details:
+           # Check that an entry with dodgy author entry reports the correct key to help the user find it
+           self.assert_(details.msg == "Error importing bib file. Check all your authors for correct format: Porter2005")
         except:
            return False
 
@@ -55,8 +57,8 @@ class TestBibliography(unittest.TestCase):
         xml = etree.tostring(xml_start)
         try:
             new_xml = import_bibliography(xml, bib_book)
-        except stk_exceptions.BibImportError as details:
-           self.assert_(details.msg == "Error importing bib file. Check all your entry keys")
+        except BibImportError as details:
+           self.assert_(details.msg == "Error importing bib file. Error parsing:  author = {Ahyong, S. T. and O'Meally, D.}, title = {Phylogeny of the Decapoda reptantia: Resolutio...\nMissing Bibtex Key")
         except:
            return False
 #    def test_import_single_incollection(self):

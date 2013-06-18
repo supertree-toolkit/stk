@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #    Jon Hill. jon.hill@imperial.ac.uk. 
-from Bio import Phylo
 from StringIO import StringIO
 import os
 import sys
@@ -27,18 +26,22 @@ import re
 import numpy 
 from lxml import etree
 import yapbib.biblist as biblist
+import yapbib.bibparse as bibparse
 import string
 from stk_exceptions import *
 import traceback
 from cStringIO import StringIO
 from collections import defaultdict
-import p4
+import stk.p4 as p4
 import re
 import operator
+import stk.p4.MRP as MRP
+import datetime
 
 # GLOBAL VARIABLES
 IDENTICAL = 0
 SUBSET = 1
+
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -54,6 +57,9 @@ def create_name(authors, year, append=''):
     Output: source_name - (string)"""
 
     source_name = None
+    if (authors[0] == None):
+        # No authors yet!
+        raise NoAuthors("No authors found to sort") 
     if (len(authors) == 1):
         # single name: name_year
         source_name = authors[0] + "_" + year + append
@@ -86,7 +92,7 @@ def single_sourcename(XML,append=''):
     find = etree.XPath("//year/integer_value")
     year = find(xml_root)[0].text
     source_name = create_name(authors, year,append)
-
+    
     attributes = xml_root.attrib
     attributes["name"] = source_name
 
@@ -121,6 +127,7 @@ def all_sourcenames(XML):
     XML = string.replace(XML,"</source><source ", "</source>\n    <source ")
     XML = string.replace(XML,"</source></sources", "</source>\n  </sources") 
     XML = set_unique_names(XML)
+    
     return XML
 
 def get_all_source_names(XML):
@@ -182,6 +189,9 @@ def set_unique_names(XML):
             # same as last time
             unique_source_names[current_name] -=1
 
+    # sort new name
+    xml_root = _sort_data(xml_root)
+
     XML = etree.tostring(xml_root,pretty_print=True)
 
     return XML
@@ -202,9 +212,11 @@ def import_bibliography(XML, bibfile):
 
     try: 
         b.import_bibtex(bibfile)
-    except UnboundLocalError:
+    except bibparse.BibAuthorError as e:
         # This seems to be raised if the authors aren't formatted correctly
-        raise BibImportError("Error importing bib file. Check all your authors for correct format")
+        raise BibImportError("Error importing bib file. Check all your authors for correct format: " + e.msg)
+    except bibparse.BibKeyError as e:
+        raise BibImportError("Error importing bib file. " + e.msg)
     except AttributeError:
         # This seems to occur if the keys are not set for the entry
         raise BibImportError("Error importing bib file. Check all your entry keys")
@@ -265,6 +277,7 @@ def import_bibliography(XML, bibfile):
             parent.remove(s)
 
     # sort sources in alphabetical order
+    xml_root = _sort_data(xml_root)
     XML = etree.tostring(xml_root,pretty_print=True)
     
     return XML
@@ -278,13 +291,10 @@ def import_tree(filename, gui=None, tree_no = -1):
 # TreeView create a tree with the following description:
 #
 #   UTREE * tree_1 = ((1,(2,(3,(4,5)))),(6,7));
-# UTREE * is not a supported part of the NEXUS format (as far as BioPython).
+# UTREE * is not a supported part of the NEXUS format.
 # so we need to replace the above with:
 #   tree_1 = [&u] ((1,(2,(3,(4,5)))),(6,7));
 #
-# BioPython doesn throw an exception or anything on these files,
-# So for now glob the file, replace the text, and create a StringIO 
-# object to pass BioPython - MESSY!!
     f = open(filename)
     content = f.read()                 # read entire file into memory
     f.close()
@@ -311,6 +321,8 @@ def import_tree(filename, gui=None, tree_no = -1):
             if (line.startswith('END') and add_to):
                 add_to = False
                 break
+        # tidy up and remove the *
+        content = string.replace( content, '* ', '')
 
 # Mesquite is similar to MacClade, but need more processing
     m = re.search(r'Mesquite',content)
@@ -353,15 +365,41 @@ def import_tree(filename, gui=None, tree_no = -1):
         #remove nodal branch lengths
         content = re.sub("\):\d.\d+","):0.0", content)
 
+# Comments. This is p4's issue as it uses glob.glob to find out if
+# the incoming "thing" is a file or string. Comments in nexus files are
+# [ ], which in glob.glob means something, so we need to delete content
+# that is between the [] before passing to p4. We're going to cheat and 
+# just pull out the tree
+    m = re.search(r'\[\!',content)
+    if (m!=None):
+        h = StringIO(content)
+        content = "#NEXUS\n"
+        content += "begin trees;\n"
+        add_to = False
+        for line in h:
+            if (line.strip().lower().startswith('end')):
+                add_to = False
+            if (line.strip().lower().startswith('tree')):
+                add_to = True
+            if (line.strip().lower().startswith('translate')):
+                add_to=True
+            if (add_to):
+                content += line+"\n"
+        content += "\nend;"
+
     treedata = content
-    handle = StringIO(treedata)
     
-    if (filename.endswith(".nex") or filename.endswith(".tre")):
-        trees = list(Phylo.parse(handle, "nexus"))
-    elif (filename.endswith("nwk")):
-        trees = list(Phylo.parse(handle, "newick"))
-    elif (filename.endswith("phyloxml")):
-        trees = list(Phylo.parse(handle, "phyloxml"))
+    try:
+        p4.var.warnReadNoFile = False
+        p4.var.nexus_warnSkipUnknownBlock = False
+        p4.var.trees = []
+        p4.read(treedata)
+        p4.var.nexus_warnSkipUnknownBlock = True
+        p4.var.warnReadNoFile = True
+    except:
+        raise TreeParseError("Error parsing " + filename)
+    trees = p4.var.trees
+    p4.var.trees = []
 
     if (len(trees) > 1 and tree_no == -1):
         message = "Found "+len(trees)+" trees. Which one do you want to load (1-"+len(trees)+"?"
@@ -397,18 +435,8 @@ def import_tree(filename, gui=None, tree_no = -1):
     else:
         tree_no = 0
 
-    h = StringIO()
-    Phylo.write(trees[tree_no], h, "newick")
-    tree = h.getvalue()
-
-    return tree
-
-def draw_tree(tree_string):
-    
-    h = StringIO(tree_string)
-    tree = Phylo.read(h, 'newick')
-    tree.ladderize()   # Flip branches so deeper clades are displayed at top
-    Phylo.draw(tree)
+    tree = trees[tree_no]
+    return tree.writeNewick(fName=None,toString=True).strip()
 
 def get_all_characters(XML):
     """Returns a dictionary containing a list of characters within each 
@@ -498,10 +526,18 @@ def get_taxa_from_tree(XML, tree_name, sort=False):
     for t in trees:
         if t == tree_name:
             tree = trees[t]
-            handle = StringIO(tree)
-            t_obj = list(Phylo.parse(handle, "newick"))
-            t_obj = t_obj[0]
-            terminals = t_obj.get_terminals()
+            try:
+                p4.var.warnReadNoFile = False
+                p4.var.nexus_warnSkipUnknownBlock = False
+                p4.var.trees = []
+                p4.read(tree)
+                p4.var.nexus_warnSkipUnknownBlock = True
+                p4.var.warnReadNoFile = True
+            except:
+                raise TreeParseError("Error parsing tree to get taxa")
+            tree = p4.var.trees[0]
+            p4.var.trees = []
+            terminals = tree.getAllLeafNames(tree.root)
             for term in terminals:
                 taxa_list.append(str(term))
             if (sort):
@@ -610,13 +646,9 @@ def get_all_taxa(XML, pretty=False):
 
     taxa_list = []
 
-    for t in trees.values():
-        handle = StringIO(t)
-        t_obj = list(Phylo.parse(handle, "newick"))
-        t_obj = t_obj[0]
-        terminals = t_obj.get_terminals()
-        for term in terminals:
-            taxa_list.append(str(term))
+    for tname in trees.keys():
+        t = trees[tname]
+        taxa_list.extend(_getTaxaFromNewick(t))
 
     # now uniquify the list of taxa
     taxa_list = _uniquify(taxa_list)
@@ -650,10 +682,7 @@ def create_matrix(XML,format="hennig"):
     current_char = 1
     for key in trees:
         names.append(key)
-        handle = StringIO(trees[key])
-        newick_trees = list(Phylo.parse(handle, "newick"))
-        newick_tree = newick_trees[0]
-        submatrix, tree_taxa = _assemble_tree_matrix(newick_tree)
+        submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
         nChars = len(submatrix[0,:])
         # loop over characters in the submatrix
         for i in range(1,nChars):
@@ -885,7 +914,6 @@ def data_summary(XML,detailed=False):
 
     return output_string
 
-
 def data_independence(XML,make_new_xml=False):
     """ Return a list of sources that are not independent.
     This is decided on the source data and the analysis
@@ -948,6 +976,27 @@ def data_independence(XML,make_new_xml=False):
     else:
         return non_ind
 
+def add_historical_event(XML, event_description):
+
+    now  = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    xml_root = _parse_xml(XML)
+
+    find = etree.XPath("//history")
+    history = find(xml_root)[0]
+    event = etree.SubElement(history,"event") 
+    date = etree.SubElement(event,"datetime")
+    action = etree.SubElement(event,"action")
+    string = etree.SubElement(date,'string_value')
+    string.text = now
+    string.attrib['lines'] = "1"
+    string = etree.SubElement(action,'string_value')
+    string.attrib['lines'] = "1"
+    string.text = event_description
+
+    XML = etree.tostring(xml_root,pretty_print=True)
+
+    return XML
+    
 ################ PRIVATE FUNCTIONS ########################
 
 def _uniquify(l):
@@ -988,34 +1037,30 @@ def _check_uniqueness(XML):
     return
 
 
-def _assemble_tree_matrix(tree):
+def _assemble_tree_matrix(tree_string):
     """ Assembles the MRP matrix for an individual tree
 
         returns: matrix (2D numpy array: taxa on i, nodes on j)
                  taxa list: in same order as in the matrix
     """
 
-    all_nodes = list(tree.get_nonterminals())
-    look_up = {}
-    for i, elem in enumerate(all_nodes):
-        look_up[elem] = i
-
-    all_terms = list(tree.get_terminals())
-    look_up_t = {}
+    p4.var.warnReadNoFile = False    
+    p4.var.trees = []
+    p4.read(tree_string)
+    tree = p4.var.trees[0]    
+    mrp = MRP.mrp([tree])
+    adjmat = []
     names = []
-    for i, elem in enumerate(all_terms):
-        look_up_t[elem] = i
-        names.append(str(elem))
+    for i in range(0,mrp.nTax):
+        seq = (mrp.sequences[i].sequence)
+        names.append(mrp.taxNames[i])
+        chars = []
+        chars.append(1)
+        for c in seq:
+            chars.append(int(c))
+        adjmat.append(chars)
 
-    adjmat = numpy.zeros((len(look_up_t), len(look_up)))
-
-    for i, terminal in enumerate(all_terms):
-        my_parents =  list(tree.get_path(terminal))
-        for j, p in enumerate(my_parents):
-            if (p == terminal):
-                adjmat[look_up_t[terminal],0] = 1
-            else:
-                adjmat[look_up_t[terminal],look_up[p]] = 1
+    adjmat = numpy.array(adjmat)
 
     return adjmat, names
 
@@ -1024,19 +1069,20 @@ def _delete_taxon(taxon, tree):
     """
 
     # check if taxa is in there first
-    # Prevent error from Bio.Phylo
     if (tree.find(taxon) == -1):
         return tree #raise exception?
+    p4.var.warnReadNoFile = False    
+    p4.var.trees = []
+    p4.read(tree)
+    tree_obj = p4.var.trees[0]
+    for node in tree_obj.iterNodes():
+        if node.name == taxon:
+            tree_obj.removeNode(node.nodeNum)
+            break
+    p4.var.warnReadNoFile = True    
 
-    handle = StringIO(tree)
-    t_obj = list(Phylo.parse(handle, "newick"))
-    t_obj = t_obj[0]
-    clade = t_obj.prune(taxon)
-    h = StringIO()
-    Phylo.write(t_obj, h, "newick")
-    tree = h.getvalue()
 
-    return tree
+    return tree_obj.writeNewick(fName=None,toString=True).strip()
        
 
 def _sub_taxon(old_taxon, new_taxon, tree):
@@ -1208,3 +1254,35 @@ def _parse_xml(xml_string):
     return XML
 
 def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
+
+def _getTaxaFromNewick(tree):
+    """ Get the terminal nodes from a Newick string"""
+
+    p4.var.warnReadNoFile = False    
+    p4.var.trees = []
+    p4.read(tree)
+    t_obj = p4.var.trees[0]
+    terminals = t_obj.getAllLeafNames(0)
+    p4.var.warnReadNoFile = True    
+
+    return terminals
+
+
+def _sort_data(xml_root):
+    """ Grab all source names and sort them alphabetically, 
+    spitting out a new XML """
+
+    # this element holds the phonebook entries
+    container = xml_root.find("sources")
+
+    data = []
+    for elem in container:
+        key = elem.attrib['name']
+        data.append((key, elem))
+
+    data.sort()
+
+    # insert the last item from each tuple
+    container[:] = [item[-1] for item in data]
+    
+    return xml_root

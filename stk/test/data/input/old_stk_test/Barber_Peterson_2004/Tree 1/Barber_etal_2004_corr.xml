@@ -1,0 +1,45 @@
+<?xml version="1.0" standalone="yes"?>
+<SourceTree>
+  <Source>
+    <Author>Barber, B. R. Martinez-Gomez, J. E. Peterson, A. T.</Author>
+    <Year>2004</Year>
+    <Title>Systematic position of the Socorro mockingbird Mimodes graysoni.</Title>
+    <Journal>Journal of Avian Biology</Journal>
+    <Volume>35</Volume>
+    <Pages>195-198</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="17" fossil="none">
+    <List>Cinclocerthia gutturalis</List>
+    <List>Cinclocerthia ruficauda</List>
+    <List>Margarops fuscatus</List>
+    <List>Melanoptila glabrirostris</List>
+    <List>Ramphocinclus brachyurus</List>
+    <List>Margarops fuscus</List>
+    <List>Dumetella carolinensis</List>
+    <List>Melanotis caerulescens</List>
+    <List>Mimus gilvus</List>
+    <List>Mimus polyglottos</List>
+    <List>Mimodes graysoni</List>
+    <List>Mimus gundlachii</List>
+    <List>Mimus saturninus</List>
+    <List>Oreoscoptes montanus</List>
+    <List>Toxostoma rufum</List>
+    <List>Toxostoma curvirostre</List>
+    <List>Sturnus vulgaris</List>
+  </Taxa>
+  <Characters>
+    <Molecular number="1">
+      <Type>ND2</Type>
+    </Molecular>
+    <Morphological/>
+    <Behavioural/>
+    <Other/></Characters>
+  <Analysis>
+    <Type>ML</Type>
+  </Analysis>
+  <Notes>Also Bayesian and MP topology.</Notes>
+  <TreeFile>Barber_etal_2004_corr.tre</TreeFile>
+</SourceTree>
+
