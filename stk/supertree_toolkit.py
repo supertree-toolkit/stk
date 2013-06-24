@@ -1135,7 +1135,6 @@ def _sort_data(xml_root):
     """ Grab all source names and sort them alphabetically, 
     spitting out a new XML """
 
-    # this element holds the phonebook entries
     container = xml_root.find("sources")
 
     data = []
