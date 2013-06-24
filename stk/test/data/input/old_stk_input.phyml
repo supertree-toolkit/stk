@@ -5,7 +5,7 @@
   </project_name>
   <sources>
     <source name="Allende_etal_2001">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -94,7 +94,7 @@
             <string_value lines="1">144-154</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="molecular" name="cytb"/>
@@ -109,7 +109,7 @@
       </source_tree>
     </source>
     <source name="Andersson_1999b">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -134,7 +134,7 @@
             <string_value lines="1">205-215</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="behavioural" name="Displays"/>
@@ -150,7 +150,7 @@
       </source_tree>
     </source>
     <source name="Baker_etal_2006">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -191,7 +191,7 @@
             <string_value lines="1">11-17</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="molecular" name="RAG1"/>
@@ -210,7 +210,7 @@
       </source_tree>
     </source>
     <source name="Aleixo_2002">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -235,7 +235,7 @@
             <string_value lines="1">621-640</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="molecular" name="cytb"/>
@@ -254,7 +254,7 @@
       </source_tree>
     </source>
     <source name="Bertelli_etal_2006">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -295,7 +295,7 @@
             <string_value lines="1">1-25</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="morphological" name="Osteology"/>
@@ -341,7 +341,7 @@
       </source_tree>
     </source>
     <source name="Baker_etal_2007b">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -390,7 +390,7 @@
             <string_value lines="1">185-189</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="molecular" name="cytb"/>
@@ -410,7 +410,7 @@
       </source_tree>
     </source>
     <source name="Aragon_etal_1999">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -459,7 +459,7 @@
             <string_value lines="1">495-50</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="molecular" name="cytb"/>
@@ -487,7 +487,7 @@
       </source_tree>
     </source>
     <source name="Baker_etal_2007a">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -528,7 +528,7 @@
             <string_value lines="1">205-209</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="molecular" name="12S"/>
@@ -546,7 +546,7 @@
       </source_tree>
     </source>
     <source name="Aliabadian_etal_2007">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -595,7 +595,7 @@
             <string_value lines="1">665-675</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="morphological" name="Morphometrics"/>
@@ -623,7 +623,7 @@
       </source_tree>
     </source>
     <source name="Baker_Strauch_1988">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -656,7 +656,7 @@
             <string_value lines="1">1639-1645</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="molecular" name="Alleles"/>
@@ -671,7 +671,7 @@
       </source_tree>
     </source>
     <source name="Barhoum_Burns_2002">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -704,7 +704,7 @@
             <string_value lines="1">740-749</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="molecular" name="cytb"/>
@@ -719,7 +719,7 @@
       </source_tree>
     </source>
     <source name="Baptista_Visser_1999">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -752,7 +752,7 @@
             <string_value lines="1">179-192</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="morphological" name="Plumage"/>
@@ -769,7 +769,7 @@
       </source_tree>
     </source>
     <source name="Baker_etal_2005">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -810,7 +810,7 @@
             <string_value lines="1">8257-8262</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="molecular" name="mt control region"/>
@@ -834,7 +834,7 @@
       </source_tree>
     </source>
     <source name="Andersson_1999a">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -859,7 +859,7 @@
             <string_value lines="1">1579-1585</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="morphological" name="Parasites"/>
@@ -887,7 +887,7 @@
       </source_tree>
     </source>
     <source name="Barber_Peterson_2004">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -920,7 +920,7 @@
             <string_value lines="1">195-198</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="molecular" name="ND2"/>

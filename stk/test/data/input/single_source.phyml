@@ -5,7 +5,7 @@
   </project_name>
   <sources>
     <source name="Hill_2011">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -30,7 +30,7 @@
             <string_value lines="1">1-12</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character type="molecular" name="12S"/>
