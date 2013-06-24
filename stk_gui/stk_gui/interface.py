@@ -1548,6 +1548,7 @@ class Diamond:
 
     return
 
+
   def set_combobox_liststore(self, column, cellCombo, treemodel, iter, user_data=None):
     """
     This hook function sets the properties of the gtk.CellRendererCombo for each
@@ -1559,9 +1560,12 @@ class Diamond:
     choice_or_tree, active_tree, liststore = treemodel.get(iter, 0, 1, 2)
 
     if self.groupmode and treemodel.iter_parent(iter) is None:
-      cellCombo.set_property("text", choice_or_tree.get_name_path())
+      text =  self.mangle_cell_text(choice_or_tree.get_name_path())
+      cellCombo.set_property("text", text)
     else:
-      cellCombo.set_property("text", str(choice_or_tree))
+      text = str(choice_or_tree)
+      text = self.mangle_cell_text(text)
+      cellCombo.set_property("text", text)
 
 
     cellCombo.set_property("model", liststore)
@@ -1572,6 +1576,20 @@ class Diamond:
     elif isinstance(choice_or_tree, choice.Choice):
       cellCombo.set_property("editable", True)
 
+    # Set the font for certain headings
+    if (cellCombo.get_property("text").lower() == "contributor" or
+        cellCombo.get_property("text").lower() == "bibliographic information" or
+        cellCombo.get_property("text").lower() == "source tree" or
+        cellCombo.get_property("text").lower() == "tree" or 
+        cellCombo.get_property("text").lower() == "taxa data" or
+        cellCombo.get_property("text").lower() == "character data" or 
+        cellCombo.get_property("text").lower() == "analysis used"):
+
+            cellCombo.set_property("font", "Sans Bold")
+    else:
+            cellCombo.set_property("font", "Sans")
+
+
     if self.iter_is_active(treemodel, iter):
       if active_tree.valid is True:
         cellCombo.set_property("foreground", "black")
@@ -1581,6 +1599,19 @@ class Diamond:
         cellCombo.set_property("foreground", "gray")
 
     return
+
+  def mangle_cell_text(self, text):
+      # title case
+      text = text.title()
+      # replace _ with spaces
+      text = text.replace("_"," ")
+      # replace DOI and URL correctly
+      text = text.replace("Doi","DOI")
+      text = text.replace("Url","URL")
+      text = text.replace("Iucn","IUCN")
+      text = text.replace("Uk Bap","UK BAP")
+
+      return text
 
   def set_cellpicture_choice(self, column, cell, treemodel, iter):
     """

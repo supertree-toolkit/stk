@@ -53,23 +53,25 @@ the "Auto-gen name" button below.</a:documentation>
       <data type="string" datatypeLibrary=""/>
     </attribute>
     <group>
-      <element name="source_publication">
+      <optional>
+        <element name="contributor">
+          <a:documentation>Contributer - information about the person adding this 
+data to the file.</a:documentation>
+          <ref name="person"/>
+          <optional>
+            <element name="institution">
+              <data type="string" datatypeLibrary=""/>
+            </element>
+          </optional>
+        </element>
+      </optional>
+      <element name="bibliographic_information">
         <a:documentation>Information on the source publication. The button below can be
-used to parse a bibtex citation foe this reference.</a:documentation>
+used to parse a bibtex citation for this reference.</a:documentation>
         <ref name="publication"/>
         <ref name="comment">
           <a:documentation>Some notes on this action</a:documentation>
         </ref>
-      </element>
-      <element name="contributor">
-        <a:documentation>Contributer - information about the person adding this 
-data to the file.</a:documentation>
-        <attribute name="name">
-          <data type="string" datatypeLibrary=""/>
-        </attribute>
-        <attribute name="institution">
-          <data type="string" datatypeLibrary=""/>
-        </attribute>
       </element>
       <oneOrMore>
         <element name="source_tree">
@@ -79,21 +81,13 @@ data to the file.</a:documentation>
               <data type="string" datatypeLibrary=""/>
             </attribute>
           </oneOrMore>
-          <element name="character_data">
-            <a:documentation>This stores the character data used to construct the 
-source tree(s).</a:documentation>
-            <oneOrMore>
-              <ref name="characters"/>
-            </oneOrMore>
-          </element>
-          <element name="analysis_used">
-            <a:documentation>Which analytical methods were used to createan
-the source tree?</a:documentation>
-            <ref name="analysis"/>
-          </element>
-          <element name="tree_information">
-            <a:documentation>Tree information
-Figure legend, figure number, etc</a:documentation>
+          <element name="tree">
+            <element name="tree_string">
+              <a:documentation>The tree string. This is a Nexus formatted tree string. You can import
+a standard Nexus file using the "Import tree" button below or copy 
+paste a string.</a:documentation>
+              <ref name="anystring"/>
+            </element>
             <optional>
               <element name="figure_legend">
                 <ref name="anystring"/>
@@ -109,74 +103,108 @@ Figure legend, figure number, etc</a:documentation>
                 <ref name="integer"/>
               </element>
             </optional>
-            <optional>
-              <element name="tree_topology">
-                <attribute name="type">
-                  <choice>
-                    <value>Rooted</value>
-                    <value>Unrooted</value>
-                  </choice>
-                </attribute>
-              </element>
-            </optional>
-            <optional>
-              <element name="outgroup">
-                <ref name="taxon"/>
-              </element>
-            </optional>
-          </element>
-          <element name="tree_inference">
-            <a:documentation>Information on how the tree was created, software, etc</a:documentation>
-            <optional>
-              <element name="optimality_criterion">
-                <ref name="anystring"/>
-              </element>
-            </optional>
-            <optional>
-              <ref name="software"/>
-            </optional>
-            <optional>
-              <element name="parameters_used">
-                <a:documentation>Did the authors give the command or parameters used to 
+            <element name="tree_inference">
+              <a:documentation>Information on how the tree was created, software, etc</a:documentation>
+              <ref name="analysis">
+                <a:documentation>Which analytical methods were used to create
+the source tree?</a:documentation>
+              </ref>
+              <optional>
+                <ref name="software"/>
+              </optional>
+              <optional>
+                <element name="parameters_used">
+                  <a:documentation>Did the authors give the command or parameters used to 
 create the tree?</a:documentation>
-                <ref name="anystring"/>
-              </element>
-            </optional>
-            <optional>
-              <element name="evolution_model">
-                <ref name="anystring"/>
-              </element>
-            </optional>
-            <optional>
-              <element name="character_weights">
-                <ref name="anystring"/>
-              </element>
-            </optional>
-            <optional>
-              <element name="consensus_type">
-                <ref name="anystring"/>
-              </element>
-            </optional>
-          </element>
-          <element name="tree_data">
-            <a:documentation>The tree data. This is a Nexus formatted tree string. You can import
-a standard Nexus file using the "Import tree" button below or copy 
-paste a string.</a:documentation>
-            <ref name="anystring"/>
-          </element>
-          <optional>
-            <element name="score_information">
-              <a:documentation>Scoring infotmation; e.g. how are support values recorded?</a:documentation>
-              <ref name="anystring"/>
+                  <ref name="anystring"/>
+                </element>
+              </optional>
+              <ref name="evolution_models"/>
+              <optional>
+                <element name="character_weights">
+                  <ref name="anystring"/>
+                </element>
+              </optional>
+              <optional>
+                <ref name="consensus"/>
+              </optional>
             </element>
-          </optional>
-          <optional>
-            <element name="taxa_data">
-              <a:documentation>You can store information about taxa in the tree
+            <optional>
+              <element name="topology">
+                <optional>
+                  <element name="rooting">
+                    <attribute name="type">
+                      <choice>
+                        <value>Rooted</value>
+                        <value>Unrooted</value>
+                      </choice>
+                    </attribute>
+                  </element>
+                </optional>
+                <optional>
+                  <element name="outgroup">
+                    <ref name="anystring"/>
+                  </element>
+                </optional>
+              </element>
+            </optional>
+            <optional>
+              <element name="tree_support">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="branch_support">
+                <element name="tree_string">
+                  <a:documentation>a tree string with support values added</a:documentation>
+                  <ref name="anystring"/>
+                </element>
+                <ref name="support"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="branch_lengths">
+                <element name="tree_string">
+                  <a:documentation>a tree string with branch lengths</a:documentation>
+                  <ref name="anystring"/>
+                </element>
+                <optional>
+                  <element name="units">
+                    <ref name="anystring"/>
+                  </element>
+                </optional>
+                <ref name="evolution_models"/>
+              </element>
+            </optional>
+          </element>
+          <element name="taxa_data">
+            <a:documentation>You can store information about taxa in the tree
 in this section. </a:documentation>
-              <ref name="taxon"/>
-            </element>
-          </optional>
+            <choice>
+              <element name="mixed_fossil_and_extant">
+                <oneOrMore>
+                  <ref name="taxon"/>
+                </oneOrMore>
+              </element>
+              <element name="all_extant">
+                <zeroOrMore>
+                  <ref name="taxon"/>
+                </zeroOrMore>
+              </element>
+              <element name="all_fossil">
+                <zeroOrMore>
+                  <ref name="taxon"/>
+                </zeroOrMore>
+              </element>
+            </choice>
+          </element>
+          <element name="character_data">
+            <a:documentation>This stores the character data used to construct the 
+source tree(s).</a:documentation>
+            <oneOrMore>
+              <ref name="characters"/>
+            </oneOrMore>
+          </element>
           <ref name="comment">
             <a:documentation>Some notes on this action</a:documentation>
           </ref>
@@ -286,7 +314,7 @@ in this section. </a:documentation>
           </element>
         </optional>
       </element>
-      <element name="inbook">
+      <element name="in_book">
         <element name="authors">
           <a:documentation>Enter each author seperately</a:documentation>
           <oneOrMore>
@@ -333,7 +361,7 @@ in this section. </a:documentation>
           </element>
         </optional>
       </element>
-      <element name="incollection">
+      <element name="in_collection">
         <element name="authors">
           <a:documentation>Enter each author seperately</a:documentation>
           <oneOrMore>
@@ -400,81 +428,69 @@ in this section. </a:documentation>
     </element>
   </define>
   <define name="taxon">
-    <zeroOrMore>
-      <element name="taxon">
-        <attribute name="name">
-          <a:documentation>Name is exactly as in paper</a:documentation>
-          <data type="string" datatypeLibrary=""/>
-        </attribute>
-        <attribute name="clean_name">
-          <a:documentation>Clean version is tidied for parsing etc and &lt;b&gt;not&lt;/b&gt; corrected 
-in any way</a:documentation>
-          <data type="string" datatypeLibrary=""/>
-        </attribute>
-        <element name="id">
+    <element name="taxon">
+      <attribute name="name">
+        <a:documentation>Name is exactly as in tree</a:documentation>
+        <data type="string" datatypeLibrary=""/>
+      </attribute>
+      <optional>
+        <element name="known_synonyms">
+          <zeroOrMore>
+            <element name="synonym">
+              <ref name="anystring"/>
+            </element>
+          </zeroOrMore>
+        </element>
+      </optional>
+      <optional>
+        <element name="accession_number_or_specimen_identifier">
           <a:documentation>Accession number/specimen identifier</a:documentation>
           <ref name="anystring"/>
+          <!-- data repository need adding here - move to atributes -->
         </element>
+      </optional>
+      <ref name="taxon_type"/>
+    </element>
+  </define>
+  <define name="taxon_type">
+    <choice>
+      <element name="fossil">
         <optional>
-          <element name="fossil">
-            <optional>
-              <element name="location">
-                <ref name="anystring"/>
-              </element>
-            </optional>
-            <optional>
-              <element name="date">
-                <ref name="anystring"/>
-              </element>
-            </optional>
-            <optional>
-              <element name="stratigraphic_range">
-                <ref name="anystring"/>
-              </element>
-            </optional>
-            <optional>
-              <element name="first_occurrance">
-                <ref name="anystring"/>
-              </element>
-            </optional>
-            <optional>
-              <element name="last_occurrance">
-                <ref name="anystring"/>
-              </element>
-            </optional>
+          <element name="locality">
+            <ref name="anystring"/>
           </element>
         </optional>
         <optional>
-          <element name="extant">
-            <optional>
-              <element name="locality">
-                <ref name="anystring"/>
-              </element>
-            </optional>
-            <optional>
-              <element name="precise_georeference">
-                <a:documentation>GPS, etc</a:documentation>
-                <ref name="anystring"/>
-              </element>
-            </optional>
-            <optional>
-              <element name="conservation_status">
-                <ref name="anystring"/>
-              </element>
-            </optional>
+          <element name="stratigraphic_range">
+            <ref name="anystring"/>
           </element>
         </optional>
         <optional>
-          <element name="synonyms">
-            <zeroOrMore>
-              <element name="synonym">
-                <ref name="anystring"/>
-              </element>
-            </zeroOrMore>
+          <element name="first_occurrance">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="last_occurrance">
+            <ref name="anystring"/>
           </element>
         </optional>
       </element>
-    </zeroOrMore>
+      <element name="extant">
+        <optional>
+          <element name="locality">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="precise_georeference">
+            <a:documentation>GPS, etc</a:documentation>
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <ref name="conservation"/>
+      </element>
+    </choice>
   </define>
   <define name="software">
     <element name="software">

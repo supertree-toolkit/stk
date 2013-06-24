@@ -49,35 +49,31 @@ source=
     ## the "Auto-gen name" button below.
     attribute name { string },
     (
+    ## Contributer - information about the person adding this 
+    ## data to the file.
+    element contributor {
+        person,
+        element institution { 
+            string 
+        }?
+    }?,
     ## Information on the source publication. The button below can be
-    ## used to parse a bibtex citation foe this reference.
-    element source_publication {
+    ## used to parse a bibtex citation for this reference.
+    element bibliographic_information {
         publication,
         ## Some notes on this action
         comment
     },
-    ## Contributer - information about the person adding this 
-    ## data to the file.
-    element contributor {
-        attribute name { string },
-        attribute institution { string }
-    },
     ## This is a source tree and associated meta-data
     element source_tree {
         attribute name { string }+,
-        ## This stores the character data used to construct the 
-        ## source tree(s).
-        element character_data {
-            characters+
-        },
-        ## Which analytical methods were used to create
-        ## the source tree?
-        element analysis_used {
-            analysis
-        },
-        ## Tree information
-        ## Figure legend, figure number, etc
-        element tree_information {
+        element tree {
+            ## The tree string. This is a Nexus formatted tree string. You can import
+            ## a standard Nexus file using the "Import tree" button below or copy 
+            ## paste a string.
+            element tree_string {
+                anystring
+            },
             element figure_legend {
                 anystring
             }?,
@@ -87,49 +83,69 @@ source=
             element page_number {
                 integer
             }?,
-            element tree_topology {
-                attribute type { "Rooted" | "Unrooted" }
+            ## Information on how the tree was created, software, etc
+            element tree_inference {
+                ## Which analytical methods were used to create
+                ## the source tree?
+                analysis,
+                software?,
+                ## Did the authors give the command or parameters used to 
+                ## create the tree?
+                element parameters_used {
+                    anystring
+                }?,
+                evolution_models,
+                element character_weights {
+                    anystring
+                }?,
+                consensus?
+            },
+            element topology {
+                element rooting {
+                    attribute type { "Rooted" | "Unrooted" }
+                }?,
+                element outgroup {
+                    anystring
+                }?  
             }?,
-            element outgroup {
-                taxon
-            }?  
-        },
-        ## Information on how the tree was created, software, etc
-        element tree_inference {
-	        element optimality_criterion {
+            element tree_support {
                 anystring
             }?,
-            software?,
-            ## Did the authors give the command or parameters used to 
-            ## create the tree?
-	        element parameters_used {
-                anystring
+            element branch_support {
+                ## a tree string with support values added
+                element tree_string {
+                    anystring
+                },
+                support 
             }?,
-	        element evolution_model {
-                anystring
-            }?,
-	        element character_weights {
-                anystring
-            }?,
-	        element consensus_type {
-                anystring
+            element branch_lengths {
+                ## a tree string with branch lengths
+                element tree_string {
+                    anystring
+                },
+                element units {
+                    anystring
+                }?,
+                evolution_models
             }?
         },
-        ## The tree data. This is a Nexus formatted tree string. You can import
-        ## a standard Nexus file using the "Import tree" button below or copy 
-        ## paste a string.
-        element tree_data {
-            anystring
-        },
-        ## Scoring infotmation; e.g. how are support values recorded?
-        element score_information {
-            anystring
-        }?,
         ## You can store information about taxa in the tree
         ## in this section. 
         element taxa_data {
-            taxon  
-        }?,
+            element mixed_fossil_and_extant {
+                taxon+
+            }|
+            element all_extant {
+                taxon*
+            }| element all_fossil {
+                taxon*
+            } 
+        },
+        ## This stores the character data used to construct the 
+        ## source tree(s).
+        element character_data {
+            characters+
+        },
         ## Some notes on this action
         comment
     }+
@@ -209,7 +225,7 @@ publication=
                 anystring
             }?
         }|
-        element inbook {
+        element in_book {
             ## Enter each author seperately
             element authors {
                 element author {
@@ -242,7 +258,7 @@ publication=
                 anystring
             }?
         }| 
-        element incollection {
+        element in_collection {
             ## Enter each author seperately
             element authors {
                 element author {
@@ -297,50 +313,50 @@ person=
 taxon=
 (
     element taxon {
-        ## Name is exactly as in paper
+        ## Name is exactly as in tree
         attribute name { string },
-        ## Clean version is tidied for parsing etc and <b>not</b> corrected 
-        ## in any way
-        attribute clean_name { string },
-        ## Accession number/specimen identifier
-        element id {
-            anystring
-        },
-        element fossil {
-            element location {
-                anystring
-            }?,
-            element date {
-                anystring
-            }?,
-            element stratigraphic_range {
-                anystring
-            }?,
-            element first_occurrance {
-                anystring
-            }?,
-            element last_occurrance {
-                anystring
-            }?
-        }?,
-        element extant {
-            element locality {
-                anystring
-            }?,
-            ## GPS, etc
-	        element precise_georeference {
-                anystring
-            }?,
-	        element conservation_status {
-                anystring
-            }?
-        }?,
-        element synonyms {
+        element known_synonyms {
             element synonym {
                 anystring
             }*
+        }?,
+        ## Accession number/specimen identifier
+        element accession_number_or_specimen_identifier {
+            anystring
+            # data repository need adding here - move to atributes
+        }?,
+        taxon_type
+    }
+)
+
+taxon_type = 
+(
+    element fossil {
+        element locality {
+            anystring
+        }?,
+        element stratigraphic_range {
+            anystring
+        }?,
+        element first_occurrance {
+            anystring
+        }?,
+        element last_occurrance {
+            anystring
         }?
-    }*
+    }|
+    element extant {
+        element locality {
+            anystring
+        }?,
+        ## GPS, etc
+        element precise_georeference {
+            anystring
+        }?,
+        conservation
+    }
+
+
 )
 
 software=
