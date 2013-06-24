@@ -105,18 +105,36 @@ class SchemaValidator:
   def OptionErrors(self):
     return self._optionErrors
 
-validator = SchemaValidator(rootDir = "data/input")
+validator = SchemaValidator(rootDir = "data")
 
-validator.ValidateOptionsFiles(schemafile = os.path.join("../../../../schema", "phylo_storage.rng"), testDir = ".", depth = 1, extension = "phyml", xmlRootNode = "phylo_storage")
+
 
 class TestSchema(unittest.TestCase):
 
-    def test_validation(self):
+    def test_validation_input_phyml(self):
+        validator.ValidateOptionsFiles(schemafile = os.path.join("../../../schema", "phylo_storage.rng"), testDir = "input", depth = 1, extension = "phyml", xmlRootNode = "phylo_storage")
         passes = validator.Passes()
         optionErrors = validator.OptionErrors()
         self.assert_(len(optionErrors) == 0)
 
+    def test_validation_output_phyml(self):
+        validator.ValidateOptionsFiles(schemafile = os.path.join("../../../schema", "phylo_storage.rng"), testDir = "output", depth = 1, extension = "phyml", xmlRootNode = "phylo_storage")
+        passes = validator.Passes()
+        optionErrors = validator.OptionErrors()
+        self.assert_(len(optionErrors) == 0)
+
+    def test_validation_input_stubs(self):
+        validator.ValidateOptionsFiles(schemafile = os.path.join("../../../schema", "phylo_storage.rng"), testDir = "input", depth = 1, extension = "xml", xmlRootNode = "source")
+        passes = validator.Passes()
+        optionErrors = validator.OptionErrors()
+        self.assert_(len(optionErrors) == 0)
     
+    def test_validation_output_stubs(self):
+        validator.ValidateOptionsFiles(schemafile = os.path.join("../../../schema", "phylo_storage.rng"), testDir = "output", depth = 1, extension = "xml", xmlRootNode = "source")
+        passes = validator.Passes()
+        optionErrors = validator.OptionErrors()
+        self.assert_(len(optionErrors) == 0)
+
 if __name__ == '__main__':
     unittest.main()
 

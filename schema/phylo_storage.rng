@@ -88,21 +88,15 @@ a standard Nexus file using the "Import tree" button below or copy
 paste a string.</a:documentation>
               <ref name="anystring"/>
             </element>
-            <optional>
-              <element name="figure_legend">
-                <ref name="anystring"/>
-              </element>
-            </optional>
-            <optional>
-              <element name="figure_number">
-                <ref name="integer"/>
-              </element>
-            </optional>
-            <optional>
-              <element name="page_number">
-                <ref name="integer"/>
-              </element>
-            </optional>
+            <element name="figure_legend">
+              <ref name="anystring"/>
+            </element>
+            <element name="figure_number">
+              <ref name="integer"/>
+            </element>
+            <element name="page_number">
+              <ref name="integer"/>
+            </element>
             <element name="tree_inference">
               <a:documentation>Information on how the tree was created, software, etc</a:documentation>
               <ref name="analysis">

@@ -76,13 +76,13 @@ source=
             },
             element figure_legend {
                 anystring
-            }?,
+            },
             element figure_number {
                 integer
-            }?,
+            },
             element page_number {
                 integer
-            }?,
+            },
             ## Information on how the tree was created, software, etc
             element tree_inference {
                 ## Which analytical methods were used to create
