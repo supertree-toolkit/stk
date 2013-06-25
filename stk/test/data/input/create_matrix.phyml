@@ -154,7 +154,7 @@
           <all_extant/>
         </taxa_data>
         <character_data>
-          <character type="molecular" name="12S"/>
+          <character type="morphological" name="feathers"/>
         </character_data>
       </source_tree>
     </source>

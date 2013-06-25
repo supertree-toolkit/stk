@@ -532,7 +532,7 @@ def get_analyses_used(XML):
     a_ = []
 
     xml_root = _parse_xml(XML)
-    find = etree.XPath("//analysis")
+    find = etree.XPath("//optimality_criterion")
     analyses = find(xml_root)
 
     for a in analyses:

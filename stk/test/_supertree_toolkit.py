@@ -196,7 +196,7 @@ class TestSetSourceNames(unittest.TestCase):
     def test_analyses(self):
         XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
         analyses = get_analyses_used(XML)
-        expected_analyses = ['Bayesian','MRP']
+        expected_analyses = ['Bayesian','Maximum Parsimony']
         self.assertListEqual(analyses,expected_analyses)
 
     def test_sort_data(self):

@@ -54,7 +54,7 @@
           </mixed_fossil_and_extant>
         </taxa_data>
         <character_data>
-          <character type="morphological" name="feathers"/>
+          <character type="molecular" name="12S"/>
         </character_data>
       </source_tree>
     </source>
@@ -83,7 +83,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,G:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">ev</string_value>
@@ -109,7 +109,7 @@
           </mixed_fossil_and_extant>
         </taxa_data>
         <character_data>
-          <character type="morphological" name="feathers"/>
+          <character type="molecular" name="12S"/>
         </character_data>
       </source_tree>
     </source>
@@ -145,7 +145,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,H:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,F:1.00000,E:1.00000,(G:1.00000,H:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">ev</string_value>
@@ -157,7 +157,7 @@
             <integer_value rank="0">5</integer_value>
           </page_number>
           <tree_inference>
-            <optimality_criterion name="Maximum Parsimony"/>
+            <optimality_criterion name="Bayesian"/>
           </tree_inference>
         </tree>
         <taxa_data>
