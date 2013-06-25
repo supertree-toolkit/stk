@@ -115,9 +115,9 @@ def main():
     input_filename = None
 
   logofile = None
-  for possible_logofile in [os.path.join(stk_path, "../gui/stk.svg"), 
-                            "/usr/share/diamond/gui/stk.svg",
-                            os.path.join(stk_path, "../gui/stk.png"),]:
+  for possible_logofile in [os.path.join(stk_path, "gui/stk.svg"), 
+                            "/usr/local/share/stk/stk.svg",
+                            os.path.join(stk_path, "gui/stk.png"),]:
       try:
         os.stat(possible_logofile)
       
@@ -128,7 +128,7 @@ def main():
       except OSError:
           pass   
 
-
+  print logofile
   # Let's find a schema.
   suffix = "phyml"
 
