@@ -860,7 +860,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Jacana_jacana:1.00000,(Nycticryphes_semicollaris:1.00000,(Rostratula_australis:1.00000,Rostratula_benghalensis:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;&lt;</string_value>
+            <string_value lines="1">(Jacana_jacana:1.00000,(Nycticryphes_semicollaris:1.00000,(Rostratula_australis:1.00000,Rostratula_benghalensis:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
