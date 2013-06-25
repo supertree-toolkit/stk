@@ -30,7 +30,7 @@ class TestSetSourceNames(unittest.TestCase):
         self.assert_(False)
 
     def test_check_nonuniquess_pass(self):
-        new_xml = etree.parse("data/input/full_tree.xml")
+        new_xml = etree.parse("data/input/full_tree.phyml")
         try:
             _check_uniqueness(etree.tostring(new_xml))
         except:
