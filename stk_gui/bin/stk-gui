@@ -34,7 +34,11 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir)
 sys.path.insert(0, stk_path)
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, "stk_gui")
 sys.path.insert(0, stk_path)
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir, "stk_gui")
+sys.path.insert(0, stk_path)
 dxdiff_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, "dxdiff" )
+sys.path.insert(0, dxdiff_path)
+dxdiff_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir,os.pardir, "dxdiff" )
 sys.path.insert(0, dxdiff_path)
 
 import debug
@@ -139,7 +143,7 @@ def main():
   #schemafile is not given so look up actual path  
   for possible_schemafile in [
         os.path.join(stk_path, "../../../../share/schemata/stk/phylo_storage.rng"),
-        "/usr/local/share/stk/schema/phylo_storage.rng",
+        "/usr/local/share/stk/schemata/schema/phylo_storage.rng",
         os.path.join(os.path.realpath(os.path.dirname(__file__)),"../../schema/phylo_storage.rng")]:
     try:
       os.stat(possible_schemafile)

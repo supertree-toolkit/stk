@@ -15,7 +15,7 @@ except NameError:
   
 
 # Get all the plugin directories we have
-plugin_dirs = ['stk_gui/plugins/']
+plugin_dirs = ['stk_gui/plugins/phyml']
 plugin_data_files = []
 schema_dirs = ['schema']
 schema_data_files = []   
