@@ -61,6 +61,11 @@ characters =
              attribute type { "morphological" },
              char_info
           }|
+          element character {
+             attribute name { "morphometrics" },
+             attribute type { "morphological" },
+             char_info
+          }|
           ##Mixed morphological characters in crustaceans.
           element character {
              attribute name { "General morphology" },

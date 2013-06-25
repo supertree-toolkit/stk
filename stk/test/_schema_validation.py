@@ -23,8 +23,20 @@ sys.path.append("../../stk_gui/stk_gui/")
 import debug
 import schema
 
+# This test class checks that all the phyml and xml stubs in the test directories
+# are valid against the current schema. We can therefore ensure all other tests are tested
+# against the current schema - they might pass if the schema is changed, but this one won't
+
+# Add a phyml or xml to this list if you know
+# it's not valid and the tests will ignore it
+ignore_list = ["data/input/start_up.phyml",
+              ]
+
+
+
 debug.SetDebugLevel(0)
 
+# This is a our schema test class - see below for the unit tests
 class SchemaValidator:
   def __init__(self, rootDir):
     self._rootDir = rootDir
@@ -107,10 +119,10 @@ class SchemaValidator:
   def OptionErrors(self):
     return self._optionErrors
 
+# Our validator object
 validator = SchemaValidator(rootDir = "data")
 
-
-
+# The unit tests proper
 class TestSchema(unittest.TestCase):
 
     def test_validation_input_phyml(self):
@@ -118,28 +130,45 @@ class TestSchema(unittest.TestCase):
         validator.ValidateOptionsFiles(schemafile = os.path.join("../../../schema", "phylo_storage.rng"), testDir = "input", depth = 1, extension = "phyml", xmlRootNode = "phylo_storage")
         passes = validator.Passes()
         optionErrors = validator.OptionErrors()
-        self.assert_(len(optionErrors) == 0)
+        failures = []
+        for filename in optionErrors.keys():
+            if not filename in ignore_list:
+                failures.append(filename)
+                print filename, optionErrors[filename]
+        self.assert_(len(failures) == 0)
 
     def test_validation_output_phyml(self):
         validator.Reset()
         validator.ValidateOptionsFiles(schemafile = os.path.join("../../../schema", "phylo_storage.rng"), testDir = "output", depth = 1, extension = "phyml", xmlRootNode = "phylo_storage")
         passes = validator.Passes()
         optionErrors = validator.OptionErrors()
-        self.assert_(len(optionErrors) == 0)
+        failures = []
+        for filename in optionErrors.keys():
+            if not filename in ignore_list:
+                failures.append(filename)
+        self.assert_(len(failures) == 0)
 
     def test_validation_input_stubs(self):
         validator.Reset()
         validator.ValidateOptionsFiles(schemafile = os.path.join("../../../schema", "phylo_storage.rng"), testDir = "input", depth = 1, extension = None, xmlRootNode = "sources")
         passes = validator.Passes()
         optionErrors = validator.OptionErrors()
-        self.assert_(len(optionErrors) == 0)
+        failures = []
+        for filename in optionErrors.keys():
+            if not filename in ignore_list:
+                failures.append(filename)
+        self.assert_(len(failures) == 0)
     
     def test_validation_output_stubs(self):
         validator.Reset()
         validator.ValidateOptionsFiles(schemafile = os.path.join("../../../schema", "phylo_storage.rng"), testDir = "output", depth = 1, extension = None, xmlRootNode = "sources")
         passes = validator.Passes()
         optionErrors = validator.OptionErrors()
-        self.assert_(len(optionErrors) == 0)
+        failures = []
+        for filename in optionErrors.keys():
+            if not filename in ignore_list:
+                failures.append(filename)
+        self.assert_(len(failures) == 0)
 
 if __name__ == '__main__':
     unittest.main()
