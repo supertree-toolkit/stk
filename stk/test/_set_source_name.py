@@ -65,7 +65,9 @@ class TestSetSourceNames(unittest.TestCase):
 
     def test_full_sourcenames(self):
         new_xml = all_sourcenames(etree.tostring(xml_full))
-        self.assert_(isEqualXML(new_xml,etree.tostring(xml_full_c)))
+        names = get_all_source_names(new_xml)
+        expected_names = get_all_source_names(etree.tostring(xml_full_c))
+        self.assertListEqual(names,expected_names)
 
     def test_get_all_source_names(self):
         input_data = etree.tostring(xml_full_c)

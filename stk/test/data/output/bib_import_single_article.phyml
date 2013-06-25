@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <phylo_storage>
   <project_name>
     <string_value lines="1"/>
@@ -45,15 +46,33 @@
         </article>
       </bibliographic_information>
       <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1"/>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1"/>
+          </figure_legend>
+          <figure_number>
+            <integer_value rank="0"/>
+          </figure_number>
+          <page_number>
+            <integer_value rank="0"/>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion/>
+          </tree_inference>
+        </tree>
+        <taxa_data>
+          <mixed_fossil_and_extant>
+            <taxon>
+              <fossil/>
+            </taxon>
+          </mixed_fossil_and_extant>
+        </taxa_data>
         <character_data>
           <character/>
         </character_data>
-        <analysis_used>
-          <analysis/>
-        </analysis_used>
-        <tree_data>
-          <string_value/>
-        </tree_data>
       </source_tree>
     </source>
   </sources>

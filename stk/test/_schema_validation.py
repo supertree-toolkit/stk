@@ -28,8 +28,11 @@ import schema
 # against the current schema - they might pass if the schema is changed, but this one won't
 
 # Add a phyml or xml to this list if you know
-# it's not valid and the tests will ignore it
-ignore_list = ["data/input/start_up.phyml",
+# it's not valid and the main test will ignore it, but it will be checked in the check against schema only test
+ignore_list = ["data/input/start_up.phyml", # contains only a stub
+               "data/output/bib_import_single_article_doi.phyml", # contains only a valid bibliography
+               "data/output/bib_import_single_article.phyml", # contains only a valid bibliography
+               "data/output/bib_import_single_book.phyml", # contains only a valid bibliography
               ]
 
 
@@ -55,31 +58,39 @@ class SchemaValidator:
     for filename in self._TestFiles("xml", testDir, depth):
       try:
         xmlParse = xml.dom.minidom.parse(filename)
-        debug.dprint(filename + " : Pass", 0)
+        debug.dprint(filename + " : Pass", 1)
         self._passes += 1
       except xml.parsers.expat.ExpatError:
-        debug.dprint(filename + " : Fail", 0)
+        debug.dprint(filename + " : Fail", 1)
         self._optionErrors[filename] = xml.parsers.expat.ExpatError
     
     return
     
-  def ValidateOptionsFiles(self, schemafile, testDir, depth, extension = None, xmlRootNode = None):
+  def ValidateOptionsFiles(self, schemafile, testDir, depth, extension = None, xmlRootNode = None, ignoreValidXMLCheck=False):
     debug.dprint("Validating options file against schema: " + schemafile, 1)
   
     schemafile = os.path.join(self._rootDir, schemafile)
     sch = schema.Schema(schemafile)
 
     if not extension is None:
-      debug.dprint("Testing files with extension: " + extension, 0)
+      debug.dprint("Testing files with extension: " + extension, 1)
       for filename in self._TestFiles(extension, testDir, depth): 
         optionsTree = sch.read(filename)
         lost_eles, added_eles, lost_attrs, added_attrs = sch.read_errors()
-        if len(lost_eles) + len(added_eles) + len(lost_attrs) + len(added_attrs) == 0 and optionsTree.valid:
-          debug.dprint(filename + " : Pass", 0)
-          self._passes += 1
+        if (ignoreValidXMLCheck):
+            if len(lost_eles) + len(lost_attrs) == 0:
+              debug.dprint(filename + " : Pass", 1)
+              self._passes += 1
+            else:
+              debug.dprint(filename + " : Fail", 1)
+              self._optionErrors[filename] = (lost_eles, added_eles, lost_attrs, added_attrs)
         else:
-          debug.dprint(filename + " : Fail", 0)
-          self._optionErrors[filename] = (lost_eles, added_eles, lost_attrs, added_attrs)
+            if len(lost_eles) + len(added_eles) + len(lost_attrs) + len(added_attrs) == 0 and optionsTree.valid:
+              debug.dprint(filename + " : Pass", 1)
+              self._passes += 1
+            else:
+              debug.dprint(filename + " : Fail", 1)
+              self._optionErrors[filename] = (lost_eles, added_eles, lost_attrs, added_attrs)
           
     if not xmlRootNode is None:
       debug.dprint("Testing xml files with root node: " + xmlRootNode, 1)
@@ -87,7 +98,7 @@ class SchemaValidator:
         try:
           xmlParse = xml.dom.minidom.parse(filename)
         except xml.parsers.expat.ExpatError:
-          debug.dprint(filename + " : Fail", 0)
+          debug.dprint(filename + " : Fail", 1)
           self._optionErrors[filename] = (0,0,0,0)
           continue
         rootEles = xmlParse.getElementsByTagName(xmlRootNode)
@@ -96,10 +107,10 @@ class SchemaValidator:
         optionsTree = sch.read(filename,root=xmlRootNode,stub=True)
         lost_eles, added_eles, lost_attrs, added_attrs = sch.read_errors()
         if len(lost_eles) + len(added_eles) + len(lost_attrs) + len(added_attrs) == 0:
-          debug.dprint(filename + " : Pass", 0)
+          debug.dprint(filename + " : Pass", 1)
           self._passes += 1
         else:
-          debug.dprint(filename + " : Fail", 0)
+          debug.dprint(filename + " : Fail", 1)
           self._optionErrors[filename] = (lost_eles, added_eles, lost_attrs, added_attrs)
     
     return
@@ -169,6 +180,26 @@ class TestSchema(unittest.TestCase):
             if not filename in ignore_list:
                 failures.append(filename)
         self.assert_(len(failures) == 0)
+
+    def test_validation_output_phyml_partials(self):
+        validator.Reset()
+        validator.ValidateOptionsFiles(schemafile = os.path.join("../../../schema", "phylo_storage.rng"), testDir = "output", depth = 1, extension = "phyml", xmlRootNode = "phylo_storage", ignoreValidXMLCheck=True)
+        passes = validator.Passes()
+        optionErrors = validator.OptionErrors()
+        failures = []
+        for filename in optionErrors.keys():
+            failures.append(filename)
+        self.assert_(len(failures) == 0)
+        validator.Reset()
+        validator.ValidateOptionsFiles(schemafile = os.path.join("../../../schema", "phylo_storage.rng"), testDir = "input", depth = 1, extension = "phyml", xmlRootNode = "phylo_storage", ignoreValidXMLCheck=True)
+        passes = validator.Passes()
+        optionErrors = validator.OptionErrors()
+        failures = []
+        for filename in optionErrors.keys():
+            failures.append(filename)
+        self.assert_(len(failures) == 0)
+
+
 
 if __name__ == '__main__':
     unittest.main()
