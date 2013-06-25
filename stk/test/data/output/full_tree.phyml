@@ -4,7 +4,7 @@
   </project_name>
   <sources>
     <source name="Hill_1996">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -23,7 +23,7 @@
             <integer_value rank="0">1996</integer_value>
           </year>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <character_data>
         <character>
           <character type="molecular" name="16S"/>
@@ -35,7 +35,7 @@
       </tree_data>
     </source>
     <source name="Hill_Davis_1996">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -62,7 +62,7 @@
             <integer_value rank="0">1996</integer_value>
           </year>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <character_data>
         <character>
           <character type="molecular" name="16S"/>
@@ -74,7 +74,7 @@
       </tree_data>
     </source>
   <source name="Hill_etal_1996">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -109,7 +109,7 @@
             <integer_value rank="0">1996</integer_value>
           </year>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <character_data>
         <character>
           <character type="molecular" name="16S"/>

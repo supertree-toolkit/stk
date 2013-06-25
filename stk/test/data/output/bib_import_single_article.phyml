@@ -4,7 +4,7 @@
   </project_name>
   <sources>
     <source name="Hill_Davis_2011">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -43,7 +43,7 @@
             <string_value lines="1">5</string_value>
           </issue>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character/>

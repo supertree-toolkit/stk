@@ -4,7 +4,7 @@
   </project_name>
   <sources>
     <source name="Hill_Davis_2011">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -46,7 +46,7 @@
             <string_value lines="1">10.1175/1520-0442(1996)009&lt;2424:VIAMLO&gt;2.0.CO;2</string_value>
           </doi>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
           <character/>

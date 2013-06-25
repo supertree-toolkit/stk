@@ -4,7 +4,7 @@
   </project_name>
   <sources>
     <source name="Hill_Davis_2010">
-      <source_publication>
+      <bibliographic_information>
         <book>
           <authors>
             <author>
@@ -50,7 +50,7 @@
             <string_value lines="1">10.12.3431.w.23</string_value>
           </doi>
         </book>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
         <character_data>
             <character/>

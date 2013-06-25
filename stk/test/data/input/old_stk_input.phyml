@@ -137,7 +137,6 @@
         <character_data>
           <character type="morphological" name="morphometrics"/>
         </character_data>
-        <comment/>
       </source_tree>
       <source_tree>
         <tree>
@@ -164,7 +163,6 @@
           <character type="molecular" name="16S"/>
           <character type="molecular" name="COI"/>
         </character_data>
-        <comment/>
       </source_tree>
     </source>
     <source name="Allende_etal_2001">
@@ -337,7 +335,6 @@
         <character_data>
           <character type="morphological" name="Parasites"/>
         </character_data>
-        <comment/>
       </source_tree>
       <source_tree>
         <tree>
@@ -364,7 +361,6 @@
           <character type="morphological" name="Plumage"/>
           <character type="morphological" name="Body size"/>
         </character_data>
-        <comment/>
       </source_tree>
     </source>
     <source name="Andersson_1999b">
@@ -499,7 +495,6 @@
           <character type="molecular" name="cytb"/>
           <character type="molecular" name="ND2"/>
         </character_data>
-        <comment/>
       </source_tree>
       <source_tree>
         <tree>
@@ -525,7 +520,6 @@
         <character_data>
           <character type="molecular" name="cytb"/>
         </character_data>
-        <comment/>
       </source_tree>
     </source>
     <source name="Baker_Strauch_1988">
@@ -587,7 +581,6 @@
         <character_data>
           <character type="molecular" name="Alleles"/>
         </character_data>
-        <comment/>
       </source_tree>
     </source>
     <source name="Baker_etal_2005">
@@ -666,7 +659,6 @@
           <character type="molecular" name="12S"/>
           <character type="molecular" name="tRNA-Lys"/>
         </character_data>
-        <comment/>
       </source_tree>
     </source>
     <source name="Baker_etal_2006">
@@ -740,7 +732,6 @@
           <character type="molecular" name="cytb"/>
           <character type="molecular" name="COI"/>
         </character_data>
-        <comment/>
       </source_tree>
     </source>
     <source name="Baker_etal_2007a">
@@ -813,7 +804,6 @@
           <character type="molecular" name="cytb"/>
           <character type="molecular" name="RAG1"/>
         </character_data>
-        <comment/>
       </source_tree>
     </source>
     <source name="Baker_etal_2007b">
@@ -896,7 +886,6 @@
           <character type="molecular" name="COIII"/>
           <character type="molecular" name="COI"/>
         </character_data>
-        <comment/>
       </source_tree>
     </source>
     <source name="Baptista_Visser_1999">
@@ -1086,7 +1075,6 @@
         <character_data>
           <character type="molecular" name="cytb"/>
         </character_data>
-        <comment/>
       </source_tree>
     </source>
     <source name="Bertelli_etal_2006">
@@ -1159,7 +1147,6 @@
           <character type="morphological" name="behaviour"/>
           <character type="morphological" name="oology"/>
         </character_data>
-        <comment/>
       </source_tree>
       <source_tree>
         <tree>
@@ -1189,7 +1176,6 @@
           <character type="morphological" name="behaviour"/>
           <character type="morphological" name="oology"/>
         </character_data>
-        <comment/>
       </source_tree>
       <source_tree>
         <tree>
@@ -1215,7 +1201,6 @@
         <character_data>
           <character type="morphological" name="Osteology"/>
         </character_data>
-        <comment/>
       </source_tree>
     </source>
   </sources>
