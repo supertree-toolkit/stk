@@ -253,7 +253,7 @@ class Diamond:
       self.treeview.set_model(self.treestore)
       self.treeview.thaw_child_notify()
       self.set_geometry_dim_tree()
-      self.treeview.get_selection().select_path(path)
+      self.treeview.expand_to_path(path)     
       self.scherror.destroy_error_list()
       plugin_xml = None
 
@@ -1321,7 +1321,7 @@ class Diamond:
      self.treeview.set_model(self.treestore)
      self.treeview.thaw_child_notify()
      self.set_geometry_dim_tree()
-     self.treeview.get_selection().select_path(path)
+     self.treeview.expand_to_path(path)     
      self.scherror.destroy_error_list()
 
      return

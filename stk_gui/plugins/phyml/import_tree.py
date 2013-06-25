@@ -9,7 +9,7 @@ import stk.supertree_toolkit as stk
 
 def plugin_applies(xpath):
     # Allow plugin to be used at any element which is under a source dataset
-    return (xpath.endswith('/tree_data'))
+    return (xpath.endswith('/tree_string'))
 
 @cb_decorator
 
@@ -34,13 +34,9 @@ def handle_click(xml, xpath, path=None):
         return
 
     # Track back along xpath to find the source element where we're going to set the name
-    element = xml_root.xpath(xpath)[0]
-    while (element.tag != 'tree_data'):
-        element = element.getparent()
-
+    element = xml_root.xpath(xpath+"/string_value")
     tree = stk.import_tree(filename)
-    tree_string_tag = element[0]
-    tree_string_tag.text = tree
+    element[0].text = tree
     
     stk_gui.interface.plugin_xml = etree.tostring(xml_root)
     stk_gui.interface.pluginSender.emit('plugin_changed_xml')
