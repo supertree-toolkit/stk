@@ -2,36 +2,137 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="">
   <define name="analysis">
     <choice>
-      <element name="analysis">
+      <element name="optimality_criterion">
         <attribute name="name">
           <data type="string"/>
         </attribute>
       </element>
-      <element name="analysis">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>Maximum Parsimony</value>
         </attribute>
       </element>
-      <element name="analysis">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>Maximum Likelihood</value>
         </attribute>
       </element>
-      <element name="analysis">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>Bayesian</value>
         </attribute>
       </element>
-      <element name="analysis">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>Neighbour Joining</value>
         </attribute>
       </element>
-      <element name="analysis">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>UPGMA</value>
         </attribute>
       </element>
     </choice>
+  </define>
+  <define name="consensus">
+    <choice>
+      <element name="consensus_type">
+        <attribute name="name">
+          <data type="string"/>
+        </attribute>
+      </element>
+      <element name="consensus_type">
+        <attribute name="name">
+          <value>Strict</value>
+        </attribute>
+      </element>
+      <element name="consensus_type">
+        <attribute name="name">
+          <value>Majority Rules 50%</value>
+        </attribute>
+      </element>
+      <element name="consensus_type">
+        <attribute name="name">
+          <value>Adams</value>
+        </attribute>
+      </element>
+    </choice>
+  </define>
+  <define name="support">
+    <choice>
+      <element name="type_of_support">
+        <attribute name="name">
+          <data type="string"/>
+        </attribute>
+      </element>
+      <element name="type_of_support">
+        <attribute name="name">
+          <value>Jacknifing</value>
+        </attribute>
+      </element>
+      <element name="type_of_support">
+        <attribute name="name">
+          <value>Bootstrapping</value>
+        </attribute>
+      </element>
+      <element name="type_of_support">
+        <attribute name="name">
+          <value>Bremer Support</value>
+        </attribute>
+      </element>
+    </choice>
+  </define>
+  <define name="evolution_models">
+    <optional>
+      <element name="model_of_evolution">
+        <attribute name="name">
+          <data type="string"/>
+        </attribute>
+      </element>
+    </optional>
+  </define>
+  <define name="conservation">
+    <optional>
+      <element name="conservation_status">
+        <optional>
+          <element name="iucn_red_list">
+            <optional>
+              <element name="category">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="criteria">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="url">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+          </element>
+        </optional>
+        <optional>
+          <element name="uk_bap">
+            <optional>
+              <element name="category">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="criteria">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="url">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+          </element>
+        </optional>
+      </element>
+    </optional>
   </define>
 </grammar>

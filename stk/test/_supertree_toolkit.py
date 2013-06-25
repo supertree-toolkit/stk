@@ -30,7 +30,7 @@ class TestSetSourceNames(unittest.TestCase):
         self.assert_(False)
 
     def test_check_nonuniquess_pass(self):
-        new_xml = etree.parse("data/input/full_tree.xml")
+        new_xml = etree.parse("data/input/full_tree.phyml")
         try:
             _check_uniqueness(etree.tostring(new_xml))
         except:
@@ -196,7 +196,7 @@ class TestSetSourceNames(unittest.TestCase):
     def test_analyses(self):
         XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
         analyses = get_analyses_used(XML)
-        expected_analyses = ['Bayesian','MRP']
+        expected_analyses = ['Bayesian','Maximum Parsimony']
         self.assertListEqual(analyses,expected_analyses)
 
     def test_sort_data(self):

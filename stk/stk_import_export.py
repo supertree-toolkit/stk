@@ -84,7 +84,7 @@ def export_to_old(xml, output_dir, verbose=False):
             tree_dir = os.path.join(source_dir,"Tree_"+str(tree_no))
             os.mkdir(tree_dir)
             # save the tree data
-            tree = t.xpath("tree_data/string_value")[0].text
+            tree = t.xpath("tree/tree_string/string_value")[0].text
             stk.p4.var.warnReadNoFile = False
             stk.p4.var.trees = []
             stk.p4.read(tree)
@@ -240,7 +240,7 @@ def convert_to_phyml_source(xml_root):
 	author_list.append(input_author)
    
     phyml_root = etree.Element("source")
-    publication = etree.SubElement(phyml_root,"source_publication")
+    publication = etree.SubElement(phyml_root,"bibliographic_information")
     # does it contain a booktitle?
     contains_booktitle = False
     if (contains_booktitle):
@@ -316,6 +316,32 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
     
     # construct new XML
     source_tree = etree.Element("source_tree")
+    # tree data
+    tree_ele = etree.SubElement(source_tree,"tree")
+    tree_string = etree.SubElement(tree_ele,"tree_string")
+    string = etree.SubElement(tree_string,"string_value")
+    string.attrib["lines"] = "1"
+    string.text = tree
+    # Figure and page number stuff
+    figure_legend = etree.SubElement(tree_ele,"figure_legend")
+    figure_legend.tail="\n      "
+    figure_legend_string = etree.SubElement(figure_legend,"string_value")
+    figure_legend_string.tail="\n      "
+    figure_legend_string.attrib['lines'] = "1"
+    figure_number = etree.SubElement(tree_ele,"figure_number")
+    figure_number.tail="\n      "
+    figure_number_string = etree.SubElement(figure_number,"integer_value")
+    figure_number_string.tail="\n      "
+    figure_number_string.attrib['rank'] = "0"
+    page_number = etree.SubElement(tree_ele,"page_number")
+    page_number.tail="\n      "
+    page_number_string = etree.SubElement(page_number,"integer_value")
+    page_number_string.tail="\n      "
+    page_number_string.attrib['rank'] = "0"
+    tree_inference = etree.SubElement(tree_ele,"tree_inference")
+    optimality_criterion = etree.SubElement(tree_inference,"optimality_criterion")
+    # analysis
+    optimality_criterion.attrib['name'] = input_analysis
     character_data = etree.SubElement(source_tree,"character_data")
     # loop over characters add correctly
     chars = find_mol(input_xml)
@@ -338,18 +364,10 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
         new_char = etree.SubElement(character_data,"character")
         new_char.attrib['type'] = "other"
         new_char.attrib['name'] = c.text
-    # analysis
-    analysis_data = etree.SubElement(source_tree,"analysis_used")
-    analysis_type = etree.SubElement(analysis_data,"analysis")
-    analysis_type.attrib['name'] = input_analysis
-    # tree data
-    tree_data = etree.SubElement(source_tree,"tree_data")
-    string = etree.SubElement(tree_data,"string_value")
-    string.attrib["lines"] = "1"
-    string.text = tree
     # comment
-    comment = etree.SubElement(source_tree,"comment")
-    comment.text = input_comments
+    if (not input_comments == ""):
+        comment = etree.SubElement(source_tree,"comment")
+        comment.text = input_comments
     
     return source_tree
 

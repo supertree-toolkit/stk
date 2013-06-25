@@ -772,6 +772,18 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                       </widget>
+                  </child>
+                  <child>
+                      <widget class="GtkMenuItem" id="import_bib">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="has_tooltip">True</property>
+                        <property name="tooltip" translatable="yes">Import sources from a bibliography file</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Import from bibliography</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_import_bib" swapped="no"/>
+                      </widget>
                     </child>
                     <child>
                       <widget class="GtkMenuItem" id="export">
@@ -955,18 +967,6 @@
                         <property name="label" translatable="yes">Standardise source names</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_standardise_names" swapped="no"/>
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkMenuItem" id="import_bib">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="has_tooltip">True</property>
-                        <property name="tooltip" translatable="yes">Import sources from a bibliography file</property>
-                        <property name="use_action_appearance">False</property>
-                        <property name="label" translatable="yes">Import from bibliography</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_import_bib" swapped="no"/>
                       </widget>
                     </child>
                     <child>

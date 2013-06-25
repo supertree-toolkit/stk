@@ -4,20 +4,6 @@
     <choice>
       <element name="character">
         <attribute name="name">
-          <data type="string"/>
-        </attribute>
-        <attribute name="type">
-          <choice>
-            <value>morphological</value>
-            <value>molecular</value>
-            <value>behavioural</value>
-            <value>other</value>
-          </choice>
-        </attribute>
-        <ref name="char_info"/>
-      </element>
-      <element name="character">
-        <attribute name="name">
           <value>12S</value>
         </attribute>
         <attribute name="type">
@@ -116,14 +102,37 @@
         </attribute>
         <ref name="char_info"/>
       </element>
+      <element name="character">
+        <attribute name="name">
+          <value>morphometrics</value>
+        </attribute>
+        <attribute name="type">
+          <value>morphological</value>
+        </attribute>
+        <ref name="char_info"/>
+      </element>
+      <element name="character">
+        <a:documentation>Mixed morphological characters in crustaceans.</a:documentation>
+        <attribute name="name">
+          <value>General morphology</value>
+        </attribute>
+        <attribute name="type">
+          <value>morphological</value>
+        </attribute>
+        <ref name="char_info"/>
+      </element>
       <oneOrMore>
         <element name="character">
-          <a:documentation>Mixed morphological characters in crustaceans.</a:documentation>
           <attribute name="name">
-            <value>General morphology</value>
+            <data type="string"/>
           </attribute>
           <attribute name="type">
-            <value>morphological</value>
+            <choice>
+              <value>morphological</value>
+              <value>molecular</value>
+              <value>behavioural</value>
+              <value>other</value>
+            </choice>
           </attribute>
           <ref name="char_info"/>
         </element>
@@ -132,17 +141,7 @@
   </define>
   <define name="char_info">
     <optional>
-      <element name="accession_number">
-        <ref name="anystring"/>
-      </element>
-    </optional>
-    <optional>
-      <element name="database_url">
-        <ref name="anystring"/>
-      </element>
-    </optional>
-    <optional>
-      <element name="url">
+      <element name="link_to_online_data">
         <a:documentation>Is the data online anywhere, e.g. as a NEXUS file?</a:documentation>
         <ref name="anystring"/>
       </element>
@@ -150,7 +149,7 @@
     <optional>
       <element name="alignment_method">
         <optional>
-          <element name="algorithm">
+          <element name="algorithm_or_method">
             <data type="string"/>
           </element>
         </optional>
@@ -158,7 +157,7 @@
           <ref name="software"/>
         </optional>
         <optional>
-          <element name="parameters">
+          <element name="parameters_used">
             <ref name="anystring"/>
           </element>
         </optional>
@@ -170,5 +169,6 @@
         </optional>
       </element>
     </optional>
+    <ref name="comment"/>
   </define>
 </grammar>
