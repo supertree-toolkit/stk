@@ -581,7 +581,7 @@ def obtain_trees(XML):
         name = s.attrib['name']
         # get trees
         tree_no = 1
-        for t in s.xpath("source_tree/tree_data"):
+        for t in s.xpath("source_tree/tree/tree_string"):
             t_name = name+"_"+str(tree_no)
             # append to dictionary, with source_name_tree_no = tree_string
             trees[t_name] = t.xpath("string_value")[0].text
@@ -1022,7 +1022,7 @@ def _swap_tree_in_XML(XML, tree, name):
         if source_name == name:
             # found the bugger!
             tree_no = 1
-            for t in s.xpath("source_tree/tree_data"):
+            for t in s.xpath("source_tree/tree/tree_string"):
                 if tree_no == number:
                    t.xpath("string_value")[0].text = tree
                    # We can return as we're only replacing one tree
