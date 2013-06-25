@@ -76,7 +76,7 @@ def configure_plugins(suffix):
 
   for dir in dirs:
     sys.path.insert(0, dir)
-    print dir
+
     try:
       dir_list = os.listdir(dir)
       for file in dir_list:
