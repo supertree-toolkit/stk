@@ -55,7 +55,7 @@ else:
     extra_options = dict(
             cmdclass={'install': install},
             app=['stk'],
-            data_files = [(destdir + "stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.svg"])] +
+            data_files = [(destdir + "stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.png", "stk_gui/gui/stk.svg"])] +
                    plugin_data_files + schema_data_files +
                    [(destdir + "stk/schemata", ["schema/phyml"])] +
                    [("/usr/local/share/icons/hicolor/48x48/apps/", ["stk_gui/gui/stk.png"])] +

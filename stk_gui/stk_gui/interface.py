@@ -182,7 +182,11 @@ class Diamond:
 
     self.logofile = logofile
     if self.logofile is not None:
-      gtk.window_set_default_icon_from_file(self.logofile[0])
+        for logo in  self.logofile:
+            try:
+                gtk.window_set_default_icon_from_file(logo)
+            except:
+                print "Error setting logo from file", logo
 
     self.init_treemodel()
 

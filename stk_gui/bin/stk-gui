@@ -115,7 +115,8 @@ def main():
     input_filename = None
 
   logofile = None
-  for possible_logofile in [os.path.join(stk_path, "gui/stk.svg"), 
+  for possible_logofile in ["/usr/local/share/stk/stk.png",
+                            os.path.join(stk_path, "gui/stk.svg"), 
                             "/usr/local/share/stk/stk.svg",
                             os.path.join(stk_path, "gui/stk.png"),]:
       try:
