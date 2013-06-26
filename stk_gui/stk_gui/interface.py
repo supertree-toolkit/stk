@@ -1023,20 +1023,39 @@ class Diamond:
         # create our show result interface
         signals = {"on_data_overlap_show_dialog_close": self.on_data_overlap_show_dialog_cancel_button}
 
-        self.data_overlap_show_gui = gtk.glade.XML(self.gladefile, root="data_overlap_show_dialog")
-        self.show_dialog = self.data_overlap_show_gui.get_widget("data_overlap_show_dialog")
-        self.data_overlap_show_gui.signal_autoconnect(signals)
-        self.draw = self.data_overlap_show_gui.get_widget("alignment1")
-        self.draw.add(canvas)
+        data_overlap_show_gui = gtk.glade.XML(self.gladefile, root="data_overlap_show_dialog")
+        self.show_dialog = data_overlap_show_gui.get_widget("data_overlap_show_dialog")
+        data_overlap_show_gui.signal_autoconnect(signals)
+        draw = data_overlap_show_gui.get_widget("alignment1")
+        treeview_holder = data_overlap_show_gui.get_widget("alignment2")
+        draw.add(canvas)
+
         # set label appropriately
-        self.infoLabel = self.data_overlap_show_gui.get_widget("informationLabel")
-        self.infoLabel.set_use_markup=True
+        infoLabel = data_overlap_show_gui.get_widget("informationLabel")
+        infoLabel.set_use_markup=True
         if (sufficient_overlap):
-            self.infoLabel.set_text('Your data are sufficiently well connected at this overlap level')
-            self.infoLabel.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#00AA00'))
+            infoLabel.set_text('Your data are sufficiently well connected at this overlap level')
+            infoLabel.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#00AA00'))
         else:
-            self.infoLabel.set_text('Your data are not connected sufficiently at this overlap level')
-            self.infoLabel.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#AA0000'))
+            infoLabel.set_text('Your data are not connected sufficiently at this overlap level')
+            infoLabel.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#AA0000'))
+        # now create the key table on the rhs
+        liststore = gtk.ListStore(int,str)
+        treeview = gtk.TreeView(liststore)
+        treeview_holder.add(treeview)
+        rendererText = gtk.CellRendererText()
+        column = gtk.TreeViewColumn("ID", rendererText, text=0)
+        column.set_sort_column_id(0)
+        treeview.append_column(column)
+        column2 = gtk.TreeViewColumn("Tree(s)", rendererText, text=1)
+        column2.set_sort_column_id(1)
+        treeview.append_column(column2)
+        count = 0
+        for id in key_list:
+            for tree in id:
+                liststore.append([count,tree])
+            count += 1
+
         self.show_dialog.show_all()
     else:
         # Need to make these clearer - big green tick and big red cross respectively
