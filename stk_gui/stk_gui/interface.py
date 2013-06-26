@@ -1019,9 +1019,19 @@ class Diamond:
     self.tree.write(f)
     XML = f.getvalue()
     if (show):
-        sufficient_overlap, key_list, canvas = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed)
+        try:
+            sufficient_overlap, key_list, canvas = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed)
+        except IOError as detail:
+            msg = "Failed to calculate overlap.\n"+detail.message
+            dialogs.error(self.main_window,msg)
+            return
     else:
-        sufficient_overlap, key_list = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed)
+        try:
+            sufficient_overlap, key_list = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed)
+        except IOError as detail:
+            msg = "Failed to calculate overlap.\n"+detail.message
+            dialogs.error(self.main_window,msg)
+            return
 
     if (show):
         # create our show result interface
@@ -1067,10 +1077,13 @@ class Diamond:
         self.show_dialog.show_all()
     else:
         # Need to make these clearer - big green tick and big red cross respectively
+        show_msg = ""
+        if not show:
+            show_msg = ". File save to "+filename
         if sufficient_overlap:
-            dialogs.error(self.main_window, "Your data are sufficiently well connected at this overlap level")
+            dialogs.error(self.main_window, "Your data are sufficiently well connected at this overlap level"+show_msg)
         else:
-            dialogs.error(self.main_window, "Your data are not connected sufficiently at this overlap level")
+            dialogs.error(self.main_window, "Your data are not connected sufficiently at this overlap level"+show_msg)
     
     XML = stk.add_historical_event(XML, "Data overlap carried out on data. Result is: " + str(sufficient_overlap) + " with overlap of "+str(overlap))
     ios = StringIO.StringIO(XML)
@@ -1092,7 +1105,7 @@ class Diamond:
       filter_names_and_patterns = {}
       # open file dialog
       filename = dialogs.get_filename(title = "Choose output graphic fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
-      filename_textbox = self.dialog.get_widget("entry1")
+      filename_textbox = self.data_overlap_gui.get_widget("entry1")
       filename_textbox.set_text(filename)
 
 

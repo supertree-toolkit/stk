@@ -974,9 +974,9 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             # We need to normalize the colours array from (0,1) and find out where
             # our minimum overlap value sits in there
             if max(colours) == 0:
-                norm_cutoff = 1.0
+                norm_cutoff = 0.999
             else:
-                norm_cutoff = 1.0/max(colours)
+                norm_cutoff = 0.999/max(colours)
             # Our cut off is at 1 - i.e. one connected edge. 
             from matplotlib.colors import LinearSegmentedColormap
             cdict = {'red':   ((0.0, 1.0, 1.0),
@@ -989,8 +989,11 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                                (norm_cutoff, 0.0, 1.0),
                                (1.0, 1.0, 1.0))}
             custom = LinearSegmentedColormap('custom', cdict)
-
-            fig = plt.figure(dpi=90)
+            
+            if show:
+                fig = plt.figure(dpi=90)
+            else:
+                fig = plt.figure(dpi=270)
             ax = fig.add_subplot(111)
             cs = nx.draw_circular(G_relabelled,with_labels=True,ax=ax,node_color=colours,cmap=custom,edge_color='k',node_size=100,font_size=8)
             limits=plt.axis('off')
@@ -1004,7 +1007,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                 canvas = FigureCanvas(fig)  # a gtk.DrawingArea 
                 return sufficient_overlap, key_list,canvas
             else:
-                fig.savefig(filename,format='png')
+                fig.savefig(filename)
     
         else:
             if (verbose):
@@ -1025,7 +1028,10 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                 colours.append(H.number_of_nodes())
                 sizes.append(300*H.number_of_nodes())
             G_relabelled = nx.convert_node_labels_to_integers(G_new)
-            fig = plt.figure(dpi=90)
+            if (show):
+                fig = plt.figure(dpi=90)
+            else:
+                fig = plt.figure(dpi=270)
             ax = fig.add_subplot(111)
             limits=plt.axis('off')
             plt.axis('equal')
@@ -1042,7 +1048,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                 canvas = FigureCanvas(fig)  # a gtk.DrawingArea 
                 return sufficient_overlap, key_list,canvas
             else:
-                fig.savefig(filename,format='png')
+                fig.savefig(filename)
 
     return sufficient_overlap, key_list
 
