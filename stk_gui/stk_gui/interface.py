@@ -34,7 +34,6 @@ import gobject
 import gtk
 import gtk.glade
 from stk.stk_exceptions import *
-
 plugin_xml = None
 
 
@@ -978,13 +977,83 @@ class Diamond:
 
   def on_data_overlap(self, widget=None):
    
+    
+    signals = {"on_data_overlap_dialog_close": self.on_data_overlap_dialog_cancel_button,
+               "on_data_overlap_dialog_cancel_clicked": self.on_data_overlap_dialog_cancel_button,
+               "on_data_overlap_dialog_clicked": self.run_data_summary,
+               "on_data_overlap_dialog_browse_clicked": self.on_data_overlap_dialog_browse_button}
+
+    self.data_overlap_gui = gtk.glade.XML(self.gladefile, root="data_overlap_dialog")
+    self.dialog = self.data_overlap_gui.get_widget("data_overlap_dialog")
+    self.data_overlap_gui.signal_autoconnect(signals)
+    overlap = self.data_overlap_gui.get_widget("check_overlap_button")
+    overlap.connect("activate", self.run_data_summary)
+    self.dialog.show()
+
+    return
+      
+  def run_data_summary(self, button):
+
+    filename_textbox = self.data_overlap_gui.get_widget("entry1")
+    filename = filename_textbox.get_text()
+    graphic = self.data_overlap_gui.get_widget("checkbutton1").get_active()
+    detailed = self.data_overlap_gui.get_widget("checkbutton2").get_active()
+    overlap = max(int(self.data_overlap_gui.get_widget("spinbutton1").get_value()),2)
+
+    show = False
+    if (filename == "" and graphic):
+        show = True
+        filename = None
+    elif (filename == ""):
+        show = False
+        filename = None
+
     # Add a history event
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
-    stk.data_overlap(XML,show=True,detailed=True)
-    XML = stk.add_historical_event(XML, "Data overlap carried out on data")
+    sufficient_overlap, key_list, canvas = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed)
+
+    # create our show result interface
+    signals = {"on_data_overlap_show_dialog_close": self.on_data_overlap_show_dialog_cancel_button}
+
+    self.data_overlap_show_gui = gtk.glade.XML(self.gladefile, root="data_overlap_show_dialog")
+    self.show_dialog = self.data_overlap_show_gui.get_widget("data_overlap_show_dialog")
+    self.data_overlap_show_gui.signal_autoconnect(signals)
+    self.draw = self.data_overlap_show_gui.get_widget("alignment1")
+    self.draw.add(canvas)
+    # set label appropriately
+    self.infoLabel = self.data_overlap_show_gui.get_widget("informationLabel")
+    if (sufficient_overlap):
+        
+        self.infoLabel.set_text('<span foreground="red">Your data are sufficiently well connected at this overlap level</span>')
+    else:
+        self.infoLabel.set_text('<span foreground="red">Your data are not connected sufficiently at this overlap level</span>')
+
+    self.show_dialog.show_all()
+
+    XML = stk.add_historical_event(XML, "Data overlap carried out on data. Result is: " + str(sufficient_overlap) + " with overlap of "+str(overlap))
     ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (data overlap) to XML", skip_warning=True)
+
+    
+  def on_data_overlap_dialog_cancel_button(self, button):
+      """ Close the data overlap dialogue
+      """
+      self.dialog.hide()
+
+  def on_data_overlap_show_dialog_cancel_button(self, button):
+      """ Close the data overlap dialogue
+      """
+      self.show_dialog.hide()
+
+
+  def on_data_overlap_dialog_browse_button(self, button):
+      filter_names_and_patterns = {}
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose output graphic fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+      filename_textbox = self.dialog.get_widget("entry1")
+      filename_textbox.set_text(filename)
 
 
   def on_create_matrix(self, widget=None):

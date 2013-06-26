@@ -864,10 +864,13 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
     # We don't need to record which taxa overlap, just the total number
 
     if (verbose):
-        print "\tObtianing trees from dataset"
+        print "\tObtaining trees from dataset"
 
     # First grab all trees
-    trees = obtain_trees(XML)
+    try:
+        trees = obtain_trees(XML)
+    except:
+        return
 
     # Get some basic stats about them (how many, etc)
     tree_keys = trees.keys()
@@ -908,11 +911,10 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
     for i in range(0,nTrees):
         for j in range(i+1,nTrees):
             if (connectivity[i][j] >= overlap_amount):
-                G.add_edge(tree_keys[i],tree_keys[j])
+                G.add_edge(tree_keys[i],tree_keys[j],label=tree_keys[i])
 
     # That's out graph set up. Dead easy to test all nodes are connected - we can even get the number of seperate connected parts
     connected_components = nx.connected_components(G)
-    #print connected_components, connectivity
     if len(connected_components) == 1:
         sufficient_overlap = True
 
@@ -930,7 +932,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             key_list = tree_keys
             # we want a detailed graphic instead
             # Turn tree names into integers
-            G_relabelled = nx.convert_node_labels_to_integers(G)
+            G_relabelled = nx.convert_node_labels_to_integers(G,discard_old_labels=False)
             # The integer labelling will match the order in which we set
             # up the nodes, which matches tree_keys
             degrees = G.degree() # we colour nodes by number of edges
@@ -942,7 +944,10 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             # a smooth white to blue transition above this
             # We need to normalize the colours array from (0,1) and find out where
             # our minimum overlap value sits in there
-            norm_cutoff = 1.0/max(colours)
+            if max(colours) == 0:
+                norm_cutoff = 1.0
+            else:
+                norm_cutoff = 1.0/max(colours)
             # Our cut off is at 1 - i.e. one connected edge. 
             from matplotlib.colors import LinearSegmentedColormap
             cdict = {'red':   ((0.0, 1.0, 1.0),
@@ -967,9 +972,8 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             pp=plt.colorbar(cs, orientation='horizontal', format='%d', ticks=ticks)
             pp.set_label("No. connected edges")
             if (show):
-                from mpldatacursor import datacursor
-                datacursor(formatter='{label}'.format)
-                plt.show()
+                canvas = FigureCanvas(fig)  # a gtk.DrawingArea 
+                return sufficient_overlap, key_list,canvas
             else:
                 fig.savefig(filename,format='png')
     
@@ -992,8 +996,10 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                 colours.append(H.number_of_nodes())
                 sizes.append(300*H.number_of_nodes())
             G_relabelled = nx.convert_node_labels_to_integers(G_new)
-            fig = plt.figure(figsize=(10,10))
+            fig = plt.figure(dpi=90)
             ax = fig.add_subplot(111)
+            limits=plt.axis('off')
+            plt.axis('equal')
             if (len(colours) > 1):
                 cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,node_size=sizes,node_color=colours,cmap=plt.cm.Blues,edge_color='k')
                 ticks = MaxNLocator(integer=True,nbins=9)
@@ -1002,9 +1008,10 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             else:
                 cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,edge_color='k',node_color='w',node_size=2000)
             
-            limits=plt.axis('off')
-            if show:
-                fig.show()
+                limits=plt.axis('off')
+            if (show):
+                canvas = FigureCanvas(fig)  # a gtk.DrawingArea 
+                return sufficient_overlap, key_list,canvas
             else:
                 fig.savefig(filename,format='png')
 
