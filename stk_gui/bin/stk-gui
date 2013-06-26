@@ -29,17 +29,9 @@ gtk.gdk.threads_init()
 import gobject
 gobject.threads_init()
 
-# do this right at the start, so we can find the stk_gui modules
+# do this right at the start, so we can find the stk_gui modules when developing
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir)
 sys.path.insert(0, stk_path)
-stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, "stk_gui")
-sys.path.insert(0, stk_path)
-stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir, "stk_gui")
-sys.path.insert(0, stk_path)
-dxdiff_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, "dxdiff" )
-sys.path.insert(0, dxdiff_path)
-dxdiff_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir,os.pardir, "dxdiff" )
-sys.path.insert(0, dxdiff_path)
 
 import stk_gui.debug as debug
 
