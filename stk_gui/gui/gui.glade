@@ -492,7 +492,15 @@
                         <property name="can_focus">False</property>
                         <property name="left_padding">12</property>
                         <child>
-                            <placeholder/>
+                          <widget class="GtkScrolledWindow" id="scrolledwindow1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="hscrollbar_policy">automatic</property>
+                            <property name="vscrollbar_policy">automatic</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </widget>
                         </child>
                       </widget>
                     </child>
@@ -1119,8 +1127,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                       </widget>
-                  </child>
-                  <child>
+                    </child>
+                    <child>
                       <widget class="GtkMenuItem" id="import_bib">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -1553,13 +1561,9 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkHButtonBox" id="plugin_buttonbox">
+          <widget class="GtkStatusbar" id="statusBar">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="layout_style">start</property>
-            <child>
-              <placeholder/>
-            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -1568,9 +1572,13 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkStatusbar" id="statusBar">
+          <widget class="GtkHButtonBox" id="plugin_buttonbox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="layout_style">start</property>
+            <child>
+              <placeholder/>
+            </child>
           </widget>
           <packing>
             <property name="expand">False</property>

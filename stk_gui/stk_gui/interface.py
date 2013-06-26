@@ -511,7 +511,7 @@ class Diamond:
     if not self.save_continue():
       return
 
-    filename = dialogs.get_filename(title = "Open RELAX NG schema", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = {["RNG files":"*.rng"]}, folder_uri = self.schemafile_path)
+    filename = dialogs.get_filename(title = "Open RELAX NG schema", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = {"RNG files":["*.rng"]}, folder_uri = self.schemafile_path)
     if filename is not None:
       self.open_file(schemafile = filename)
 
@@ -1031,7 +1031,7 @@ class Diamond:
         self.show_dialog = data_overlap_show_gui.get_widget("data_overlap_show_dialog")
         data_overlap_show_gui.signal_autoconnect(signals)
         draw = data_overlap_show_gui.get_widget("alignment1")
-        treeview_holder = data_overlap_show_gui.get_widget("alignment2")
+        treeview_holder = data_overlap_show_gui.get_widget("scrolledwindow1")
         draw.add(canvas)
 
         # set label appropriately
@@ -1056,9 +1056,13 @@ class Diamond:
         treeview.append_column(column2)
         count = 0
         for id in key_list:
-            for tree in id:
-                liststore.append([count,tree])
-            count += 1
+            if (detailed):
+                liststore.append([count,id])
+                count += 1
+            else:
+                for tree in id:
+                    liststore.append([count,tree])
+                count += 1
 
         self.show_dialog.show_all()
     else:
