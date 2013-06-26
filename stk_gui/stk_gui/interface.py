@@ -487,11 +487,11 @@ class Diamond:
     filter_names_and_patterns = {}
     if self.suffix is None:
       for xmlname in config.schemata:
-        filter_names_and_patterns[config.schemata[xmlname][0]] = "*." + xmlname
+        filter_names_and_patterns[config.schemata[xmlname][0]] = ["*." + xmlname]
     elif self.suffix in config.schemata.keys():
-      filter_names_and_patterns[config.schemata[self.suffix][0]] = "*." + self.suffix
+      filter_names_and_patterns[config.schemata[self.suffix][0]] = ["*." + self.suffix]
     else:
-      filter_names_and_patterns[self.suffix] = "*." + self.suffix
+      filter_names_and_patterns[self.suffix] = ["*." + self.suffix]
 
     filename = dialogs.get_filename(title = "Open XML file", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 
@@ -508,7 +508,7 @@ class Diamond:
     if not self.save_continue():
       return
 
-    filename = dialogs.get_filename(title = "Open RELAX NG schema", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = {"RNG files":"*.rng"}, folder_uri = self.schemafile_path)
+    filename = dialogs.get_filename(title = "Open RELAX NG schema", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = {["RNG files":"*.rng"]}, folder_uri = self.schemafile_path)
     if filename is not None:
       self.open_file(schemafile = filename)
 
@@ -555,11 +555,11 @@ class Diamond:
     filter_names_and_patterns = {}
     if self.suffix is None:
       for xmlname in config.schemata:
-        filter_names_and_patterns[config.schemata[xmlname][0]] = "*." + xmlname
+        filter_names_and_patterns[config.schemata[xmlname][0]] = ["*." + xmlname]
     elif self.suffix in config.schemata.keys():
-      filter_names_and_patterns[config.schemata[self.suffix][0]] = "*." + self.suffix
+      filter_names_and_patterns[config.schemata[self.suffix][0]] = ["*." + self.suffix]
     else:
-      filter_names_and_patterns[self.suffix] = "*." + self.suffix
+      filter_names_and_patterns[self.suffix] = ["*." + self.suffix]
 
     filename = dialogs.get_filename(title = "Save PHYML file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 
@@ -1246,8 +1246,8 @@ class Diamond:
      Imports a bibtex file and sets up a number of sources
      """
      filter_names_and_patterns = {}
-     filter_names_and_patterns['Bibtex file'] = "*.bib"
-     filter_names_and_patterns['All files'] = "*"
+     filter_names_and_patterns['Bibtex file'] = ["*.bib"]
+     filter_names_and_patterns['All files'] = ["*"]
      filename = dialogs.get_filename(title = "Choose .bib fle", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
      
      f = StringIO.StringIO()
