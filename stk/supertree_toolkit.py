@@ -1005,7 +1005,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             pp.set_label("No. connected edges")
             if (show):
                 canvas = FigureCanvas(fig)  # a gtk.DrawingArea 
-                return sufficient_overlap, key_list,canvas
+                return sufficient_overlap, key_list, canvas
             else:
                 fig.savefig(filename)
     

@@ -1028,6 +1028,19 @@ class Diamond:
     else:
         try:
             sufficient_overlap, key_list = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed)
+            # we need to save the csv file too
+            file_stub = os.path.splitext(filename)[0]
+            csv_file = file_stub+"_"+str(overlap)+".csv"
+            f = open(csv_file,"w")
+            i = 0
+            for key in key_list:
+                if type(key).__name__=='list':
+                    f.write(str(i)+","+",".join(key)+"\n")
+                else:
+                    f.write(str(i)+","+key+"\n")
+                i = i+1
+            f.close()
+
         except IOError as detail:
             msg = "Failed to calculate overlap.\n"+detail.message
             dialogs.error(self.main_window,msg)

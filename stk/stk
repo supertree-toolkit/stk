@@ -406,14 +406,14 @@ def data_overlap(args):
         if args.graphic == True:
             # generate filename
             filename =  os.path.splitext(input_file)[0]
-            output_file = filename+"_"+str(overlap)+".png"
+            output_file = filename+"_"+str(overlap)+".pdf"
         else:
             output_file = args.graphic
             # check it ends in .png...
             extension = os.path.splitext(output_file)[1]
-            if (not extension == '.png'):
-                print "Warning: output file is a PNG file. Correcting the output file you gave"
-                output_file = os.path.splitext(output_file)[0]+".png"
+            if (not extension == '.png' or not extension == '.svg' or not extension == '.pdf'):
+                print "Warning: unknown output format. Correcting the output file you gave to .pdf"
+                output_file = os.path.splitext(output_file)[0]+".pdf"
 
     XML = supertree_toolkit.load_phyml(input_file)
     overlap_ok, key_list = supertree_toolkit.data_overlap(XML,  overlap_amount=overlap, filename=output_file, detailed=args.detailed, verbose=verbose)
