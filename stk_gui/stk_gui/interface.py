@@ -253,7 +253,10 @@ class Diamond:
       self.treeview.set_model(self.treestore)
       self.treeview.thaw_child_notify()
       self.set_geometry_dim_tree()
-      self.treeview.expand_to_path(path)     
+      self.treeview.expand_to_path(path)   
+      # We *must* select the path again otherwise we get a segfault if the user alters the XML
+      # without clicking on a path first.
+      self.treeview.get_selection().select_path(path)    
       self.scherror.destroy_error_list()
       plugin_xml = None
 
@@ -980,19 +983,19 @@ class Diamond:
     
     signals = {"on_data_overlap_dialog_close": self.on_data_overlap_dialog_cancel_button,
                "on_data_overlap_dialog_cancel_clicked": self.on_data_overlap_dialog_cancel_button,
-               "on_data_overlap_dialog_clicked": self.run_data_summary,
+               "on_data_overlap_dialog_clicked": self.run_data_overlap,
                "on_data_overlap_dialog_browse_clicked": self.on_data_overlap_dialog_browse_button}
 
     self.data_overlap_gui = gtk.glade.XML(self.gladefile, root="data_overlap_dialog")
     self.dialog = self.data_overlap_gui.get_widget("data_overlap_dialog")
     self.data_overlap_gui.signal_autoconnect(signals)
     overlap = self.data_overlap_gui.get_widget("check_overlap_button")
-    overlap.connect("activate", self.run_data_summary)
+    overlap.connect("activate", self.run_data_overlap)
     self.dialog.show()
 
     return
       
-  def run_data_summary(self, button):
+  def run_data_overlap(self, button):
 
     filename_textbox = self.data_overlap_gui.get_widget("entry1")
     filename = filename_textbox.get_text()
@@ -1008,30 +1011,40 @@ class Diamond:
         show = False
         filename = None
 
-    # Add a history event
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
-    sufficient_overlap, key_list, canvas = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed)
-
-    # create our show result interface
-    signals = {"on_data_overlap_show_dialog_close": self.on_data_overlap_show_dialog_cancel_button}
-
-    self.data_overlap_show_gui = gtk.glade.XML(self.gladefile, root="data_overlap_show_dialog")
-    self.show_dialog = self.data_overlap_show_gui.get_widget("data_overlap_show_dialog")
-    self.data_overlap_show_gui.signal_autoconnect(signals)
-    self.draw = self.data_overlap_show_gui.get_widget("alignment1")
-    self.draw.add(canvas)
-    # set label appropriately
-    self.infoLabel = self.data_overlap_show_gui.get_widget("informationLabel")
-    if (sufficient_overlap):
-        
-        self.infoLabel.set_text('<span foreground="red">Your data are sufficiently well connected at this overlap level</span>')
+    if (show):
+        sufficient_overlap, key_list, canvas = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed)
     else:
-        self.infoLabel.set_text('<span foreground="red">Your data are not connected sufficiently at this overlap level</span>')
+        sufficient_overlap, key_list = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed)
 
-    self.show_dialog.show_all()
+    if (show):
+        # create our show result interface
+        signals = {"on_data_overlap_show_dialog_close": self.on_data_overlap_show_dialog_cancel_button}
 
+        self.data_overlap_show_gui = gtk.glade.XML(self.gladefile, root="data_overlap_show_dialog")
+        self.show_dialog = self.data_overlap_show_gui.get_widget("data_overlap_show_dialog")
+        self.data_overlap_show_gui.signal_autoconnect(signals)
+        self.draw = self.data_overlap_show_gui.get_widget("alignment1")
+        self.draw.add(canvas)
+        # set label appropriately
+        self.infoLabel = self.data_overlap_show_gui.get_widget("informationLabel")
+        self.infoLabel.set_use_markup=True
+        if (sufficient_overlap):
+            self.infoLabel.set_text('Your data are sufficiently well connected at this overlap level')
+            self.infoLabel.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#00AA00'))
+        else:
+            self.infoLabel.set_text('Your data are not connected sufficiently at this overlap level')
+            self.infoLabel.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#AA0000'))
+        self.show_dialog.show_all()
+    else:
+        # Need to make these clearer - big green tick and big red cross respectively
+        if sufficient_overlap:
+            dialogs.error(self.main_window, "Your data are sufficiently well connected at this overlap level")
+        else:
+            dialogs.error(self.main_window, "Your data are not connected sufficiently at this overlap level")
+    
     XML = stk.add_historical_event(XML, "Data overlap carried out on data. Result is: " + str(sufficient_overlap) + " with overlap of "+str(overlap))
     ios = StringIO.StringIO(XML)
     self.update_data(ios, "Error adding history event (data overlap) to XML", skip_warning=True)
@@ -1384,7 +1397,9 @@ class Diamond:
         dialogs.error_tb(self.main_window, error)
         return
 
-     path = self.treestore.get_path(self.selected_iter)
+     path = None
+     if (self.selected_iter):
+        path = self.treestore.get_path(self.selected_iter)
 
      self.set_saved(False)
      self.treeview.freeze_child_notify()
@@ -1394,7 +1409,10 @@ class Diamond:
      self.treeview.set_model(self.treestore)
      self.treeview.thaw_child_notify()
      self.set_geometry_dim_tree()
-     self.treeview.expand_to_path(path)     
+     self.treeview.expand_to_path(path)    
+     # We *must* select the path again otherwise we get a segfault if the user alters the XML
+     # without clicking on a path first.
+     self.treeview.get_selection().select_path(path)    
      self.scherror.destroy_error_list()
 
      return
