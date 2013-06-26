@@ -31,7 +31,7 @@ sys.path.insert(0, stk_path)
 import stk.supertree_toolkit as supertree_toolkit
 import stk.stk_import_export as supertree_import_export
 from stk.stk_exceptions import *
-import Getch
+import stk.Getch as Getch
 import string
 
 # Set up a global Getch class for all functions to use

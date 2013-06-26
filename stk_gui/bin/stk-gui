@@ -41,7 +41,7 @@ sys.path.insert(0, dxdiff_path)
 dxdiff_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir,os.pardir, "dxdiff" )
 sys.path.insert(0, dxdiff_path)
 
-import debug
+import stk_gui.debug as debug
 
 def Help():
   """
