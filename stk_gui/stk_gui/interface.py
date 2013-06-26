@@ -508,7 +508,7 @@ class Diamond:
     if not self.save_continue():
       return
 
-    filename = dialogs.get_filename(title = "Open RELAX NG schema", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = {["RNG files":"*.rng"]}, folder_uri = self.schemafile_path)
+    filename = dialogs.get_filename(title = "Open RELAX NG schema", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = {"RNG files":["*.rng"]}, folder_uri = self.schemafile_path)
     if filename is not None:
       self.open_file(schemafile = filename)
 
