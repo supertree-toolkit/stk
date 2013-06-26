@@ -363,7 +363,7 @@ class BibItem(dict):
         entry_type != "inbook"):
         return None
 
-    s='%s<source_publication>\n' %(sp*spc)
+    s='%s<bibliographic_information>\n' %(sp*spc)
     sp += 1
     s+='%s<%s%s>\n' %(sp*spc,p,entry_type)
 
@@ -530,7 +530,7 @@ class BibItem(dict):
 
     sp-=1
     s+= '%s</%s%s>\n' %(sp*spc,p,self.get('_type',''))
-    s+= '%s</%ssource_publication>\n' %(sp*spc,p)
+    s+= '%s</%sbibliographic_information>\n' %(sp*spc,p)
     return s
 
   def to_html(self,style={}):

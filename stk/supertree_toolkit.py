@@ -241,43 +241,72 @@ def import_bibliography(XML, bibfile):
             source.append(publication)
             new_source = single_sourcename(etree.tostring(source,pretty_print=True))
             source = _parse_xml(new_source)
-
+            
             # now create tail of source
             s_tree = etree.SubElement(source, "source_tree")
             s_tree.tail="\n      "
-           
-            characters = etree.SubElement(s_tree,"character_data")
-            c_data = etree.SubElement(characters,"character")
-            analyses = etree.SubElement(s_tree,"analysis_used")
-            a_data = etree.SubElement(analyses,"analysis")
-            tree = etree.SubElement(s_tree,"tree_data")
-            tree_string = etree.SubElement(tree,"string_value")
-
-            source.tail="\n      "
+            # Tree data
+            tree = etree.SubElement(s_tree,"tree")
+            tree.tail="\n      "
+            tree_string = etree.SubElement(tree,"tree_string")
+            tree_string.tail="\n      "
+            tree_string_string = etree.SubElement(tree_string,"string_value")
+            tree_string_string.tail="\n      "
+            tree_string_string.attrib['lines'] = "1"
+            # Figure and page number stuff
+            figure_legend = etree.SubElement(tree,"figure_legend")
+            figure_legend.tail="\n      "
+            figure_legend_string = etree.SubElement(figure_legend,"string_value")
+            figure_legend_string.tail="\n      "
+            figure_legend_string.attrib['lines'] = "1"
+            figure_number = etree.SubElement(tree,"figure_number")
+            figure_number.tail="\n      "
+            figure_number_string = etree.SubElement(figure_number,"integer_value")
+            figure_number_string.tail="\n      "
+            figure_number_string.attrib['rank'] = "0"
+            page_number = etree.SubElement(tree,"page_number")
+            page_number.tail="\n      "
+            page_number_string = etree.SubElement(page_number,"integer_value")
+            page_number_string.tail="\n      "
+            page_number_string.attrib['rank'] = "0"
+            tree_inference = etree.SubElement(tree,"tree_inference")
+            optimality_criterion = etree.SubElement(tree_inference,"optimality_criterion")
+            # taxa data
+            taxa = etree.SubElement(s_tree,"taxa_data")
+            taxa.tail="\n      "
+            mixed_fossil_and_extant = etree.SubElement(taxa,"mixed_fossil_and_extant")
+            mixed_fossil_and_extant.tail="\n      "
+            taxon = etree.SubElement(mixed_fossil_and_extant,"taxon")
+            taxon.tail="\n      "
+            fossil = etree.SubElement(taxon,"fossil")
+            fossil.tail="\n   "
+            # character data
+            character_data = etree.SubElement(s_tree,"character_data")
+            character_data.tail="\n      "
+            character = etree.SubElement(character_data,"character")
+            character.tail="\n      "
 
             # append our new source to the main tree
-            sources.append(source)
+            # if sources has no valid source, overwrite,
+            # else append
+            valid = True
+            i = 0
+            for ele in sources:
+                try:
+                    ele.attrib['name']
+                    i += 1
+                    continue
+                except:
+                    valid = False
+            if not valid:
+                sources[i] = source
+            else:
+                sources.append(source)
+            
         else:
             raise BibImportError("Error with one of the entries in the bib file")
 
-    # do we have any empty (define empty?) sources? - i.e. has the user
-    # added a source, but not yet filled it in?
-    # I think the best way of telling an empty source is to check all the
-    # authors, title, tree, etc and checking if they are empty tags
-    # Find all "source" trees
-    sources = []
-    for ele in xml_root.iter():
-        if (ele.tag == "source"):
-            sources.append(ele)
-
-    for s in sources:
-        xml_snippet = etree.tostring(s,pretty_print=True)
-        if ('<string_value lines="1"/>' in xml_snippet and\
-            '<integer_value rank="0"/>' in xml_snippet):
-
-            parent = s.getparent()
-            parent.remove(s)
-
+    #print etree.tostring(xml_root,pretty_print=True)
     # sort sources in alphabetical order
     xml_root = _sort_data(xml_root)
     XML = etree.tostring(xml_root,pretty_print=True)
@@ -508,7 +537,7 @@ def get_analyses_used(XML):
     a_ = []
 
     xml_root = _parse_xml(XML)
-    find = etree.XPath("//analysis")
+    find = etree.XPath("//optimality_criterion")
     analyses = find(xml_root)
 
     for a in analyses:
@@ -555,7 +584,7 @@ def obtain_trees(XML):
         name = s.attrib['name']
         # get trees
         tree_no = 1
-        for t in s.xpath("source_tree/tree_data"):
+        for t in s.xpath("source_tree/tree/tree_string"):
             t_name = name+"_"+str(tree_no)
             # append to dictionary, with source_name_tree_no = tree_string
             trees[t_name] = t.xpath("string_value")[0].text
@@ -1168,7 +1197,7 @@ def _swap_tree_in_XML(XML, tree, name):
         if source_name == name:
             # found the bugger!
             tree_no = 1
-            for t in s.xpath("source_tree/tree_data"):
+            for t in s.xpath("source_tree/tree/tree_string"):
                 if tree_no == number:
                    t.xpath("string_value")[0].text = tree
                    # We can return as we're only replacing one tree
@@ -1310,7 +1339,6 @@ def _sort_data(xml_root):
     """ Grab all source names and sort them alphabetically, 
     spitting out a new XML """
 
-    # this element holds the phonebook entries
     container = xml_root.find("sources")
 
     data = []

@@ -15,8 +15,8 @@ xml_two = etree.parse("data/input/two_names.xml")
 xml_two_c = etree.parse("data/output/two_names.xml")
 xml_lots = etree.parse("data/input/lots.xml")
 xml_lots_c = etree.parse("data/output/lots.xml")
-xml_full = etree.parse("data/input/full_tree.xml")
-xml_full_c = etree.parse("data/output/full_tree.xml")
+xml_full = etree.parse("data/input/full_tree.phyml")
+xml_full_c = etree.parse("data/output/full_tree.phyml")
 non_unique_names = etree.parse("data/input/non_unique_names.phyml")
 
 class TestSetSourceNames(unittest.TestCase):
@@ -46,20 +46,28 @@ class TestSetSourceNames(unittest.TestCase):
         self.assert_(source_name=="Smith_etal_2001", "Name obtained: "+source_name)
 
     def test_singlename(self):
-        new_xml = single_sourcename(etree.tostring(xml_single))      
-        self.assert_(isEqualXML(new_xml,etree.tostring(xml_single_c)))
+        # the XML has a <sources> element as root, and the function takes
+        # a <source> element, so compare the first child.
+        new_xml = single_sourcename(etree.tostring(xml_single.getroot()[0]))
+        self.assert_(isEqualXML(new_xml,etree.tostring(xml_single_c.getroot()[0])))
 
     def test_twonames(self):
-        new_xml = single_sourcename(etree.tostring(xml_two))   
-        self.assert_(isEqualXML(new_xml,etree.tostring(xml_two_c))) 
+        # the XML has a <sources> element as root, and the function takes
+        # a <source> element, so compare the first child.
+        new_xml = single_sourcename(etree.tostring(xml_two.getroot()[0]))   
+        self.assert_(isEqualXML(new_xml,etree.tostring(xml_two_c.getroot()[0]))) 
 
     def test_lotsofnames(self):
-        new_xml = single_sourcename(etree.tostring(xml_lots))
-        self.assert_(isEqualXML(new_xml,etree.tostring(xml_lots_c)))
+        # the XML has a <sources> element as root, and the function takes
+        # a <source> element, so compare the first child.
+        new_xml = single_sourcename(etree.tostring(xml_lots.getroot()[0]))
+        self.assert_(isEqualXML(new_xml,etree.tostring(xml_lots_c.getroot()[0])))
 
     def test_full_sourcenames(self):
         new_xml = all_sourcenames(etree.tostring(xml_full))
-        self.assert_(isEqualXML(new_xml,etree.tostring(xml_full_c)))
+        names = get_all_source_names(new_xml)
+        expected_names = get_all_source_names(etree.tostring(xml_full_c))
+        self.assertListEqual(names,expected_names)
 
     def test_get_all_source_names(self):
         input_data = etree.tostring(xml_full_c)
