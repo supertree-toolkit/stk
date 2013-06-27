@@ -217,6 +217,55 @@ class TestSetSourceNames(unittest.TestCase):
         self.assert_(overlap_ok)
         os.remove(temp_file)
 
+    def test_data_overlap_against_old_stk(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        # Note - we also test PDF output is OK
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".pdf")
+        overlap_ok,keys = data_overlap(XML,filename=temp_file,detailed=False)
+        # this is not ok!
+        self.assert_(not overlap_ok)
+        # now compare against the old code. This was created using
+        #stk_check_overlap.pl --dir data/input/old_stk_test --compressed --graphic
+        #Node number, tree file
+        #0,data/input/old_stk_test/Allende_etal_2001/Allende_etal_2001com.tre
+        #1,data/input/old_stk_test/Aleixo_2002/Aleixo2002com.tre
+        #2,data/input/old_stk_test/Baptista_Visser_1999/Tree 1/Baptista_etal_1999_corr.tre
+        #3,data/input/old_stk_test/Baker_etal_2005/Baker_etal_2005com.tre
+        #4,data/input/old_stk_test/Aliabadian_etal_2007/Tree 2/Aliabadian_etal_2007_2_corr.tre
+        #4,data/input/old_stk_test/Aliabadian_etal_2007/Tree 1/Aliabadian_etal_2007_1_corr.tre
+        #5,data/input/old_stk_test/Barber_Peterson_2004/Tree 1/Barber_etal_2004_corr.tre
+        #6,data/input/old_stk_test/Aragon_etal_1999/Aragon_etal_1999com1_2.tre
+        #6,data/input/old_stk_test/Aragon_etal_1999/Tree 3/Aragon_etal_1999_3_corr.tre
+        #7,data/input/old_stk_test/Baker_etal_2007b/Tree 1/Baker_etal_2007b_corr.tre
+        #7,data/input/old_stk_test/Andersson_1999a/Tree 1/Andersson_1999a_corr.tre
+        #7,data/input/old_stk_test/Andersson_1999b/Tree 2/Andersson_1999b_2_corr.tre
+        #7,data/input/old_stk_test/Andersson_1999b/Tree 1/Andersson_1999b_1_corr.tre
+        #7,data/input/old_stk_test/Baker_Strauch_1988/Tree 1/Baker_Strauch_1988_corr.tre
+        #7,data/input/old_stk_test/Baker_etal_2007a/Tree 1/Baker_etal_2007a_corr.tre
+        #8,data/input/old_stk_test/Baker_etal_2006/Tree 1/Baker_etal_2006_corr.tre
+        #8,data/input/old_stk_test/Bertelli_etal_2006/Tree 2/Bertelli_etal_2006_2_corr.tre
+        #8,data/input/old_stk_test/Bertelli_etal_2006/Tree 3/Bertelli_etal_2006_3_corr.tre
+        #8,data/input/old_stk_test/Bertelli_etal_2006/Tree 1/Bertelli_etal_2006_1_corr.tre
+        #9,data/input/old_stk_test/Barhoum_Burns_2002/Tree 1/Barhoum_Burns_2002_corr.tre
+        # So that's 10 clusters
+        self.assert_(len(keys) == 10)
+        # the keys should be ordered from large to small, so
+        self.assert_(len(keys[0]) == 6) # same as node 7 above
+        self.assert_(len(keys[1]) == 4) # same as node 8 above
+        self.assert_(len(keys[2]) == 2) # same as node 6 or 4 above
+        self.assert_(len(keys[3]) == 2) # same as node 6 or 4 above
+        self.assert_(len(keys[4]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assert_(len(keys[5]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assert_(len(keys[6]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assert_(len(keys[7]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assert_(len(keys[8]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assert_(len(keys[9]) == 1) # same as node 1,2,3,5 or 9 above
+
+
+
+
+
+
     def test_sort_data(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         xml_root = _parse_xml(XML)
