@@ -259,7 +259,16 @@ class TestSetSourceNames(unittest.TestCase):
         self.assert_(len(keys[6]) == 1) # same as node 0,1,2,3,5 or 9 above
         self.assert_(len(keys[7]) == 1) # same as node 0,1,2,3,5 or 9 above
         self.assert_(len(keys[8]) == 1) # same as node 0,1,2,3,5 or 9 above
-        self.assert_(len(keys[9]) == 1) # same as node 1,2,3,5 or 9 above
+        self.assert_(len(keys[9]) == 1) # same as node 0,1,2,3,5 or 9 above
+        # Now let's check the largest node contains the right things
+        # We can only do that as both Andersson_1999a, Andersson_1999b are in same cluster and
+        # both the Baker_etal_2007 papers are there too. Otherwise we wouldn't know which 
+        # was a and b...
+        self.assert_("Andersson_1999b_1" in keys[0])
+        self.assert_("Andersson_1999a_1" in keys[0])
+        self.assert_("Baker_etal_2007a_1" in keys[0])
+
+
 
 
 
