@@ -1,5 +1,5 @@
-supertree-toolkit (0.0.1) natty; urgency=low
+supertree-toolkit (0.1.1-1) unstable; urgency=low
 
-  * Working GUI and basic STK functionality
+  * source package automatically created by stdeb 0.6.0+git
 
- -- Jon Hill <jon.hill@imperial.ac.uk>  Sat, 5 Nov 2011 11:32:38 +0100 
+ -- The STK Team <jon.hill@imperial.ac.uk>  Tue, 25 Jun 2013 21:50:48 +0100

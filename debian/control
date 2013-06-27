@@ -1,36 +1,12 @@
 Source: supertree-toolkit
 Maintainer: The STK Team <jon.hill@imperial.ac.uk>
-Uploaders: David Ham <jon.hill@imperial.ac.uk>
-Section: science
-Priority: extra
-Build-Depends: python-setuptools (>= 0.6b3-1), python-all-dev (>= 2.3.5-11), debhelper (>= 5.0.38), python-central (>= 0.5.6), python-support
-Standards-Version: 3.8.0
-XS-Python-Version: >= 2.5
+Section: python
+Priority: optional
+Build-Depends: python-setuptools (>= 0.6b3), python-all (>= 2.6.6-3), debhelper (>= 7.4.3)
+Standards-Version: 3.9.1
 
-Package: supertree-toolkit
+Package: python-supertree-toolkit
 Architecture: all
-Depends: stk, python-gtk2, python-lxml, libxml2-utils, python, spudtools, python-gtksourceview2, python-dxdiff
-Recommends:
-Suggests: 
-Conflicts:
-Replaces:
-Provides: ${python:Provides}
-XB-Python-Version: ${python:Versions}
-Description: A GUI that allows easily creation and manipulation of phyml files which store necessary
- data and metadata for supertree construction. Uses the tools of the stk package to carry out the
- manipulation
-
-Package: stk
-Architecture: all
-Depends: python-gtk2, python-lxml, libxml2-utils, python, spudtools, python-gtksourceview2, python-dxdiff
-Recommends:
-Suggests: 
-Conflicts:
-Replaces:
-Provides: ${python:Provides}
-XB-Python-Version: ${python:Versions}
-Description: The Supertree Tool Kit is a set of python functions that maniplate supertree
- source data. This allows a rigorous tool processing data pipeline to be created, using
- either your own script, the CLI interface (this package) or the GUI interface
- (supertree-toolkit package)
+Depends: ${misc:Depends}, ${python:Depends}
+Description: Supertree data source management
 
