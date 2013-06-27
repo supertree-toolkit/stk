@@ -310,10 +310,37 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
     find_morph = etree.XPath('//Characters/Morphological/Type')
     find_behave = etree.XPath('//Characters/Behavioural/Type')
     find_other = etree.XPath('//Characters/Other/Type')
+    taxa_type = input_xml.xpath('/SourceTree/Taxa')[0].attrib['fossil']
+    if (taxa_type == "some"):
+        mixed = True
+        allextant = False
+        allfossil = False
+    elif (taxa_type == "all"):
+        mixed = False
+        allextant = False
+        allfossil = True
+    elif (taxa_type == "none"):
+        mixed = False
+        allextant = True
+        allfossil = False
+    else:
+        print "Unknown taxa types in "+xml_file
+        print "Setting to mixed fossil and extant so you have to correct this later"
+        mixed = True
+        allextant = False
+        allfossil = False
+
+
     # analysis   
     input_comments = input_xml.xpath('/SourceTree/Notes')[0].text
     input_analysis = input_xml.xpath('/SourceTree/Analysis/Type')[0].text
-    
+    # Theres a translation to be done here
+    if (input_analysis == "MP"):
+        input_analysis = "Maximum Parsimony"
+    if (input_analysis == "ML"):
+        input_analysis = "Maximum Likelihood"
+
+
     # construct new XML
     source_tree = etree.Element("source_tree")
     # tree data
@@ -322,26 +349,50 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
     string = etree.SubElement(tree_string,"string_value")
     string.attrib["lines"] = "1"
     string.text = tree
+    # comment
+    if (not input_comments == None):
+        comment = etree.SubElement(tree_string,"comment")
+        comment.text = input_comments
     # Figure and page number stuff
     figure_legend = etree.SubElement(tree_ele,"figure_legend")
     figure_legend.tail="\n      "
     figure_legend_string = etree.SubElement(figure_legend,"string_value")
     figure_legend_string.tail="\n      "
     figure_legend_string.attrib['lines'] = "1"
+    figure_legend_string.text = "NA"
     figure_number = etree.SubElement(tree_ele,"figure_number")
     figure_number.tail="\n      "
     figure_number_string = etree.SubElement(figure_number,"integer_value")
     figure_number_string.tail="\n      "
     figure_number_string.attrib['rank'] = "0"
+    figure_number_string.text = "0"
     page_number = etree.SubElement(tree_ele,"page_number")
     page_number.tail="\n      "
     page_number_string = etree.SubElement(page_number,"integer_value")
     page_number_string.tail="\n      "
     page_number_string.attrib['rank'] = "0"
+    page_number_string.text = "0"
     tree_inference = etree.SubElement(tree_ele,"tree_inference")
     optimality_criterion = etree.SubElement(tree_inference,"optimality_criterion")
     # analysis
     optimality_criterion.attrib['name'] = input_analysis
+    # taxa data
+    taxa_data = etree.SubElement(source_tree,"taxa_data")
+    if (allfossil):
+        taxa_type = etree.SubElement(taxa_data,"all_fossil")
+    elif (allextant):
+        taxa_type = etree.SubElement(taxa_data,"all_extant")
+    else:
+        taxa_type = etree.SubElement(taxa_data,"mixed_fossil_and_extant")
+        # We *should* add a taxon here to make sure this is valid
+        # phyml according to the schema. However, in doin so we will fail the
+        # taxon check as we don't know which taxon (or taxa) is a fossil, as
+        # this in formation is not recorded in the old STK XML files.
+        # We therefore leave this commented out as a reminder to the 
+        # next soul to edit this
+        #taxon = etree.SubElement(taxa_type,"taxon")
+
+
     character_data = etree.SubElement(source_tree,"character_data")
     # loop over characters add correctly
     chars = find_mol(input_xml)
@@ -364,10 +415,7 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
         new_char = etree.SubElement(character_data,"character")
         new_char.attrib['type'] = "other"
         new_char.attrib['name'] = c.text
-    # comment
-    if (not input_comments == ""):
-        comment = etree.SubElement(source_tree,"comment")
-        comment.text = input_comments
+
     
     return source_tree
 

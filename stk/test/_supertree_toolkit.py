@@ -6,11 +6,13 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir,
 sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
+from stk.supertree_toolkit import data_overlap
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
 from collections import defaultdict
+import tempfile
 parser = etree.XMLParser(remove_blank_text=True)
 import re
 
@@ -199,6 +201,80 @@ class TestSetSourceNames(unittest.TestCase):
         expected_analyses = ['Bayesian','Maximum Parsimony']
         self.assertListEqual(analyses,expected_analyses)
 
+    def test_overlap(self):
+        XML = etree.tostring(etree.parse('data/input/check_overlap_ok.phyml',parser),pretty_print=True)
+        overlap_ok,keys = data_overlap(XML)
+        self.assert_(overlap_ok)
+        # Increase number required for sufficient overlap - this should fail
+        overlap_ok,keys = data_overlap(XML,overlap_amount=3)
+        self.assert_(not overlap_ok)
+        # Now plot some graphics - kinda hard to test this, but not failing will suffice for now
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".png")
+        overlap_ok,keys = data_overlap(XML,filename=temp_file,detailed=True)
+        self.assert_(overlap_ok)
+        os.remove(temp_file)
+        overlap_ok,keys = data_overlap(XML,filename=temp_file)
+        self.assert_(overlap_ok)
+        os.remove(temp_file)
+
+    def test_data_overlap_against_old_stk(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        # Note - we also test PDF output is OK
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".pdf")
+        overlap_ok,keys = data_overlap(XML,filename=temp_file,detailed=False)
+        # this is not ok!
+        self.assert_(not overlap_ok)
+        # now compare against the old code. This was created using
+        #stk_check_overlap.pl --dir data/input/old_stk_test --compressed --graphic
+        #Node number, tree file
+        #0,data/input/old_stk_test/Allende_etal_2001/Allende_etal_2001com.tre
+        #1,data/input/old_stk_test/Aleixo_2002/Aleixo2002com.tre
+        #2,data/input/old_stk_test/Baptista_Visser_1999/Tree 1/Baptista_etal_1999_corr.tre
+        #3,data/input/old_stk_test/Baker_etal_2005/Baker_etal_2005com.tre
+        #4,data/input/old_stk_test/Aliabadian_etal_2007/Tree 2/Aliabadian_etal_2007_2_corr.tre
+        #4,data/input/old_stk_test/Aliabadian_etal_2007/Tree 1/Aliabadian_etal_2007_1_corr.tre
+        #5,data/input/old_stk_test/Barber_Peterson_2004/Tree 1/Barber_etal_2004_corr.tre
+        #6,data/input/old_stk_test/Aragon_etal_1999/Aragon_etal_1999com1_2.tre
+        #6,data/input/old_stk_test/Aragon_etal_1999/Tree 3/Aragon_etal_1999_3_corr.tre
+        #7,data/input/old_stk_test/Baker_etal_2007b/Tree 1/Baker_etal_2007b_corr.tre
+        #7,data/input/old_stk_test/Andersson_1999a/Tree 1/Andersson_1999a_corr.tre
+        #7,data/input/old_stk_test/Andersson_1999b/Tree 2/Andersson_1999b_2_corr.tre
+        #7,data/input/old_stk_test/Andersson_1999b/Tree 1/Andersson_1999b_1_corr.tre
+        #7,data/input/old_stk_test/Baker_Strauch_1988/Tree 1/Baker_Strauch_1988_corr.tre
+        #7,data/input/old_stk_test/Baker_etal_2007a/Tree 1/Baker_etal_2007a_corr.tre
+        #8,data/input/old_stk_test/Baker_etal_2006/Tree 1/Baker_etal_2006_corr.tre
+        #8,data/input/old_stk_test/Bertelli_etal_2006/Tree 2/Bertelli_etal_2006_2_corr.tre
+        #8,data/input/old_stk_test/Bertelli_etal_2006/Tree 3/Bertelli_etal_2006_3_corr.tre
+        #8,data/input/old_stk_test/Bertelli_etal_2006/Tree 1/Bertelli_etal_2006_1_corr.tre
+        #9,data/input/old_stk_test/Barhoum_Burns_2002/Tree 1/Barhoum_Burns_2002_corr.tre
+        # So that's 10 clusters
+        self.assert_(len(keys) == 10)
+        # the keys should be ordered from large to small, so
+        self.assert_(len(keys[0]) == 6) # same as node 7 above
+        self.assert_(len(keys[1]) == 4) # same as node 8 above
+        self.assert_(len(keys[2]) == 2) # same as node 6 or 4 above
+        self.assert_(len(keys[3]) == 2) # same as node 6 or 4 above
+        self.assert_(len(keys[4]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assert_(len(keys[5]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assert_(len(keys[6]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assert_(len(keys[7]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assert_(len(keys[8]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assert_(len(keys[9]) == 1) # same as node 0,1,2,3,5 or 9 above
+        # Now let's check the largest node contains the right things
+        # We can only do that as both Andersson_1999a, Andersson_1999b are in same cluster and
+        # both the Baker_etal_2007 papers are there too. Otherwise we wouldn't know which 
+        # was a and b...
+        self.assert_("Andersson_1999b_1" in keys[0])
+        self.assert_("Andersson_1999a_1" in keys[0])
+        self.assert_("Baker_etal_2007a_1" in keys[0])
+
+
+
+
+
+
+
+
     def test_sort_data(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         xml_root = _parse_xml(XML)
@@ -230,7 +306,7 @@ class TestSetSourceNames(unittest.TestCase):
         self.assertRegexpMatches(XML2, r'An event 2')
         self.assertRegexpMatches(XML2, r'An event 1')
         # That's some tags found, now let's get the datetimes (they have the same unless by some completely random
-        # coincedence the two calls straddle a minute - can't really test for that without lots of parsing, etc, so
+        # coincidence the two calls straddle a minute - can't really test for that without lots of parsing, etc, so
         # let's just settle with the correct datetime being found
         self.assertRegexpMatches(XML2, now1)
 

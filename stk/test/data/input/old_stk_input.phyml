@@ -34,7 +34,10 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(((((Xiphocolaptes_promeropirhynchus:1.00000,Hylexetastes_perrotii:1.00000)0.00000:0.00000,((Nasica_longirostris:1.00000,Dendrexetastes_rufigula:1.00000)0.00000:0.00000,Dendrocolaptes_certhia:1.00000)0.00000:0.00000)0.00000:0.00000,((((((Xiphorhynchus_susurrans:1.00000,Xiphorhynchus_guttatus:1.00000)0.00000:0.00000,(Xiphorhynchus_lachrymosus:1.00000,Xiphorhynchus_flavigaster:1.00000)0.00000:0.00000)0.00000:0.00000,(Xiphorhynchus_triangularis:1.00000,Xiphorhynchus_erythropygius:1.00000)0.00000:0.00000)0.00000:0.00000,Xiphorhynchus_obsoletus:1.00000)0.00000:0.00000,(((Xiphorhynchus_pardalotus:1.00000,Xiphorhynchus_ocellatus:1.00000)0.00000:0.00000,Xiphorhynchus_spixii:1.00000)0.00000:0.00000,Lepidocolaptes_fuscus:1.00000)0.00000:0.00000)0.00000:0.00000,((Xiphorhynchus_picus:1.00000,Xiphorhynchus_kienerii:1.00000)0.00000:0.00000,((Lepidocolaptes_angustirostris:1.00000,Lepidocolaptes_albolineatus:1.00000)0.00000:0.00000,((Campylorhamphus_trochilirostris:1.00000,Campylorhamphus_procurvoides:1.00000)0.00000:0.00000,Campylorhamphus_falcularius:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,Sittasomus_griseicapillus:1.00000)0.00000:0.00000,Glyphorynchus_spirurus:1.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(((((Xiphocolaptes_promeropirhynchus, Hylexetastes_perrotii), ((Nasica_longirostris, Dendrexetastes_rufigula), Dendrocolaptes_certhia)), ((((((Xiphorhynchus_susurrans, Xiphorhynchus_guttatus), (Xiphorhynchus_lachrymosus, Xiphorhynchus_flavigaster)), (Xiphorhynchus_triangularis, Xiphorhynchus_erythropygius)), Xiphorhynchus_obsoletus), (((Xiphorhynchus_pardalotus, Xiphorhynchus_ocellatus), Xiphorhynchus_spixii), Lepidocolaptes_fuscus)), ((Xiphorhynchus_picus, Xiphorhynchus_kienerii), ((Lepidocolaptes_angustirostris, Lepidocolaptes_albolineatus), ((Campylorhamphus_trochilirostris, Campylorhamphus_procurvoides), Campylorhamphus_falcularius))))), Sittasomus_griseicapillus), Glyphorynchus_spirurus);</string_value>
+            <comment>2,430bp of the mitochondrial genes ND2, ND3 and cyt b.
+    
+    		Strict consensus of 2 MP trees (length=3,133, CI-0.35, RI=0.6) obtained with unweighted sequence data.</comment>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -57,9 +60,6 @@
           <character type="molecular" name="ND2"/>
           <character type="molecular" name="ND3"/>
         </character_data>
-        <comment>2,430bp of the mitochondrial genes ND2, ND3 and cyt b.
-    
-    		Strict consensus of 2 MP trees (length=3,133, CI-0.35, RI=0.6) obtained with unweighted sequence data.</comment>
       </source_tree>
     </source>
     <source name="Aliabadian_etal_2007">
@@ -116,7 +116,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Luscinia_luscinia:1.00000,Luscinia_megarhynchos:1.00000,(((Oenanthe_moesta:1.00000,((Oenanthe_leucopyga:1.00000,Oenanthe_alboniger:1.00000)0.00000:0.00000,(Oenanthe_picata:1.00000,(Oenanthe_xanthoprymna:1.00000,(Oenanthe_lugens:1.00000,Oenanthe_finschii:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Oenanthe_deserti:1.00000,(Oenanthe_hispanica:1.00000,Oenanthe_pleschanka:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Oenanthe_isabellina:1.00000,Oenanthe_oenanthe:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(Luscinia_luscinia, Luscinia_megarhynchos, (((Oenanthe_moesta, ((Oenanthe_leucopyga, Oenanthe_alboniger), (Oenanthe_picata, (Oenanthe_xanthoprymna, (Oenanthe_lugens, Oenanthe_finschii))))), (Oenanthe_deserti, (Oenanthe_hispanica, Oenanthe_pleschanka))), (Oenanthe_isabellina, Oenanthe_oenanthe)));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -135,13 +135,13 @@
           <all_extant/>
         </taxa_data>
         <character_data>
-          <character type="morphological" name="morphometrics"/>
+          <character type="morphological" name="Morphometrics"/>
         </character_data>
       </source_tree>
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Luscinia_luscinia:1.00000,Luscinia_megarhynchos:1.00000,((Oenanthe_moesta:1.00000,(Oenanthe_picata:1.00000,(Oenanthe_leucopyga:1.00000,(Oenanthe_alboniger:1.00000,(Oenanthe_finschii:1.00000,(Oenanthe_xanthoprymna:1.00000,Oenanthe_lugens:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Oenanthe_deserti:1.00000,Oenanthe_pleschanka:1.00000)0.00000:0.00000,(Oenanthe_isabellina:1.00000,Oenanthe_oenanthe:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(Luscinia_luscinia, Luscinia_megarhynchos, ((Oenanthe_moesta, (Oenanthe_picata, (Oenanthe_leucopyga, (Oenanthe_alboniger, (Oenanthe_finschii, (Oenanthe_xanthoprymna, Oenanthe_lugens)))))), ((Oenanthe_deserti, Oenanthe_pleschanka), (Oenanthe_isabellina, Oenanthe_oenanthe))));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -259,7 +259,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(((((((Passer_hispaniolensis:1.00000,Passer_domesticus:1.00000)0.00000:0.00000,Passer_flaveolus:1.00000)0.00000:0.00000,Passer_luteus:1.00000,((Passer_griseus:1.00000,Passer_ammodendri:1.00000)0.00000:0.00000,Passer_melanurus:1.00000)0.00000:0.00000,Passer_montanus:1.00000,Passer_rutilans:1.00000)0.00000:0.00000,Petronia_petronia:1.00000)0.00000:0.00000,(Quelea_cardinalis:1.00000,Lonchura_cucullata:1.00000)0.00000:0.00000)0.00000:0.00000,Fringilla_coelebs:1.00000)0.00000:0.00000,(Spizella_passerina:1.00000,(Chondestes_grammacus:1.00000,Miliaria_calandra:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(((((((Passer_hispaniolensis, Passer_domesticus), Passer_flaveolus), Passer_luteus, ((Passer_griseus, Passer_ammodendri), Passer_melanurus), Passer_montanus, Passer_rutilans), Petronia_petronia), (Quelea_cardinalis, Lonchura_cucullata)), Fringilla_coelebs), (Spizella_passerina, (Chondestes_grammacus, Miliaria_calandra)));</string_value>
             <comment>UPGMA dendrogram. Constructed because this type of phylogenetic tree is more suitable for estimating coalescence times than other methods, particularly when a molecular clock exists (as shown in this case by the LINTRE test). Obtained by comparing the mt cyt b DNA sequences of the pheasant and chicken (diverged around 18Ma).</comment>
           </tree_string>
           <figure_legend>
@@ -281,7 +281,6 @@
         <character_data>
           <character type="molecular" name="cytb"/>
         </character_data>
-        <comment>UPGMA dendrogram. Constructed because this type of phylogenetic tree is more suitable for estimating coalescence times than other methods, particularly when a molecular clock exists (as shown in this case by the LINTRE test). Obtained by comparing the mt cyt b DNA sequences of the pheasant and chicken (diverged around 18Ma).</comment>
       </source_tree>
     </source>
     <source name="Andersson_1999a">
@@ -314,7 +313,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Larus_argentatus:1.00000,(Stercorarius_longicaudus:1.00000,Stercorarius_parasiticus:1.00000,((Stercorarius_pomarinus:1.00000,Catharacta_skua:1.00000)0.00000:0.00000,(Catharacta_antarctica:1.00000,Catharacta_chilensis:1.00000,Catharacta_maccormicki:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(Larus_argentatus, (Stercorarius_longicaudus, Stercorarius_parasiticus, ((Stercorarius_pomarinus, Catharacta_skua), (Catharacta_antarctica, Catharacta_chilensis, Catharacta_maccormicki))));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -339,7 +338,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Larus_argentatus:1.00000,((Stercorarius_pomarinus:1.00000,(Stercorarius_longicaudus:1.00000,Stercorarius_parasiticus:1.00000)0.00000:0.00000)0.00000:0.00000,(Catharacta_hamiltoni:1.00000,Catharacta_skua:1.00000,Catharacta_antarctica:1.00000,Catharacta_chilensis:1.00000,Catharacta_maccormicki:1.00000,Catharacta_lonnbergi:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(Larus_argentatus, ((Stercorarius_pomarinus, (Stercorarius_longicaudus, Stercorarius_parasiticus)), (Catharacta_hamiltoni, Catharacta_skua, Catharacta_antarctica, Catharacta_chilensis, Catharacta_maccormicki, Catharacta_lonnbergi)));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -393,7 +392,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Larus:1.00000,((Stercorarius_parasiticus:1.00000,Stercorarius_longicaudus:1.00000)0.00000:0.00000,(Stercorarius_pomarinus:1.00000,Catharacta_skua:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(Larus, ((Stercorarius_parasiticus, Stercorarius_longicaudus), (Stercorarius_pomarinus, Catharacta_skua)));</string_value>
             <comment>Cladistic phylogeny. Single most parsimonious tree found by exhaustive search.</comment>
           </tree_string>
           <figure_legend>
@@ -416,7 +415,6 @@
           <character type="behavioural" name="Displays"/>
           <character type="behavioural" name="Calls"/>
         </character_data>
-        <comment>Cladistic phylogeny. Single most parsimonious tree found by exhaustive search.</comment>
       </source_tree>
     </source>
     <source name="Aragon_etal_1999">
@@ -473,7 +471,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">((((Neomorphus_geoffroyi:1.00000,Geococcyx_californianus:1.00000)0.00000:0.00000,(Tapera_naevia:1.00000,Dromococcyx_phasianellus:1.00000)0.00000:0.00000,Guira_guira:1.00000)0.00000:0.00000,(((Clamator_jacobinus:1.00000,Clamator_glandarius:1.00000)0.00000:0.00000,Phaenicophaeus_superciliosus:1.00000)0.00000:0.00000,Piaya_cayana:1.00000)0.00000:0.00000,(((Cuculus_canorus:1.00000,Surniculus_lugubris:1.00000,Cuculus_poliocephalus:1.00000,Cercococcyx_montanus:1.00000)0.00000:0.00000,Cacomantis_flabelliformis:1.00000)0.00000:0.00000,Chrysococcyx_osculans:1.00000)0.00000:0.00000)0.00000:0.00000,Gallus_gallus:1.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">((((Neomorphus_geoffroyi, Geococcyx_californianus), (Tapera_naevia, Dromococcyx_phasianellus), Guira_guira), (((Clamator_jacobinus, Clamator_glandarius), Phaenicophaeus_superciliosus), Piaya_cayana), (((Cuculus_canorus, Surniculus_lugubris, Cuculus_poliocephalus, Cercococcyx_montanus), Cacomantis_flabelliformis), Chrysococcyx_osculans)), Gallus_gallus);</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -499,7 +497,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Caprimulgus_longirostris:1.00000,(((((Cuculus_pallidus:1.00000,((Cacomantis_flabelliformis:1.00000,Chrysococcyx_osculans:1.00000)0.00000:0.00000,((Cercococcyx_montanus:1.00000,Cuculus_poliocephalus:1.00000)0.00000:0.00000,(Cuculus_canorus:1.00000,Surniculus_lugubris:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Phaenicophaeus_superciliosus:1.00000,(Clamator_glandarius:1.00000,Clamator_jacobinus:1.00000)0.00000:0.00000)0.00000:0.00000,(Coccyzus_americanus:1.00000,(Piaya_cayana:1.00000,(Coccyzus_erythropthalmus:1.00000,Phaenicophaeus_curvirostris:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Crotophaga_sulcirostris:1.00000,Guira_guira:1.00000)0.00000:0.00000)0.00000:0.00000,(Geococcyx_californianus:1.00000,Neomorphus_geoffroyi:1.00000)0.00000:0.00000)0.00000:0.00000,(Dromococcyx_phasianellus:1.00000,Tapera_naevia:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(Caprimulgus_longirostris, (((((Cuculus_pallidus, ((Cacomantis_flabelliformis, Chrysococcyx_osculans), ((Cercococcyx_montanus, Cuculus_poliocephalus), (Cuculus_canorus, Surniculus_lugubris)))), ((Phaenicophaeus_superciliosus, (Clamator_glandarius, Clamator_jacobinus)), (Coccyzus_americanus, (Piaya_cayana, (Coccyzus_erythropthalmus, Phaenicophaeus_curvirostris))))), (Crotophaga_sulcirostris, Guira_guira)), (Geococcyx_californianus, Neomorphus_geoffroyi)), (Dromococcyx_phasianellus, Tapera_naevia)));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -560,7 +558,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">((Limnodromus_griseus:1.00000,(Calidris_ferruginea:1.00000,(Tringa_cinereus:1.00000,(Calidris_canutus:1.00000,(Catoptrophorus_semipalmatus:1.00000,(Calidris_maritima:1.00000,((Calidris_alpina:1.00000,(Calidris_fuscicollis:1.00000,Calidris_minutilla:1.00000)0.00000:0.00000)0.00000:0.00000,(Calidris_mauri:1.00000,Calidris_ruficollis:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(((Charadrius_falklandicus:1.00000,Charadrius_montanus:1.00000)0.00000:0.00000,(Charadrius_semipalmatus:1.00000,Charadrius_vociferus:1.00000)0.00000:0.00000)0.00000:0.00000,(Pluvialis_dominica:1.00000,Pluvialis_squatarola:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">((Limnodromus_griseus, (Calidris_ferruginea, (Tringa_cinereus, (Calidris_canutus, (Catoptrophorus_semipalmatus, (Calidris_maritima, ((Calidris_alpina, (Calidris_fuscicollis, Calidris_minutilla)), (Calidris_mauri, Calidris_ruficollis)))))))), (((Charadrius_falklandicus, Charadrius_montanus), (Charadrius_semipalmatus, Charadrius_vociferus)), (Pluvialis_dominica, Pluvialis_squatarola)));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -629,7 +627,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">((Megalapteryx_benhami:1.00000,Megalapteryx_didinus:1.00000)0.00000:0.00000,((Dinornis_novaezealandiae:1.00000,Dinornis_giganteus:1.00000)0.00000:0.00000,(((Emeus_crassus:1.00000,Euryapteryx_geranoides:1.00000)0.00000:0.00000,Anomalopteryx_didiformis:1.00000)0.00000:0.00000,((Pachyornis_elephantopus:1.00000,Pachyornis_australis:1.00000)0.00000:0.00000,Pachyornis_mappini:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">((Megalapteryx_benhami, Megalapteryx_didinus), ((Dinornis_novaezealandiae, Dinornis_giganteus), (((Emeus_crassus, Euryapteryx_geranoides), Anomalopteryx_didiformis), ((Pachyornis_elephantopus, Pachyornis_australis), Pachyornis_mappini))));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -645,18 +643,18 @@
           </tree_inference>
         </tree>
         <taxa_data>
-          <all_extant/>
+          <all_fossil/>
         </taxa_data>
         <character_data>
+          <character type="molecular" name="12S"/>
+          <character type="molecular" name="cytb"/>
           <character type="molecular" name="mt control region"/>
           <character type="molecular" name="ATPase 6"/>
           <character type="molecular" name="ATPase 8"/>
-          <character type="molecular" name="cytb"/>
           <character type="molecular" name="ND3"/>
           <character type="molecular" name="ND4"/>
           <character type="molecular" name="ND5"/>
           <character type="molecular" name="COIII"/>
-          <character type="molecular" name="12S"/>
           <character type="molecular" name="tRNA-Lys"/>
         </character_data>
       </source_tree>
@@ -707,7 +705,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Struthio_camelus:1.00000,(Gavia_immer:1.00000,(Diomedea_exulans:1.00000,((Aptenodytes_forsteri:1.00000,Aptenodytes_patagonicus:1.00000)0.00000:0.00000,(((Megadyptes_antipodes:1.00000,(Eudyptes_sclateri:1.00000,((Eudyptes_chrysocome:1.00000,(Eudyptes_pachyrhynchus:1.00000,Eudyptes_robustus:1.00000)0.00000:0.00000)0.00000:0.00000,(Eudyptes_chrysolophus:1.00000,Eudyptes_schlegeli:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Eudyptula_minor:1.00000,Eudyptula_albosignata:1.00000)0.00000:0.00000,((Spheniscus_humboldti:1.00000,Spheniscus_mendiculus:1.00000)0.00000:0.00000,(Spheniscus_demersus:1.00000,Spheniscus_magellanicus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Pygoscelis_adeliae:1.00000,(Pygoscelis_antarctica:1.00000,Pygoscelis_papua:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Anser_albifrons:1.00000,Gallus_gallus:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(Struthio_camelus, (Gavia_immer, (Diomedea_exulans, ((Aptenodytes_forsteri, Aptenodytes_patagonicus), (((Megadyptes_antipodes, (Eudyptes_sclateri, ((Eudyptes_chrysocome, (Eudyptes_pachyrhynchus, Eudyptes_robustus)), (Eudyptes_chrysolophus, Eudyptes_schlegeli)))), ((Eudyptula_minor, Eudyptula_albosignata), ((Spheniscus_humboldti, Spheniscus_mendiculus), (Spheniscus_demersus, Spheniscus_magellanicus)))), (Pygoscelis_adeliae, (Pygoscelis_antarctica, Pygoscelis_papua)))))), (Anser_albifrons, Gallus_gallus));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -726,11 +724,11 @@
           <all_extant/>
         </taxa_data>
         <character_data>
-          <character type="molecular" name="RAG1"/>
           <character type="molecular" name="12S"/>
           <character type="molecular" name="16S"/>
           <character type="molecular" name="cytb"/>
           <character type="molecular" name="COI"/>
+          <character type="molecular" name="RAG1"/>
         </character_data>
       </source_tree>
     </source>
@@ -780,7 +778,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Caprimulgus_longirostris:1.00000,(((((Cuculus_pallidus:1.00000,((Cacomantis_flabelliformis:1.00000,Chrysococcyx_osculans:1.00000)0.00000:0.00000,((Cercococcyx_montanus:1.00000,Cuculus_poliocephalus:1.00000)0.00000:0.00000,(Cuculus_canorus:1.00000,Surniculus_lugubris:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Phaenicophaeus_superciliosus:1.00000,(Clamator_glandarius:1.00000,Clamator_jacobinus:1.00000)0.00000:0.00000)0.00000:0.00000,(Coccyzus_americanus:1.00000,(Piaya_cayana:1.00000,(Coccyzus_erythropthalmus:1.00000,Phaenicophaeus_curvirostris:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Crotophaga_sulcirostris:1.00000,Guira_guira:1.00000)0.00000:0.00000)0.00000:0.00000,(Geococcyx_californianus:1.00000,Neomorphus_geoffroyi:1.00000)0.00000:0.00000)0.00000:0.00000,(Dromococcyx_phasianellus:1.00000,Tapera_naevia:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(Struthio, (Columba_livia, ((((((Anous_tenuirostris, (Gygis_alba, ((((Chlidonias_leucopterus, (Sterna_sandvicensis, (Sterna_hirundo, (Sterna_anaethetus, Sterna_fuscata)))), (Larosterna_inca, (Gelochelidon_nilotica, Hydroprogne_caspia))), (Phaetusa_simplex, Sterna_superciliaris)), (Rynchops_niger, ((Xema_sabini, (Pagophila_eburnea, (Larus_marinus, Rissa_tridactyla))), (Creagrus_furcatus, Rhodostethia_rosea)))))), (((Brachyramphus_brevirostris, (Cepphus_columba, (Synthliboramphus_antiquus, (Uria_lomvia, (Alle_alle, (Alca_torda, Pinguinus_impennis)))))), ((Ptychoramphus_aleuticus, (Aethia_cristatella, Aethia_psittacula)), (Cerorhinca_monocerata, Fratercula_arctica))), (Catharacta_skua, Stercorarius_longicaudus))), (Rhinoptilus_chalcopterus, (Cursorius_temminckii, (Stiltia_isabella, (Glareola_maldivarum, Glareola_nuchalis))))), (Turnix_sylvatica, Turnix_hottentotta)), (((Limosa_haemastica, (((Arenaria_interpres, ((Eurynorhynchus_pygmeus, (Aphriza_virgata, Calidris_canutus)), (Limicola_falcinellus, Philomachus_pugnax), (Calidris_himantopus, Tryngites_subruficollis))), (Phalaropus_tricolor, (Xenus_cinereus, (Actitis_hypoleucos, (Catoptrophorus_semipalmatus, (Heteroscelus_incanus, Tringa_melanoleuca)))))), ((Scolopax_minor, (Coenocorypha_aucklandica, Gallinago_gallinago)), (Limnodromus_scolopaceus, Lymnocryptes_minimus)))), (Bartramia_longicauda, Numenius_minutus)), ((((Actophilornis_africanus, (Irediparra_gallinacea, Microparra_capensis)), (Hydrophasianus_chirurgus, Jacana_jacana)), (Nycticryphes_semicollaris, Rostratula_benghalensis)), (Pedionomus_torquatus, (Attagis_gayi, Thinocorus_rumicivorus))))), ((Pluvianus_aegyptius, (((Oreopholus_ruficollis, (Phegornis_mitchellii, (Eudromias_morinellus, (Charadrius_vociferus, (Elseyornis_melanops, Thinornis_novaeseelandiae))))), (Vanellus_chilensis, (Erythrogonys_cinctus, (Anarhynchus_frontalis, Peltohyas_australis)))), (Pluvialis_squatarola, ((Recurvirostra_americana, (Cladorhynchus_leucocephalus, Himantopus_mexicanus)), (Haematopus_ater, Ibidorhyncha_struthersii))))), ((Burhinus_vermiculatus, Esacus_magnirostris), (Chionis_minor, Pluvianellus_socialis)))), (Pterocles_orientalis, Pterocles_namaqua)), ((Anas, (Anhima_cornuta, Chauna_torquata)), (Megapodius, (Crax_blumenbachii, Gallus))));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -800,8 +798,8 @@
         </taxa_data>
         <character_data>
           <character type="molecular" name="12S"/>
-          <character type="molecular" name="ND2"/>
           <character type="molecular" name="cytb"/>
+          <character type="molecular" name="ND2"/>
           <character type="molecular" name="RAG1"/>
         </character_data>
       </source_tree>
@@ -860,7 +858,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Jacana_jacana:1.00000,(Nycticryphes_semicollaris:1.00000,(Rostratula_australis:1.00000,Rostratula_benghalensis:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(Jacana_jacana, (Nycticryphes_semicollaris, (Rostratula_australis, Rostratula_benghalensis)));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -880,11 +878,11 @@
         </taxa_data>
         <character_data>
           <character type="molecular" name="cytb"/>
+          <character type="molecular" name="COI"/>
           <character type="molecular" name="ND5"/>
           <character type="molecular" name="ATPase 6"/>
           <character type="molecular" name="ATPase 8"/>
           <character type="molecular" name="COIII"/>
-          <character type="molecular" name="COI"/>
         </character_data>
       </source_tree>
     </source>
@@ -926,8 +924,8 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(((Lonchura_griseicapilla:1.00000,(Lonchura_cucullata:1.00000,(Lonchura_bicolor:1.00000,Lonchura_fringilloides:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Lonchura_cantans:1.00000,(Padda_fuscata:1.00000,(Lonchura_castaneothorax:1.00000,Lonchura_leucogastroides:1.00000,Lonchura_maja:1.00000,Lonchura_punctulata:1.00000,Lonchura_quinticolor:1.00000,Lonchura_spectabilis:1.00000,Lonchura_striata:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Taeniopygia_guttata:1.00000,(Taeniopygia_bichenovii:1.00000,Poephila_cincta:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Amadina_fasciata:1.00000,Pytilia_melba:1.00000)0.00000:0.00000,(Ortygospiza_atricollis:1.00000,(Uraeginthus_bengalus:1.00000,Uraeginthus_cyanocephalus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
-            <comment>Single MPT</comment>
+            <string_value lines="1">(((Lonchura_griseicapilla, (Lonchura_cucullata, (Lonchura_bicolor, Lonchura_fringilloides))), ((Lonchura_cantans, (Padda_fuscata, (Lonchura_castaneothorax, Lonchura_leucogastroides, Lonchura_maja, Lonchura_punctulata, Lonchura_quinticolor, Lonchura_spectabilis, Lonchura_striata))), (Taeniopygia_guttata, (Taeniopygia_bichenovii, Poephila_cincta)))), ((Amadina_fasciata, Pytilia_melba), (Ortygospiza_atricollis, (Uraeginthus_bengalus, Uraeginthus_cyanocephalus))));</string_value>
+            <comment>Single MPT.</comment>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -950,7 +948,6 @@
           <character type="behavioural" name="Calls"/>
           <character type="behavioural" name="Breeding"/>
         </character_data>
-        <comment>Single MPT.</comment>
       </source_tree>
     </source>
     <source name="Barber_Peterson_2004">
@@ -991,7 +988,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Sturnus_vulgaris:1.00000,((Melanotis_caerulescens:1.00000,(Dumetella_carolinensis:1.00000,(Margarops_fuscus:1.00000,(Ramphocinclus_brachyurus:1.00000,(Melanoptila_glabrirostris:1.00000,(Margarops_fuscatus:1.00000,(Cinclocerthia_gutturalis:1.00000,Cinclocerthia_ruficauda:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Oreoscoptes_montanus:1.00000,(Mimus_saturninus:1.00000,(Mimus_gundlachii:1.00000,(Mimodes_graysoni:1.00000,(Mimus_gilvus:1.00000,Mimus_polyglottos:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Toxostoma_rufum:1.00000,Toxostoma_curvirostre:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(Sturnus_vulgaris, ((Melanotis_caerulescens, (Dumetella_carolinensis, (Margarops_fuscus, (Ramphocinclus_brachyurus, (Melanoptila_glabrirostris, (Margarops_fuscatus, (Cinclocerthia_gutturalis, Cinclocerthia_ruficauda))))))), ((Oreoscoptes_montanus, (Mimus_saturninus, (Mimus_gundlachii, (Mimodes_graysoni, (Mimus_gilvus, Mimus_polyglottos))))), (Toxostoma_rufum, Toxostoma_curvirostre))));</string_value>
             <comment>Also Bayesian and MP topology.</comment>
           </tree_string>
           <figure_legend>
@@ -1013,7 +1010,6 @@
         <character_data>
           <character type="molecular" name="ND2"/>
         </character_data>
-        <comment>Also Bayesian and MP topology.</comment>
       </source_tree>
     </source>
     <source name="Barhoum_Burns_2002">
@@ -1054,7 +1050,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(((Pomatostomus_isidorei:1.00000,Pomatostomus_ruficeps:1.00000)0.00000:0.00000,((Lophorina_superba:1.00000,Terpsiphone_cinnamomea:1.00000)0.00000:0.00000,(Aphelocoma_coerulescens:1.00000,(Corvus_coronoides:1.00000,Corvus_corax:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Regulus_regulus:1.00000,(((Vidua_chalybeata:1.00000,((Anthus_spinoletta:1.00000,Motacilla_alba:1.00000)0.00000:0.00000,(Piranga_ludoviciana:1.00000,(Passerella_iliaca:1.00000,Melospiza_melodia:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Catharus_guttatus:1.00000,Turdus_migratorius:1.00000)0.00000:0.00000,(Toxostoma_redivivum:1.00000,(Ficedula_parva:1.00000,(Muscicapa_striata:1.00000,(Erithacus_rubecula:1.00000,Copsychus_albospecularis:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Thamnornis_chloropetoides:1.00000,Neomixis_flavoviridis:1.00000)0.00000:0.00000,(((Bradypterus_cinnamomeus:1.00000,(Locustella_fluviatilis:1.00000,Locustella_certhiola:1.00000)0.00000:0.00000)0.00000:0.00000,((Neomixis_striatigula:1.00000,Neomixis_tenella:1.00000)0.00000:0.00000,(Orthotomus_sutorius:1.00000,(Hypergerus_atriceps:1.00000,(Cisticola_juncidis:1.00000,Cisticola_cherina:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Cettia_cetti:1.00000,((Phylloscopus_trochiloides:1.00000,(Phylloscopus_pulcher:1.00000,Phylloscopus_collybita:1.00000)0.00000:0.00000)0.00000:0.00000,(Scotocerca_inquieta:1.00000,(Hippolais_polyglotta:1.00000,(Acrocephalus_stentoreus:1.00000,Chloropeta_gracilirostris:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Chamaea_fasciata:1.00000,(Sylvia_melanocephala:1.00000,(Sylvia_borin:1.00000,Sylvia_atricapilla:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,((Yuhina_gularis:1.00000,Stachyris_whiteheadi:1.00000)0.00000:0.00000,((Garrulax_leucolophus:1.00000,Leiothrix_lutea:1.00000)0.00000:0.00000,(Pomatorhinus_ochraceiceps:1.00000,Illadopsis_pyrrhoptera:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(((Pomatostomus_isidorei, Pomatostomus_ruficeps), ((Lophorina_superba, Terpsiphone_cinnamomea), (Aphelocoma_coerulescens, (Corvus_coronoides, Corvus_corax)))), (Regulus_regulus, (((Vidua_chalybeata, ((Anthus_spinoletta, Motacilla_alba), (Piranga_ludoviciana, (Passerella_iliaca, Melospiza_melodia)))), ((Catharus_guttatus, Turdus_migratorius), (Toxostoma_redivivum, (Ficedula_parva, (Muscicapa_striata, (Erithacus_rubecula, Copsychus_albospecularis)))))), ((Thamnornis_chloropetoides, Neomixis_flavoviridis), (((Bradypterus_cinnamomeus, (Locustella_fluviatilis, Locustella_certhiola)), ((Neomixis_striatigula, Neomixis_tenella), (Orthotomus_sutorius, (Hypergerus_atriceps, (Cisticola_juncidis, Cisticola_cherina))))), ((Cettia_cetti, ((Phylloscopus_trochiloides, (Phylloscopus_pulcher, Phylloscopus_collybita)), (Scotocerca_inquieta, (Hippolais_polyglotta, (Acrocephalus_stentoreus, Chloropeta_gracilirostris))))), ((Chamaea_fasciata, (Sylvia_melanocephala, (Sylvia_borin, Sylvia_atricapilla))), ((Yuhina_gularis, Stachyris_whiteheadi), ((Garrulax_leucolophus, Leiothrix_lutea), (Pomatorhinus_ochraceiceps, Illadopsis_pyrrhoptera))))))))));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -1123,7 +1119,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Gavia_stellata:1.00000,((Macronectes_giganteus:1.00000,(Daption_capense:1.00000,((Pterodroma_incerta:1.00000,((Oceanodroma_leucorhoa:1.00000,Oceanites_oceanicus:1.00000)0.00000:0.00000,(Pachyptila_desolata:1.00000,Pelecanoides_urinatrix:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Procellaria_aequinoctialis:1.00000,Puffinus_griseus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Diomedea_melanophris:1.00000,Phoebetria_palpebrata:1.00000)0.00000:0.00000)0.00000:0.00000,(Paraptenodytes_antarcticus:1.00000,((Eudyptula_minor:1.00000,(Spheniscus_demersus:1.00000,Spheniscus_magellanicus:1.00000,(Spheniscus_humboldti:1.00000,Spheniscus_mendiculus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(((Aptenodytes_patagonicus:1.00000,Aptenodytes_forsteri:1.00000)0.00000:0.00000,(Pygoscelis_antarctica:1.00000,(Pygoscelis_papua:1.00000,Pygoscelis_adeliae:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Megadyptes_antipodes:1.00000,(Eudyptes_pachyrhynchus:1.00000,((Eudyptes_robustus:1.00000,Eudyptes_sclateri:1.00000)0.00000:0.00000,(Eudyptes_chrysocome:1.00000,(Eudyptes_schlegeli:1.00000,Eudyptes_chrysolophus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(Gavia_stellata, ((Macronectes_giganteus, (Daption_capense, ((Pterodroma_incerta, ((Oceanodroma_leucorhoa, Oceanites_oceanicus), (Pachyptila_desolata, Pelecanoides_urinatrix))), (Procellaria_aequinoctialis, Puffinus_griseus)))), (Diomedea_melanophris, Phoebetria_palpebrata)), (Paraptenodytes_antarcticus, ((Eudyptula_minor, (Spheniscus_demersus, Spheniscus_magellanicus, (Spheniscus_humboldti, Spheniscus_mendiculus))), (((Aptenodytes_patagonicus, Aptenodytes_forsteri), (Pygoscelis_antarctica, (Pygoscelis_papua, Pygoscelis_adeliae))), (Megadyptes_antipodes, (Eudyptes_pachyrhynchus, ((Eudyptes_robustus, Eudyptes_sclateri), (Eudyptes_chrysocome, (Eudyptes_schlegeli, Eudyptes_chrysolophus)))))))));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -1139,7 +1135,11 @@
           </tree_inference>
         </tree>
         <taxa_data>
-          <all_extant/>
+          <mixed_fossil_and_extant>
+            <taxon name="Gavia_stellata">
+              <fossil/>
+            </taxon>
+          </mixed_fossil_and_extant>
         </taxa_data>
         <character_data>
           <character type="morphological" name="Osteology"/>
@@ -1151,7 +1151,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Gavia_stellata:1.00000,((Oceanodroma_leucorhoa:1.00000,Oceanites_oceanicus:1.00000)0.00000:0.00000,((Diomedea_melanophris:1.00000,Phoebetria_palpebrata:1.00000)0.00000:0.00000,(((Procellaria_aequinoctialis:1.00000,(Macronectes_giganteus:1.00000,Daption_capense:1.00000)0.00000:0.00000)0.00000:0.00000,(Pachyptila_desolata:1.00000,Pelecanoides_urinatrix:1.00000)0.00000:0.00000)0.00000:0.00000,(Puffinus_griseus:1.00000,Pterodroma_incerta:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Paraptenodytes_antarcticus:1.00000,((((Eudyptula_minor:1.00000,(Spheniscus_demersus:1.00000,Spheniscus_magellanicus:1.00000,(Spheniscus_humboldti:1.00000,Spheniscus_mendiculus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Megadyptes_antipodes:1.00000,(Eudyptes_pachyrhynchus:1.00000,((Eudyptes_robustus:1.00000,Eudyptes_sclateri:1.00000)0.00000:0.00000,(Eudyptes_chrysocome:1.00000,(Eudyptes_schlegeli:1.00000,Eudyptes_chrysolophus:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Pygoscelis_adeliae:1.00000,(Pygoscelis_papua:1.00000,Pygoscelis_antarctica:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000,(Aptenodytes_patagonicus:1.00000,Aptenodytes_forsteri:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(Gavia_stellata, ((Oceanodroma_leucorhoa, Oceanites_oceanicus), ((Diomedea_melanophris, Phoebetria_palpebrata), (((Procellaria_aequinoctialis, (Macronectes_giganteus, Daption_capense)), (Pachyptila_desolata, Pelecanoides_urinatrix)), (Puffinus_griseus, Pterodroma_incerta)))), (Paraptenodytes_antarcticus, ((((Eudyptula_minor, (Spheniscus_demersus, Spheniscus_magellanicus, (Spheniscus_humboldti, Spheniscus_mendiculus))), (Megadyptes_antipodes, (Eudyptes_pachyrhynchus, ((Eudyptes_robustus, Eudyptes_sclateri), (Eudyptes_chrysocome, (Eudyptes_schlegeli, Eudyptes_chrysolophus)))))), (Pygoscelis_adeliae, (Pygoscelis_papua, Pygoscelis_antarctica))), (Aptenodytes_patagonicus, Aptenodytes_forsteri))));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -1167,7 +1167,11 @@
           </tree_inference>
         </tree>
         <taxa_data>
-          <all_extant/>
+          <mixed_fossil_and_extant>
+            <taxon name="Gavia_stellata">
+              <fossil/>
+            </taxon>
+          </mixed_fossil_and_extant>
         </taxa_data>
         <character_data>
           <character type="molecular" name="Molecular"/>
@@ -1180,7 +1184,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Gavia_stellata:1.00000,(Diomedea_melanophris:1.00000,Phoebetria_palpebrata:1.00000,Macronectes_giganteus:1.00000,Daption_capense:1.00000,Procellaria_aequinoctialis:1.00000,Puffinus_griseus:1.00000,Pterodroma_incerta:1.00000,Pachyptila_desolata:1.00000,Pelecanoides_urinatrix:1.00000,(Oceanodroma_leucorhoa:1.00000,Oceanites_oceanicus:1.00000)0.00000:0.00000)0.00000:0.00000,(Paraptenodytes_antarcticus:1.00000,(Eudyptula_minor:1.00000,(Spheniscus_demersus:1.00000,Spheniscus_magellanicus:1.00000,Spheniscus_humboldti:1.00000,Spheniscus_mendiculus:1.00000)0.00000:0.00000,((Pygoscelis_papua:1.00000,(Aptenodytes_patagonicus:1.00000,Aptenodytes_forsteri:1.00000)0.00000:0.00000,(Pygoscelis_adeliae:1.00000,Pygoscelis_antarctica:1.00000)0.00000:0.00000)0.00000:0.00000,(Megadyptes_antipodes:1.00000,(Eudyptes_pachyrhynchus:1.00000,Eudyptes_robustus:1.00000,Eudyptes_sclateri:1.00000,Eudyptes_chrysocome:1.00000,Eudyptes_chrysolophus:1.00000,Eudyptes_schlegeli:1.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(Gavia_stellata, (Diomedea_melanophris, Phoebetria_palpebrata, Macronectes_giganteus, Daption_capense, Procellaria_aequinoctialis, Puffinus_griseus, Pterodroma_incerta, Pachyptila_desolata, Pelecanoides_urinatrix, (Oceanodroma_leucorhoa, Oceanites_oceanicus)), (Paraptenodytes_antarcticus, (Eudyptula_minor, (Spheniscus_demersus, Spheniscus_magellanicus, Spheniscus_humboldti, Spheniscus_mendiculus), ((Pygoscelis_papua, (Aptenodytes_patagonicus, Aptenodytes_forsteri), (Pygoscelis_adeliae, Pygoscelis_antarctica)), (Megadyptes_antipodes, (Eudyptes_pachyrhynchus, Eudyptes_robustus, Eudyptes_sclateri, Eudyptes_chrysocome, Eudyptes_chrysolophus, Eudyptes_schlegeli))))));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -1196,7 +1200,11 @@
           </tree_inference>
         </tree>
         <taxa_data>
-          <all_extant/>
+          <mixed_fossil_and_extant>
+            <taxon name="Gavia_stellata">
+              <fossil/>
+            </taxon>
+          </mixed_fossil_and_extant>
         </taxa_data>
         <character_data>
           <character type="morphological" name="Osteology"/>
@@ -1207,10 +1215,10 @@
   <history>
     <event>
       <datetime>
-        <string_value lines="1">2013-06-25 07:46</string_value>
+        <string_value lines="1">2013-06-27 18:01</string_value>
       </datetime>
       <action>
-        <string_value lines="1">Source names standardised</string_value>
+        <string_value lines="1">Data imported from: /home/jhill1/software/supertree_toolkit_2/data_overlap/stk/test/data/input/old_stk_test</string_value>
       </action>
     </event>
   </history>
