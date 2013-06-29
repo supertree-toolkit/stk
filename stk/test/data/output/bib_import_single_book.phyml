@@ -61,7 +61,7 @@
             <string_value lines="1"/>
           </figure_legend>
           <figure_number>
-            <integer_value rank="0"/>
+            <string_value lines="1"/>
           </figure_number>
           <page_number>
             <integer_value rank="0"/>

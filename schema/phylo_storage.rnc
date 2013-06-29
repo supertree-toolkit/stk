@@ -78,7 +78,7 @@ source=
                 anystring
             },
             element figure_number {
-                integer
+                anystring
             },
             element page_number {
                 integer

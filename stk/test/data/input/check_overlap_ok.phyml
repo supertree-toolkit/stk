@@ -34,7 +34,7 @@
             <string_value lines="1">NA</string_value>
           </figure_legend>
           <figure_number>
-            <integer_value rank="0">0</integer_value>
+            <string_value lines="1">0</string_value>
           </figure_number>
           <page_number>
             <integer_value rank="0">0</integer_value>
@@ -82,7 +82,7 @@
             <string_value lines="1">NA</string_value>
           </figure_legend>
           <figure_number>
-            <integer_value rank="0">0</integer_value>
+            <string_value lines="1">0</string_value>
           </figure_number>
           <page_number>
             <integer_value rank="0">0</integer_value>
@@ -137,7 +137,7 @@
             <string_value lines="1">NA</string_value>
           </figure_legend>
           <figure_number>
-            <integer_value rank="0">0</integer_value>
+            <string_value lines="1">0</string_value>
           </figure_number>
           <page_number>
             <integer_value rank="0">0</integer_value>

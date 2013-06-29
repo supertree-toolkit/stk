@@ -362,9 +362,9 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
     figure_legend_string.text = "NA"
     figure_number = etree.SubElement(tree_ele,"figure_number")
     figure_number.tail="\n      "
-    figure_number_string = etree.SubElement(figure_number,"integer_value")
+    figure_number_string = etree.SubElement(figure_number,"string_value")
     figure_number_string.tail="\n      "
-    figure_number_string.attrib['rank'] = "0"
+    figure_number_string.attrib['lines'] = "1"
     figure_number_string.text = "0"
     page_number = etree.SubElement(tree_ele,"page_number")
     page_number.tail="\n      "
