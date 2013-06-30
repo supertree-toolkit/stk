@@ -3,6 +3,14 @@ import os
 import os.path
 import glob
 import sys
+from setuptools.command.install import install as _install
+from subprocess import call
+
+class install(_install):
+    def run(self):
+        _install.run(self)
+        call(["update-desktop-database"])
+        
 
 try:
   destdir = os.environ["DESTDIR"]
@@ -15,7 +23,7 @@ except NameError:
   
 
 # Get all the plugin directories we have
-plugin_dirs = ['stk_gui/plugins/']
+plugin_dirs = ['stk_gui/plugins/phyml']
 plugin_data_files = []
 schema_dirs = ['schema']
 schema_data_files = []   
@@ -45,10 +53,13 @@ else:
         glob.glob(s + '/*.rng')))
     
     extra_options = dict(
+            cmdclass={'install': install},
             app=['stk'],
-            data_files = [(destdir + "stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.svg"])] +
+            data_files = [(destdir + "stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.png", "stk_gui/gui/stk.svg"])] +
                    plugin_data_files + schema_data_files +
-                   [(destdir + "stk/schemata", ["schema/phyml"])]
+                   [(destdir + "stk/schemata", ["schema/phyml"])] +
+                   [("/usr/local/share/icons/hicolor/48x48/apps/", ["stk_gui/gui/stk.png"])] +
+                   [("/usr/local/share/applications/",["stk.desktop"])]
     )
 
 setup(

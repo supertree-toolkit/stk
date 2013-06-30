@@ -5,7 +5,7 @@
   </project_name>
   <sources>
     <source name="Hill_2011">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -24,26 +24,39 @@
             <integer_value rank="0">2011</integer_value>
           </year>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">1</string_value>
+          </figure_legend>
+          <figure_number>
+              <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <integer_value rank="0">1</integer_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Bayesian"/>
+          </tree_inference>
+        </tree>
+        <taxa_data>
+          <mixed_fossil_and_extant>
+            <taxon name="A">
+              <fossil/>
+            </taxon>
+          </mixed_fossil_and_extant>
+        </taxa_data>
         <character_data>
           <character type="molecular" name="12S"/>
         </character_data>
-        <analysis_used>
-          <analysis name="Bayesian"/>
-        </analysis_used>
-        <tree_data>
-          <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
-        </tree_data>
-        <taxa_data>
-          <taxon name="A">
-            <fossil/>
-          </taxon>
-        </taxa_data>
       </source_tree>
     </source>
     <source name="Davis_2011">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -63,30 +76,44 @@
             <integer_value rank="0">2011</integer_value>
           </year>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">((A:1.00000,B_b:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">1</string_value>
+          </figure_legend>
+          <figure_number>
+              <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <integer_value rank="0">1</integer_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Bayesian"/>
+          </tree_inference>
+        </tree>
+        <taxa_data>
+          <mixed_fossil_and_extant>
+            <taxon name="B_b">
+              <known_synonyms>
+                <synonym>
+                  <string_value lines="1">B</string_value>
+                </synonym>
+              </known_synonyms>
+              <fossil/>
+            </taxon>
+          </mixed_fossil_and_extant>
+        </taxa_data>
         <character_data>
           <character type="molecular" name="12S"/>
         </character_data>
-        <analysis_used>
-          <analysis name="Bayesian"/>
-        </analysis_used>
-        <tree_data>
-          <string_value lines="1">((A:1.00000,B_b:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
-        </tree_data>
-        <taxa_data>
-          <taxon name="B_b">
-            <synonyms>
-              <synonym>
-                <string_value lines="1">B</string_value>
-              </synonym>
-            </synonyms>
-          </taxon>
-        </taxa_data>
       </source_tree>
     </source>
     <source name="Hill_Davis_2011">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -113,18 +140,32 @@
             <integer_value rank="0">2011</integer_value>
           </year>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
-          <character_data>
+        <tree>
+          <tree_string>
+            <string_value lines="1">((A:1.00000,B_b:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">1</string_value>
+          </figure_legend>
+          <figure_number>
+              <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <integer_value rank="0">1</integer_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Bayesian"/>
+          </tree_inference>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="12S"/>
             <character type="molecular" name="cytb"/>
-            <character type="molecular" name="12S"/>
         </character_data>
-        <analysis_used>
-          <analysis name="Bayesian"/>
-        </analysis_used>
-        <tree_data>
-          <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,F:1.00000,E:1.00000,(G:1.00000,H:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
-        </tree_data>
       </source_tree>
     </source>
   </sources>

@@ -188,7 +188,7 @@ class Tree(gobject.GObject):
   def recompute_validity(self):
 
     new_valid = True
-
+    
     # if any children are invalid,
     # we are invalid too
     for child in self.children:
@@ -202,10 +202,11 @@ class Tree(gobject.GObject):
 
     # if any attributes are unset,
     # we are invalid.
-    for attr in self.attrs.keys():
-      (datatype, val) = self.attrs[attr]
-      if not datatype is None and val is None:
-        new_valid = False
+    if self.active:
+        for attr in self.attrs.keys():
+            (datatype, val) = self.attrs[attr]
+            if not datatype is None and val is None:
+                new_valid = False
 
     # if we're supposed to have data and don't,
     # we are invalid.

@@ -41,6 +41,14 @@ class TestBibliography(unittest.TestCase):
         new_xml = import_bibliography(xml, bib_book)
         self.assert_(isEqualXML(new_xml, xml_book_c))
 
+    def test_ut8_article(self):
+        bib_import_utf8_answer = etree.tostring(etree.parse("data/output/bib_import_utf8.phyml",parser),pretty_print=True)
+        bib_utf8 = "data/input/utf8_input.bib"
+        xml = etree.tostring(xml_start)
+        new_xml = import_bibliography(xml, bib_utf8)
+        self.assert_(isEqualXML(new_xml, bib_import_utf8_answer))
+
+
     def test_katie_article(self):
         bib_book = "data/input/test.bib"
         xml = etree.tostring(xml_start)

@@ -61,6 +61,11 @@ characters =
              attribute type { "morphological" },
              char_info
           }|
+          element character {
+             attribute name { "morphometrics" },
+             attribute type { "morphological" },
+             char_info
+          }|
           ##Mixed morphological characters in crustaceans.
           element character {
              attribute name { "General morphology" },
@@ -71,27 +76,22 @@ characters =
 
 char_info=
 (
-    element accession_number {
-        anystring
-    }?,
-    element database_url {
-        anystring
-    }?,
     ## Is the data online anywhere, e.g. as a NEXUS file?
-    element url {
+    element link_to_online_data {
         anystring
     }?,
     element alignment_method {
-        element algorithm {
+        element algorithm_or_method {
             string
         }?,
         software?,
-        element parameters {
+        element parameters_used {
             anystring
         }?,
         ## was the alignment corrected in any way?
         element corrected {
             empty
         }?
-    }?
+    }?,
+    comment
 )

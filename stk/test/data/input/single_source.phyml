@@ -5,7 +5,7 @@
   </project_name>
   <sources>
     <source name="Hill_2011">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -30,17 +30,31 @@
             <string_value lines="1">1-12</string_value>
           </pages>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+              <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <integer_value rank="0">1</integer_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
         <character_data>
           <character type="molecular" name="12S"/>
         </character_data>
-        <analyses_used>
-          <analysis name="Maximum Parsimony"/>
-        </analyses_used>
-        <tree_data>
-            <string_value lines="1">((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
-        </tree_data>
       </source_tree>
     </source>
   </sources>

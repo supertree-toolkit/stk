@@ -5,7 +5,7 @@
   </project_name>
   <sources>
     <source>
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -24,17 +24,35 @@
             <integer_value rank="0"/>
           </year>
         </article>
-      </source_publication>
+      </bibliographic_information>
       <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1"/>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1"/>
+          </figure_legend>
+          <figure_number>
+              <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <integer_value rank="0"/>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion/>
+          </tree_inference>
+        </tree>
+        <taxa_data>
+          <mixed_fossil_and_extant>
+            <taxon>
+              <fossil/>
+            </taxon>
+          </mixed_fossil_and_extant>
+        </taxa_data>
         <character_data>
-          <character type="molecular" name="12S"/>
+          <character/>
         </character_data>
-        <analysis_used>
-          <analysis name="Maximum Parsimony"/>
-        </analysis_used>
-        <tree_data>
-          <string_value lines="1"/>
-        </tree_data>
       </source_tree>
     </source>
   </sources>

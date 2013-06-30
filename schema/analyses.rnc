@@ -1,21 +1,88 @@
 analysis =
 (
-    element analysis {
+    element optimality_criterion {
         attribute name {string}
     }|
-    element  analysis{
+    element optimality_criterion {
         attribute name {"Maximum Parsimony"}
     }|
-    element analysis {
+    element optimality_criterion {
         attribute name {"Maximum Likelihood"}
     }|
-    element analysis {
+    element optimality_criterion {
         attribute name {"Bayesian"}
     }|
-    element analysis {
+    element optimality_criterion {
         attribute name {"Neighbour Joining"}
     }|
-    element analysis {
+    element optimality_criterion {
         attribute name {"UPGMA"}
     }
+)
+
+consensus =
+(
+    element consensus_type {
+        attribute name {string}
+    }|
+    element consensus_type {
+        attribute name {"Strict"}
+    }|
+    element consensus_type {
+        attribute name {"Majority Rules 50%"}
+    }|
+    element consensus_type {
+        attribute name {"Adams"}
+    }
+)
+
+support =
+(
+    element type_of_support {
+        attribute name {string}
+    }|
+    element type_of_support {
+        attribute name {"Jacknifing"}
+    }|
+    element type_of_support {
+        attribute name {"Bootstrapping"}
+    }|
+    element type_of_support {
+        attribute name {"Bremer Support"}
+    }
+)
+
+evolution_models =
+(
+    element model_of_evolution {
+        attribute name {string}
+    }?
+)
+
+conservation = 
+(
+    element conservation_status {
+		element iucn_red_list {
+            element category {
+			    anystring
+		    }?,
+            element criteria {
+			    anystring
+		    }?,
+		    element url {
+			    anystring
+		    }?
+		}?,
+		element uk_bap {
+		    element category {
+			    anystring
+		    }?,
+		    element criteria {
+			    anystring
+		    }?,
+		    element url {
+			    anystring
+		    }?
+		}?
+    }?
 )
