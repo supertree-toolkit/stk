@@ -1402,6 +1402,11 @@ class Diamond:
      except:
          dialogs.error(self.main_window,"Error importing bib file")
          return
+     
+     try:
+        stk._check_uniqueness(XML)
+     except:
+        dialogs.error(self.main_window,"Duplicated or unamed source. Suggest you run standardise source names")
 
      self.update_data(ios, "Error converting bib file to XML", skip_warning=True)
      
