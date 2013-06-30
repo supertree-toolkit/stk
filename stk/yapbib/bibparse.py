@@ -12,7 +12,6 @@ USAGE:
 
 import sys
 import re,string
-import codecs
 import latex
 latex.register()
 
@@ -222,7 +221,6 @@ def parseentry(source):
     raise TypeError
   # Transform Latex symbols and strip newlines and multiple spaces 
   
-  #source= source.decode('latex+utf8','ignore')
   source.replace('\n',' ')
   source= re.sub('\s+',' ',source)
 
