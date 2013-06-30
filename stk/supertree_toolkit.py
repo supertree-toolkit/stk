@@ -261,9 +261,9 @@ def import_bibliography(XML, bibfile):
             figure_legend_string.attrib['lines'] = "1"
             figure_number = etree.SubElement(tree,"figure_number")
             figure_number.tail="\n      "
-            figure_number_string = etree.SubElement(figure_number,"integer_value")
+            figure_number_string = etree.SubElement(figure_number,"string_value")
             figure_number_string.tail="\n      "
-            figure_number_string.attrib['rank'] = "0"
+            figure_number_string.attrib['lines'] = "1"
             page_number = etree.SubElement(tree,"page_number")
             page_number.tail="\n      "
             page_number_string = etree.SubElement(page_number,"integer_value")

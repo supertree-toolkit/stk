@@ -92,7 +92,7 @@ paste a string.</a:documentation>
               <ref name="anystring"/>
             </element>
             <element name="figure_number">
-              <ref name="integer"/>
+              <ref name="anystring"/>
             </element>
             <element name="page_number">
               <ref name="integer"/>

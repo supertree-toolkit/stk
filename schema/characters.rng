@@ -4,6 +4,20 @@
     <choice>
       <element name="character">
         <attribute name="name">
+          <data type="string"/>
+        </attribute>
+        <attribute name="type">
+          <choice>
+            <value>morphological</value>
+            <value>molecular</value>
+            <value>behavioural</value>
+            <value>other</value>
+          </choice>
+        </attribute>
+        <ref name="char_info"/>
+      </element>
+      <element name="character">
+        <attribute name="name">
           <value>12S</value>
         </attribute>
         <attribute name="type">
@@ -111,28 +125,14 @@
         </attribute>
         <ref name="char_info"/>
       </element>
-      <element name="character">
-        <a:documentation>Mixed morphological characters in crustaceans.</a:documentation>
-        <attribute name="name">
-          <value>General morphology</value>
-        </attribute>
-        <attribute name="type">
-          <value>morphological</value>
-        </attribute>
-        <ref name="char_info"/>
-      </element>
       <oneOrMore>
         <element name="character">
+          <a:documentation>Mixed morphological characters in crustaceans.</a:documentation>
           <attribute name="name">
-            <data type="string"/>
+            <value>General morphology</value>
           </attribute>
           <attribute name="type">
-            <choice>
-              <value>morphological</value>
-              <value>molecular</value>
-              <value>behavioural</value>
-              <value>other</value>
-            </choice>
+            <value>morphological</value>
           </attribute>
           <ref name="char_info"/>
         </element>
