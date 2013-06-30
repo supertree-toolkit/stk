@@ -163,8 +163,8 @@
           <all_extant/>
         </taxa_data>
         <character_data>
+          <character type="molecular" name="cytb"/>
           <character type="molecular" name="12S"/>
-            <character type="molecular" name="cytb"/>
         </character_data>
       </source_tree>
     </source>

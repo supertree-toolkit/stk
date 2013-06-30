@@ -521,17 +521,16 @@ def get_characters_from_tree(XML,name,sort=False):
         if source_name == name:
             # found the bugger!
             tree_no = 1
-            for t in s.xpath("source_tree/tree_data"):
+            for t in s.xpath("source_tree/tree/tree_string"):
                 if tree_no == number:
                     # and now we have the correct tree. 
                     # Now we can get the characters for this tree
-                    chars = t.getparent().xpath("character_data/character")
+                    chars = t.getparent().getparent().xpath("character_data/character")
                     for c in chars:
                         characters.append(c.attrib['name'])
                     if (sort):
                         characters.sort()
                     return characters
-
                 tree_no += 1
 
     # should raise exception here
@@ -1344,7 +1343,7 @@ def _swap_tree_in_XML(XML, tree, name):
                         # We can return as we're only replacing one tree
                         return etree.tostring(xml_root,pretty_print=True)
                     else:
-                        s.remove(t.getparent())
+                        s.remove(t.getparent().getparent())
                         return etree.tostring(xml_root,pretty_print=True)
                 tree_no += 1
 
