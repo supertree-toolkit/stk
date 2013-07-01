@@ -167,6 +167,9 @@ class TestImportTree(unittest.TestCase):
         # loop through all trees, checking them
         self.assert_(trees['Davis_2011_1'] == "((A:1.00000,B:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;")
         self.assert_(len(trees) == old_len-1)
+        # check that no sources are empty
+
+
 
     def test_substitute_taxa_single(self):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)

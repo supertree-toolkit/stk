@@ -1313,7 +1313,8 @@ def _sub_taxon(old_taxon, new_taxon, tree):
 
 def _swap_tree_in_XML(XML, tree, name):
     """ Swap tree with name, 'name' with this new one.
-        If tree is Non, name is removed
+        If tree is None, name is removed.
+        If source no longer contains any trees, the source is removed
     """
 
     # tree name has the tree number attached to the source name
@@ -1344,6 +1345,9 @@ def _swap_tree_in_XML(XML, tree, name):
                         return etree.tostring(xml_root,pretty_print=True)
                     else:
                         s.remove(t.getparent().getparent())
+                        # we now need to check the source to check if there are
+                        # any trees in this source now, if not, remove
+                        s.getparent().remove(s)
                         return etree.tostring(xml_root,pretty_print=True)
                 tree_no += 1
 
@@ -1438,6 +1442,27 @@ def _check_taxa(XML):
 
     return
 
+def _check_sources(XML):
+    """ Check that all sources in the dataset have at least one tree_string associated
+        with them
+    """
+
+    xml_root = _parse_xml(XML)
+    # By getting source, we can then loop over each source_tree
+    # within that source and construct a unique name
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+    # for each source
+    for s in sources:
+        # get a list of taxa in the XML
+        this_source = _parse_xml(etree.tostring(s))
+        name = s.attrib['name']
+        trees = obtain_trees(etree.tostring(this_source))
+        if (len(trees) < 1):
+            raise InvalidSTKData("Source "+name+" has no trees")
+
+
+
 def _check_data(XML):
     """ Function to check various aspects of the dataset, including:
          - checking taxa in the XML for a source are included in the tree for that source
@@ -1449,6 +1474,9 @@ def _check_data(XML):
 
     # now the taxa
     _check_taxa(XML) # again will raise an error if test fails
+
+    # check sources
+    _check_sources(XML)
 
     return
 

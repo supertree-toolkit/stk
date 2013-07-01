@@ -7,7 +7,7 @@ sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters, data_independence
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
 from stk.supertree_toolkit import data_overlap
-from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml
+from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -125,15 +125,37 @@ class TestSetSourceNames(unittest.TestCase):
         #this test should pass, but wrap it up anyway
         try:
             _check_data(etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)); 
-        except e as InvalidSTKData:
-            self.assert_(False)
+        except InvalidSTKData as e:
             print e.msg
+            self.assert_(False)
             return
-        except e as NotUniqueError:
+        except NotUniqueError as e:
+            print e.msg
+            self.assert_(False)
+            return
+        self.assert_(True)
+
+
+    def test_check_sources(self):
+        """Tests the _check_source function
+        """
+        #this test should pass, but wrap it up anyway
+        try:
+            # remove some sources first - this should pass
+            XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+            name = "Hill_Davis_2011_1"
+            new_xml = _swap_tree_in_XML(XML, None, name)
+            _check_sources(new_xml); 
+        except InvalidSTKData as e:
+            print e.msg
+            self.assert_(False)
+            return
+        except NotUniqueError as e:
             self.assert_(False)
             print e.msg
             return
         self.assert_(True)
+
 
     def test_get_all_characters(self):
         """ Check the characters dictionary
