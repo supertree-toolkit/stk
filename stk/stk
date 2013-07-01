@@ -77,7 +77,7 @@ def main():
     parser_cm.add_argument('--overwrite',
             action='store_true',
             default=False,
-            help="Overwrite the exisitng file without asking for confirmation")
+            help="Overwrite the existing file without asking for confirmation")
     # Set the function that gets called when the sub command is activated
     parser_cm.set_defaults(func=create_matrix)
 
@@ -102,7 +102,7 @@ def main():
     parser_cm.add_argument('--overwrite',
             action='store_true',
             default=False,
-            help="Overwrite the exisitng file without asking for confirmation")
+            help="Overwrite the existing file without asking for confirmation")
     parser_cm.set_defaults(func=sub_taxa)
 
     
@@ -117,7 +117,7 @@ def main():
     parser_cm.add_argument('--overwrite',
             action='store_true',
             default=False,
-            help="Overwrite the exisitng file without asking for confirmation")
+            help="Overwrite the existing file without asking for confirmation")
     parser_cm.set_defaults(func=import_data)
 
 
@@ -132,7 +132,7 @@ def main():
     parser_cm.add_argument('--overwrite',
             action='store_true',
             default=False,
-            help="Overwrite the exisitng directory without asking for confirmation")
+            help="Overwrite the existing directory without asking for confirmation")
     parser_cm.set_defaults(func=export_data) 
 
 
@@ -155,7 +155,41 @@ def main():
             action='store_true',
             default=False,
             help="Output a detailed version of the summary")
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing files without asking for confirmation")
     parser_cm.set_defaults(func=data_summary)
+
+    # Data summary command
+    parser_cm = subparsers.add_parser('data_ind',
+            help='Check the independence of source trees within this dataset.'
+            )
+    # Now add the command line args for this command
+    # These arguments are not-optional
+    parser_cm.add_argument('input', 
+            help='The input phyml file')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing files without asking for confirmation")
+    parser_cm.add_argument('-o',
+            '--output',
+            default=False,
+            const=True,
+            nargs='?',
+            required=False,
+            help='Save output to a file, rather than to screen. '+
+            'If no file is specified, the summary is saved to the input file directory '+
+            'as "data_ind.txt" otherwise the given filename is used. See the manual on how to '+
+            'interpret these files.')
+    parser_cm.add_argument('-n',
+            '--newphyml', 
+            required=False,
+            help='Provide a new PHYML file with the trees that are a subset of other trees removed. The ' +
+            'trees that are identical to other trees are still in the data. Please provide a filename.')
+    # Set the function that gets called when the sub command is activated
+    parser_cm.set_defaults(func=data_ind)
 
 
     # Data overlap command
@@ -195,6 +229,82 @@ def main():
     # Each command is given a function to execute via the "set_default" argument
     args.func(args)
 
+
+def data_ind(args):
+    """ Check data independence
+    """
+
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    input_file = args.input
+    newphyml = args.newphyml
+    overwrite = args.overwrite
+
+    if (output_file == True):
+        # output file is set, but no file given
+        # set to default
+        # grab directory from input file
+        direc = os.path.dirname(input_file)
+        output_file = direc + os.path.sep + "data_independence.txt"
+
+    # check if output files are there
+    if (output_file and os.path.exists(output_file) and not overwrite):
+        print "Output file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+    if (not newphyml == None and os.path.exists(newphyml) and not overwrite):
+        print "Output Phyml file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+
+    XML = supertree_toolkit.load_phyml(input_file)
+    if (newphyml == None):
+        data_independence = supertree_toolkit.data_independence(XML)
+    else:
+        data_independence, new_phyml = supertree_toolkit.data_independence(XML,make_new_xml=True)
+
+    # process data
+    data_ind = ""
+    #column headers
+    data_ind = "Source trees that are subsets of others\n"
+    data_ind = data_ind + "Flagged tree, is a subset of:\n"
+    for name in data_independence:
+        if ( data_independence[name][1] == supertree_toolkit.SUBSET ):
+            data_ind += name + "," + data_independence[name][0] + "\n"
+    
+    data_ind += "\n\nSource trees that are identical to others\n"
+    data_ind = data_ind + "Flagged tree, is identical to:\n"
+    for name in data_independence:
+        if ( data_independence[name][1] == supertree_toolkit.IDENTICAL ):
+            data_ind += name + "," + data_independence[name][0] + "\n"
+        
+
+    if (output_file == False or
+        output_file == None):
+        print data_ind
+    else:
+        f = open(output_file, "w")
+        f.write(data_ind)
+        f.close()
+
+    if (not newphyml == None):
+        f = open(newphyml,"w")
+        f.write(new_phyml)
+        f.close()
+
 def data_summary(args):
     """ Create a data summary
     """
@@ -221,8 +331,6 @@ def data_summary(args):
         f = open(output_file, "w")
         f.write(data_summary)
         f.close()
-        
-
 
 def create_matrix(args):
     """ This function creates a phylogenetic matrix from a PHYML file

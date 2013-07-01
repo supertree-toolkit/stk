@@ -34,6 +34,7 @@ from cStringIO import StringIO
 from collections import defaultdict
 import stk.p4 as p4
 import re
+import operator
 import stk.p4.MRP as MRP
 import networkx as nx
 import pylab as plt
@@ -44,6 +45,11 @@ import gtk
 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
 
 #plt.ion()
+
+# GLOBAL VARIABLES
+IDENTICAL = 0
+SUBSET = 1
+
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -496,6 +502,41 @@ def get_all_characters(XML):
 
     return char_dict
 
+def get_characters_from_tree(XML,name,sort=False):
+    """Get the characters that were used in a particular tree
+    """
+
+    characters = []
+    # Our input tree has name source_no, so find the source by stripping off the number
+    source_name, number = name.rsplit("_",1)
+    number = int(number.replace("_",""))
+    xml_root = _parse_xml(XML)
+    # By getting source, we can then loop over each source_tree
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+    # loop through all sources
+    for s in sources:
+        # for each source, get source name
+        name = s.attrib['name']
+        if source_name == name:
+            # found the bugger!
+            tree_no = 1
+            for t in s.xpath("source_tree/tree/tree_string"):
+                if tree_no == number:
+                    # and now we have the correct tree. 
+                    # Now we can get the characters for this tree
+                    chars = t.getparent().getparent().xpath("character_data/character")
+                    for c in chars:
+                        characters.append(c.attrib['name'])
+                    if (sort):
+                        characters.sort()
+                    return characters
+                tree_no += 1
+
+    # should raise exception here
+    return characters
+
+
 def get_character_numbers(XML):
     """ Return the number of trees that use each character
     """
@@ -510,6 +551,38 @@ def get_character_numbers(XML):
         char_numbers[c.attrib['name']] += 1
 
     return char_numbers
+
+def get_taxa_from_tree(XML, tree_name, sort=False):
+    """Return taxa from a single tree based on name
+    """
+
+    trees = obtain_trees(XML)
+    taxa_list = []
+    for t in trees:
+        if t == tree_name:
+            tree = trees[t]
+            try:
+                p4.var.warnReadNoFile = False
+                p4.var.nexus_warnSkipUnknownBlock = False
+                p4.var.trees = []
+                p4.read(tree)
+                p4.var.nexus_warnSkipUnknownBlock = True
+                p4.var.warnReadNoFile = True
+            except:
+                raise TreeParseError("Error parsing tree to get taxa")
+            tree = p4.var.trees[0]
+            p4.var.trees = []
+            terminals = tree.getAllLeafNames(tree.root)
+            for term in terminals:
+                taxa_list.append(str(term))
+            if (sort):
+                taxa_list.sort()
+            return taxa_list
+
+    # actually need to raise exception here
+    # and catch it in calling function
+    return taxa_list
+
 
 def get_fossil_taxa(XML):
     """Return a list of fossil taxa
@@ -1052,6 +1125,67 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
 
     return sufficient_overlap, key_list
 
+def data_independence(XML,make_new_xml=False):
+    """ Return a list of sources that are not independent.
+    This is decided on the source data and the analysis
+    """
+    # data storage:
+    #
+    # tree_name, character string, taxa_list
+    # tree_name, character string, taxa_list
+    # 
+    # smith_2009_1, cytb, a:b:c:d:e
+    # jones_2008_1, cytb:mit, a:b:c:d:e:f
+    # jones_2008_2, cytb:mit, a:b:c:d:e:f:g:h
+    #
+    # The two jones_2008 trees are not independent.  jones_2008_2 is retained
+    data_ind = []
+
+    trees = obtain_trees(XML)
+    for tree_name in trees:
+        taxa = get_taxa_from_tree(XML, tree_name, sort=True)
+        characters = get_characters_from_tree(XML, tree_name, sort=True)
+        data_ind.append([tree_name, characters, taxa])
+    
+    # Then sort based on the character string and taxa_list as secondary sort
+    # Doing so means the tree_names that use the same characters
+    # are next to each other
+    data_ind.sort(key=operator.itemgetter(1,2))
+
+    # The loop through this list, and if the character string is the same
+    # as the previous one, check the taxa. If the taxa from the 1st
+    # source is contained within (or is equal) the taxa list of the 2nd
+    # grab the source data - these are not independent.
+    # Because we've sorted the data, if the 2nd taxa list will be longer
+    # than the previous entry if the first N taxa are the same
+    prev_char = None
+    prev_taxa = None
+    prev_name = None
+    non_ind = {}
+    for data in data_ind:
+        name = data[0]
+        char = data[1]
+        taxa = data[2]
+        if (char == prev_char):
+            # when sorted, the longer list comes first
+            if set(taxa).issubset(set(prev_taxa)):
+                if (taxa == prev_taxa):
+                    non_ind[name] = [prev_name,IDENTICAL]
+                else:
+                    non_ind[name] = [prev_name,SUBSET]
+        prev_char = char
+        prev_taxa = taxa
+        prev_name = name
+
+    if (make_new_xml):
+        new_xml = XML
+        for name in non_ind:
+            if (non_ind[name][1] == SUBSET):
+                new_xml = _swap_tree_in_XML(new_xml,None,name) 
+        return non_ind, new_xml
+    else:
+        return non_ind
+
 def add_historical_event(XML, event_description):
 
     now  = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -1073,11 +1207,7 @@ def add_historical_event(XML, event_description):
 
     return XML
     
-
-
-    
 ################ PRIVATE FUNCTIONS ########################
-
 
 def _uniquify(l):
     keys = {}
@@ -1182,7 +1312,9 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     return new_tree
 
 def _swap_tree_in_XML(XML, tree, name):
-    """ Swap tree with name, 'name' with this new one
+    """ Swap tree with name, 'name' with this new one.
+        If tree is None, name is removed.
+        If source no longer contains any trees, the source is removed
     """
 
     # tree name has the tree number attached to the source name
@@ -1196,6 +1328,8 @@ def _swap_tree_in_XML(XML, tree, name):
     # By getting source, we can then loop over each source_tree
     find = etree.XPath("//source")
     sources = find(xml_root)
+    if (tree == None):
+        delete_me = []
     # loop through all sources
     for s in sources:
         # for each source, get source name
@@ -1205,9 +1339,16 @@ def _swap_tree_in_XML(XML, tree, name):
             tree_no = 1
             for t in s.xpath("source_tree/tree/tree_string"):
                 if tree_no == number:
-                   t.xpath("string_value")[0].text = tree
-                   # We can return as we're only replacing one tree
-                   return etree.tostring(xml_root,pretty_print=True)
+                    if (not tree == None): 
+                        t.xpath("string_value")[0].text = tree
+                        # We can return as we're only replacing one tree
+                        return etree.tostring(xml_root,pretty_print=True)
+                    else:
+                        s.remove(t.getparent().getparent())
+                        # we now need to check the source to check if there are
+                        # any trees in this source now, if not, remove
+                        s.getparent().remove(s)
+                        return etree.tostring(xml_root,pretty_print=True)
                 tree_no += 1
 
     return XML
@@ -1301,6 +1442,27 @@ def _check_taxa(XML):
 
     return
 
+def _check_sources(XML):
+    """ Check that all sources in the dataset have at least one tree_string associated
+        with them
+    """
+
+    xml_root = _parse_xml(XML)
+    # By getting source, we can then loop over each source_tree
+    # within that source and construct a unique name
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+    # for each source
+    for s in sources:
+        # get a list of taxa in the XML
+        this_source = _parse_xml(etree.tostring(s))
+        name = s.attrib['name']
+        trees = obtain_trees(etree.tostring(this_source))
+        if (len(trees) < 1):
+            raise InvalidSTKData("Source "+name+" has no trees")
+
+
+
 def _check_data(XML):
     """ Function to check various aspects of the dataset, including:
          - checking taxa in the XML for a source are included in the tree for that source
@@ -1312,6 +1474,9 @@ def _check_data(XML):
 
     # now the taxa
     _check_taxa(XML) # again will raise an error if test fails
+
+    # check sources
+    _check_sources(XML)
 
     return
 

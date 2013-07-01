@@ -4,7 +4,7 @@ import sys
 # so we import local stk before any other
 sys.path.insert(0,"../../")
 from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
-from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa
+from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_taxa_from_tree, get_characters_from_tree
 import os
 from lxml import etree
 from util import *
@@ -157,6 +157,20 @@ class TestImportTree(unittest.TestCase):
         self.assert_(trees['Davis_2011_1'] == "((A:1.00000,B:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;")
         self.assert_(trees[name] == "(a,b,c);")
 
+    def test_delete_tree_XML(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        name = "Hill_Davis_2011_1"
+        trees = obtain_trees(XML)
+        old_len = len(trees)
+        new_xml = _swap_tree_in_XML(XML, None, name)
+        trees = obtain_trees(new_xml)
+        # loop through all trees, checking them
+        self.assert_(trees['Davis_2011_1'] == "((A:1.00000,B:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;")
+        self.assert_(len(trees) == old_len-1)
+        # check that no sources are empty
+
+
+
     def test_substitute_taxa_single(self):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
         XML2 = substitute_taxa(XML, "A", "Fred")
@@ -300,7 +314,30 @@ class TestImportTree(unittest.TestCase):
         self.assert_(not contains_A) # we should not have A in a tree
         self.assert_(not contains_B) # we should not have B in a tree
 
-    
+    def test_taxa_from_tree(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        taxa = get_taxa_from_tree(XML,"Hill_2011_1")
+        expected_taxa = ['A','B','F','E']
+        self.assertListEqual(taxa,expected_taxa)
+
+    def test_taxa_from_tree_sort(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        taxa = get_taxa_from_tree(XML,"Hill_2011_1",sort=True)
+        expected_taxa = ['A','B','E','F']
+        self.assertListEqual(taxa,expected_taxa)
+
+    def test_taxa_from_characters(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        chars = get_characters_from_tree(XML,"Hill_Davis_2011_1")
+        expected_chars = ['cytb','12S']
+        self.assertListEqual(chars,expected_chars)
+
+    def test_taxa_from_characters_sort(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        chars = get_characters_from_tree(XML,"Hill_Davis_2011_1",sort=True)
+        expected_chars = ['12S','cytb']
+        self.assertListEqual(chars,expected_chars)
+     
 if __name__ == '__main__':
     unittest.main()
  
