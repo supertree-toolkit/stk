@@ -169,17 +169,23 @@ def main():
     # These arguments are not-optional
     parser_cm.add_argument('input', 
             help='The input phyml file')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing files without asking for confirmation")
     parser_cm.add_argument('-o',
             '--output',
             default=False,
             const=True,
             nargs='?',
+            required=False,
             help='Save output to a file, rather than to screen. '+
             'If no file is specified, the summary is saved to the input file directory '+
             'as "data_ind.txt" otherwise the given filename is used. See the manual on how to '+
             'interpret these files.')
     parser_cm.add_argument('-n',
             '--newphyml', 
+            required=False,
             help='Provide a new PHYML file with the trees that are a subset of other trees removed. The ' +
             'trees that are identical to other trees are still in the data. Please provide a filename.')
     # Set the function that gets called when the sub command is activated
@@ -243,7 +249,7 @@ def data_ind(args):
         output_file = direc + os.path.sep + "data_independence.txt"
 
     # check if output files are there
-    if (os.path.exists(output_file) and not overwrite):
+    if (output_file and os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
         print "Do you wish to continue? [Y/n]"
         while True:
@@ -272,8 +278,16 @@ def data_ind(args):
 
     # process data
     data_ind = ""
+    #column headers
+    data_ind = "Source trees that are subsets of others\n"
+    data_ind = data_ind + "Flagged tree, is a subset of:\n"
     for name in data_independence:
-        data_ind += name + "," + data_independence[name][0] + "\n"
+        if ( data_independence[name][1] == supertree_toolkit.SUBSET ):
+            data_ind += name + "," + data_independence[name][0] + "\n"
+    data_ind = data_ind + "\n\nFlagged tree, is identical to:\n"
+    for name in data_independence:
+        if ( data_independence[name][1] == supertree_toolkit.IDENTICAL ):
+            data_ind += name + "," + data_independence[name][0] + "\n"
         
 
     if (output_file == False or

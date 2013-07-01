@@ -1143,22 +1143,48 @@ class Diamond:
     self.tree.write(f)
     XML = f.getvalue()
     self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True)
-    treestore = gtk.TreeStore(str)
+    liststore = gtk.ListStore(str,str)
+    treeview = gtk.TreeView(liststore)
+    rendererText = gtk.CellRendererText()
+    column = gtk.TreeViewColumn("Flagged tree", rendererText, text=0)
+    treeview.append_column(column)
+    column1 = gtk.TreeViewColumn("is subset of", rendererText, text=1)
+    treeview.append_column(column1)
     for name in self.data_independence:
-        current_tree = treestore.append(None, [name])
-        clashes = self.data_independence[name][0].split(',')
-        for c in clashes:
-            treestore.append(current_tree, [c])
+        count = 0
+        if self.data_independence[name][1] == stk.SUBSET:
+            clashes = self.data_independence[name][0].split(',')
+            for c in clashes:
+                if (count == 0):
+                    liststore.append([name, c])
+                else:
+                    liststore.append([None, c])
+                count +=1
             
     window = self.data_ind_gui.get_widget("scrolledwindow1")
-    treeview = gtk.TreeView(treestore)
     window.add(treeview)
-    column = gtk.TreeViewColumn("Potential non-independence")
+
+    liststore = gtk.ListStore(str,str)
+    treeview = gtk.TreeView(liststore)
+    rendererText = gtk.CellRendererText()
+    column = gtk.TreeViewColumn("Flagged tree", rendererText, text=0)
     treeview.append_column(column)
-        
-    cell = gtk.CellRendererText()
-    column.pack_start(cell, False)
-    column.add_attribute(cell, "text", 0)
+    column1 = gtk.TreeViewColumn("is identical to", rendererText, text=1)
+    treeview.append_column(column1)
+    for name in self.data_independence:
+        count = 0
+        if self.data_independence[name][1] == stk.IDENTICAL:
+            clashes = self.data_independence[name][0].split(',')
+            for c in clashes:
+                if (count == 0):
+                    liststore.append([name, c])
+                else:
+                    liststore.append([None, c])
+                count +=1
+            
+    window = self.data_ind_gui.get_widget("scrolledwindow2")
+    window.add(treeview)
+
     self.data_ind_dialog.show_all()
 
     return
@@ -1218,8 +1244,16 @@ class Diamond:
 
     # process data
     data_ind = ""
+    #column headers
+    data_ind = "Source trees that are subsets of others\n"
+    data_ind = data_ind + "Flagged tree, is a subset of:\n"
     for name in self.data_independence:
-        data_ind += name + "," + self.data_independence[name][0] + "\n"
+        if ( self.data_independence[name][1] == stk.SUBSET):
+            data_ind += name + "," + self.data_independence[name][0] + "\n"
+    data_ind = data_ind + "\n\nFlagged tree, is identical to:\n"
+    for name in data_independence:
+        if ( self.data_independence[name][1] == stk.IDENTICAL):
+            data_ind += name + "," + self.data_independence[name][0] + "\n"
     f = open(self.filename,"w")
     f.write(data_ind)
     f.close()
