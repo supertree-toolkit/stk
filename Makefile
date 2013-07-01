@@ -1,3 +1,5 @@
+VERSION=0.1.1
+
 default:
 	python setup.py build
 
@@ -17,8 +19,7 @@ uninstall:
 	rm -rf /usr/local/share/stk
 	rm -rf /usr/local/share/phyml
 
-package:
-	VERSION=0.1.1
+builddeb:
 	python setup.py --command-packages=stdeb.command sdist_dsc
 	cd deb_dist/supertree-toolkit-${VERSION}
 	dpkg-buildpackage -rsudo -uc -us
