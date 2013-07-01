@@ -1138,7 +1138,7 @@ def data_independence(XML,make_new_xml=False):
     # jones_2008_1, cytb:mit, a:b:c:d:e:f
     # jones_2008_2, cytb:mit, a:b:c:d:e:f:g:h
     #
-    # The two jones_2008 trees are not independant.
+    # The two jones_2008 trees are not independent.  jones_2008_2 is retained
     data_ind = []
 
     trees = obtain_trees(XML)
@@ -1155,7 +1155,7 @@ def data_independence(XML,make_new_xml=False):
     # The loop through this list, and if the character string is the same
     # as the previous one, check the taxa. If the taxa from the 1st
     # source is contained within (or is equal) the taxa list of the 2nd
-    # grab the source data - these are not independant.
+    # grab the source data - these are not independent.
     # Because we've sorted the data, if the 2nd taxa list will be longer
     # than the previous entry if the first N taxa are the same
     prev_char = None

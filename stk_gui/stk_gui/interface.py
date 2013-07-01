@@ -1128,95 +1128,103 @@ class Diamond:
         and call the function
     """
 
-    signals = {"on_data_ind_dialog_close": self.on_data_ind_cancel_button,
-               "on_data_ind_cancel_clicked": self.on_data_ind_cancel_button,
-               "on_data_ind_clicked": self.on_do_data_ind_button,
-               "on_data_ind_optional_browse_clicked": self.on_data_ind_browse_button,
-               "on_data_ind_browse_clicked": self.on_data_ind_optional_browse_button,
-               "on_data_ind_optional_clicked": self.on_data_ind_optional_clicked}
-    
+    signals = {"on_data_ind_dialog_close": self.on_data_ind_close_button,
+               "on_data_ind_close": self.on_data_ind_close_button,
+               "on_save_ind_data_phyml": self.on_data_ind_save_phyml_button,
+               "on_save_ind_data": self.on_data_ind_save_data_button,
+              } 
     self.data_ind_gui = gtk.glade.XML(self.gladefile, root="data_ind_dialog")
     self.data_ind_dialog = self.data_ind_gui.get_widget("data_ind_dialog")
     self.data_ind_gui.signal_autoconnect(signals)
-    do_data_ind = self.data_ind_gui.get_widget("data_ind_button")
-    do_data_ind.connect("activate", self.on_do_data_ind_button)
-    # Turn the optional file browse on/off
-    optional_filename = self.data_ind_gui.get_widget("entry2")
-    optional_browse = self.data_ind_gui.get_widget("directorybrowse1")
-    optional_filename.set_sensitive(False)
-    optional_browse.set_sensitive(False)
-    self.data_ind_dialog.show()
 
-  def on_do_data_ind_button(self,widget=None):
-    """ Actually do the data_independence check
-    """
-
-    filename_textbox = self.data_ind_gui.get_widget("entry1")
-    filename = filename_textbox.get_text()
-    optional_filename = self.data_ind_gui.get_widget("entry2")
-    optional_browse = self.data_ind_gui.get_widget("directorybrowse1")
-    optional_checkbox = self.data_ind_gui.get_widget("optional_phyml")
-    new_phyml = None
-    if optional_checkbox.get_active():
-        new_phyml =   optional_filename.get_text()
-
+    self.phyml_filename = None
+    self.filename = None    
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
-    if (newphyml == None):
-        data_independence = supertree_toolkit.data_independence(XML)
-    else:
-        data_independence, new_phyml = supertree_toolkit.data_independence(XML,make_new_xml=True)
-    f = open(filename,"w")
-    f.write(data_independence)
-    f.close()
-    if (not newphyml == None):
-        f = open(new_phyml,"w")
-        f.write(new_phyml)
-        f.close()
+    self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True)
+    treestore = gtk.TreeStore(str)
+    for name in self.data_independence:
+        current_tree = treestore.append(None, [name])
+        clashes = self.data_independence[name][0].split(',')
+        for c in clashes:
+            treestore.append(current_tree, [c])
+            
+    window = self.data_ind_gui.get_widget("scrolledwindow1")
+    treeview = gtk.TreeView(treestore)
+    window.add(treeview)
+    column = gtk.TreeViewColumn("Potential non-independence")
+    treeview.append_column(column)
         
-
-    # Add a history event
-    f = StringIO.StringIO()
-    self.tree.write(f)
-    XML = f.getvalue()
-    if (new_phyml == None):
-        XML = stk.add_historical_event(XML, "Data independence checked. See "+filename)
-    else:
-        XML = stk.add_historical_event(XML, "Data independence checked. See "+filename+". New Phyml written to: "+new_phyml)
-    ios = StringIO.StringIO(XML)
-    self.update_data(ios, "Error adding history event (create matrix) to XML", skip_warning=True)
-
-    self.data_ind_dialog.hide()
+    cell = gtk.CellRendererText()
+    column.pack_start(cell, False)
+    column.add_attribute(cell, "text", 0)
+    self.data_ind_dialog.show_all()
 
     return
 
 
-  def on_data_ind_cancel_button(self,widget=None):
+  def on_data_ind_close_button(self,widget=None):
+    # Add a history event
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    msg = "Data independence checked."
+    if (not self.phyml_filename == None):
+        msg = msg + " Phyml saved to: "+self.phyml_filename+"."
+    if (not self.filename == None):
+        msg = msg + " Independence data saved to: "+self.filename+"."
+    XML = stk.add_historical_event(XML, msg)
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (create matrix) to XML", skip_warning=True)
     self.data_ind_dialog.hide()
 
-  def on_data_ind_browse_button(self,widget=None):
-    pass
+  def on_data_ind_save_phyml_button(self,widget=None):
 
-  def on_data_ind_optional_browse_button(self,widget=None):
-    pass
+    # open browse window, grab filename
+    filter_names_and_patterns = {}
+    filter_names_and_patterns['Phyml file'] = ["*.phyml"]
+    filter_names_and_patterns['All files'] = ["*"]
+    # open file dialog
+    self.phyml_filename = dialogs.get_filename(title = "Choose output file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 
-  def on_data_ind_optional_clicked(self,widget=None):
-    # Turn the optional file browse on/off
-    optional_filename = self.data_ind_gui.get_widget("entry2")
-    optional_browse = self.data_ind_gui.get_widget("directorybrowse1")
-    optional_checkbox = self.data_ind_gui.get_widget("optional_phyml")
-    if optional_checkbox.get_active():
-        optional_filename.set_sensitive(True)
-        optional_browse.set_sensitive(True)
-    else:
-        optional_filename.set_sensitive(False)
-        optional_browse.set_sensitive(False)
+    # check if files exist already
+    if (os.path.exists(self.phyml_filename)):
+        overwrite = dialogs.prompt(None,"Output phyml file exists. Overwrite?")
+        if (overwrite == gtk.RESPONSE_NO):
+            self.phyml_filename=None
+            return
 
+    f = open(self.phyml_filename,"w")
+    f.write(self.new_phyml_data)
+    f.close()
+    return
 
+  def on_data_ind_save_data_button(self,widget=None):
 
-    
-  
+    # open browse window, grab filename
+    filter_names_and_patterns = {}
+    filter_names_and_patterns['CSV file'] = ["*.csv"]
+    filter_names_and_patterns['All files'] = ["*"]
+    # open file dialog
+    self.filename = dialogs.get_filename(title = "Choose output file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+
+    # check if files exist already
+    if (os.path.exists(self.filename)):
+        overwrite = dialogs.prompt(None,"Output file exists. Overwrite?")
+        if (overwrite == gtk.RESPONSE_NO):
+            self.filename = None
+            return
+
+    # process data
+    data_ind = ""
+    for name in self.data_independence:
+        data_ind += name + "," + self.data_independence[name][0] + "\n"
+    f = open(self.filename,"w")
+    f.write(data_ind)
+    f.close()
+    return
+
 
   def on_create_matrix(self, widget=None):
     """ Creates a MRP matrix from the data in the phyml. Actually, this function
@@ -1286,7 +1294,7 @@ class Diamond:
   def on_create_matrix_browse_button(self, button):
       filter_names_and_patterns = {}
       # open file dialog
-      filename = dialogs.get_filename(title = "Choose output matrix fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+      filename = dialogs.get_filename(title = "Choose output matrix file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
       filename_textbox = self.create_matrix_gui.get_widget("entry1")
       filename_textbox.set_text(filename)
 
