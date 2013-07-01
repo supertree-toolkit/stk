@@ -46,12 +46,14 @@ class BibKeyError(Error):
 def process_pages(pages):
   """ Returns a 2-tuple (firstpage,lastpage) from a string"""
   # try and standardise the page numbers by removing
-  # UTF characters and then doing the split
+  # UTF characters and double hyphens, then doing the split
   pages = pages.replace("--","-")
   pages = pages.replace(u"\u002D","-")
   pages = pages.replace(u"\u2012","-")
   pages = pages.replace(u"\u2212","-")
-  pages = pages.replace(u"\u002D","-")
+  pages = pages.replace(u"\u002D\u002D","-")
+  pages = pages.replace(u"\u2012\u2012","-")
+  pages = pages.replace(u"\u2212\u2212","-")
   pp=pages.split('-')
   firstpage=pp[0]
   if len(pp)==2:
