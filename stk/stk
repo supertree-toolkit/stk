@@ -284,7 +284,9 @@ def data_ind(args):
     for name in data_independence:
         if ( data_independence[name][1] == supertree_toolkit.SUBSET ):
             data_ind += name + "," + data_independence[name][0] + "\n"
-    data_ind = data_ind + "\n\nFlagged tree, is identical to:\n"
+    
+    data_ind += "\n\nSource trees that are identical to others\n"
+    data_ind = data_ind + "Flagged tree, is identical to:\n"
     for name in data_independence:
         if ( data_independence[name][1] == supertree_toolkit.IDENTICAL ):
             data_ind += name + "," + data_independence[name][0] + "\n"
