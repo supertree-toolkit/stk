@@ -380,21 +380,77 @@ class TestImportTree(unittest.TestCase):
         except:
             self.assert_(False)
             # we should get no error
-        os.remove(temp_file)         
-        # Need a tree equals function
-        #self.assert_(output_string==expected)
+        os.remove(temp_file)
+        self.assert_(len(trees)==len(trees_read))
+        names = trees.keys()
+        for i in range(0,len(trees)):
+            self.assert_(_trees_equal(trees_read[i],trees[names[i]]))
+
 
     def test_amalgamate_trees_nexus(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
         output_string = amalgamate_trees(XML,format="Nexus",anonymous=False)
+        trees = obtain_trees(XML)
+        # save the file and read it back in. Then we check correct format (i.e. readable) and
+        # we can check the trees are correct
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
+        f = open(temp_file,"w")
+        f.write(output_string)
+        f.close()
+        try:
+            trees_read = import_trees(temp_file)
+        except:
+            self.assert_(False)
+            # we should get no error
+        os.remove(temp_file)
+        self.assert_(len(trees)==len(trees_read))
+        names = trees.keys()
+        for i in range(0,len(trees)):
+            self.assert_(_trees_equal(trees_read[i],trees[names[i]]))
 
     def test_amalgamate_trees_newick(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
         output_string = amalgamate_trees(XML,format="Newick")
+        trees = obtain_trees(XML)
+        # save the file and read it back in. Then we check correct format (i.e. readable) and
+        # we can check the trees are correct
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
+        f = open(temp_file,"w")
+        f.write(output_string)
+        f.close()
+        try:
+            trees_read = import_trees(temp_file)
+        except:
+            self.assert_(False)
+            # we should get no error
+        os.remove(temp_file)
+        self.assert_(len(trees)==len(trees_read))
+        names = trees.keys()
+        for i in range(0,len(trees)):
+            self.assert_(_trees_equal(trees_read[i],trees[names[i]]))
+
 
     def test_amalgamate_trees_tnt(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
         output_string = amalgamate_trees(XML,format="tnt")
+        trees = obtain_trees(XML)
+        # save the file and read it back in. Then we check correct format (i.e. readable) and
+        # we can check the trees are correct
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
+        f = open(temp_file,"w")
+        f.write(output_string)
+        f.close()
+        try:
+            trees_read = import_trees(temp_file)
+        except:
+            self.assert_(False)
+            # we should get no error
+        os.remove(temp_file)
+        self.assert_(len(trees)==len(trees_read))
+        names = trees.keys()
+        for i in range(0,len(trees)):
+            self.assert_(_trees_equal(trees_read[i],trees[names[i]]))
+
 
     def test_amalgamate_trees_unknown_format(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
