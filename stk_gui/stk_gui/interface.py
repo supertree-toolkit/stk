@@ -1450,16 +1450,68 @@ class Diamond:
 
 
   def on_export_trees(self,widget=None):
-      """ Export all tree strings in the XML to a single file
+    """ Export all tree strings in the XML to a single file
           Can be made anonymous or labelled by a unique identifier
-     """
+    """
+    signals = {"on_export_trees_close": self.on_export_trees_close,
+               "on_export_trees_cancelled_clicked": self.on_export_trees_close,
+               "on_export_trees_clicked": self.on_export_trees_save}
 
-     f = StringIO.StringIO()
-     self.tree.write(f)
-     XML = f.getvalue()
-     output_string = stk.amalgamate_trees(XML,format=format,anonymous=anonymous)
-        
+    print "oknonpjnjn"
+    self.export_trees_gui = gtk.glade.XML(self.gladefile, root="export_trees")
+    self.export_trees_dialog = self.export_trees_gui.get_widget("export_trees")
+    self.export_trees_gui.signal_autoconnect(signals)
+    #export_tree = self.export_trees_gui.get_widget("button1")
+    #export_tree.connect("activate", self.on_export_trees_save)
+    self.export_trees_dialog.show()
 
+
+  def on_export_trees_close(self, widget=None):
+      
+    self.export_trees_dialog.hide()
+
+
+  def on_export_trees_save(self, widget=None):
+     
+      format_radio_1 = self.export_trees_gui.get_widget("tree_format_nexus_chooser")
+      format_radio_2 = self.export_trees_gui.get_widget("tree_format_newick_chooser")
+      format_radio_3 = self.export_trees_gui.get_widget("tree_format_tnt_chooser")
+      anon_check = self.export_trees_gui.get_widget("checkbutton1")
+      if (format_radio_1.get_active()):
+          format = 'Nexus'
+      elif (format_radio_2.get_active()):
+          format = 'Newick'
+      elif (format_radio_3.get_active()):
+          format = 'tnt'
+      else:
+        format = None
+        dialogs.error(self.main_window,"Error exporting trees. Incorrect format.")
+        return
+      anonymous = False
+      if anon_check.get_active():
+          anonymous = True
+
+      
+      f = StringIO.StringIO()
+      self.tree.write(f)
+      XML = f.getvalue()
+      self.output_string = stk.amalgamate_trees(XML,format=format,anonymous=anonymous)
+
+      filter_names_and_patterns = {}
+      filter_names_and_patterns['Trees'] = ["*.tre","*nex","*.nwk"]
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose output trees fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+
+      f = open(filename,"w")
+      f.write(self.output_string)
+      f.close()
+
+      XML = stk.add_historical_event(XML, "Tree exported to: "+filename)
+      ios = StringIO.StringIO(XML)
+      self.update_data(ios, "Error adding history event (export trees) to XML", skip_warning=True)
+      self.export_trees_dialog.hide()
+
+      return
 
   def on_sub_taxa(self, widget=None):
     """ Substitute taxa in the tree. Actually, this function

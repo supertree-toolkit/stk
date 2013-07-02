@@ -755,7 +755,7 @@ def amalgamate_trees(XML,format="Nexus",anonymous=False):
     # TNT: strip commas, write one tree per line
     output_string = ""
     if format == "Nexus":
-        output_string += "#NEXUS\n\nBEGIN TREES;"
+        output_string += "#NEXUS\n\nBEGIN TREES;\n\n"
     tree_count = 0
     for tree in trees:
         if format == "Nexus":
