@@ -1498,7 +1498,7 @@ class Diamond:
       self.output_string = stk.amalgamate_trees(XML,format=format,anonymous=anonymous)
 
       filter_names_and_patterns = {}
-      filter_names_and_patterns['Trees'] = ["*.tre","*nex","*.nwk"]
+      filter_names_and_patterns['Trees'] = ["*.tre","*nex","*.nwk","*.tnt"]
       # open file dialog
       filename = dialogs.get_filename(title = "Choose output trees fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 

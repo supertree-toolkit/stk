@@ -438,7 +438,6 @@ class TestImportTree(unittest.TestCase):
         # we can check the trees are correct
         temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
         f = open(temp_file,"w")
-        print temp_file
         f.write(output_string)
         f.close()
         try:
