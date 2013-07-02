@@ -1461,8 +1461,6 @@ class Diamond:
     self.export_trees_gui = gtk.glade.XML(self.gladefile, root="export_trees")
     self.export_trees_dialog = self.export_trees_gui.get_widget("export_trees")
     self.export_trees_gui.signal_autoconnect(signals)
-    #export_tree = self.export_trees_gui.get_widget("button1")
-    #export_tree.connect("activate", self.on_export_trees_save)
     self.export_trees_dialog.show()
 
 

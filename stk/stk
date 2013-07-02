@@ -136,6 +136,32 @@ def main():
     parser_cm.set_defaults(func=export_data) 
 
 
+    # export trees command
+    parser_cm = subparsers.add_parser('export_trees',
+            help='Export all tree in data to single tree file'
+            )
+    parser_cm.add_argument('input',
+            help='The input Phyml file')
+    parser_cm.add_argument('output', 
+            help='The output tree file')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing directory without asking for confirmation")
+    # This one is optional
+    parser_cm.add_argument('-f',
+            '--format', 
+            choices=["Nexus","Newick","tnt"],
+            default="Nexus",
+            help='The format of the tree file. Nexus, Newick or tnt. Default is Nexus')
+    parser_cm.add_argument('--anonymous',
+            '-a',
+            action='store_true',
+            default=False,
+            help="Anonymise output file to remove source names. Only works for Nexus files; otherwise ignored.")
+    parser_cm.set_defaults(func=export_trees) 
+
+
     # Data summary command
     parser_cm = subparsers.add_parser('data_summary',
             help='Summary of this dataset'
@@ -538,6 +564,44 @@ def data_overlap(args):
                 f.write(str(i)+","+key+"\n")
             i = i+1
         f.close()
+
+
+def export_trees(args):
+    """ Export source trees to a single tree file
+    """
+
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    input_file = args.input
+    format = args.format
+    anon = args.anonymous
+    overwrite = args.overwrite
+
+    if (not os.path.exists(input_file)):
+        print "Input phyml cannot be found. Exiting"
+        sys.exit(-1)
+
+    # check if output files are there
+    if (output_file and os.path.exists(output_file) and not overwrite):
+        print "Output file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+
+    XML = supertree_toolkit.load_phyml(input_file)
+
+    output_string = supertree_toolkit.amalgamate_trees(XML,format=format,anonymous=anon)
+
+    f = open(output_file,"w")
+    f.write(output_string)
+    f.close()
+
 
 
 if __name__ == "__main__":
