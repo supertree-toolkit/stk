@@ -440,8 +440,12 @@ def import_trees(filename):
         raise TreeParseError("Error parsing " + filename)
     trees = p4.var.trees
     p4.var.trees = []
+    
+    r_trees = []
+    for t in trees:
+        r_trees.append(t.writeNewick(fName=None,toString=True).strip())
 
-    return trees
+    return r_trees
 
 
 def import_tree(filename, gui=None, tree_no = -1):
@@ -449,6 +453,9 @@ def import_tree(filename, gui=None, tree_no = -1):
     strings"""
   
     trees = import_trees(filename)
+
+    if (len(trees) == 1):
+        tree_no = 0
 
     if (len(trees) > 1 and tree_no == -1):
         message = "Found "+len(trees)+" trees. Which one do you want to load (1-"+len(trees)+"?"
@@ -481,11 +488,9 @@ def import_tree(filename, gui=None, tree_no = -1):
             text = entry.get_text()
             dialog.destroy()
             tree_no = int(text) - 1
-    else:
-        tree_no = 0
 
     tree = trees[tree_no]
-    return tree.writeNewick(fName=None,toString=True).strip()
+    return tree
 
 def get_all_characters(XML):
     """Returns a dictionary containing a list of characters within each 
@@ -1585,3 +1590,35 @@ def _sort_data(xml_root):
     container[:] = [item[-1] for item in data]
     
     return xml_root
+
+
+def _trees_equal(t1,t2):
+    """ compare two trees using Robinson-Foulds metric
+    """
+
+    try:
+        p4.var.warnReadNoFile = False
+        p4.var.nexus_warnSkipUnknownBlock = False
+        p4.var.trees = []
+        p4.read(t1)
+        p4.read(t2)
+        p4.var.nexus_warnSkipUnknownBlock = True
+        p4.var.warnReadNoFile = True
+    except:
+        raise TreeParseError("Error parsing " + filename)
+
+    tree_1 = p4.var.trees[0]
+    tree_2 = p4.var.trees[1]
+    
+    # add the taxanames
+    tree_1.taxNames = tree_1.getAllLeafNames(tree_1.root)
+    tree_2.taxNames = tree_2.getAllLeafNames(tree_2.root)
+   
+    same = False
+    try:
+        if (tree_1.topologyDistance(tree_2) == 0):
+            same = True # yep, the same
+    except:
+        same = False # different taxa, so can't be the same!
+
+    return same
