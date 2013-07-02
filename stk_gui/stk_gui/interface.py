@@ -1457,7 +1457,6 @@ class Diamond:
                "on_export_trees_cancelled_clicked": self.on_export_trees_close,
                "on_export_trees_clicked": self.on_export_trees_save}
 
-    print "oknonpjnjn"
     self.export_trees_gui = gtk.glade.XML(self.gladefile, root="export_trees")
     self.export_trees_dialog = self.export_trees_gui.get_widget("export_trees")
     self.export_trees_gui.signal_autoconnect(signals)
