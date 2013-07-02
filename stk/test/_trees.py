@@ -4,7 +4,9 @@ import sys
 # so we import local stk before any other
 sys.path.insert(0,"../../")
 from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
-from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_taxa_from_tree, get_characters_from_tree
+from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_taxa_from_tree, get_characters_from_tree, amalgamate_trees
+from stk.supertree_toolkit import import_trees
+
 import os
 from lxml import etree
 from util import *
@@ -12,6 +14,7 @@ import StringIO
 import numpy
 import stk.p4 as p4
 # our test dataset
+import tempfile
 
 standard_tre = "data/input/test_tree.tre"
 single_source_input = "data/input/single_source.phyml"
@@ -337,7 +340,41 @@ class TestImportTree(unittest.TestCase):
         chars = get_characters_from_tree(XML,"Hill_Davis_2011_1",sort=True)
         expected_chars = ['12S','cytb']
         self.assertListEqual(chars,expected_chars)
-     
+    
+    def test_amalgamate_trees_anonymous(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        output_string = amalgamate_trees(XML,format="Nexus",anonymous=True)
+        trees = obtain_trees(XML)
+        # save the file and read it back in. Then we check correct format (i.e. readable) and
+        # we can check the trees are correct
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
+        f = open(temp_file,"w")
+        f.write(output_string)
+        f.close()
+        trees_read = import_trees(temp_file)
+        os.remove(temp_file)         
+        #self.assert_(output_string==expected)
+        
+
+    def test_amalgamate_trees_nexus(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        output_string = amalgamate_trees(XML,format="Nexus",anonymous=False)
+
+    def test_amalgamate_trees_newick(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        output_string = amalgamate_trees(XML,format="Newick")
+
+    def test_amalgamate_trees_tnt(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        output_string = amalgamate_trees(XML,format="tnt")
+
+    def test_amalgamate_trees_unknown_format(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        output_string = amalgamate_trees(XML,format="PHYXML")
+        self.assert_(output_string==None)
+
+
+
 if __name__ == '__main__':
     unittest.main()
  

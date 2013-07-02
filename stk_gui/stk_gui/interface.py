@@ -167,6 +167,7 @@ class Diamond:
                     "on_create_matrix": self.on_create_matrix,
                     "on_export": self.on_export,
                     "on_import": self.on_import,
+                    "on_export_trees": self.on_export_trees,
                     "on_sub_taxa": self.on_sub_taxa,
                     "on_data_summary": self.on_data_summary,
                     "on_data_overlap": self.on_data_overlap,
@@ -1446,6 +1447,18 @@ class Diamond:
       filename = dialogs.get_filename(title = "Choose import directory", action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
       filename_textbox = self.import_gui.get_widget("entry1")
       filename_textbox.set_text(filename)
+
+
+  def on_export_trees(self,widget=None):
+      """ Export all tree strings in the XML to a single file
+          Can be made anonymous or labelled by a unique identifier
+     """
+
+     f = StringIO.StringIO()
+     self.tree.write(f)
+     XML = f.getvalue()
+     output_string = stk.amalgamate_trees(XML,format=format,anonymous=anonymous)
+        
 
 
   def on_sub_taxa(self, widget=None):

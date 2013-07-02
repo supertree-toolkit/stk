@@ -1269,12 +1269,25 @@
                       </widget>
                     </child>
                     <child>
+                      <widget class="GtkMenuItem" id="export_trees">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="has_tooltip">True</property>
+                        <property name="tooltip" translatable="yes">Export all trees in this dataset in various formats</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Export trees</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_export_trees" swapped="no"/>
+                      </widget>
+                    </child>
+
+                    <child>
                       <widget class="GtkMenuItem" id="export">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip" translatable="yes">Export data to old STK directory-based format</property>
                         <property name="use_action_appearance">False</property>
-                        <property name="label" translatable="yes">Export</property>
+                        <property name="label" translatable="yes">Export to old STK</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_export" swapped="no"/>
                       </widget>
@@ -1285,7 +1298,7 @@
                         <property name="can_focus">False</property>
                         <property name="tooltip" translatable="yes">Import data from old STK-data format</property>
                         <property name="use_action_appearance">False</property>
-                        <property name="label" translatable="yes">Import</property>
+                        <property name="label" translatable="yes">Import from old STK</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_import" swapped="no"/>
                       </widget>

@@ -319,11 +319,14 @@ def import_bibliography(XML, bibfile):
     
     return XML
 
-def import_tree(filename, gui=None, tree_no = -1):
-    """Takes a NEXUS formatted file and returns a list containing the tree
-    strings"""
-  
-# Need to add checks on the file. Problems include:
+def import_trees(filename):
+    """ Return an array of all trees in a file. 
+        All formats are supported that we've come across
+        but submit a bug if a (common-ish) tree file shows up that can't be
+        parsed.
+    """
+    
+    # Need to add checks on the file. Problems include:
 # TreeView (Page, 1996):
 # TreeView create a tree with the following description:
 #
@@ -437,6 +440,15 @@ def import_tree(filename, gui=None, tree_no = -1):
         raise TreeParseError("Error parsing " + filename)
     trees = p4.var.trees
     p4.var.trees = []
+
+    return trees
+
+
+def import_tree(filename, gui=None, tree_no = -1):
+    """Takes a NEXUS formatted file and returns a list containing the tree
+    strings"""
+  
+    trees = import_trees(filename)
 
     if (len(trees) > 1 and tree_no == -1):
         message = "Found "+len(trees)+" trees. Which one do you want to load (1-"+len(trees)+"?"
@@ -664,6 +676,56 @@ def obtain_trees(XML):
             tree_no += 1
 
     return trees
+
+def amalgamate_trees(XML,format="Nexus",anonymous=False):
+    """ Create a string containing all trees in the XML.
+        String can be formatted to one of Nexus, Newick or TNT.
+        Only Nexus formatting takes into account the anonymous
+        flag - the other two are anonymous anyway
+        Any errors and None is returned - check for this as this is the 
+        callers responsibility
+    """
+
+
+    # Check format flag - let the caller handle
+    if (not (format == "Nexus" or 
+        format == "Newick" or
+        format == "tnt")):
+            return None
+
+    trees = obtain_trees(XML)
+    # all trees are in Newick string format already
+    # For each format, Newick, Nexus and TNT this format
+    # is adequate. 
+    # Newick: Do nothing - write one tree per line
+    # Nexus: Add header, write one tree per line, prepending tree info, taking into acount annonymous flag
+    # TNT: strip commas, write one tree per line
+    output_string = ""
+    if format == "Nexus":
+        output_string += "#NEXUS\n\nBEGIN TREES;"
+    tree_count = 0
+    for tree in trees:
+        if format == "Nexus":
+            if anonymous:
+                output_string += "\tTREE tree_"+str(tree_count)+" = "+trees[tree]+"\n"
+            else:
+                output_string += "\tTREE "+tree+" = "+trees[tree]+"\n"
+        elif format == "Newick":
+            output_string += trees[tree]+"\n"
+        elif format == "tnt":
+            t = trees[tree];
+            t = t.replace(",","");
+            t = t.replace(";","");
+            output_string += t+"\n"
+        tree_count += 1
+    # Footer
+    if format == "Nexus":
+        output_string += "\n\nEND;"
+    elif format == "tnt":
+        output_string += "\n\nproc-;"
+
+    return output_string
+        
 
 def get_all_taxa(XML, pretty=False):
     """ Produce a taxa list by scanning all trees within 
