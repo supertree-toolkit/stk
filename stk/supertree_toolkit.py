@@ -312,7 +312,6 @@ def import_bibliography(XML, bibfile):
         else:
             raise BibImportError("Error with one of the entries in the bib file")
 
-    #print etree.tostring(xml_root,pretty_print=True)
     # sort sources in alphabetical order
     xml_root = _sort_data(xml_root)
     XML = etree.tostring(xml_root,pretty_print=True)
@@ -325,8 +324,61 @@ def import_trees(filename):
         but submit a bug if a (common-ish) tree file shows up that can't be
         parsed.
     """
-    
+    f = open(filename)
+    content = f.read()                 # read entire file into memory
+    f.close()    
     # Need to add checks on the file. Problems include:
+# TNT: outputs Phyllip format or something - basically a Newick
+# string without commas, so add 'em back in
+    m = re.search(r'proc-;', content)
+    if (m != None):
+        # TNT output tree
+        # Done on a Mac? Replace ^M with a newline
+        content = string.replace( content, '\r', '\n' )
+        h = StringIO(content)
+        counter = 1
+        content  = "#NEXUS\n"
+        content += "begin trees;\n"
+        add_to = False
+        for line in h:
+            if (line.startswith('(')):
+                add_to = True
+            if (line.startswith('proc') and add_to):
+                add_to = False
+                break
+            if (add_to):
+                line = line.strip() + ";"
+                if line == ";":
+                    continue
+                m = re.findall("([a-zA-Z0-9_\.]+)\s+([a-zA-Z0-9_\.]+)", line)
+                treedata = line
+                for i in range(0,len(m)):
+                    treedata = re.sub(m[i][0]+"\s+"+m[i][1],m[i][0]+", "+m[i][1],treedata)
+                m = re.findall("([a-zA-Z0-9_\.]+)\s+([a-zA-Z0-9_\.]+)", treedata)
+                for i in range(0,len(m)):
+                    treedata = re.sub(m[i][0]+"\s+"+m[i][1],m[i][0]+","+m[i][1],treedata)
+                m = re.findall("(\))\s*(\()", treedata)
+                if (m != None):
+                    for i in range(0,len(m)):
+                        treedata = re.sub("(\))\s*(\()",m[i][0]+", "+m[i][1],treedata,count=1)
+                m = re.findall("([a-zA-Z0-9_\.]+)\s*(\()", treedata)
+                if (m != None):
+                    for i in range(0,len(m)):
+                        treedata = re.sub("([a-zA-Z0-9_\.]+)\s*(\()",m[i][0]+", "+m[i][1],treedata,count=1)
+                m = re.findall("(\))\s*([a-zA-Z0-9_\.]+)", treedata)
+                if (m != None):
+                    for i in range(0,len(m)):
+                        treedata = re.sub("(\))\s*([a-zA-Z0-9_\.]+)",m[i][0]+", "+m[i][1],treedata,count=1)
+                # last swap - no idea why, but some times the line ends in '*'; remove it
+                treedata = treedata.replace('*;',';')
+                treedata = treedata.replace(';;',';')
+                treedata += "\n"
+                treedata = "\ntree tree_"+str(counter)+" = [&U] " + treedata
+                counter += 1
+                content += treedata
+
+        content += "\nend;\n"
+
 # TreeView (Page, 1996):
 # TreeView create a tree with the following description:
 #
@@ -335,10 +387,6 @@ def import_trees(filename):
 # so we need to replace the above with:
 #   tree_1 = [&u] ((1,(2,(3,(4,5)))),(6,7));
 #
-    f = open(filename)
-    content = f.read()                 # read entire file into memory
-    f.close()
-    # Treeview
     m = re.search(r'\UTREE\s?\*\s?(.+)\s?=\s', content)
     if (m != None):
         treedata = re.sub("\UTREE\s?\*\s?(.+)\s?=\s","tree "+m.group(1)+" = [&u] ", content)
