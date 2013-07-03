@@ -91,15 +91,13 @@ class TestBibliography(unittest.TestCase):
         exp = b_exported.get_item(items[0])
         items= b_orig.List() # yapbib helpfully renames the item key, so grab the first one
         orig = b_orig.get_item(items[0])
-        print orig
-        print exp
         os.remove(temp_file)        
-
-    def test_export_bib_rtf(self):
-        self.assert_(False)
-
-    def test_export_bib_html(self):
-        self.assert_(False)
+        self.assert_(orig.get('title') == exp.get('title'))
+        self.assert_(orig.get('journal') == exp.get('journal'))
+        self.assert_(orig.get('volume') == exp.get('volume'))
+        self.assert_(orig.get('doi') == exp.get('doi'))
+        self.assert_(orig.get('pages') == exp.get('pages'))
+        self.assert_(orig.get('author') == exp.get('author'))
 
 #    def test_import_single_incollection(self):
 #
