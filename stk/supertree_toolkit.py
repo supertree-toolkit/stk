@@ -27,6 +27,7 @@ import numpy
 from lxml import etree
 import yapbib.biblist as biblist
 import yapbib.bibparse as bibparse
+import yapbib.bibitem as bibitem
 import string
 from stk_exceptions import *
 import traceback
@@ -207,7 +208,7 @@ def set_unique_names(XML):
 
 def import_bibliography(XML, bibfile):    
     
-    # Out bibliography parser
+    # Our bibliography parser
     b = biblist.BibList()
 
     xml_root = _parse_xml(XML)
@@ -317,6 +318,94 @@ def import_bibliography(XML, bibfile):
     XML = etree.tostring(xml_root,pretty_print=True)
     
     return XML
+
+def export_bibliography(XML,filename,format="bibtex"):
+    """ Export all source papers as a bibliography in 
+    either bibtex, xml, html, short or long formats
+    """
+
+    #check format
+    if (not (format == "xml" or
+             format == "html" or
+             format == "bibtex" or
+             format == "short" or
+             format == "long")):
+        return 
+        # raise error here
+
+    # our bibliography
+    bibliography = biblist.BibList()
+   
+    xml_root = _parse_xml(XML)    
+    find = etree.XPath("//article")
+    articles = find(xml_root)
+    # loop through all articles
+    for a in articles: 
+        name = a.getparent().getparent().attrib['name']
+        # get authors
+        authors = []
+        for auths in a.xpath("authors"):
+            # surname, followed by first, sort in array
+            surname = auths.xpath("author/surname/string_value")[0].text
+            first = auths.xpath("author/other_names/string_value")[0].text
+            authors.append([surname, first,''])
+        title   = a.xpath("title/string_value")[0].text
+        year    = a.xpath("year/integer_value")[0].text
+        bib_dict = {
+                "_code"  : name,
+                "_type"  : 'article',
+                "author" : authors,
+                "title"  : title,
+                "year"   : year,
+                }
+        # these are optional in the schema
+        if (a.xpath("journal/string_value")):
+            journal = a.xpath("journal/string_value")[0].text
+            bib_dict['journal']=journal
+        if (a.xpath("volume/string_value")):
+            volume  = a.xpath("volume/string_value")[0].text
+            bib_dict['volume']=volume
+        if (a.xpath("pages/string_value")):
+            pages   = a.xpath("pages/string_value")[0].text
+            bib_dict['pages']=pages 
+        if (a.xpath("issue/string_value")):
+            issue   = a.xpath("issue/string_value")[0].text
+            bib_dict['issue']=issue
+        if (a.xpath("doi/string_value")):
+            doi     = a.xpath("doi/string_value")[0].text
+            bib_dict['doi']=doi
+        if (a.xpath("number/string_value")):
+            number  = a.xpath("number/string_value")[0].text
+            bib_dict['number']=number
+        if (a.xpath("url/string_value")):
+            url     = a.xpath("url/string_value")[0].text
+            bib_dict['url']=url
+        
+        bib_it = bibitem.BibItem(bib_dict)
+        bibliography.add_item(bib_it)
+
+    find = etree.XPath("//book")
+    books = find(xml_root)
+    # loop through all books
+    for b in books: 
+        pass
+
+    find = etree.XPath("//in_collection")
+    incollections = find(xml_root)
+    # loop through all in collections 
+    for i in incollections: 
+        pass
+
+
+    find = etree.XPath("//in_book")
+    inbook = find(xml_root)
+    # loop through all in book 
+    for i in inbook: 
+        pass
+
+    bibliography.output(fout=filename,formato=format,verbose=False)
+    
+    return
 
 def import_trees(filename):
     """ Return an array of all trees in a file. 
