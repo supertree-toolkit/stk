@@ -1,15 +1,15 @@
 Source: supertree-toolkit
 Maintainer: The SupertreeToolkit team <jon.hill@imperial.ac.uk>
-Uploaders: David Ham <jon.hill@imperial.ac.uk>
+Uploaders: Jon Hill <jon.hill@imperial.ac.uk>
 Section: science
 Priority: extra
-Build-Depends: python-setuptools (>= 0.6b3-1), python-all-dev (>= 2.3.5-11), debhelper (>= 5.0.38), python-central (>= 0.5.6), python-support
+Build-Depends: python-matplotlib, python_numpy, python-networkx, python-setuptools (>= 0.6b3-1), python-all-dev (>= 2.3.5-11), debhelper (>= 5.0.38), python-central (>= 0.5.6), python-support
 Standards-Version: 3.8.0
 XS-Python-Version: >= 2.5
 
 Package: stk
 Architecture: all
-Depends: python-gtk2, python-lxml, libxml2-utils, python, python-gtksourceview2, python-glade2, python-networkx
+Depends: python-gtk2, python-numpy, python-matplotlib, python-lxml, libxml2-utils, python, python-gtksourceview2, python-glade2, python-networkx
 Recommends: python-psyco
 Suggests: 
 Conflicts: 
