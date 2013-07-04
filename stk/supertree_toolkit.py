@@ -319,6 +319,10 @@ def import_bibliography(XML, bibfile):
     
     return XML
 
+## Note: this is different to all other STK functions as
+## it saves the file, rather than passing back a string for the caller to save
+## This is becuase yapbib saves the file and rather than re-write, I thought
+## I'd go with it as in this case I would only ever save the file
 def export_bibliography(XML,filename,format="bibtex"):
     """ Export all source papers as a bibliography in 
     either bibtex, xml, html, short or long formats

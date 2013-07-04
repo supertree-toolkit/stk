@@ -161,6 +161,27 @@ def main():
             help="Anonymise output file to remove source names. Only works for Nexus files; otherwise ignored.")
     parser_cm.set_defaults(func=export_trees) 
 
+    # export trees command
+    parser_cm = subparsers.add_parser('export_bib',
+            help='Export all bibliographic data to a file'
+            )
+    parser_cm.add_argument('input',
+            help='The input Phyml file')
+    parser_cm.add_argument('output', 
+            help='The output bibliographic file')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing directory without asking for confirmation")
+    # This one is optional
+    parser_cm.add_argument('-f',
+            '--format', 
+            choices=["bibtex","latex","html","short","long","xml"],
+            default="bibtex",
+            help="""The format of the bibliographic file. Default is bibtex.
+                    Choice is from bibtex, latex, html, short, long, xml."""
+            )
+    parser_cm.set_defaults(func=export_bib) 
 
     # Data summary command
     parser_cm = subparsers.add_parser('data_summary',
@@ -602,6 +623,36 @@ def export_trees(args):
     f.write(output_string)
     f.close()
 
+def export_bib(args):
+    """ Export bibliographic information to a file
+    """
+
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    input_file = args.input
+    format = args.format
+    overwrite = args.overwrite
+
+    if (not os.path.exists(input_file)):
+        print "Input phyml cannot be found. Exiting"
+        sys.exit(-1)
+
+    # check if output files are there
+    if (output_file and os.path.exists(output_file) and not overwrite):
+        print "Output file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+
+    XML = supertree_toolkit.load_phyml(input_file)
+
+    output_string = supertree_toolkit.export_bibliography(XML,output_file,format=format)
 
 
 if __name__ == "__main__":
