@@ -74,7 +74,7 @@ class TestBibliography(unittest.TestCase):
         except:
            return False
 
-    def test_export_bib_bib(self):
+    def test_export_bib_article(self):
         xml_article_c = etree.tostring(etree.parse("data/output/bib_import_single_article.phyml",parser),pretty_print=True)
         bib_article = "data/input/article.bib"
         xml = etree.tostring(xml_start)
@@ -100,7 +100,7 @@ class TestBibliography(unittest.TestCase):
         self.assert_(orig.get('author') == exp.get('author'))
 
 
-    def test_export_bib_bib(self):
+    def test_export_bib_book(self):
         xml_article_c = etree.tostring(etree.parse("data/output/bib_import_single_book.phyml",parser),pretty_print=True)
         bib_article = "data/input/book.bib"
         xml = etree.tostring(xml_start)
@@ -127,8 +127,21 @@ class TestBibliography(unittest.TestCase):
         self.assert_(orig.get('publisher') == exp.get('publisher'))
 
 
-
-
+    def test_export_html(self):
+        bib_article = "data/input/article.bib"
+        xml = etree.tostring(xml_start)
+        new_xml = import_bibliography(xml, bib_article)
+        # Now export it back and compare the data
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".html")
+        export_bibliography(new_xml,temp_file,format="html")        
+        f = open(temp_file,"r")
+        output = f.readlines()
+        output = '\n'.join(output)
+        os.remove(temp_file)              
+        # just asserts something useful has been written out
+        self.assert_(output.find('html') > -1)
+        self.assert_(output.find('Davis') > -1)
+        self.assert_(output.find('Hill') > -1)
 
 
 #    def test_import_single_incollection(self):
