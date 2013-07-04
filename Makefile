@@ -20,7 +20,7 @@ uninstall:
 	rm -rf /usr/local/share/phyml
 
 builddeb:
-	python setup.py --command-packages=stdeb.command sdist_dsc
+	python setup.py --command-packages=stdeb.command sdist_dsc --prefix=$(DESTDIR)/usr/local
 	cd deb_dist/supertree-toolkit-${VERSION}
 	dpkg-buildpackage -rsudo -uc -us
 
