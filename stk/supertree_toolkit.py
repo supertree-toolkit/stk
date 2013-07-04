@@ -329,6 +329,7 @@ def export_bibliography(XML,filename,format="bibtex"):
              format == "html" or
              format == "bibtex" or
              format == "short" or
+             format == "latex" or
              format == "long")):
         return 
         # raise error here

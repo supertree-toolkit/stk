@@ -142,6 +142,54 @@ class TestBibliography(unittest.TestCase):
         self.assert_(output.find('html') > -1)
         self.assert_(output.find('Davis') > -1)
         self.assert_(output.find('Hill') > -1)
+        self.assert_(output.find('book .series') > -1)
+
+    def test_export_latex(self):
+        bib_article = "data/input/article.bib"
+        xml = etree.tostring(xml_start)
+        new_xml = import_bibliography(xml, bib_article)
+        # Now export it back and compare the data
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tex")
+        export_bibliography(new_xml,temp_file,format="latex")        
+        f = open(temp_file,"r")
+        output = f.readlines()
+        output = '\n'.join(output)
+        os.remove(temp_file)              
+        # just asserts something useful has been written out
+        self.assert_(output.find('documentclass') > -1)
+        self.assert_(output.find('Davis') > -1)
+        self.assert_(output.find('Hill') > -1)
+    
+    def test_export_long(self):
+        bib_article = "data/input/article.bib"
+        xml = etree.tostring(xml_start)
+        new_xml = import_bibliography(xml, bib_article)
+        # Now export it back and compare the data
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tex")
+        export_bibliography(new_xml,temp_file,format="long")        
+        f = open(temp_file,"r")
+        output = f.readlines()
+        output = '\n'.join(output)
+        os.remove(temp_file)  
+        # just asserts something useful has been written out
+        self.assert_(output.find('article') > -1)
+        self.assert_(output.find('Davis') > -1)
+        self.assert_(output.find('Hill') > -1)
+
+    def test_export_short(self):
+        bib_article = "data/input/article.bib"
+        xml = etree.tostring(xml_start)
+        new_xml = import_bibliography(xml, bib_article)
+        # Now export it back and compare the data
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tex")
+        export_bibliography(new_xml,temp_file,format="short")        
+        f = open(temp_file,"r")
+        output = f.readlines()
+        output = '\n'.join(output)
+        os.remove(temp_file) 
+        # just asserts something useful has been written out
+        self.assert_(output.find('Davis') > -1)
+        self.assert_(output.find('Hill') > -1)
 
 
 #    def test_import_single_incollection(self):
