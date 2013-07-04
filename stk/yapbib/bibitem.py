@@ -702,7 +702,6 @@ class BibItem(dict):
   def compare(self, it):
     """ Compare if two items are in fact the same """
 
-    print self, it
     # If the doi is the same, we are done
     if self.get('doi','0') == it.get('doi','1'):
       return True
