@@ -7,7 +7,7 @@ test:
 	cd stk/test/; make
 
 install:
-	python setup.py install
+	python setup.py install --prefix=$(DESTDIR)/usr/local
 
 uninstall:
 	rm -rf /usr/local/lib/python2.7/dist-packages/supertree_toolkit-0.1.1.egg-info/
