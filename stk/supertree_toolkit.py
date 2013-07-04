@@ -387,15 +387,15 @@ def export_bibliography(XML,filename,format="bibtex"):
     books = find(xml_root)
     # loop through all books
     for b in books: 
-        name = a.getparent().getparent().attrib['name']
+        name = b.getparent().getparent().attrib['name']
         # get authors
         authors = []
-        for auths in a.xpath("authors/author"):
+        for auths in b.xpath("authors/author"):
             surname = auths.xpath("surname/string_value")[0].text
             first = auths.xpath("other_names/string_value")[0].text
             authors.append(["", surname,first,''])
-        title   = a.xpath("title/string_value")[0].text
-        year    = a.xpath("year/integer_value")[0].text
+        title   = b.xpath("title/string_value")[0].text
+        year    = b.xpath("year/integer_value")[0].text
         bib_dict = {
                 "_code"  : name,
                 "_type"  : 'article',
@@ -404,41 +404,125 @@ def export_bibliography(XML,filename,format="bibtex"):
                 "year"   : year,
                 }
         # these are optional in the schema
-        if (a.xpath("editors")):
+        if (b.xpath("editors")):
             editors = []
-            for eds in a.xpath("editors/editor"):
+            for eds in b.xpath("editors/editor"):
                 surname = eds.xpath("surname/string_value")[0].text
                 first = eds.xpath("other_names/string_value")[0].text
                 editors.append(["", surname,first,''])
-            bib_dict["editors"]=editors
-        if (a.xpath("series/string_value")):
-            series = a.xpath("series/string_value")[0].text
+            bib_dict["editor"]=editors
+        if (b.xpath("series/string_value")):
+            series = b.xpath("series/string_value")[0].text
             bib_dict['series']=series
-        if (a.xpath("publisher/string_value")):
-            publisher  = a.xpath("publisher/string_value")[0].text
+        if (b.xpath("publisher/string_value")):
+            publisher  = b.xpath("publisher/string_value")[0].text
             bib_dict['publisher']=publisher
-        if (a.xpath("doi/string_value")):
-            doi     = a.xpath("doi/string_value")[0].text
+        if (b.xpath("doi/string_value")):
+            doi     = b.xpath("doi/string_value")[0].text
             bib_dict['doi']=doi
-        if (a.xpath("url/string_value")):
-            url     = a.xpath("url/string_value")[0].text
+        if (b.xpath("url/string_value")):
+            url     = b.xpath("url/string_value")[0].text
             bib_dict['url']=url
         
         bib_it = bibitem.BibItem(bib_dict)
         bibliography.add_item(bib_it)
-
-    find = etree.XPath("//in_collection")
-    incollections = find(xml_root)
-    # loop through all in collections 
-    for i in incollections: 
-        pass
 
 
     find = etree.XPath("//in_book")
     inbook = find(xml_root)
     # loop through all in book 
     for i in inbook: 
-        pass
+        name = i.getparent().getparent().attrib['name']
+        # get authors
+        authors = []
+        for auths in i.xpath("authors/author"):
+            surname = auths.xpath("surname/string_value")[0].text
+            first = auths.xpath("other_names/string_value")[0].text
+            authors.append(["", surname,first,''])
+        title   = i.xpath("title/string_value")[0].text
+        year    = i.xpath("year/integer_value")[0].text
+        editors = []
+        for eds in a.xpath("editors/editor"):
+            surname = eds.xpath("surname/string_value")[0].text
+            first = eds.xpath("other_names/string_value")[0].text
+            editors.append(["", surname,first,''])
+        bib_dict["editors"]=editors
+        bib_dict = {
+                "_code"  : name,
+                "_type"  : 'article',
+                "author" : authors,
+                "title"  : title,
+                "year"   : year,
+                "editor" : editors
+                }
+        # these are optional in the schema
+        if (i.xpath("series/string_value")):
+            series = i.xpath("series/string_value")[0].text
+            bib_dict['series']=series
+        if (i.xpath("publisher/string_value")):
+            publisher  = i.xpath("publisher/string_value")[0].text
+            bib_dict['publisher']=publisher
+        if (i.xpath("pages/string_value")):
+            pages   = i.xpath("pages/string_value")[0].text
+            bib_dict['pages']=pages 
+        if (i.xpath("doi/string_value")):
+            doi     = i.xpath("doi/string_value")[0].text
+            bib_dict['doi']=doi
+
+        bib_it = bibitem.BibItem(bib_dict)
+        bibliography.add_item(bib_it)
+
+
+
+    find = etree.XPath("//in_collection")
+    incollections = find(xml_root)
+    # loop through all in collections 
+    for i in incollections: 
+        name = i.getparent().getparent().attrib['name']
+        # get authors
+        authors = []
+        for auths in i.xpath("authors/author"):
+            surname = auths.xpath("surname/string_value")[0].text
+            first = auths.xpath("other_names/string_value")[0].text
+            authors.append(["", surname,first,''])
+        title   = i.xpath("title/string_value")[0].text
+        year    = i.xpath("year/integer_value")[0].text
+        bib_dict = {
+                "_code"  : name,
+                "_type"  : 'article',
+                "author" : authors,
+                "title"  : title,
+                "year"   : year,
+                }
+        # these are optional in the schema
+        if (i.xpath("editors")):
+            editors = []
+            for eds in i.xpath("editors/editor"):
+                surname = eds.xpath("surname/string_value")[0].text
+                first = eds.xpath("other_names/string_value")[0].text
+                editors.append(["", surname,first,''])
+            bib_dict["editor"]=editors
+        if (i.xpath("booktitle/string_value")):
+            booktitle = i.xpath("booktitle/string_value")[0].text
+            bib_dict['booktitle']=booktitle
+        if (i.xpath("series/string_value")):
+            series = i.xpath("series/string_value")[0].text
+            bib_dict['series']=series
+        if (i.xpath("publisher/string_value")):
+            publisher  = i.xpath("publisher/string_value")[0].text
+            bib_dict['publisher']=publisher
+        if (i.xpath("pages/string_value")):
+            pages   = i.xpath("pages/string_value")[0].text
+            bib_dict['pages']=pages 
+        if (i.xpath("doi/string_value")):
+            doi     = i.xpath("doi/string_value")[0].text
+            bib_dict['doi']=doi
+        if (i.xpath("url/string_value")):
+            url     = i.xpath("url/string_value")[0].text
+            bib_dict['url']=url
+
+        bib_it = bibitem.BibItem(bib_dict)
+        bibliography.add_item(bib_it)
 
     bibliography.output(fout=filename,formato=format,verbose=False)
     

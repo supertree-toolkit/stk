@@ -99,6 +99,38 @@ class TestBibliography(unittest.TestCase):
         self.assert_(orig.get('pages') == exp.get('pages'))
         self.assert_(orig.get('author') == exp.get('author'))
 
+
+    def test_export_bib_bib(self):
+        xml_article_c = etree.tostring(etree.parse("data/output/bib_import_single_book.phyml",parser),pretty_print=True)
+        bib_article = "data/input/book.bib"
+        xml = etree.tostring(xml_start)
+        new_xml = import_bibliography(xml, bib_article)
+        # Now export it back and compare the data
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".bib")
+        export_bibliography(new_xml,temp_file)        
+        # parse both files in yapbib and compare
+        b_orig = biblist.BibList()
+        b_exported = biblist.BibList()
+        b_orig.import_bibtex(bib_article)
+        b_exported.import_bibtex(temp_file)
+        items= b_exported.List() # yapbib helpfully renames the item key, so grab the first one
+        exp = b_exported.get_item(items[0])
+        items= b_orig.List() # yapbib helpfully renames the item key, so grab the first one
+        orig = b_orig.get_item(items[0])
+        os.remove(temp_file)        
+        self.assert_(orig.get('title') == exp.get('title'))
+        self.assert_(orig.get('series') == exp.get('series'))
+        self.assert_(orig.get('doi') == exp.get('doi'))
+        self.assert_(orig.get('pages') == exp.get('pages'))
+        self.assert_(orig.get('author') == exp.get('author'))
+        self.assert_(orig.get('editor') == exp.get('editor'))
+        self.assert_(orig.get('publisher') == exp.get('publisher'))
+
+
+
+
+
+
 #    def test_import_single_incollection(self):
 #
 #    def test_import_single_inbook(self):
