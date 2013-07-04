@@ -159,6 +159,9 @@
           <doi>
             <string_value lines="1">10.1111/j.1365-2117.2011.00534.x</string_value>
           </doi>
+          <url>
+            <string_value lines="1">http://doi.wiley.com/10.1111/j.1365-2117.2011.00534.x</string_value>
+          </url> 
         </article>
       </bibliographic_information>
       <source_tree>
