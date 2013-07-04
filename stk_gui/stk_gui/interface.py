@@ -168,6 +168,7 @@ class Diamond:
                     "on_export": self.on_export,
                     "on_import": self.on_import,
                     "on_export_trees": self.on_export_trees,
+                    "on_export_bib" : self.on_export_bib,
                     "on_sub_taxa": self.on_sub_taxa,
                     "on_data_summary": self.on_data_summary,
                     "on_data_overlap": self.on_data_overlap,
@@ -1509,6 +1510,67 @@ class Diamond:
       self.export_trees_dialog.hide()
 
       return
+
+## Export Bibliography
+  def on_export_bib(self,widget=None):
+    """ Export all tree strings in the XML to a single file
+          Can be made anonymous or labelled by a unique identifier
+    """
+    signals = {"on_export_bib_close": self.on_export_bib_close,
+               "on_export_bib_cancelled_clicked": self.on_export_bib_close,
+               "on_export_bib_clicked": self.on_export_bib_save}
+
+    self.export_bib_gui = gtk.glade.XML(self.gladefile, root="export_bib")
+    self.export_bib_dialog = self.export_bib_gui.get_widget("export_bib")
+    self.export_bib_gui.signal_autoconnect(signals)
+    self.export_bib_dialog.show()
+
+
+  def on_export_bib_close(self, widget=None):
+      
+    self.export_bib_dialog.hide()
+
+
+  def on_export_bib_save(self, widget=None):
+     
+      format_radio_1 = self.export_bib_gui.get_widget("file_format_bibtex_chooser")
+      format_radio_2 = self.export_bib_gui.get_widget("file_format_latex_chooser")
+      format_radio_3 = self.export_bib_gui.get_widget("file_format_html_chooser")
+      format_radio_4 = self.export_bib_gui.get_widget("file_format_long_chooser")
+      format_radio_5 = self.export_bib_gui.get_widget("file_format_short_chooser")
+      if (format_radio_1.get_active()):
+          format = 'bibtex'
+      elif (format_radio_2.get_active()):
+          format = 'latex'
+      elif (format_radio_3.get_active()):
+          format = 'html'      
+      elif (format_radio_4.get_active()):
+          format = 'long'
+      elif (format_radio_5.get_active()):
+          format = 'short'
+      else:
+        format = None
+        dialogs.error(self.main_window,"Error exporting bibliographic information. Incorrect format.")
+        return
+      
+
+      filter_names_and_patterns = {}
+      filter_names_and_patterns['Trees'] = ["*.bib","*.html","*.txt","*.tex"]
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose output fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+
+      f = StringIO.StringIO()
+      self.tree.write(f)
+      XML = f.getvalue()
+      self.output_string = stk.export_bibliography(XML,filename,format=format)
+
+      XML = stk.add_historical_event(XML, "Bibliographic information exported to: "+filename)
+      ios = StringIO.StringIO(XML)
+      self.update_data(ios, "Error adding history event (export bibliography) to XML", skip_warning=True)
+      self.export_bib_dialog.hide()
+
+      return
+
 
   def on_sub_taxa(self, widget=None):
     """ Substitute taxa in the tree. Actually, this function
