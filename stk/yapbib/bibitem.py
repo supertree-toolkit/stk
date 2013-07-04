@@ -527,15 +527,15 @@ class BibItem(dict):
         sp-=1
         s+= '%s<doi>%s</doi>\n' %(sp*spc,v)
     
-    # url - everyone!
-    k = self.get_field('url')
-    if (k != None):
-        if (helper.is_string_like(k)):
-            k= helper.replace_tags(k,'xml')
-        sp+=1
-        v = '\n%s<string_value lines="1">%s</string_value>\n%s'%(sp*spc,k,(sp-1)*spc)
-        sp-=1
-        s+= '%s<url>%s</url>\n' %(sp*spc,v)
+    if (entry_type == "article" or entry_type == "inbook" or entry_type == "incollection"):
+        k = self.get_field('url')
+        if (k != None):
+            if (helper.is_string_like(k)):
+                k= helper.replace_tags(k,'xml')
+            sp+=1
+            v = '\n%s<string_value lines="1">%s</string_value>\n%s'%(sp*spc,k,(sp-1)*spc)
+            sp-=1
+            s+= '%s<url>%s</url>\n' %(sp*spc,v)
 
     sp-=1
     s+= '%s</%s%s>\n' %(sp*spc,p,self.get('_type',''))
