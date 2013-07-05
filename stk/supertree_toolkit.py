@@ -1024,6 +1024,7 @@ def get_all_taxa(XML, pretty=False):
 
     return taxa_list
 
+
 def create_matrix(XML,format="hennig"):
 
     # get all trees
@@ -1034,88 +1035,31 @@ def create_matrix(XML,format="hennig"):
     taxa.append("MRPOutgroup")
     taxa.extend(get_all_taxa(XML))
 
-    # our matrix, we'll then append the submatrix
-    # to this to make a 2D matrix
-    # Our matrix is of length nTaxa on the i dimension
-    # and nCharacters in the j direction
-    matrix = []
-    charsets = []
-    names = []
-    current_char = 1
-    for key in trees:
-        names.append(key)
-        submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
-        nChars = len(submatrix[0,:])
-        # loop over characters in the submatrix
-        for i in range(1,nChars):
-            # loop over taxa. Add '?' for an "unknown" taxa, otherwise
-            # get 0 or 1 from submatrix. May as well turn into a string whilst
-            # we're at it
-            current_row = []
-            for taxon in taxa:
-                if (taxon in tree_taxa):
-                    # get taxon index
-                    t_index = tree_taxa.index(taxon)
-                    # then get correct matrix entry - note:
-                    # submatrix transposed wrt main matrix
-                    current_row.append(str(int(submatrix[t_index,i])))
-                elif (taxon == "MRPOutgroup"):
-                    current_row.append('0')
-                else:
-                    current_row.append('?')
-            matrix.append(current_row)
-        charsets.append(str(current_char) + "-" + str(current_char + nChars-2))
-        current_char += nChars-1
+    return _create_matrix(trees, taxa, format=format)
 
-    matrix = numpy.array(matrix)
-    matrix = matrix.transpose()
+def create_matrix_from_trees(trees,format="hennig"):
 
-    if (format == 'hennig'):
-        matrix_string = "xread\n"
-        matrix_string += str(len(taxa)) + " "+str(current_char-1)+"\n"
-        matrix_string += "\tformat missing = ?"
-        matrix_string += ";\n"
-        matrix_string += "\n\tmatrix\n\n";
+    taxa = []
+    for t in trees:
+        tree = trees[t]
+        try:
+            p4.var.warnReadNoFile = False
+            p4.var.nexus_warnSkipUnknownBlock = False
+            p4.var.trees = []
+            p4.read(tree)
+            p4.var.nexus_warnSkipUnknownBlock = True
+            p4.var.warnReadNoFile = True
+        except:
+            raise TreeParseError("Error parsing tree to get taxa")
+        tree = p4.var.trees[0]
+        p4.var.trees = []
+        terminals = tree.getAllLeafNames(tree.root)
+        for term in terminals:
+            taxa_list.append(str(term))
+    
 
-        i = 0
-        for taxon in taxa:
-            matrix_string += taxon + "\t"
-            string = ""
-            for t in matrix[i][:]:
-                string += t
-            matrix_string += string + "\n"
-            i += 1
-            
-        matrix_string += "\t;\n"
-        matrix_string += "procedure /;"
-    elif (format == 'nexus'):
-        matrix_string = "#nexus\n\nbegin data;\n"
-        matrix_string += "\tdimensions ntax = "+str(len(taxa)) +" nchar = "+str(current_char-1)+";\n"
-        matrix_string += "\tformat missing = ?"
-        matrix_string += ";\n"
-        matrix_string += "\n\tmatrix\n\n"
+    return _create_matrix(trees, taxa, format=format)
 
-        i = 0
-        for taxon in taxa:
-            matrix_string += taxon + "\t"
-            string = ""
-            for t in matrix[i][:]:
-                string += t
-            matrix_string += string + "\n"
-            i += 1
-            
-        matrix_string += "\t;\nend;\n\n"
-        matrix_string += "begin sets;\n"
-        i = 0
-        for char in charsets:
-            matrix_string += "\tcharset "+names[i] + " "
-            matrix_string += char + "\n"
-            i += 1
-        matrix_string += "end;\n\n"
-    else:
-        raise MatrixError("Invalid matrix format")
-
-    return matrix_string
 
 def load_phyml(filename):
     """ Super simple function that returns XML
@@ -1885,3 +1829,101 @@ def _trees_equal(t1,t2):
         same = False # different taxa, so can't be the same!
 
     return same
+
+def _find_trees_for_permuting(XML):
+
+    trees = obtain_trees(XML)
+    permute_trees = {}
+    for t in trees:
+        if trees[t].find('%') > -1:
+            # tree needs permuting - we store the 
+            permute_trees[t] = trees[t]
+
+    return permute_trees
+
+def _create_matrix(trees, taxa, format="hennig"):
+
+    # our matrix, we'll then append the submatrix
+    # to this to make a 2D matrix
+    # Our matrix is of length nTaxa on the i dimension
+    # and nCharacters in the j direction
+    matrix = []
+    charsets = []
+    names = []
+    current_char = 1
+    for key in trees:
+        names.append(key)
+        submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
+        nChars = len(submatrix[0,:])
+        # loop over characters in the submatrix
+        for i in range(1,nChars):
+            # loop over taxa. Add '?' for an "unknown" taxa, otherwise
+            # get 0 or 1 from submatrix. May as well turn into a string whilst
+            # we're at it
+            current_row = []
+            for taxon in taxa:
+                if (taxon in tree_taxa):
+                    # get taxon index
+                    t_index = tree_taxa.index(taxon)
+                    # then get correct matrix entry - note:
+                    # submatrix transposed wrt main matrix
+                    current_row.append(str(int(submatrix[t_index,i])))
+                elif (taxon == "MRPOutgroup"):
+                    current_row.append('0')
+                else:
+                    current_row.append('?')
+            matrix.append(current_row)
+        charsets.append(str(current_char) + "-" + str(current_char + nChars-2))
+        current_char += nChars-1
+
+    matrix = numpy.array(matrix)
+    matrix = matrix.transpose()
+
+    if (format == 'hennig'):
+        matrix_string = "xread\n"
+        matrix_string += str(len(taxa)) + " "+str(current_char-1)+"\n"
+        matrix_string += "\tformat missing = ?"
+        matrix_string += ";\n"
+        matrix_string += "\n\tmatrix\n\n";
+
+        i = 0
+        for taxon in taxa:
+            matrix_string += taxon + "\t"
+            string = ""
+            for t in matrix[i][:]:
+                string += t
+            matrix_string += string + "\n"
+            i += 1
+            
+        matrix_string += "\t;\n"
+        matrix_string += "procedure /;"
+    elif (format == 'nexus'):
+        matrix_string = "#nexus\n\nbegin data;\n"
+        matrix_string += "\tdimensions ntax = "+str(len(taxa)) +" nchar = "+str(current_char-1)+";\n"
+        matrix_string += "\tformat missing = ?"
+        matrix_string += ";\n"
+        matrix_string += "\n\tmatrix\n\n"
+
+        i = 0
+        for taxon in taxa:
+            matrix_string += taxon + "\t"
+            string = ""
+            for t in matrix[i][:]:
+                string += t
+            matrix_string += string + "\n"
+            i += 1
+            
+        matrix_string += "\t;\nend;\n\n"
+        matrix_string += "begin sets;\n"
+        i = 0
+        for char in charsets:
+            matrix_string += "\tcharset "+names[i] + " "
+            matrix_string += char + "\n"
+            i += 1
+        matrix_string += "end;\n\n"
+    else:
+        raise MatrixError("Invalid matrix format")
+
+    return matrix_string
+    
+    

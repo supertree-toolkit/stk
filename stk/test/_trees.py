@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0,"../../")
 from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_taxa_from_tree, get_characters_from_tree, amalgamate_trees
-from stk.supertree_toolkit import import_trees, _trees_equal
+from stk.supertree_toolkit import import_trees, _trees_equal, _find_trees_for_permuting
 
 import os
 from lxml import etree
@@ -451,11 +451,25 @@ class TestImportTree(unittest.TestCase):
         for i in range(0,len(trees)):
             self.assert_(_trees_equal(trees_read[i],trees[names[i]]))
 
-
     def test_amalgamate_trees_unknown_format(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
         output_string = amalgamate_trees(XML,format="PHYXML")
         self.assert_(output_string==None)
+
+    def test_find_trees_for_permuting(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        permute_trees = _find_trees_for_permuting(XML)
+        self.assert_(len(permute_trees) == 0)
+
+
+    def test_find_trees_for_permuting(self):
+        XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
+        permute_trees = _find_trees_for_permuting(XML)
+        self.assert_(len(permute_trees) == 3)
+        self.assert_(permute_trees['Hill_2011_1'] == '((E%1,G%1),A,(G%2,(E%2,F,D,H,E%3)));')
+        self.assert_(permute_trees['Davis_2011_1'] == '(Outgroup,(((((Leopardus_geoffroyi,Leopardus_pardalis),(Otocolobus_manul,Felis_magrita)),(Prionailurus_bengalensis,Leptailurus_serval)),(Catopuma_temmincki,(Caracal_caracal,Lynx_rufus))),((Acinonyx_jubatus,(Puma_concolor,(Panthera_tigris%1,Panthera_uncia))),(Panthera_onca,(Panthera_leo,Panthera_tigris%2)))));')
+        self.assert_(permute_trees['Hill_Davis_2011_1'] == '(A, (B, (C, D, E%1, F, G, E%2, E%3)));')
+
 
 
 
