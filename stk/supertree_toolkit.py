@@ -1026,6 +1026,8 @@ def get_all_taxa(XML, pretty=False):
 
 
 def create_matrix(XML,format="hennig"):
+    """ From all trees in the XML, create a matrix
+    """
 
     # get all trees
     trees = obtain_trees(XML)
@@ -1037,7 +1039,10 @@ def create_matrix(XML,format="hennig"):
 
     return _create_matrix(trees, taxa, format=format)
 
+
 def create_matrix_from_trees(trees,format="hennig"):
+    """ Given a dictionary of trees, create a matrix
+    """
 
     taxa = []
     for t in trees:
@@ -1146,6 +1151,46 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
 
     return etree.tostring(xml_root,pretty_print=True)
 
+
+def permute_tree(tree,matrix="hennig",treefile=None):
+    """ Permute a tree where there is uncertianty in taxa location.
+    Output either a tree file or matrix file of all possible 
+    permutations.
+
+    Note this is a recursive algorithm.
+    """
+
+    permuted_trees = [] # The output of the recursive permute algorithm
+    output_string = "" # what we pass back
+
+    # first thing is to get hold of the unique taxa names
+    # i.e. without % on them
+
+    # now work out how many copies of each of the % labelled
+    # taxa exist.
+
+
+    # I hate recursive functions, but it actually is the
+    # best way to do this.
+    # We permute until we have replaced all % taxa with one of the
+    # possible choices, then we back ourselves out, swapping taxa
+    # in and out until we hit all permutations and pop out
+    # of the recursion
+    # Note: scope of variables in nested functions here (another evil thing)
+    # Someone more intelligent than me should rewrite this so it's
+    # easier to follow.
+    def _permute(n,tree):
+        pass
+
+
+    # we now call the recursive function (above) to start the process
+
+    # out pops an array of trees - either amalgamte in a single treefile (same taxa)
+    # or create a matrix.
+
+    # Either way we output a string that the caller can save or display or pass to tnt, or burn;
+    # it's up to them, really.
+    return output_string
 
 def data_summary(XML,detailed=False):
     """Creates a text string that summarises the current data set via a number of 
