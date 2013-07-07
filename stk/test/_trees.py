@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0,"../../")
 from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_taxa_from_tree, get_characters_from_tree, amalgamate_trees
-from stk.supertree_toolkit import import_trees, _trees_equal, _find_trees_for_permuting
+from stk.supertree_toolkit import import_trees, _trees_equal, _find_trees_for_permuting, permute_tree
 
 import os
 from lxml import etree
@@ -471,7 +471,10 @@ class TestImportTree(unittest.TestCase):
         self.assert_(permute_trees['Hill_Davis_2011_1'] == '(A, (B, (C, D, E%1, F, G, E%2, E%3)));')
 
 
-
+    def test_permute_trees(self):
+        XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
+        trees = obtain_trees(XML)
+        output = permute_tree(trees['Hill_2011_1'])
 
 if __name__ == '__main__':
     unittest.main()

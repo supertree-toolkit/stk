@@ -1165,11 +1165,36 @@ def permute_tree(tree,matrix="hennig",treefile=None):
 
     # first thing is to get hold of the unique taxa names
     # i.e. without % on them
+    all_taxa = _getTaxaFromNewick(tree)
 
-    # now work out how many copies of each of the % labelled
-    # taxa exist.
+    names_d = [] # our duplicated list of names
+    names = [] # our unique names (without any %)
+    for name in all_taxa:
+        if ( not name.find('%') == -1 ):
+            # strip number and %
+            name = name[0:name.find('%')]
+            names_d.append(name)
+            names.append(name)
+        else:
+            names.append(name)
+    # we now uniquify these arrays
+    names_d_unique = _uniquify(names_d)
+    names_unique = _uniquify(names)
+    names = []
+    names_d = []
+    non_unique_numbers = []
+    # count the number of each of the non-unique taxa
+    for i in range(0,len(names_unique)):
+        count = 0
+        for name in all_taxa:
+            if not name.find('%') == -1:
+                name = name[0:name.find('%')]
+                if name == names_unique[i]:
+                    count += 1
+        non_unique_numbers.append(count)
 
 
+    trees_saved = []
     # I hate recursive functions, but it actually is the
     # best way to do this.
     # We permute until we have replaced all % taxa with one of the
@@ -1179,18 +1204,43 @@ def permute_tree(tree,matrix="hennig",treefile=None):
     # Note: scope of variables in nested functions here (another evil thing)
     # Someone more intelligent than me should rewrite this so it's
     # easier to follow.
-    def _permute(n,tree):
-        pass
+    def _permute(n,temp):
+    
+        tempTree = temp
 
-
+        if ( n < len(names_unique) and non_unique_numbers == 0 ):
+            permute( ( n + 1 ), tempTree );
+        else:
+            if ( n < len(names_unique) ):
+                for i in range(0,len(non_unique_numbers)+1):
+                    tempTree = temp;
+                    taxa = _getTaxaFromNewick(tree)
+                
+                    # iterate over nodes
+                    for name in taxa:
+                        index = name.find('%')
+                        short_name = name[0:index]
+                        current_unique_name = names_unique[n]
+                        current_unique_name = current_unique_name.replace(' ','_')
+                        if ( index > 0 and short_name == current_unique_name ):
+                            if ( not name == current_unique_name + "%" + str(i) ):
+                                tempTree = _delete_taxon(name, tempTree)
+                if ( n < len(names_unique) ):
+                    _permute( ( n + 1 ), tempTree )
+            else:
+                trees_saved.append(tempTree)
+    
     # we now call the recursive function (above) to start the process
+    _permute(0,tree)
 
     # out pops an array of trees - either amalgamte in a single treefile (same taxa)
     # or create a matrix.
+    print trees_saved
 
     # Either way we output a string that the caller can save or display or pass to tnt, or burn;
     # it's up to them, really.
     return output_string
+
 
 def data_summary(XML,detailed=False):
     """Creates a text string that summarises the current data set via a number of 
