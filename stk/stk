@@ -717,7 +717,6 @@ def permute_trees(args):
 
     tree_list = {}
     all_trees = supertree_toolkit.obtain_trees(XML)
-    print args
     if (not name == None): # user has supplied a tree name - find it
         # get tree
         for t in all_trees:
