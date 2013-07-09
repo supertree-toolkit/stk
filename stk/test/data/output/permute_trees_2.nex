@@ -1,0 +1,13 @@
+#NEXUS
+
+BEGIN TAXA;
+	DIMENSIONS ntax=16;
+	TAXLABELS  Outgroup Leopardus_geoffroyi Leopardus_pardalis Otocolobus_manul Felis_magrita Prionailurus_bengalensis Leptailurus_serval Catopuma_temmincki Caracal_caracal Lynx_rufus Acinonyx_jubatus Puma_concolor Panthera_tigris Panthera_uncia Panthera_onca Panthera_leo;
+END;
+
+BEGIN TREES;
+	TREE tree_2 = (Outgroup,(((((Leopardus_geoffroyi,Leopardus_pardalis),(Otocolobus_manul,Felis_magrita)),(Prionailurus_bengalensis,Leptailurus_serval)),(Catopuma_temmincki,(Caracal_caracal,Lynx_rufus))),((Acinonyx_jubatus,(Puma_concolor,Panthera_uncia)),(Panthera_onca,(Panthera_leo,Panthera_tigris)))));
+	TREE tree_1 = (Outgroup,(((((Leopardus_geoffroyi,Leopardus_pardalis),(Otocolobus_manul,Felis_magrita)),(Prionailurus_bengalensis,Leptailurus_serval)),(Catopuma_temmincki,(Caracal_caracal,Lynx_rufus))),((Acinonyx_jubatus,(Puma_concolor,(Panthera_tigris,Panthera_uncia))),(Panthera_onca,Panthera_leo))));
+
+END;
+

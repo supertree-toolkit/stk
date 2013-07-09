@@ -34,7 +34,7 @@
             <string_value lines="1">1</string_value>
           </figure_legend>
           <figure_number>
-              <string_value lines="1">1</string_value>
+            <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
             <integer_value rank="0">1</integer_value>
@@ -86,7 +86,7 @@
             <string_value lines="1">1</string_value>
           </figure_legend>
           <figure_number>
-              <string_value lines="1">1</string_value>
+            <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
             <integer_value rank="0">1</integer_value>
@@ -150,7 +150,7 @@
             <string_value lines="1">1</string_value>
           </figure_legend>
           <figure_number>
-              <string_value lines="1">1</string_value>
+            <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
             <integer_value rank="0">1</integer_value>

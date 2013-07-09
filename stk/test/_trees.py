@@ -502,6 +502,20 @@ class TestImportTree(unittest.TestCase):
         for i in range(0,len(output_trees)):
             self.assert_(_trees_equal(output_trees[i],expected_trees[i]))
 
+    def test_permute_trees_2(self):
+        XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
+        trees = obtain_trees(XML)
+        output = permute_tree(trees['Davis_2011_1'],treefile="Newick")
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".new")
+        f = open(temp_file,"w")
+        f.write(output)
+        f.close()
+        output_trees = import_trees(temp_file)
+        expected_trees = import_trees("data/output/permute_trees_2.nex")
+        os.remove(temp_file)
+        self.assert_(len(output_trees)==len(expected_trees))
+        for i in range(0,len(output_trees)):
+            self.assert_(_trees_equal(output_trees[i],expected_trees[i]))
 
 if __name__ == '__main__':
     unittest.main()
