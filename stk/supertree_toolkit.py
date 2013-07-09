@@ -1224,11 +1224,12 @@ def permute_tree(tree,matrix="hennig",treefile=None):
     if (treefile == None):
         # create matrix
         # taxa are all the same in each tree
-        taxa = _getTaxaFromNewick(tree)
+        taxa = []
+        taxa.append("MRPOutgroup")
+        taxa.extend(names_unique)
         output_string = _create_matrix(permuted_trees,taxa,format=matrix)
     else:
-       output_string = _amalgamate_trees(permuted_trees,format=treefile) 
-    
+        output_string = _amalgamate_trees(permuted_trees,format=treefile) 
 
     # Either way we output a string that the caller can save or display or pass to tnt, or burn;
     # it's up to them, really.

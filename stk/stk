@@ -267,6 +267,34 @@ def main():
     parser_cm.set_defaults(func=data_overlap)
 
 
+    # Data overlap command
+    parser_cm = subparsers.add_parser('permute_trees',
+            help='Create all possible trees from sources that contain non-monophyly. See manual for details.'
+            )
+    parser_cm.add_argument('input', 
+            help='The input phyml file')
+    parser_cm.add_argument('output', 
+            help='The output tree or matrix file(s). If multiple files are produced the sourcename will be appended to the filename.')
+    parser_cm.add_argument('-c',
+            '--create_matrix',
+            choices=['','hennig', 'nexus'],
+            help="Create a matrix of the given format for all permutable trees in the input file. Default is hennig",
+            required=False,
+            default='hennig',
+            )
+    parser_cm.add_argument('-t',
+            '--treefile',
+            choices=['','Nexus','Newick','tnt'],
+            help="Create a tree file of the given format for all permutable trees in the input file. Default is nexus",
+            required=False,
+            default='',
+            )
+    parser_cm.add_argument('-n',
+            '--name',
+            default='',
+            help="Do the permutation on a single tree only. Format of the name is Sourcename_treenumber, e.g. 'Hill_2011_1'")
+    parser_cm.set_defaults(func=permute_trees)
+
     # parse the arguments, and strip out the common options
     args = parser.parse_args()
     verbose = args.verbose
@@ -654,6 +682,62 @@ def export_bib(args):
 
     output_string = supertree_toolkit.export_bibliography(XML,output_file,format=format)
 
+def permute_trees(args):
+    """ Create all possible permutations of permutable trees in the input file.
+    Permutable trees have non-monophyletic taxa labelled with %d.
+    """
+
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    input_file = args.input
+    create_matrix = args.create_matrix
+    treefile = args.treefile
+    name = args.name
+
+    if (not os.path.exists(input_file)):
+        print "Input phyml cannot be found. Exiting"
+        sys.exit(-1)
+
+    # check if output files are there
+    #if (output_file and os.path.exists(output_file) and not overwrite):
+    #    print "Output file exists. Either remove the file or use the --overwrite flag."
+    #    print "Do you wish to continue? [Y/n]"
+    #    while True:
+    #        k=inkey()
+    #        if k.lower() == 'n':
+    #            print "Exiting..."
+    #            sys.exit(0)
+    #        if k.lower() == 'y':
+    #            break
+
+    XML = supertree_toolkit.load_phyml(input_file)
+
+    tree_list = {}
+    all_trees = supertree_toolkit.obtain_trees(XML)
+    if (not name == ''): # user has supplied a tree name - find it
+        # get tree
+        for t in all_trees:
+            if t == tree_name:
+                tree_list[t] = all_trees[t]
+    else:
+        # get all trees
+        tree_list = supertree_toolkit._find_trees_for_permuting(XML)
+
+    for t in tree_list:
+        # permute
+        if (not treefile == ''):
+            output_string = supertree_toolkit.permute_tree(tree_list[t],treefile=treefile)
+        else:
+            output_string = supertree_toolkit.permute_tree(tree_list[t],matrix=create_matrix,treefile=None)
+
+        #save
+        new_output,ext = os.path.splitext(output_file)
+        new_output += "_"+t+ext
+        f = open(new_output,'w')
+        f.write(output_string)
+        f.close
+            
 
 if __name__ == "__main__":
     main()
