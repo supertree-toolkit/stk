@@ -701,18 +701,6 @@ def permute_trees(args):
         print "Input phyml cannot be found. Exiting"
         sys.exit(-1)
 
-    # check if output files are there
-    #if (output_file and os.path.exists(output_file) and not overwrite):
-    #    print "Output file exists. Either remove the file or use the --overwrite flag."
-    #    print "Do you wish to continue? [Y/n]"
-    #    while True:
-    #        k=inkey()
-    #        if k.lower() == 'n':
-    #            print "Exiting..."
-    #            sys.exit(0)
-    #        if k.lower() == 'y':
-    #            break
-
     XML = supertree_toolkit.load_phyml(input_file)
 
     tree_list = {}
