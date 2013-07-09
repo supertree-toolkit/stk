@@ -3,7 +3,7 @@ Maintainer: The SupertreeToolkit team <jon.hill@imperial.ac.uk>
 Uploaders: Jon Hill <jon.hill@imperial.ac.uk>
 Section: science
 Priority: extra
-Build-Depends: python-gtk2, python-networkx, python-tk, python-lxml-dbg, python-matplotlib, python-numpy, python-setuptools, python-all-dev, debhelper, python-central, python-support
+Build-Depends:  python-numpy, python-setuptools, python-all-dev, debhelper, python-central, python-support
 Standards-Version: 3.8.0
 XS-Python-Version: >= 2.5
 
