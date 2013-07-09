@@ -267,7 +267,7 @@ def main():
     parser_cm.set_defaults(func=data_overlap)
 
 
-    # Data overlap command
+    # Permute trees command
     parser_cm = subparsers.add_parser('permute_trees',
             help='Create all possible trees from sources that contain non-monophyly. See manual for details.'
             )
