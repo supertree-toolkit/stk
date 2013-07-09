@@ -83,13 +83,17 @@
     </choice>
   </define>
   <define name="evolution_models">
-    <optional>
+    <zeroOrMore>
       <element name="model_of_evolution">
         <attribute name="name">
           <data type="string"/>
         </attribute>
+        <attribute name="character">
+          <data type="string"/>
+        </attribute>
+        <empty/>
       </element>
-    </optional>
+    </zeroOrMore>
   </define>
   <define name="conservation">
     <optional>
