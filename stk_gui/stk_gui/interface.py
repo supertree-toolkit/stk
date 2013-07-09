@@ -172,7 +172,8 @@ class Diamond:
                     "on_sub_taxa": self.on_sub_taxa,
                     "on_data_summary": self.on_data_summary,
                     "on_data_overlap": self.on_data_overlap,
-                    "on_data_ind" : self.on_data_ind
+                    "on_data_ind" : self.on_data_ind,
+                    "on_permute_all_trees": self.on_permute_all_trees
                     }
 
     self.gui.signal_autoconnect(signals)
@@ -1124,7 +1125,7 @@ class Diamond:
       filename_textbox = self.data_overlap_gui.get_widget("entry1")
       filename_textbox.set_text(filename)
 
-  # Data summary GUI
+  # Data independence GUI
   def on_data_ind(self, widget=None):
     """ Check the data independence of the data - display the GUI
         and call the function
@@ -1261,7 +1262,105 @@ class Diamond:
     f.close()
     return
 
+  #permute all tree GUI
+  def on_permute_all_trees(self, widget=None):
+    """ Permute all permutable trees in the data set and save them all
+    """
 
+    signals = {"on_permute_trees_dialog_close": self.on_permute_trees_cancel_button,
+               "on_permute_trees_cancel_clicked": self.on_permute_trees_cancel_button,
+               "on_permute_trees_clicked": self.on_permute_trees_button,
+               "on_permute_trees_browse_clicked": self.on_permute_trees_browse_button}
+      
+    self.permute_trees_gui = gtk.glade.XML(self.gladefile, root="permute_trees_dialog")
+    self.permute_trees_dialog = self.permute_trees_gui.get_widget("permute_trees_dialog")
+    self.permute_trees_gui.signal_autoconnect(signals)
+    matrix_file = self.permute_trees_gui.get_widget("permute_trees_button")
+    matrix_file.connect("activate", self.on_permute_trees_button)
+    self.permute_trees_dialog.show()
+
+      
+  def on_permute_trees_button(self, button):
+    """
+    create the trees
+    """
+
+    filename_textbox = self.permute_trees_gui.get_widget("entry1")
+    filename = filename_textbox.get_text()
+    format_radio_1 = self.permute_trees_gui.get_widget("matrix_format_tnt_chooser")
+    format_radio_2 = self.permute_trees_gui.get_widget("matrix_format_nexus_chooser")
+    format_radio_3 = self.permute_trees_gui.get_widget("tree_format_nexus_chooser")
+    format_radio_4 = self.permute_trees_gui.get_widget("tree_format_newick_chooser")
+    format_radio_5 = self.permute_trees_gui.get_widget("tree_format_tnt_chooser")
+
+
+    if (format_radio_1.get_active()):
+        format = 'hennig'
+        treefile=None
+    elif (format_radio_2.get_active()):
+        format = 'nexus'
+        treefile=None
+    elif (format_radio_3.get_active()):
+        treefile = 'Newick'
+    elif (format_radio_4.get_active()):
+        treefile = 'Nexus'
+    elif (format_radio_5.get_active()):
+        treefile = 'tnt'
+    else:
+        format = None
+        dialogs.error(self.main_window,"Error creating matrix. Incorrect format.")
+        return
+
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    all_trees = stk.obtain_trees(XML)
+    # get all trees
+    tree_list = stk._find_trees_for_permuting(XML)
+
+    for t in tree_list:
+        # permute
+        if (not treefile == None):
+            output_string = stk.permute_tree(tree_list[t],treefile=treefile)
+        else:
+            output_string = stk.permute_tree(tree_list[t],matrix=format,treefile=None)
+
+        #save
+        new_output,ext = os.path.splitext(filename)
+        new_output += "_"+t+ext
+        f = open(new_output,'w')
+        f.write(output_string)
+        f.close
+  
+
+    # Add a history event
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    XML = stk.add_historical_event(XML, "Permuted trees written to: "+filename)
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (permute_trees) to XML", skip_warning=True)
+
+    
+    self.permute_trees_dialog.hide()
+
+    return
+
+  def on_permute_trees_cancel_button(self, button):
+      """ Close the permute_trees dialogue
+      """
+
+      self.permute_trees_dialog.hide()
+
+  def on_permute_trees_browse_button(self, button):
+      filter_names_and_patterns = {}
+      filter_names_and_patterns['Phylo files'] = ["*.tre","*nex","*.nwk","*.new","*.tnt"]
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose output file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+      filename_textbox = self.permute_trees_gui.get_widget("entry1")
+      filename_textbox.set_text(filename)
+
+  # create a matrix
   def on_create_matrix(self, widget=None):
     """ Creates a MRP matrix from the data in the phyml. Actually, this function
         merely opens the dialog form the glade file...

@@ -962,37 +962,8 @@ def amalgamate_trees(XML,format="Nexus",anonymous=False):
             return None
 
     trees = obtain_trees(XML)
-    # all trees are in Newick string format already
-    # For each format, Newick, Nexus and TNT this format
-    # is adequate. 
-    # Newick: Do nothing - write one tree per line
-    # Nexus: Add header, write one tree per line, prepending tree info, taking into acount annonymous flag
-    # TNT: strip commas, write one tree per line
-    output_string = ""
-    if format == "Nexus":
-        output_string += "#NEXUS\n\nBEGIN TREES;\n\n"
-    tree_count = 0
-    for tree in trees:
-        if format == "Nexus":
-            if anonymous:
-                output_string += "\tTREE tree_"+str(tree_count)+" = "+trees[tree]+"\n"
-            else:
-                output_string += "\tTREE "+tree+" = "+trees[tree]+"\n"
-        elif format == "Newick":
-            output_string += trees[tree]+"\n"
-        elif format == "tnt":
-            t = trees[tree];
-            t = t.replace(",","");
-            t = t.replace(";","");
-            output_string += t+"\n"
-        tree_count += 1
-    # Footer
-    if format == "Nexus":
-        output_string += "\n\nEND;"
-    elif format == "tnt":
-        output_string += "\n\nproc-;"
 
-    return output_string
+    return _amalgamate_trees(trees,format,anonymous)
         
 
 def get_all_taxa(XML, pretty=False):
@@ -1024,7 +995,10 @@ def get_all_taxa(XML, pretty=False):
 
     return taxa_list
 
+
 def create_matrix(XML,format="hennig"):
+    """ From all trees in the XML, create a matrix
+    """
 
     # get all trees
     trees = obtain_trees(XML)
@@ -1034,88 +1008,34 @@ def create_matrix(XML,format="hennig"):
     taxa.append("MRPOutgroup")
     taxa.extend(get_all_taxa(XML))
 
-    # our matrix, we'll then append the submatrix
-    # to this to make a 2D matrix
-    # Our matrix is of length nTaxa on the i dimension
-    # and nCharacters in the j direction
-    matrix = []
-    charsets = []
-    names = []
-    current_char = 1
-    for key in trees:
-        names.append(key)
-        submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
-        nChars = len(submatrix[0,:])
-        # loop over characters in the submatrix
-        for i in range(1,nChars):
-            # loop over taxa. Add '?' for an "unknown" taxa, otherwise
-            # get 0 or 1 from submatrix. May as well turn into a string whilst
-            # we're at it
-            current_row = []
-            for taxon in taxa:
-                if (taxon in tree_taxa):
-                    # get taxon index
-                    t_index = tree_taxa.index(taxon)
-                    # then get correct matrix entry - note:
-                    # submatrix transposed wrt main matrix
-                    current_row.append(str(int(submatrix[t_index,i])))
-                elif (taxon == "MRPOutgroup"):
-                    current_row.append('0')
-                else:
-                    current_row.append('?')
-            matrix.append(current_row)
-        charsets.append(str(current_char) + "-" + str(current_char + nChars-2))
-        current_char += nChars-1
+    return _create_matrix(trees, taxa, format=format)
 
-    matrix = numpy.array(matrix)
-    matrix = matrix.transpose()
 
-    if (format == 'hennig'):
-        matrix_string = "xread\n"
-        matrix_string += str(len(taxa)) + " "+str(current_char-1)+"\n"
-        matrix_string += "\tformat missing = ?"
-        matrix_string += ";\n"
-        matrix_string += "\n\tmatrix\n\n";
+def create_matrix_from_trees(trees,format="hennig"):
+    """ Given a dictionary of trees, create a matrix
+    """
 
-        i = 0
-        for taxon in taxa:
-            matrix_string += taxon + "\t"
-            string = ""
-            for t in matrix[i][:]:
-                string += t
-            matrix_string += string + "\n"
-            i += 1
-            
-        matrix_string += "\t;\n"
-        matrix_string += "procedure /;"
-    elif (format == 'nexus'):
-        matrix_string = "#nexus\n\nbegin data;\n"
-        matrix_string += "\tdimensions ntax = "+str(len(taxa)) +" nchar = "+str(current_char-1)+";\n"
-        matrix_string += "\tformat missing = ?"
-        matrix_string += ";\n"
-        matrix_string += "\n\tmatrix\n\n"
+    taxa = []
+    for t in trees:
+        tree = trees[t]
+        try:
+            p4.var.warnReadNoFile = False
+            p4.var.nexus_warnSkipUnknownBlock = False
+            p4.var.trees = []
+            p4.read(tree)
+            p4.var.nexus_warnSkipUnknownBlock = True
+            p4.var.warnReadNoFile = True
+        except:
+            raise TreeParseError("Error parsing tree to get taxa")
+        tree = p4.var.trees[0]
+        p4.var.trees = []
+        terminals = tree.getAllLeafNames(tree.root)
+        for term in terminals:
+            taxa_list.append(str(term))
+    
 
-        i = 0
-        for taxon in taxa:
-            matrix_string += taxon + "\t"
-            string = ""
-            for t in matrix[i][:]:
-                string += t
-            matrix_string += string + "\n"
-            i += 1
-            
-        matrix_string += "\t;\nend;\n\n"
-        matrix_string += "begin sets;\n"
-        i = 0
-        for char in charsets:
-            matrix_string += "\tcharset "+names[i] + " "
-            matrix_string += char + "\n"
-            i += 1
-        matrix_string += "end;\n\n"
-    else:
-        raise MatrixError("Invalid matrix format")
+    return _create_matrix(trees, taxa, format=format)
 
-    return matrix_string
 
 def load_phyml(filename):
     """ Super simple function that returns XML
@@ -1201,6 +1121,119 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
         i = i+1
 
     return etree.tostring(xml_root,pretty_print=True)
+
+
+def permute_tree(tree,matrix="hennig",treefile=None):
+    """ Permute a tree where there is uncertianty in taxa location.
+    Output either a tree file or matrix file of all possible 
+    permutations.
+
+    Note this is a recursive algorithm.
+    """
+
+    # check format strings
+
+    permuted_trees = {} # The output of the recursive permute algorithm
+    output_string = "" # what we pass back
+
+    # first thing is to get hold of the unique taxa names
+    # i.e. without % on them
+    all_taxa = _getTaxaFromNewick(tree)
+
+    names_d = [] # our duplicated list of names
+    names = [] # our unique names (without any %)
+    for name in all_taxa:
+        if ( not name.find('%') == -1 ):
+            # strip number and %
+            name = name[0:name.find('%')]
+            names_d.append(name)
+            names.append(name)
+        else:
+            names.append(name)
+    # we now uniquify these arrays
+    names_d_unique = _uniquify(names_d)
+    names_unique = _uniquify(names)
+    names = []
+    names_d = []
+    non_unique_numbers = []
+    # count the number of each of the non-unique taxa
+    for i in range(0,len(names_unique)):
+        count = 0
+        for name in all_taxa:
+            if not name.find('%') == -1:
+                name = name[0:name.find('%')]
+                if name == names_unique[i]:
+                    count += 1
+        non_unique_numbers.append(count)
+
+    trees_saved = []
+    # I hate recursive functions, but it actually is the
+    # best way to do this.
+    # We permute until we have replaced all % taxa with one of the
+    # possible choices, then we back ourselves out, swapping taxa
+    # in and out until we hit all permutations and pop out
+    # of the recursion
+    # Note: scope of variables in nested functions here (another evil thing)
+    # Someone more intelligent than me should rewrite this so it's
+    # easier to follow.
+    def _permute(n,temp):
+    
+        tempTree = temp
+
+        if ( n < len(names_unique) and non_unique_numbers[n] == 0 ):
+            _permute( ( n + 1 ), tempTree );
+        else:
+            if ( n < len(names_unique) ):
+                for i in range(1,non_unique_numbers[n]+1):
+                    tempTree = temp;
+                    taxa = _getTaxaFromNewick(tree)
+                    # iterate over nodes
+                    for name in taxa:
+                        index = name.find('%')
+                        short_name = name[0:index]
+                        current_unique_name = names_unique[n]
+                        current_unique_name = current_unique_name.replace(' ','_')
+                        if ( index > 0 and short_name == current_unique_name ):
+                            if ( not name == current_unique_name + "%" + str(i) ):
+                                tempTree = _delete_taxon(name, tempTree)
+                    if ( n < len(names_unique) ):
+                        _permute( ( n + 1 ), tempTree )
+            else:
+                tempTree = re.sub('%\d+','',tempTree)
+                trees_saved.append(tempTree)
+
+    if (len(trees_saved) == 0):
+        # we now call the recursive function (above) to start the process
+        _permute(0,tree)
+
+    # check none are actually equal and store as dictionary
+    count = 1
+    for i in range(0,len(trees_saved)):
+        equal = False
+        for j in range(i+1,len(trees_saved)):
+            if (_trees_equal(trees_saved[i],trees_saved[j])):
+                equal = True
+                break
+        if (not equal):
+            permuted_trees["tree_"+str(count)] = trees_saved[i]
+            count += 1
+            
+
+    # out pops a dictionary of trees - either amalgamte in a single treefile (same taxa)
+    # or create a matrix.
+    if (treefile == None):
+        # create matrix
+        # taxa are all the same in each tree
+        taxa = []
+        taxa.append("MRPOutgroup")
+        taxa.extend(names_unique)
+        output_string = _create_matrix(permuted_trees,taxa,format=matrix)
+    else:
+        output_string = _amalgamate_trees(permuted_trees,format=treefile) 
+
+    # Either way we output a string that the caller can save or display or pass to tnt, or burn;
+    # it's up to them, really.
+    return output_string
 
 
 def data_summary(XML,detailed=False):
@@ -1617,7 +1650,7 @@ def _delete_taxon(taxon, tree):
     tree_obj = p4.var.trees[0]
     for node in tree_obj.iterNodes():
         if node.name == taxon:
-            tree_obj.removeNode(node.nodeNum)
+            tree_obj.removeNode(node.nodeNum,alsoRemoveBiRoot=False)
             break
     p4.var.warnReadNoFile = True    
 
@@ -1874,14 +1907,152 @@ def _trees_equal(t1,t2):
     tree_2 = p4.var.trees[1]
     
     # add the taxanames
-    tree_1.taxNames = tree_1.getAllLeafNames(tree_1.root)
-    tree_2.taxNames = tree_2.getAllLeafNames(tree_2.root)
-   
+    # Sort, otherwose p4 things the txnames are different
+    names = tree_1.getAllLeafNames(tree_1.root)
+    names.sort()
+    tree_1.taxNames = names
+    names = tree_2.getAllLeafNames(tree_2.root)
+    names.sort()
+    tree_2.taxNames = names
+
     same = False
     try:
         if (tree_1.topologyDistance(tree_2) == 0):
             same = True # yep, the same
+            # but also check the root
+            if not tree_1.root.getNChildren() == tree_2.root.getNChildren():
+                same = False
     except:
         same = False # different taxa, so can't be the same!
 
     return same
+
+def _find_trees_for_permuting(XML):
+
+    trees = obtain_trees(XML)
+    permute_trees = {}
+    for t in trees:
+        if trees[t].find('%') > -1:
+            # tree needs permuting - we store the 
+            permute_trees[t] = trees[t]
+
+    return permute_trees
+
+def _create_matrix(trees, taxa, format="hennig"):
+
+    # our matrix, we'll then append the submatrix
+    # to this to make a 2D matrix
+    # Our matrix is of length nTaxa on the i dimension
+    # and nCharacters in the j direction
+    matrix = []
+    charsets = []
+    names = []
+    current_char = 1
+    for key in trees:
+        names.append(key)
+        submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
+        nChars = len(submatrix[0,:])
+        # loop over characters in the submatrix
+        for i in range(1,nChars):
+            # loop over taxa. Add '?' for an "unknown" taxa, otherwise
+            # get 0 or 1 from submatrix. May as well turn into a string whilst
+            # we're at it
+            current_row = []
+            for taxon in taxa:
+                if (taxon in tree_taxa):
+                    # get taxon index
+                    t_index = tree_taxa.index(taxon)
+                    # then get correct matrix entry - note:
+                    # submatrix transposed wrt main matrix
+                    current_row.append(str(int(submatrix[t_index,i])))
+                elif (taxon == "MRPOutgroup"):
+                    current_row.append('0')
+                else:
+                    current_row.append('?')
+            matrix.append(current_row)
+        charsets.append(str(current_char) + "-" + str(current_char + nChars-2))
+        current_char += nChars-1
+
+    matrix = numpy.array(matrix)
+    matrix = matrix.transpose()
+
+    if (format == 'hennig'):
+        matrix_string = "xread\n"
+        matrix_string += str(len(taxa)) + " "+str(current_char-1)+"\n"
+        matrix_string += "\tformat missing = ?"
+        matrix_string += ";\n"
+        matrix_string += "\n\tmatrix\n\n";
+
+        i = 0
+        for taxon in taxa:
+            matrix_string += taxon + "\t"
+            string = ""
+            for t in matrix[i][:]:
+                string += t
+            matrix_string += string + "\n"
+            i += 1
+            
+        matrix_string += "\t;\n"
+        matrix_string += "procedure /;"
+    elif (format == 'nexus'):
+        matrix_string = "#nexus\n\nbegin data;\n"
+        matrix_string += "\tdimensions ntax = "+str(len(taxa)) +" nchar = "+str(current_char-1)+";\n"
+        matrix_string += "\tformat missing = ?"
+        matrix_string += ";\n"
+        matrix_string += "\n\tmatrix\n\n"
+
+        i = 0
+        for taxon in taxa:
+            matrix_string += taxon + "\t"
+            string = ""
+            for t in matrix[i][:]:
+                string += t
+            matrix_string += string + "\n"
+            i += 1
+            
+        matrix_string += "\t;\nend;\n\n"
+        matrix_string += "begin sets;\n"
+        i = 0
+        for char in charsets:
+            matrix_string += "\tcharset "+names[i] + " "
+            matrix_string += char + "\n"
+            i += 1
+        matrix_string += "end;\n\n"
+    else:
+        raise MatrixError("Invalid matrix format")
+
+    return matrix_string
+    
+def _amalgamate_trees(trees,format,anonymous=False):
+        # all trees are in Newick string format already
+    # For each format, Newick, Nexus and TNT this format
+    # is adequate. 
+    # Newick: Do nothing - write one tree per line
+    # Nexus: Add header, write one tree per line, prepending tree info, taking into acount annonymous flag
+    # TNT: strip commas, write one tree per line
+    output_string = ""
+    if format == "Nexus":
+        output_string += "#NEXUS\n\nBEGIN TREES;\n\n"
+    tree_count = 0
+    for tree in trees:
+        if format == "Nexus":
+            if anonymous:
+                output_string += "\tTREE tree_"+str(tree_count)+" = "+trees[tree]+"\n"
+            else:
+                output_string += "\tTREE "+tree+" = "+trees[tree]+"\n"
+        elif format == "Newick":
+            output_string += trees[tree]+"\n"
+        elif format == "tnt":
+            t = trees[tree];
+            t = t.replace(",","");
+            t = t.replace(";","");
+            output_string += t+"\n"
+        tree_count += 1
+    # Footer
+    if format == "Nexus":
+        output_string += "\n\nEND;"
+    elif format == "tnt":
+        output_string += "\n\nproc-;"
+
+    return output_string
+
