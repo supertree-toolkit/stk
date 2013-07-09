@@ -21,6 +21,9 @@ single_source_input = "data/input/single_source.phyml"
 expected_tree = '((Taxon_c:1.00000,(Taxon_a:1.00000,Taxon_b:1.00000)0.00000:0.00000)0.00000:0.00000,(Taxon_d:1.00000,Taxon_e:1.00000)0.00000:0.00000)0.00000:0.00000;'
 parser = etree.XMLParser(remove_blank_text=True)
 
+# To run a single test:
+# python -m unittest _trees.TestImportTree.test_permute_trees
+
 class TestImportTree(unittest.TestCase):
 
     def test_import_quoted_tree(self):
@@ -132,6 +135,18 @@ class TestImportTree(unittest.TestCase):
         t = "((A_1,B_1),F_1,E_1,(G_1,H_1));"
         new_tree = _delete_taxon("H_1", t)
         self.assert_(new_tree == "((A_1, B_1), F_1, E_1, G_1);")
+
+    def test_delete_taxa_root(self):
+        t = '((E%1,G%1),A,(G%2,(E%2,F,D,H,E%3)));'
+        new_tree =  _delete_taxon("E%1", t)
+        print new_tree
+        new_tree =  _delete_taxon("G%1", new_tree)
+        print new_tree
+        new_tree =  _delete_taxon("E%2", new_tree)
+        print new_tree 
+        self.assert_(new_tree == "(A, (G%2, (F, D, H, E%3)));")
+
+
 
     def test_delete_taxa_missing(self):
         t = "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;"
@@ -365,6 +380,13 @@ class TestImportTree(unittest.TestCase):
         trees = import_trees(test_file)
         self.assert_(_trees_equal(trees[1],trees[0])==False)
 
+    def test_trees_equal2(self):
+        test_file = "data/input/equal_trees.new"
+        trees = import_trees(test_file)
+        self.assert_(_trees_equal(trees[1],trees[0])==True)
+        self.assert_(_trees_equal(trees[3],trees[2])==False)
+
+
     def test_amalgamate_trees_anonymous(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
         output_string = amalgamate_trees(XML,format="Nexus",anonymous=True)
@@ -474,7 +496,8 @@ class TestImportTree(unittest.TestCase):
     def test_permute_trees(self):
         XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
         trees = obtain_trees(XML)
-        output = permute_tree(trees['Hill_2011_1'])
+        output = permute_tree(trees['Hill_2011_1'],treefile="Newick")
+        print output
 
 if __name__ == '__main__':
     unittest.main()

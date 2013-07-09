@@ -962,37 +962,8 @@ def amalgamate_trees(XML,format="Nexus",anonymous=False):
             return None
 
     trees = obtain_trees(XML)
-    # all trees are in Newick string format already
-    # For each format, Newick, Nexus and TNT this format
-    # is adequate. 
-    # Newick: Do nothing - write one tree per line
-    # Nexus: Add header, write one tree per line, prepending tree info, taking into acount annonymous flag
-    # TNT: strip commas, write one tree per line
-    output_string = ""
-    if format == "Nexus":
-        output_string += "#NEXUS\n\nBEGIN TREES;\n\n"
-    tree_count = 0
-    for tree in trees:
-        if format == "Nexus":
-            if anonymous:
-                output_string += "\tTREE tree_"+str(tree_count)+" = "+trees[tree]+"\n"
-            else:
-                output_string += "\tTREE "+tree+" = "+trees[tree]+"\n"
-        elif format == "Newick":
-            output_string += trees[tree]+"\n"
-        elif format == "tnt":
-            t = trees[tree];
-            t = t.replace(",","");
-            t = t.replace(";","");
-            output_string += t+"\n"
-        tree_count += 1
-    # Footer
-    if format == "Nexus":
-        output_string += "\n\nEND;"
-    elif format == "tnt":
-        output_string += "\n\nproc-;"
 
-    return output_string
+    return _amalgamate_trees(trees,format)
         
 
 def get_all_taxa(XML, pretty=False):
@@ -1160,7 +1131,9 @@ def permute_tree(tree,matrix="hennig",treefile=None):
     Note this is a recursive algorithm.
     """
 
-    permuted_trees = [] # The output of the recursive permute algorithm
+    # check format strings
+
+    permuted_trees = {} # The output of the recursive permute algorithm
     output_string = "" # what we pass back
 
     # first thing is to get hold of the unique taxa names
@@ -1193,7 +1166,6 @@ def permute_tree(tree,matrix="hennig",treefile=None):
                     count += 1
         non_unique_numbers.append(count)
 
-
     trees_saved = []
     # I hate recursive functions, but it actually is the
     # best way to do this.
@@ -1208,14 +1180,13 @@ def permute_tree(tree,matrix="hennig",treefile=None):
     
         tempTree = temp
 
-        if ( n < len(names_unique) and non_unique_numbers == 0 ):
-            permute( ( n + 1 ), tempTree );
+        if ( n < len(names_unique) and non_unique_numbers[n] == 0 ):
+            _permute( ( n + 1 ), tempTree );
         else:
             if ( n < len(names_unique) ):
-                for i in range(0,len(non_unique_numbers)+1):
+                for i in range(1,non_unique_numbers[n]+1):
                     tempTree = temp;
                     taxa = _getTaxaFromNewick(tree)
-                
                     # iterate over nodes
                     for name in taxa:
                         index = name.find('%')
@@ -1225,17 +1196,41 @@ def permute_tree(tree,matrix="hennig",treefile=None):
                         if ( index > 0 and short_name == current_unique_name ):
                             if ( not name == current_unique_name + "%" + str(i) ):
                                 tempTree = _delete_taxon(name, tempTree)
-                if ( n < len(names_unique) ):
-                    _permute( ( n + 1 ), tempTree )
+                    if ( n < len(names_unique) ):
+                        _permute( ( n + 1 ), tempTree )
             else:
+                tempTree = re.sub('%\d+','',tempTree)
                 trees_saved.append(tempTree)
-    
-    # we now call the recursive function (above) to start the process
-    _permute(0,tree)
 
-    # out pops an array of trees - either amalgamte in a single treefile (same taxa)
-    # or create a matrix.
+    if (len(trees_saved) == 0):
+        # we now call the recursive function (above) to start the process
+        _permute(0,tree)
+
     print trees_saved
+    # check none are actually equal and store as dictionary
+    count = 1
+    for i in range(0,len(trees_saved)):
+        equal = False
+        for j in range(i+1,len(trees_saved)):
+            if (_trees_equal(trees_saved[i],trees_saved[j])):
+                equal = True
+                print trees_saved[i],trees_saved[j]
+                break
+        if (not equal):
+            permuted_trees["tree_"+str(count)] = trees_saved[i]
+            count += 1
+            
+
+    # out pops a dictionary of trees - either amalgamte in a single treefile (same taxa)
+    # or create a matrix.
+    if (treefile == None):
+        # create matrix
+        # taxa are all the same in each tree
+        taxa = _getTaxaFromNewick(tree)
+        output_string = _create_matrix(permuted_trees,taxa,format=matrix)
+    else:
+       output_string = _amalgamate_trees(permuted_trees,format=treefile) 
+    
 
     # Either way we output a string that the caller can save or display or pass to tnt, or burn;
     # it's up to them, really.
@@ -1656,7 +1651,7 @@ def _delete_taxon(taxon, tree):
     tree_obj = p4.var.trees[0]
     for node in tree_obj.iterNodes():
         if node.name == taxon:
-            tree_obj.removeNode(node.nodeNum)
+            tree_obj.removeNode(node.nodeNum,alsoRemoveBiRoot=False)
             break
     p4.var.warnReadNoFile = True    
 
@@ -1913,13 +1908,21 @@ def _trees_equal(t1,t2):
     tree_2 = p4.var.trees[1]
     
     # add the taxanames
-    tree_1.taxNames = tree_1.getAllLeafNames(tree_1.root)
-    tree_2.taxNames = tree_2.getAllLeafNames(tree_2.root)
-   
+    # Sort, otherwose p4 things the txnames are different
+    names = tree_1.getAllLeafNames(tree_1.root)
+    names.sort()
+    tree_1.taxNames = names
+    names = tree_2.getAllLeafNames(tree_2.root)
+    names.sort()
+    tree_2.taxNames = names
+
     same = False
     try:
         if (tree_1.topologyDistance(tree_2) == 0):
             same = True # yep, the same
+            # but also check the root
+            if not tree_1.root.getNChildren() == tree_2.root.getNChildren():
+                same = False
     except:
         same = False # different taxa, so can't be the same!
 
@@ -2021,4 +2024,36 @@ def _create_matrix(trees, taxa, format="hennig"):
 
     return matrix_string
     
-    
+def _amalgamate_trees(trees,format):
+        # all trees are in Newick string format already
+    # For each format, Newick, Nexus and TNT this format
+    # is adequate. 
+    # Newick: Do nothing - write one tree per line
+    # Nexus: Add header, write one tree per line, prepending tree info, taking into acount annonymous flag
+    # TNT: strip commas, write one tree per line
+    output_string = ""
+    if format == "Nexus":
+        output_string += "#NEXUS\n\nBEGIN TREES;\n\n"
+    tree_count = 0
+    for tree in trees:
+        if format == "Nexus":
+            if anonymous:
+                output_string += "\tTREE tree_"+str(tree_count)+" = "+trees[tree]+"\n"
+            else:
+                output_string += "\tTREE "+tree+" = "+trees[tree]+"\n"
+        elif format == "Newick":
+            output_string += trees[tree]+"\n"
+        elif format == "tnt":
+            t = trees[tree];
+            t = t.replace(",","");
+            t = t.replace(";","");
+            output_string += t+"\n"
+        tree_count += 1
+    # Footer
+    if format == "Nexus":
+        output_string += "\n\nEND;"
+    elif format == "tnt":
+        output_string += "\n\nproc-;"
+
+    return output_string
+
