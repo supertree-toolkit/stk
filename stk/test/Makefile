@@ -20,3 +20,8 @@ test: ${UNIT_TESTS}
 	echo "Running: $${file}"; \
 	python $${file}; \
 	done ;
+
+# schema only test
+# Incorrect schema are usually the fault of this
+test-schema: _schema_validation.py
+	python _schema_validation.py

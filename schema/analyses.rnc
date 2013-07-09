@@ -55,8 +55,12 @@ support =
 evolution_models =
 (
     element model_of_evolution {
-        attribute name {string}
-    }?
+        attribute name {string},
+        attribute character {string},
+        (
+        empty
+        )
+    }*
 )
 
 conservation = 

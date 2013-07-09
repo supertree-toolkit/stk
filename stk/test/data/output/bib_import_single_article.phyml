@@ -43,6 +43,9 @@
           <issue>
             <string_value lines="1">5</string_value>
           </issue>
+          <url>
+            <string_value lines="1">http://journals.ametsoc.org/doi/abs/10.1175/1520-0442%281996%29009%3C2424%3AVIAMLO%3E2.0.CO%3B2</string_value>
+          </url>          
         </article>
       </bibliographic_information>
       <source_tree>
@@ -54,7 +57,7 @@
             <string_value lines="1"/>
           </figure_legend>
           <figure_number>
-            <integer_value rank="0"/>
+            <string_value lines="1"/>
           </figure_number>
           <page_number>
             <integer_value rank="0"/>

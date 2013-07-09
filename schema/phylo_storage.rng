@@ -92,7 +92,7 @@ paste a string.</a:documentation>
               <ref name="anystring"/>
             </element>
             <element name="figure_number">
-              <ref name="integer"/>
+              <ref name="anystring"/>
             </element>
             <element name="page_number">
               <ref name="integer"/>
@@ -114,11 +114,14 @@ create the tree?</a:documentation>
                 </element>
               </optional>
               <ref name="evolution_models"/>
-              <optional>
+              <zeroOrMore>
                 <element name="character_weights">
+                  <attribute name="character">
+                    <data type="string" datatypeLibrary=""/>
+                  </attribute>
                   <ref name="anystring"/>
                 </element>
-              </optional>
+              </zeroOrMore>
               <optional>
                 <ref name="consensus"/>
               </optional>

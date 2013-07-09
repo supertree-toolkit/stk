@@ -12,7 +12,6 @@ USAGE:
 
 import sys
 import re,string
-import codecs
 import latex
 latex.register()
 
@@ -46,6 +45,15 @@ class BibKeyError(Error):
 
 def process_pages(pages):
   """ Returns a 2-tuple (firstpage,lastpage) from a string"""
+  # try and standardise the page numbers by removing
+  # UTF characters and double hyphens, then doing the split
+  pages = pages.replace("--","-")
+  pages = pages.replace(u"\u002D","-")
+  pages = pages.replace(u"\u2012","-")
+  pages = pages.replace(u"\u2212","-")
+  pages = pages.replace(u"\u002D\u002D","-")
+  pages = pages.replace(u"\u2012\u2012","-")
+  pages = pages.replace(u"\u2212\u2212","-")
   pp=pages.split('-')
   firstpage=pp[0]
   if len(pp)==2:
@@ -215,7 +223,6 @@ def parseentry(source):
     raise TypeError
   # Transform Latex symbols and strip newlines and multiple spaces 
   
-  source= source.decode('latex+utf8','ignore')
   source.replace('\n',' ')
   source= re.sub('\s+',' ',source)
 

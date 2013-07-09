@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <phylo_storage>
   <project_name>
-    <string_value lines="1">matrix_test</string_value>
+    <string_value lines="1">permute_test</string_value>
   </project_name>
   <sources>
     <source name="Hill_2011">
@@ -28,13 +28,13 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">((E%1,G%1),A,(G%2,(E%2,F,D,H,E%3)));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">1</string_value>
           </figure_legend>
           <figure_number>
-              <string_value lines="1">1</string_value>
+            <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
             <integer_value rank="0">1</integer_value>
@@ -80,13 +80,13 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">((A:1.00000,B_b:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(Outgroup,(((((Leopardus_geoffroyi,Leopardus_pardalis),(Otocolobus_manul,Felis_magrita)),(Prionailurus_bengalensis,Leptailurus_serval)),(Catopuma_temmincki,(Caracal_caracal,Lynx_rufus))),((Acinonyx_jubatus,(Puma_concolor,(Panthera_tigris%1,Panthera_uncia))),(Panthera_onca,(Panthera_leo,Panthera_tigris%2)))));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">1</string_value>
           </figure_legend>
           <figure_number>
-              <string_value lines="1">1</string_value>
+            <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
             <integer_value rank="0">1</integer_value>
@@ -144,13 +144,13 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">((A:1.00000,B_b:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">(A, (B, (C, D, E%1, F, G, E%2, E%3)));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">1</string_value>
           </figure_legend>
           <figure_number>
-              <string_value lines="1">1</string_value>
+            <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
             <integer_value rank="0">1</integer_value>

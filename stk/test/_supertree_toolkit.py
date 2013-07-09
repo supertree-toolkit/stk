@@ -4,10 +4,10 @@ import sys
 import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters
+from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters, data_independence
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
 from stk.supertree_toolkit import data_overlap
-from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml
+from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -125,15 +125,37 @@ class TestSetSourceNames(unittest.TestCase):
         #this test should pass, but wrap it up anyway
         try:
             _check_data(etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)); 
-        except e as InvalidSTKData:
-            self.assert_(False)
+        except InvalidSTKData as e:
             print e.msg
+            self.assert_(False)
             return
-        except e as NotUniqueError:
+        except NotUniqueError as e:
+            print e.msg
+            self.assert_(False)
+            return
+        self.assert_(True)
+
+
+    def test_check_sources(self):
+        """Tests the _check_source function
+        """
+        #this test should pass, but wrap it up anyway
+        try:
+            # remove some sources first - this should pass
+            XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+            name = "Hill_Davis_2011_1"
+            new_xml = _swap_tree_in_XML(XML, None, name)
+            _check_sources(new_xml); 
+        except InvalidSTKData as e:
+            print e.msg
+            self.assert_(False)
+            return
+        except NotUniqueError as e:
             self.assert_(False)
             print e.msg
             return
         self.assert_(True)
+
 
     def test_get_all_characters(self):
         """ Check the characters dictionary
@@ -200,7 +222,23 @@ class TestSetSourceNames(unittest.TestCase):
         analyses = get_analyses_used(XML)
         expected_analyses = ['Bayesian','Maximum Parsimony']
         self.assertListEqual(analyses,expected_analyses)
+    
+    def test_data_independence(self):
+        XML = etree.tostring(etree.parse('data/input/check_data_ind.phyml',parser),pretty_print=True)
+        expected_dict = {'Hill_2011_2': ['Hill_2011_1', 1], 'Hill_Davis_2011_1': ['Hill_Davis_2011_2', 0]}
+        non_ind = data_independence(XML)
+        self.assertDictEqual(expected_dict, non_ind)
 
+    def test_data_independence(self):
+        XML = etree.tostring(etree.parse('data/input/check_data_ind.phyml',parser),pretty_print=True)
+        expected_dict = {'Hill_2011_2': ['Hill_2011_1', 1], 'Hill_Davis_2011_1': ['Hill_Davis_2011_2', 0]}
+        non_ind, new_xml = data_independence(XML,make_new_xml=True)
+        self.assertDictEqual(expected_dict, non_ind)
+        # check the second tree has not been removed
+        self.assertRegexpMatches(new_xml,re.escape('((A:1.00000,B:1.00000)0.00000:0.00000,F:1.00000,E:1.00000,(G:1.00000,H:1.00000)0.00000:0.00000)0.00000:0.00000;'))
+        # check that the first tree is removed
+        self.assertNotRegexpMatches(new_xml,re.escape('((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000)0.00000:0.00000)0.00000:0.00000;'))
+    
     def test_overlap(self):
         XML = etree.tostring(etree.parse('data/input/check_overlap_ok.phyml',parser),pretty_print=True)
         overlap_ok,keys = data_overlap(XML)
@@ -267,13 +305,6 @@ class TestSetSourceNames(unittest.TestCase):
         self.assert_("Andersson_1999b_1" in keys[0])
         self.assert_("Andersson_1999a_1" in keys[0])
         self.assert_("Baker_etal_2007a_1" in keys[0])
-
-
-
-
-
-
-
 
     def test_sort_data(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)

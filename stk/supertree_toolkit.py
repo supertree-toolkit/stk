@@ -27,6 +27,7 @@ import numpy
 from lxml import etree
 import yapbib.biblist as biblist
 import yapbib.bibparse as bibparse
+import yapbib.bibitem as bibitem
 import string
 from stk_exceptions import *
 import traceback
@@ -34,6 +35,7 @@ from cStringIO import StringIO
 from collections import defaultdict
 import stk.p4 as p4
 import re
+import operator
 import stk.p4.MRP as MRP
 import networkx as nx
 import pylab as plt
@@ -43,6 +45,11 @@ import datetime
 import gtk
 
 #plt.ion()
+
+# GLOBAL VARIABLES
+IDENTICAL = 0
+SUBSET = 1
+
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -200,7 +207,7 @@ def set_unique_names(XML):
 
 def import_bibliography(XML, bibfile):    
     
-    # Out bibliography parser
+    # Our bibliography parser
     b = biblist.BibList()
 
     xml_root = _parse_xml(XML)
@@ -260,9 +267,9 @@ def import_bibliography(XML, bibfile):
             figure_legend_string.attrib['lines'] = "1"
             figure_number = etree.SubElement(tree,"figure_number")
             figure_number.tail="\n      "
-            figure_number_string = etree.SubElement(figure_number,"integer_value")
+            figure_number_string = etree.SubElement(figure_number,"string_value")
             figure_number_string.tail="\n      "
-            figure_number_string.attrib['rank'] = "0"
+            figure_number_string.attrib['lines'] = "1"
             page_number = etree.SubElement(tree,"page_number")
             page_number.tail="\n      "
             page_number_string = etree.SubElement(page_number,"integer_value")
@@ -305,18 +312,287 @@ def import_bibliography(XML, bibfile):
         else:
             raise BibImportError("Error with one of the entries in the bib file")
 
-    #print etree.tostring(xml_root,pretty_print=True)
     # sort sources in alphabetical order
     xml_root = _sort_data(xml_root)
     XML = etree.tostring(xml_root,pretty_print=True)
     
     return XML
 
-def import_tree(filename, gui=None, tree_no = -1):
-    """Takes a NEXUS formatted file and returns a list containing the tree
-    strings"""
-  
-# Need to add checks on the file. Problems include:
+## Note: this is different to all other STK functions as
+## it saves the file, rather than passing back a string for the caller to save
+## This is becuase yapbib saves the file and rather than re-write, I thought
+## I'd go with it as in this case I would only ever save the file
+def export_bibliography(XML,filename,format="bibtex"):
+    """ Export all source papers as a bibliography in 
+    either bibtex, xml, html, short or long formats
+    """
+
+    #check format
+    if (not (format == "xml" or
+             format == "html" or
+             format == "bibtex" or
+             format == "short" or
+             format == "latex" or
+             format == "long")):
+        return 
+        # raise error here
+
+    # our bibliography
+    bibliography = biblist.BibList()
+   
+    xml_root = _parse_xml(XML)    
+    find = etree.XPath("//article")
+    articles = find(xml_root)
+    # loop through all articles
+    for a in articles: 
+        name = a.getparent().getparent().attrib['name']
+        # get authors
+        authors = []
+        for auths in a.xpath("authors/author"):
+            surname = auths.xpath("surname/string_value")[0].text
+            first = auths.xpath("other_names/string_value")[0].text
+            authors.append(["", surname,first,''])
+        title   = a.xpath("title/string_value")[0].text
+        year    = a.xpath("year/integer_value")[0].text
+        bib_dict = {
+                "_code"  : name,
+                "_type"  : 'article',
+                "author" : authors,
+                "title"  : title,
+                "year"   : year,
+                }
+        # these are optional in the schema
+        if (a.xpath("journal/string_value")):
+            journal = a.xpath("journal/string_value")[0].text
+            bib_dict['journal']=journal
+        if (a.xpath("volume/string_value")):
+            volume  = a.xpath("volume/string_value")[0].text
+            bib_dict['volume']=volume
+        if (a.xpath("pages/string_value")):
+            pages   = a.xpath("pages/string_value")[0].text
+            bib_dict['pages']=pages 
+        if (a.xpath("issue/string_value")):
+            issue   = a.xpath("issue/string_value")[0].text
+            bib_dict['issue']=issue
+        if (a.xpath("doi/string_value")):
+            doi     = a.xpath("doi/string_value")[0].text
+            bib_dict['doi']=doi
+        if (a.xpath("number/string_value")):
+            number  = a.xpath("number/string_value")[0].text
+            bib_dict['number']=number
+        if (a.xpath("url/string_value")):
+            url     = a.xpath("url/string_value")[0].text
+            bib_dict['url']=url
+        
+        bib_it = bibitem.BibItem(bib_dict)
+        bibliography.add_item(bib_it)
+
+    find = etree.XPath("//book")
+    books = find(xml_root)
+    # loop through all books
+    for b in books: 
+        name = b.getparent().getparent().attrib['name']
+        # get authors
+        authors = []
+        for auths in b.xpath("authors/author"):
+            surname = auths.xpath("surname/string_value")[0].text
+            first = auths.xpath("other_names/string_value")[0].text
+            authors.append(["", surname,first,''])
+        title   = b.xpath("title/string_value")[0].text
+        year    = b.xpath("year/integer_value")[0].text
+        bib_dict = {
+                "_code"  : name,
+                "_type"  : 'article',
+                "author" : authors,
+                "title"  : title,
+                "year"   : year,
+                }
+        # these are optional in the schema
+        if (b.xpath("editors")):
+            editors = []
+            for eds in b.xpath("editors/editor"):
+                surname = eds.xpath("surname/string_value")[0].text
+                first = eds.xpath("other_names/string_value")[0].text
+                editors.append(["", surname,first,''])
+            bib_dict["editor"]=editors
+        if (b.xpath("series/string_value")):
+            series = b.xpath("series/string_value")[0].text
+            bib_dict['series']=series
+        if (b.xpath("publisher/string_value")):
+            publisher  = b.xpath("publisher/string_value")[0].text
+            bib_dict['publisher']=publisher
+        if (b.xpath("doi/string_value")):
+            doi     = b.xpath("doi/string_value")[0].text
+            bib_dict['doi']=doi
+        if (b.xpath("url/string_value")):
+            url     = b.xpath("url/string_value")[0].text
+            bib_dict['url']=url
+        
+        bib_it = bibitem.BibItem(bib_dict)
+        bibliography.add_item(bib_it)
+
+
+    find = etree.XPath("//in_book")
+    inbook = find(xml_root)
+    # loop through all in book 
+    for i in inbook: 
+        name = i.getparent().getparent().attrib['name']
+        # get authors
+        authors = []
+        for auths in i.xpath("authors/author"):
+            surname = auths.xpath("surname/string_value")[0].text
+            first = auths.xpath("other_names/string_value")[0].text
+            authors.append(["", surname,first,''])
+        title   = i.xpath("title/string_value")[0].text
+        year    = i.xpath("year/integer_value")[0].text
+        editors = []
+        for eds in a.xpath("editors/editor"):
+            surname = eds.xpath("surname/string_value")[0].text
+            first = eds.xpath("other_names/string_value")[0].text
+            editors.append(["", surname,first,''])
+        bib_dict["editors"]=editors
+        bib_dict = {
+                "_code"  : name,
+                "_type"  : 'article',
+                "author" : authors,
+                "title"  : title,
+                "year"   : year,
+                "editor" : editors
+                }
+        # these are optional in the schema
+        if (i.xpath("series/string_value")):
+            series = i.xpath("series/string_value")[0].text
+            bib_dict['series']=series
+        if (i.xpath("publisher/string_value")):
+            publisher  = i.xpath("publisher/string_value")[0].text
+            bib_dict['publisher']=publisher
+        if (i.xpath("pages/string_value")):
+            pages   = i.xpath("pages/string_value")[0].text
+            bib_dict['pages']=pages 
+        if (i.xpath("doi/string_value")):
+            doi     = i.xpath("doi/string_value")[0].text
+            bib_dict['doi']=doi
+
+        bib_it = bibitem.BibItem(bib_dict)
+        bibliography.add_item(bib_it)
+
+
+
+    find = etree.XPath("//in_collection")
+    incollections = find(xml_root)
+    # loop through all in collections 
+    for i in incollections: 
+        name = i.getparent().getparent().attrib['name']
+        # get authors
+        authors = []
+        for auths in i.xpath("authors/author"):
+            surname = auths.xpath("surname/string_value")[0].text
+            first = auths.xpath("other_names/string_value")[0].text
+            authors.append(["", surname,first,''])
+        title   = i.xpath("title/string_value")[0].text
+        year    = i.xpath("year/integer_value")[0].text
+        bib_dict = {
+                "_code"  : name,
+                "_type"  : 'article',
+                "author" : authors,
+                "title"  : title,
+                "year"   : year,
+                }
+        # these are optional in the schema
+        if (i.xpath("editors")):
+            editors = []
+            for eds in i.xpath("editors/editor"):
+                surname = eds.xpath("surname/string_value")[0].text
+                first = eds.xpath("other_names/string_value")[0].text
+                editors.append(["", surname,first,''])
+            bib_dict["editor"]=editors
+        if (i.xpath("booktitle/string_value")):
+            booktitle = i.xpath("booktitle/string_value")[0].text
+            bib_dict['booktitle']=booktitle
+        if (i.xpath("series/string_value")):
+            series = i.xpath("series/string_value")[0].text
+            bib_dict['series']=series
+        if (i.xpath("publisher/string_value")):
+            publisher  = i.xpath("publisher/string_value")[0].text
+            bib_dict['publisher']=publisher
+        if (i.xpath("pages/string_value")):
+            pages   = i.xpath("pages/string_value")[0].text
+            bib_dict['pages']=pages 
+        if (i.xpath("doi/string_value")):
+            doi     = i.xpath("doi/string_value")[0].text
+            bib_dict['doi']=doi
+        if (i.xpath("url/string_value")):
+            url     = i.xpath("url/string_value")[0].text
+            bib_dict['url']=url
+
+        bib_it = bibitem.BibItem(bib_dict)
+        bibliography.add_item(bib_it)
+
+    bibliography.output(fout=filename,formato=format,verbose=False)
+    
+    return
+
+def import_trees(filename):
+    """ Return an array of all trees in a file. 
+        All formats are supported that we've come across
+        but submit a bug if a (common-ish) tree file shows up that can't be
+        parsed.
+    """
+    f = open(filename)
+    content = f.read()                 # read entire file into memory
+    f.close()    
+    # Need to add checks on the file. Problems include:
+# TNT: outputs Phyllip format or something - basically a Newick
+# string without commas, so add 'em back in
+    m = re.search(r'proc-;', content)
+    if (m != None):
+        # TNT output tree
+        # Done on a Mac? Replace ^M with a newline
+        content = string.replace( content, '\r', '\n' )
+        h = StringIO(content)
+        counter = 1
+        content  = "#NEXUS\n"
+        content += "begin trees;\n"
+        add_to = False
+        for line in h:
+            if (line.startswith('(')):
+                add_to = True
+            if (line.startswith('proc') and add_to):
+                add_to = False
+                break
+            if (add_to):
+                line = line.strip() + ";"
+                if line == ";":
+                    continue
+                m = re.findall("([a-zA-Z0-9_\.]+)\s+([a-zA-Z0-9_\.]+)", line)
+                treedata = line
+                for i in range(0,len(m)):
+                    treedata = re.sub(m[i][0]+"\s+"+m[i][1],m[i][0]+", "+m[i][1],treedata)
+                m = re.findall("([a-zA-Z0-9_\.]+)\s+([a-zA-Z0-9_\.]+)", treedata)
+                for i in range(0,len(m)):
+                    treedata = re.sub(m[i][0]+"\s+"+m[i][1],m[i][0]+","+m[i][1],treedata)
+                m = re.findall("(\))\s*(\()", treedata)
+                if (m != None):
+                    for i in range(0,len(m)):
+                        treedata = re.sub("(\))\s*(\()",m[i][0]+", "+m[i][1],treedata,count=1)
+                m = re.findall("([a-zA-Z0-9_\.]+)\s*(\()", treedata)
+                if (m != None):
+                    for i in range(0,len(m)):
+                        treedata = re.sub("([a-zA-Z0-9_\.]+)\s*(\()",m[i][0]+", "+m[i][1],treedata,count=1)
+                m = re.findall("(\))\s*([a-zA-Z0-9_\.]+)", treedata)
+                if (m != None):
+                    for i in range(0,len(m)):
+                        treedata = re.sub("(\))\s*([a-zA-Z0-9_\.]+)",m[i][0]+", "+m[i][1],treedata,count=1)
+                # last swap - no idea why, but some times the line ends in '*'; remove it
+                treedata = treedata.replace('*;',';')
+                treedata = treedata.replace(';;',';')
+                treedata += "\n"
+                treedata = "\ntree tree_"+str(counter)+" = [&U] " + treedata
+                counter += 1
+                content += treedata
+
+        content += "\nend;\n"
+
 # TreeView (Page, 1996):
 # TreeView create a tree with the following description:
 #
@@ -325,10 +601,6 @@ def import_tree(filename, gui=None, tree_no = -1):
 # so we need to replace the above with:
 #   tree_1 = [&u] ((1,(2,(3,(4,5)))),(6,7));
 #
-    f = open(filename)
-    content = f.read()                 # read entire file into memory
-    f.close()
-    # Treeview
     m = re.search(r'\UTREE\s?\*\s?(.+)\s?=\s', content)
     if (m != None):
         treedata = re.sub("\UTREE\s?\*\s?(.+)\s?=\s","tree "+m.group(1)+" = [&u] ", content)
@@ -430,6 +702,22 @@ def import_tree(filename, gui=None, tree_no = -1):
         raise TreeParseError("Error parsing " + filename)
     trees = p4.var.trees
     p4.var.trees = []
+    
+    r_trees = []
+    for t in trees:
+        r_trees.append(t.writeNewick(fName=None,toString=True).strip())
+
+    return r_trees
+
+
+def import_tree(filename, gui=None, tree_no = -1):
+    """Takes a NEXUS formatted file and returns a list containing the tree
+    strings"""
+  
+    trees = import_trees(filename)
+
+    if (len(trees) == 1):
+        tree_no = 0
 
     if (len(trees) > 1 and tree_no == -1):
         message = "Found "+len(trees)+" trees. Which one do you want to load (1-"+len(trees)+"?"
@@ -462,11 +750,9 @@ def import_tree(filename, gui=None, tree_no = -1):
             text = entry.get_text()
             dialog.destroy()
             tree_no = int(text) - 1
-    else:
-        tree_no = 0
 
     tree = trees[tree_no]
-    return tree.writeNewick(fName=None,toString=True).strip()
+    return tree
 
 def get_all_characters(XML):
     """Returns a dictionary containing a list of characters within each 
@@ -495,6 +781,41 @@ def get_all_characters(XML):
 
     return char_dict
 
+def get_characters_from_tree(XML,name,sort=False):
+    """Get the characters that were used in a particular tree
+    """
+
+    characters = []
+    # Our input tree has name source_no, so find the source by stripping off the number
+    source_name, number = name.rsplit("_",1)
+    number = int(number.replace("_",""))
+    xml_root = _parse_xml(XML)
+    # By getting source, we can then loop over each source_tree
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+    # loop through all sources
+    for s in sources:
+        # for each source, get source name
+        name = s.attrib['name']
+        if source_name == name:
+            # found the bugger!
+            tree_no = 1
+            for t in s.xpath("source_tree/tree/tree_string"):
+                if tree_no == number:
+                    # and now we have the correct tree. 
+                    # Now we can get the characters for this tree
+                    chars = t.getparent().getparent().xpath("character_data/character")
+                    for c in chars:
+                        characters.append(c.attrib['name'])
+                    if (sort):
+                        characters.sort()
+                    return characters
+                tree_no += 1
+
+    # should raise exception here
+    return characters
+
+
 def get_character_numbers(XML):
     """ Return the number of trees that use each character
     """
@@ -509,6 +830,38 @@ def get_character_numbers(XML):
         char_numbers[c.attrib['name']] += 1
 
     return char_numbers
+
+def get_taxa_from_tree(XML, tree_name, sort=False):
+    """Return taxa from a single tree based on name
+    """
+
+    trees = obtain_trees(XML)
+    taxa_list = []
+    for t in trees:
+        if t == tree_name:
+            tree = trees[t]
+            try:
+                p4.var.warnReadNoFile = False
+                p4.var.nexus_warnSkipUnknownBlock = False
+                p4.var.trees = []
+                p4.read(tree)
+                p4.var.nexus_warnSkipUnknownBlock = True
+                p4.var.warnReadNoFile = True
+            except:
+                raise TreeParseError("Error parsing tree to get taxa")
+            tree = p4.var.trees[0]
+            p4.var.trees = []
+            terminals = tree.getAllLeafNames(tree.root)
+            for term in terminals:
+                taxa_list.append(str(term))
+            if (sort):
+                taxa_list.sort()
+            return taxa_list
+
+    # actually need to raise exception here
+    # and catch it in calling function
+    return taxa_list
+
 
 def get_fossil_taxa(XML):
     """Return a list of fossil taxa
@@ -591,6 +944,27 @@ def obtain_trees(XML):
 
     return trees
 
+def amalgamate_trees(XML,format="Nexus",anonymous=False):
+    """ Create a string containing all trees in the XML.
+        String can be formatted to one of Nexus, Newick or TNT.
+        Only Nexus formatting takes into account the anonymous
+        flag - the other two are anonymous anyway
+        Any errors and None is returned - check for this as this is the 
+        callers responsibility
+    """
+
+
+    # Check format flag - let the caller handle
+    if (not (format == "Nexus" or 
+        format == "Newick" or
+        format == "tnt")):
+            return None
+
+    trees = obtain_trees(XML)
+
+    return _amalgamate_trees(trees,format,anonymous)
+        
+
 def get_all_taxa(XML, pretty=False):
     """ Produce a taxa list by scanning all trees within 
     a PHYML file. 
@@ -620,7 +994,10 @@ def get_all_taxa(XML, pretty=False):
 
     return taxa_list
 
+
 def create_matrix(XML,format="hennig"):
+    """ From all trees in the XML, create a matrix
+    """
 
     # get all trees
     trees = obtain_trees(XML)
@@ -630,88 +1007,34 @@ def create_matrix(XML,format="hennig"):
     taxa.append("MRPOutgroup")
     taxa.extend(get_all_taxa(XML))
 
-    # our matrix, we'll then append the submatrix
-    # to this to make a 2D matrix
-    # Our matrix is of length nTaxa on the i dimension
-    # and nCharacters in the j direction
-    matrix = []
-    charsets = []
-    names = []
-    current_char = 1
-    for key in trees:
-        names.append(key)
-        submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
-        nChars = len(submatrix[0,:])
-        # loop over characters in the submatrix
-        for i in range(1,nChars):
-            # loop over taxa. Add '?' for an "unknown" taxa, otherwise
-            # get 0 or 1 from submatrix. May as well turn into a string whilst
-            # we're at it
-            current_row = []
-            for taxon in taxa:
-                if (taxon in tree_taxa):
-                    # get taxon index
-                    t_index = tree_taxa.index(taxon)
-                    # then get correct matrix entry - note:
-                    # submatrix transposed wrt main matrix
-                    current_row.append(str(int(submatrix[t_index,i])))
-                elif (taxon == "MRPOutgroup"):
-                    current_row.append('0')
-                else:
-                    current_row.append('?')
-            matrix.append(current_row)
-        charsets.append(str(current_char) + "-" + str(current_char + nChars-2))
-        current_char += nChars-1
+    return _create_matrix(trees, taxa, format=format)
 
-    matrix = numpy.array(matrix)
-    matrix = matrix.transpose()
 
-    if (format == 'hennig'):
-        matrix_string = "xread\n"
-        matrix_string += str(len(taxa)) + " "+str(current_char-1)+"\n"
-        matrix_string += "\tformat missing = ?"
-        matrix_string += ";\n"
-        matrix_string += "\n\tmatrix\n\n";
+def create_matrix_from_trees(trees,format="hennig"):
+    """ Given a dictionary of trees, create a matrix
+    """
 
-        i = 0
-        for taxon in taxa:
-            matrix_string += taxon + "\t"
-            string = ""
-            for t in matrix[i][:]:
-                string += t
-            matrix_string += string + "\n"
-            i += 1
-            
-        matrix_string += "\t;\n"
-        matrix_string += "procedure /;"
-    elif (format == 'nexus'):
-        matrix_string = "#nexus\n\nbegin data;\n"
-        matrix_string += "\tdimensions ntax = "+str(len(taxa)) +" nchar = "+str(current_char-1)+";\n"
-        matrix_string += "\tformat missing = ?"
-        matrix_string += ";\n"
-        matrix_string += "\n\tmatrix\n\n"
+    taxa = []
+    for t in trees:
+        tree = trees[t]
+        try:
+            p4.var.warnReadNoFile = False
+            p4.var.nexus_warnSkipUnknownBlock = False
+            p4.var.trees = []
+            p4.read(tree)
+            p4.var.nexus_warnSkipUnknownBlock = True
+            p4.var.warnReadNoFile = True
+        except:
+            raise TreeParseError("Error parsing tree to get taxa")
+        tree = p4.var.trees[0]
+        p4.var.trees = []
+        terminals = tree.getAllLeafNames(tree.root)
+        for term in terminals:
+            taxa_list.append(str(term))
+    
 
-        i = 0
-        for taxon in taxa:
-            matrix_string += taxon + "\t"
-            string = ""
-            for t in matrix[i][:]:
-                string += t
-            matrix_string += string + "\n"
-            i += 1
-            
-        matrix_string += "\t;\nend;\n\n"
-        matrix_string += "begin sets;\n"
-        i = 0
-        for char in charsets:
-            matrix_string += "\tcharset "+names[i] + " "
-            matrix_string += char + "\n"
-            i += 1
-        matrix_string += "end;\n\n"
-    else:
-        raise MatrixError("Invalid matrix format")
+    return _create_matrix(trees, taxa, format=format)
 
-    return matrix_string
 
 def load_phyml(filename):
     """ Super simple function that returns XML
@@ -797,6 +1120,119 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
         i = i+1
 
     return etree.tostring(xml_root,pretty_print=True)
+
+
+def permute_tree(tree,matrix="hennig",treefile=None):
+    """ Permute a tree where there is uncertianty in taxa location.
+    Output either a tree file or matrix file of all possible 
+    permutations.
+
+    Note this is a recursive algorithm.
+    """
+
+    # check format strings
+
+    permuted_trees = {} # The output of the recursive permute algorithm
+    output_string = "" # what we pass back
+
+    # first thing is to get hold of the unique taxa names
+    # i.e. without % on them
+    all_taxa = _getTaxaFromNewick(tree)
+
+    names_d = [] # our duplicated list of names
+    names = [] # our unique names (without any %)
+    for name in all_taxa:
+        if ( not name.find('%') == -1 ):
+            # strip number and %
+            name = name[0:name.find('%')]
+            names_d.append(name)
+            names.append(name)
+        else:
+            names.append(name)
+    # we now uniquify these arrays
+    names_d_unique = _uniquify(names_d)
+    names_unique = _uniquify(names)
+    names = []
+    names_d = []
+    non_unique_numbers = []
+    # count the number of each of the non-unique taxa
+    for i in range(0,len(names_unique)):
+        count = 0
+        for name in all_taxa:
+            if not name.find('%') == -1:
+                name = name[0:name.find('%')]
+                if name == names_unique[i]:
+                    count += 1
+        non_unique_numbers.append(count)
+
+    trees_saved = []
+    # I hate recursive functions, but it actually is the
+    # best way to do this.
+    # We permute until we have replaced all % taxa with one of the
+    # possible choices, then we back ourselves out, swapping taxa
+    # in and out until we hit all permutations and pop out
+    # of the recursion
+    # Note: scope of variables in nested functions here (another evil thing)
+    # Someone more intelligent than me should rewrite this so it's
+    # easier to follow.
+    def _permute(n,temp):
+    
+        tempTree = temp
+
+        if ( n < len(names_unique) and non_unique_numbers[n] == 0 ):
+            _permute( ( n + 1 ), tempTree );
+        else:
+            if ( n < len(names_unique) ):
+                for i in range(1,non_unique_numbers[n]+1):
+                    tempTree = temp;
+                    taxa = _getTaxaFromNewick(tree)
+                    # iterate over nodes
+                    for name in taxa:
+                        index = name.find('%')
+                        short_name = name[0:index]
+                        current_unique_name = names_unique[n]
+                        current_unique_name = current_unique_name.replace(' ','_')
+                        if ( index > 0 and short_name == current_unique_name ):
+                            if ( not name == current_unique_name + "%" + str(i) ):
+                                tempTree = _delete_taxon(name, tempTree)
+                    if ( n < len(names_unique) ):
+                        _permute( ( n + 1 ), tempTree )
+            else:
+                tempTree = re.sub('%\d+','',tempTree)
+                trees_saved.append(tempTree)
+
+    if (len(trees_saved) == 0):
+        # we now call the recursive function (above) to start the process
+        _permute(0,tree)
+
+    # check none are actually equal and store as dictionary
+    count = 1
+    for i in range(0,len(trees_saved)):
+        equal = False
+        for j in range(i+1,len(trees_saved)):
+            if (_trees_equal(trees_saved[i],trees_saved[j])):
+                equal = True
+                break
+        if (not equal):
+            permuted_trees["tree_"+str(count)] = trees_saved[i]
+            count += 1
+            
+
+    # out pops a dictionary of trees - either amalgamte in a single treefile (same taxa)
+    # or create a matrix.
+    if (treefile == None):
+        # create matrix
+        # taxa are all the same in each tree
+        taxa = []
+        taxa.append("MRPOutgroup")
+        taxa.extend(names_unique)
+        output_string = _create_matrix(permuted_trees,taxa,format=matrix)
+    else:
+        output_string = _amalgamate_trees(permuted_trees,format=treefile) 
+
+    # Either way we output a string that the caller can save or display or pass to tnt, or burn;
+    # it's up to them, really.
+    return output_string
 
 
 def data_summary(XML,detailed=False):
@@ -1053,6 +1489,67 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
 
     return sufficient_overlap, key_list
 
+def data_independence(XML,make_new_xml=False):
+    """ Return a list of sources that are not independent.
+    This is decided on the source data and the analysis
+    """
+    # data storage:
+    #
+    # tree_name, character string, taxa_list
+    # tree_name, character string, taxa_list
+    # 
+    # smith_2009_1, cytb, a:b:c:d:e
+    # jones_2008_1, cytb:mit, a:b:c:d:e:f
+    # jones_2008_2, cytb:mit, a:b:c:d:e:f:g:h
+    #
+    # The two jones_2008 trees are not independent.  jones_2008_2 is retained
+    data_ind = []
+
+    trees = obtain_trees(XML)
+    for tree_name in trees:
+        taxa = get_taxa_from_tree(XML, tree_name, sort=True)
+        characters = get_characters_from_tree(XML, tree_name, sort=True)
+        data_ind.append([tree_name, characters, taxa])
+    
+    # Then sort based on the character string and taxa_list as secondary sort
+    # Doing so means the tree_names that use the same characters
+    # are next to each other
+    data_ind.sort(key=operator.itemgetter(1,2))
+
+    # The loop through this list, and if the character string is the same
+    # as the previous one, check the taxa. If the taxa from the 1st
+    # source is contained within (or is equal) the taxa list of the 2nd
+    # grab the source data - these are not independent.
+    # Because we've sorted the data, if the 2nd taxa list will be longer
+    # than the previous entry if the first N taxa are the same
+    prev_char = None
+    prev_taxa = None
+    prev_name = None
+    non_ind = {}
+    for data in data_ind:
+        name = data[0]
+        char = data[1]
+        taxa = data[2]
+        if (char == prev_char):
+            # when sorted, the longer list comes first
+            if set(taxa).issubset(set(prev_taxa)):
+                if (taxa == prev_taxa):
+                    non_ind[name] = [prev_name,IDENTICAL]
+                else:
+                    non_ind[name] = [prev_name,SUBSET]
+        prev_char = char
+        prev_taxa = taxa
+        prev_name = name
+
+    if (make_new_xml):
+        new_xml = XML
+        for name in non_ind:
+            if (non_ind[name][1] == SUBSET):
+                new_xml = _swap_tree_in_XML(new_xml,None,name) 
+        return non_ind, new_xml
+    else:
+        return non_ind
+
 def add_historical_event(XML, event_description):
 
     now  = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -1074,11 +1571,7 @@ def add_historical_event(XML, event_description):
 
     return XML
     
-
-
-    
 ################ PRIVATE FUNCTIONS ########################
-
 
 def _uniquify(l):
     keys = {}
@@ -1158,7 +1651,7 @@ def _delete_taxon(taxon, tree):
     tree_obj = p4.var.trees[0]
     for node in tree_obj.iterNodes():
         if node.name == taxon:
-            tree_obj.removeNode(node.nodeNum)
+            tree_obj.removeNode(node.nodeNum,alsoRemoveBiRoot=False)
             break
     p4.var.warnReadNoFile = True    
 
@@ -1183,7 +1676,9 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     return new_tree
 
 def _swap_tree_in_XML(XML, tree, name):
-    """ Swap tree with name, 'name' with this new one
+    """ Swap tree with name, 'name' with this new one.
+        If tree is None, name is removed.
+        If source no longer contains any trees, the source is removed
     """
 
     # tree name has the tree number attached to the source name
@@ -1197,6 +1692,8 @@ def _swap_tree_in_XML(XML, tree, name):
     # By getting source, we can then loop over each source_tree
     find = etree.XPath("//source")
     sources = find(xml_root)
+    if (tree == None):
+        delete_me = []
     # loop through all sources
     for s in sources:
         # for each source, get source name
@@ -1206,9 +1703,16 @@ def _swap_tree_in_XML(XML, tree, name):
             tree_no = 1
             for t in s.xpath("source_tree/tree/tree_string"):
                 if tree_no == number:
-                   t.xpath("string_value")[0].text = tree
-                   # We can return as we're only replacing one tree
-                   return etree.tostring(xml_root,pretty_print=True)
+                    if (not tree == None): 
+                        t.xpath("string_value")[0].text = tree
+                        # We can return as we're only replacing one tree
+                        return etree.tostring(xml_root,pretty_print=True)
+                    else:
+                        s.remove(t.getparent().getparent())
+                        # we now need to check the source to check if there are
+                        # any trees in this source now, if not, remove
+                        s.getparent().remove(s)
+                        return etree.tostring(xml_root,pretty_print=True)
                 tree_no += 1
 
     return XML
@@ -1302,6 +1806,27 @@ def _check_taxa(XML):
 
     return
 
+def _check_sources(XML):
+    """ Check that all sources in the dataset have at least one tree_string associated
+        with them
+    """
+
+    xml_root = _parse_xml(XML)
+    # By getting source, we can then loop over each source_tree
+    # within that source and construct a unique name
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+    # for each source
+    for s in sources:
+        # get a list of taxa in the XML
+        this_source = _parse_xml(etree.tostring(s))
+        name = s.attrib['name']
+        trees = obtain_trees(etree.tostring(this_source))
+        if (len(trees) < 1):
+            raise InvalidSTKData("Source "+name+" has no trees")
+
+
+
 def _check_data(XML):
     """ Function to check various aspects of the dataset, including:
          - checking taxa in the XML for a source are included in the tree for that source
@@ -1313,6 +1838,9 @@ def _check_data(XML):
 
     # now the taxa
     _check_taxa(XML) # again will raise an error if test fails
+
+    # check sources
+    _check_sources(XML)
 
     return
 
@@ -1359,3 +1887,173 @@ def _sort_data(xml_root):
     container[:] = [item[-1] for item in data]
     
     return xml_root
+
+
+def _trees_equal(t1,t2):
+    """ compare two trees using Robinson-Foulds metric
+    """
+
+    try:
+        p4.var.warnReadNoFile = False
+        p4.var.nexus_warnSkipUnknownBlock = False
+        p4.var.trees = []
+        p4.read(t1)
+        p4.read(t2)
+        p4.var.nexus_warnSkipUnknownBlock = True
+        p4.var.warnReadNoFile = True
+    except:
+        raise TreeParseError("Error parsing " + filename)
+
+    tree_1 = p4.var.trees[0]
+    tree_2 = p4.var.trees[1]
+    
+    # add the taxanames
+    # Sort, otherwose p4 things the txnames are different
+    names = tree_1.getAllLeafNames(tree_1.root)
+    names.sort()
+    tree_1.taxNames = names
+    names = tree_2.getAllLeafNames(tree_2.root)
+    names.sort()
+    tree_2.taxNames = names
+
+    same = False
+    try:
+        if (tree_1.topologyDistance(tree_2) == 0):
+            same = True # yep, the same
+            # but also check the root
+            if not tree_1.root.getNChildren() == tree_2.root.getNChildren():
+                same = False
+    except:
+        same = False # different taxa, so can't be the same!
+
+    return same
+
+def _find_trees_for_permuting(XML):
+
+    trees = obtain_trees(XML)
+    permute_trees = {}
+    for t in trees:
+        if trees[t].find('%') > -1:
+            # tree needs permuting - we store the 
+            permute_trees[t] = trees[t]
+
+    return permute_trees
+
+def _create_matrix(trees, taxa, format="hennig"):
+
+    # our matrix, we'll then append the submatrix
+    # to this to make a 2D matrix
+    # Our matrix is of length nTaxa on the i dimension
+    # and nCharacters in the j direction
+    matrix = []
+    charsets = []
+    names = []
+    current_char = 1
+    for key in trees:
+        names.append(key)
+        submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
+        nChars = len(submatrix[0,:])
+        # loop over characters in the submatrix
+        for i in range(1,nChars):
+            # loop over taxa. Add '?' for an "unknown" taxa, otherwise
+            # get 0 or 1 from submatrix. May as well turn into a string whilst
+            # we're at it
+            current_row = []
+            for taxon in taxa:
+                if (taxon in tree_taxa):
+                    # get taxon index
+                    t_index = tree_taxa.index(taxon)
+                    # then get correct matrix entry - note:
+                    # submatrix transposed wrt main matrix
+                    current_row.append(str(int(submatrix[t_index,i])))
+                elif (taxon == "MRPOutgroup"):
+                    current_row.append('0')
+                else:
+                    current_row.append('?')
+            matrix.append(current_row)
+        charsets.append(str(current_char) + "-" + str(current_char + nChars-2))
+        current_char += nChars-1
+
+    matrix = numpy.array(matrix)
+    matrix = matrix.transpose()
+
+    if (format == 'hennig'):
+        matrix_string = "xread\n"
+        matrix_string += str(len(taxa)) + " "+str(current_char-1)+"\n"
+        matrix_string += "\tformat missing = ?"
+        matrix_string += ";\n"
+        matrix_string += "\n\tmatrix\n\n";
+
+        i = 0
+        for taxon in taxa:
+            matrix_string += taxon + "\t"
+            string = ""
+            for t in matrix[i][:]:
+                string += t
+            matrix_string += string + "\n"
+            i += 1
+            
+        matrix_string += "\t;\n"
+        matrix_string += "procedure /;"
+    elif (format == 'nexus'):
+        matrix_string = "#nexus\n\nbegin data;\n"
+        matrix_string += "\tdimensions ntax = "+str(len(taxa)) +" nchar = "+str(current_char-1)+";\n"
+        matrix_string += "\tformat missing = ?"
+        matrix_string += ";\n"
+        matrix_string += "\n\tmatrix\n\n"
+
+        i = 0
+        for taxon in taxa:
+            matrix_string += taxon + "\t"
+            string = ""
+            for t in matrix[i][:]:
+                string += t
+            matrix_string += string + "\n"
+            i += 1
+            
+        matrix_string += "\t;\nend;\n\n"
+        matrix_string += "begin sets;\n"
+        i = 0
+        for char in charsets:
+            matrix_string += "\tcharset "+names[i] + " "
+            matrix_string += char + "\n"
+            i += 1
+        matrix_string += "end;\n\n"
+    else:
+        raise MatrixError("Invalid matrix format")
+
+    return matrix_string
+    
+def _amalgamate_trees(trees,format,anonymous=False):
+        # all trees are in Newick string format already
+    # For each format, Newick, Nexus and TNT this format
+    # is adequate. 
+    # Newick: Do nothing - write one tree per line
+    # Nexus: Add header, write one tree per line, prepending tree info, taking into acount annonymous flag
+    # TNT: strip commas, write one tree per line
+    output_string = ""
+    if format == "Nexus":
+        output_string += "#NEXUS\n\nBEGIN TREES;\n\n"
+    tree_count = 0
+    for tree in trees:
+        if format == "Nexus":
+            if anonymous:
+                output_string += "\tTREE tree_"+str(tree_count)+" = "+trees[tree]+"\n"
+            else:
+                output_string += "\tTREE "+tree+" = "+trees[tree]+"\n"
+        elif format == "Newick":
+            output_string += trees[tree]+"\n"
+        elif format == "tnt":
+            t = trees[tree];
+            t = t.replace(",","");
+            t = t.replace(";","");
+            output_string += t+"\n"
+        tree_count += 1
+    # Footer
+    if format == "Nexus":
+        output_string += "\n\nEND;"
+    elif format == "tnt":
+        output_string += "\n\nproc-;"
+
+    return output_string
+

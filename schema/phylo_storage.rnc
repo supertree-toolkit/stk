@@ -78,7 +78,7 @@ source=
                 anystring
             },
             element figure_number {
-                integer
+                anystring
             },
             element page_number {
                 integer
@@ -96,8 +96,11 @@ source=
                 }?,
                 evolution_models,
                 element character_weights {
+                    attribute character {string},
+                    (
                     anystring
-                }?,
+                    )
+                }*,
                 consensus?
             },
             element topology {
