@@ -290,9 +290,11 @@ def main():
             default='',
             )
     parser_cm.add_argument('-n',
-            '--name',
-            default='',
-            help="Do the permutation on a single tree only. Format of the name is Sourcename_treenumber, e.g. 'Hill_2011_1'")
+            '--treename',
+            default=None,
+            help="Do the permutation on a single tree only. Format of the name is Sourcename_treenumber, e.g. 'Hill_2011_1'",
+            required=False,
+            )
     parser_cm.set_defaults(func=permute_trees)
 
     # parse the arguments, and strip out the common options
@@ -693,7 +695,7 @@ def permute_trees(args):
     input_file = args.input
     create_matrix = args.create_matrix
     treefile = args.treefile
-    name = args.name
+    name = args.treename
 
     if (not os.path.exists(input_file)):
         print "Input phyml cannot be found. Exiting"
@@ -715,11 +717,15 @@ def permute_trees(args):
 
     tree_list = {}
     all_trees = supertree_toolkit.obtain_trees(XML)
-    if (not name == ''): # user has supplied a tree name - find it
+    print args
+    if (not name == None): # user has supplied a tree name - find it
         # get tree
         for t in all_trees:
-            if t == tree_name:
+            if t == name:
                 tree_list[t] = all_trees[t]
+        if (len(tree_list) == 0):
+            print "Error finding that name. It should be in the form 'Hill_2011_1'"
+            sys.exit(-1)
     else:
         # get all trees
         tree_list = supertree_toolkit._find_trees_for_permuting(XML)
