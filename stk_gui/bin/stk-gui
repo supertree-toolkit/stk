@@ -133,17 +133,18 @@ def main():
     if opt[0] == "-s":
       input_schemafile = opt[1]
 
-  #schemafile is not given so look up actual path  
-  for possible_schemafile in [
-        os.path.join(stk_path, "../../../../share/schemata/stk/phylo_storage.rng"),
-        "/usr/local/share/stk/schemata/schema/phylo_storage.rng",
-        os.path.join(os.path.realpath(os.path.dirname(__file__)),"../../schema/phylo_storage.rng")]:
-    try:
-      os.stat(possible_schemafile)
-      input_schemafile = possible_schemafile
-      break
-    except OSError:
-      pass   
+    else:
+      #schemafile is not given so look up actual path  
+      for possible_schemafile in [
+            os.path.join(stk_path, "../../../../share/schemata/stk/phylo_storage.rng"),
+            "/usr/local/share/stk/schemata/schema/phylo_storage.rng",
+            os.path.join(os.path.realpath(os.path.dirname(__file__)),"../../schema/phylo_storage.rng")]:
+        try:
+          os.stat(possible_schemafile)
+          input_schemafile = possible_schemafile
+          break
+        except OSError:
+          pass   
 
   if input_schemafile is None:
     message = "Could not find schema files in the usual places"
