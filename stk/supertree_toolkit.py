@@ -963,7 +963,7 @@ def amalgamate_trees(XML,format="Nexus",anonymous=False):
 
     trees = obtain_trees(XML)
 
-    return _amalgamate_trees(trees,format)
+    return _amalgamate_trees(trees,format,anonymous)
         
 
 def get_all_taxa(XML, pretty=False):
@@ -1206,7 +1206,6 @@ def permute_tree(tree,matrix="hennig",treefile=None):
         # we now call the recursive function (above) to start the process
         _permute(0,tree)
 
-    print trees_saved
     # check none are actually equal and store as dictionary
     count = 1
     for i in range(0,len(trees_saved)):
@@ -1214,7 +1213,6 @@ def permute_tree(tree,matrix="hennig",treefile=None):
         for j in range(i+1,len(trees_saved)):
             if (_trees_equal(trees_saved[i],trees_saved[j])):
                 equal = True
-                print trees_saved[i],trees_saved[j]
                 break
         if (not equal):
             permuted_trees["tree_"+str(count)] = trees_saved[i]
@@ -2024,7 +2022,7 @@ def _create_matrix(trees, taxa, format="hennig"):
 
     return matrix_string
     
-def _amalgamate_trees(trees,format):
+def _amalgamate_trees(trees,format,anonymous=False):
         # all trees are in Newick string format already
     # For each format, Newick, Nexus and TNT this format
     # is adequate. 

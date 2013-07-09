@@ -139,13 +139,9 @@ class TestImportTree(unittest.TestCase):
     def test_delete_taxa_root(self):
         t = '((E%1,G%1),A,(G%2,(E%2,F,D,H,E%3)));'
         new_tree =  _delete_taxon("E%1", t)
-        print new_tree
         new_tree =  _delete_taxon("G%1", new_tree)
-        print new_tree
         new_tree =  _delete_taxon("E%2", new_tree)
-        print new_tree 
         self.assert_(new_tree == "(A, (G%2, (F, D, H, E%3)));")
-
 
 
     def test_delete_taxa_missing(self):
@@ -367,8 +363,6 @@ class TestImportTree(unittest.TestCase):
         self.assert_(expected_tree == trees[0])        
         self.assert_(expected_tree2 == trees[1])
 
-
-
     def test_trees_equal(self):
         test_file = "data/input/multiple_trees.tre"
         trees = import_trees(test_file)
@@ -497,7 +491,17 @@ class TestImportTree(unittest.TestCase):
         XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
         trees = obtain_trees(XML)
         output = permute_tree(trees['Hill_2011_1'],treefile="Newick")
-        print output
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".new")
+        f = open(temp_file,"w")
+        f.write(output)
+        f.close()
+        output_trees = import_trees(temp_file)
+        expected_trees = import_trees("data/output/permute_trees.nex")
+        os.remove(temp_file)
+        self.assert_(len(output_trees)==len(expected_trees))
+        for i in range(0,len(output_trees)):
+            self.assert_(_trees_equal(output_trees[i],expected_trees[i]))
+
 
 if __name__ == '__main__':
     unittest.main()
