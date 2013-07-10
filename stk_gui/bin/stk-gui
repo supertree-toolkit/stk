@@ -133,7 +133,7 @@ def main():
     if opt[0] == "-s":
       input_schemafile = opt[1]
 
-    else:
+  if (input_schemafile == None):
       #schemafile is not given so look up actual path  
       for possible_schemafile in [
             os.path.join(stk_path, "../../../../share/schemata/stk/phylo_storage.rng"),
