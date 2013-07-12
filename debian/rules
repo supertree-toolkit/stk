@@ -4,7 +4,7 @@
 %:
 	dh $@
 
-dh_userlocal:
+override_dh_usrlocal:
 	rm -rf debian/stk/usr/local/lib/python2.7/site-packages/stk_gui
 	rm -rf debian/stk/usr/local/lib/python2.7/site-packages/stk
 
