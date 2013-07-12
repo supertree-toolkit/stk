@@ -9,7 +9,10 @@ from subprocess import call
 class install(_install):
     def run(self):
         _install.run(self)
-        call(["update-desktop-database"])
+        try:
+            call(["update-desktop-database"])
+        except:
+            pass
         
 
 try:
@@ -79,7 +82,7 @@ setup(
           # of pre-installing it. It also means we don't overwrite any previous p4 install.
           'stk.p4':'stk/p4',
           'stk.nameparser':'stk/nameparser'},
-      #scripts=["stk_gui/bin/stk-gui", "stk/stk"],
+      scripts=["stk_gui/bin/stk-gui", "stk/stk"],
       **extra_options
     )
 
