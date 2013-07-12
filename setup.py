@@ -79,7 +79,7 @@ setup(
           # of pre-installing it. It also means we don't overwrite any previous p4 install.
           'stk.p4':'stk/p4',
           'stk.nameparser':'stk/nameparser'},
-      scripts=["stk_gui/bin/stk-gui", "stk/stk"],
+      #scripts=["stk_gui/bin/stk-gui", "stk/stk"],
       **extra_options
     )
 
