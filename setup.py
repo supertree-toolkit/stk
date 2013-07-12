@@ -18,7 +18,7 @@ class install(_install):
 try:
   destdir = os.environ["DESTDIR"]
 except KeyError:
-  destdir = "/usr/local/share/"
+  destdir = "/usr/share/"
 try:
     set
 except NameError:
@@ -61,8 +61,8 @@ else:
             data_files = [(destdir + "stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.png", "stk_gui/gui/stk.svg"])] +
                    plugin_data_files + schema_data_files +
                    [(destdir + "stk/schemata", ["schema/phyml"])] +
-                   [(destdir+"/usr/local/share/icons/hicolor/48x48/apps/", ["stk_gui/gui/stk.png"])] +
-                   [(destdir+"/usr/local/share/applications/",["stk.desktop"])]
+                   [(destdir+"/usr/share/icons/hicolor/48x48/apps/", ["stk_gui/gui/stk.png"])] +
+                   [(destdir+"/usr/share/applications/",["stk.desktop"])]
     )
 
 setup(
