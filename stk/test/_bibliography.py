@@ -9,9 +9,9 @@ from lxml import etree
 from util import *
 from stk.stk_exceptions import *
 import tempfile
-import yapbib.biblist as biblist
-import yapbib.bibparse as bibparse
-import yapbib.bibitem as bibitem
+import stk.yapbib.biblist as biblist
+import stk.yapbib.bibparse as bibparse
+import stk.yapbib.bibitem as bibitem
 
 parser = etree.XMLParser(remove_blank_text=True)
 xml_start = etree.parse("data/input/start_up.phyml")

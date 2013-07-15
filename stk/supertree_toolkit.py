@@ -25,9 +25,10 @@ import math
 import re
 import numpy 
 from lxml import etree
-import yapbib.biblist as biblist
-import yapbib.bibparse as bibparse
-import yapbib.bibitem as bibitem
+sys.path.insert(0,"../../")
+import stk.yapbib.biblist as biblist
+import stk.yapbib.bibparse as bibparse
+import stk.yapbib.bibitem as bibitem
 import string
 from stk_exceptions import *
 import traceback

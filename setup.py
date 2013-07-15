@@ -72,12 +72,12 @@ setup(
       author = "The STK Team",
       author_email = "jon.hill@imperial.ac.uk",
       url = "https://launchpad.net/supertree-tookit",
-      packages = ['stk', 'stk_gui', 'yapbib', 'dxdiff', 'stk.p4','stk.nameparser'],
+      packages = ['stk', 'stk_gui', 'stk.yapbib', 'stk.p4','stk.nameparser'],
       package_dir = {
           'stk': 'stk', 
           'stk_gui':'stk_gui/stk_gui', 
-          'yapbib':'stk/yapbib', 
-          'dxdiff':'stk_gui/dxdiff/dxdiff',
+          'stk.yapbib':'stk/yapbib', 
+          #'stk.dxdiff':'stk_gui/dxdiff/dxdiff',
           # Note, we use out own P4 - better tested within STK this way and removes the requirement
           # of pre-installing it. It also means we don't overwrite any previous p4 install.
           'stk.p4':'stk/p4',
