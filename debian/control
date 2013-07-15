@@ -7,7 +7,7 @@ Build-Depends:  python-numpy, python-setuptools, python-all-dev, debhelper, pyth
 Standards-Version: 3.8.0
 XS-Python-Version: >= 2.5
 
-Package: stk
+Package: supertree-toolkit
 Architecture: all
 Depends: python-tk, python-pygraphviz, python-lxml-dbg, python-lxml, python-gtk2, python-numpy, python-matplotlib, python-lxml, libxml2-utils, python, python-gtksourceview2, python-glade2, python-networkx
 Recommends: python-psyco
