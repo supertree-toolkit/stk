@@ -1,5 +1,6 @@
-supertree-toolkit (0.0.1) natty; urgency=low
+supertree-toolkit (1.5) precise; urgency=low
 
-  * Working GUI and basic STK functionality
+  [ jhill1 ]
+  * Initial release. (Closes: #XXXXXX)
 
- -- Jon Hill <jon.hill@imperial.ac.uk>  Sat, 5 Nov 2011 11:32:38 +0100 
+ -- Jon Hill <jhill1@imperial.ac.uk>  Tue, 02 Jul 2013 14:57:14 +0100

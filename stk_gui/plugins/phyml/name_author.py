@@ -5,7 +5,7 @@ import gtk
 import os.path
 import sys
 import gobject
-from stk import *
+import stk.supertree_toolkit as stk
 
 def plugin_applies(xpath):
     # Allow plugin to be used at any element which is under a source dataset
@@ -13,7 +13,7 @@ def plugin_applies(xpath):
 
 @cb_decorator
 
-def handle_click(xml, xpath, **kwargs):
+def handle_click(xml, xpath, path=None):
     from lxml import etree
 
     xml_root = etree.fromstring(xml)
@@ -28,7 +28,7 @@ def handle_click(xml, xpath, **kwargs):
     while (element.tag != 'source'):
         element = element.getparent()
 
-    new_xml = single_sourcename(etree.tostring(element))  
+    new_xml = stk.single_sourcename(etree.tostring(element))  
     ele_T = etree.fromstring(new_xml)
     element.getparent().replace(element,ele_T)
 

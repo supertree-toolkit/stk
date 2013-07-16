@@ -169,6 +169,30 @@ class Schema(object):
 
     return node
 
+
+  def valid_node_stub(self, eid):
+    eidtree = None
+    if isinstance(eid, tree.Tree) or isinstance(eid, choice.Choice):
+      eidtree = eid
+      eid = eid.schemaname
+      
+    elements = self.tree.getroot().findall(".//{http://relaxng.org/ns/structure/1.0}element")
+    node = None
+    for e in elements:
+        if (e.attrib['name'] == eid):
+            node = e
+            break
+    if (node == None):
+        return None
+
+    node = self.to_tree(node)
+  
+    if eidtree is not None:
+      node.cardinality = eidtree.cardinality
+      node.parent = eidtree.parent
+
+    return node
+
   def to_tree(self, element):
     tag = self.tag(element)
     f = self.callbacks[tag]
@@ -508,7 +532,7 @@ class Schema(object):
 
   # read takes a file handle, constructs a generic in-memory representation using the
   # the etree API, and then converts it to a tree of Tree and Choice elements.
-  def read(self, xmlfile, root = None):
+  def read(self, xmlfile, root = None, stub=False):
     try:
       doc = etree.parse(xmlfile)
     except etree.XMLSyntaxError as e:
@@ -524,7 +548,10 @@ class Schema(object):
     if root is None:
       datatree = self.valid_children(":start")[0]
     else:
-      datatree = self.valid_node(root)
+      if stub:
+        datatree = self.valid_node_stub(root)        
+      else:
+        datatree = self.valid_node(root)
 
     xmlnode  = doc.getroot()
     self.xml_read_merge(datatree, xmlnode)
@@ -538,7 +565,7 @@ class Schema(object):
       debug.deprint("WARNING: Lost XML attributes:\n" + str(self.lost_attrs))
     if len(self.added_eles) != 0:
       debug.deprint("WARNING: Added XML attributes:\n" + str(self.added_attrs))
-      
+     
     return datatree
 
   def xml_read_merge(self, datatree, xmlnode):

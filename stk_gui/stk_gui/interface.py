@@ -34,7 +34,6 @@ import gobject
 import gtk
 import gtk.glade
 from stk.stk_exceptions import *
-
 plugin_xml = None
 
 
@@ -168,8 +167,13 @@ class Diamond:
                     "on_create_matrix": self.on_create_matrix,
                     "on_export": self.on_export,
                     "on_import": self.on_import,
+                    "on_export_trees": self.on_export_trees,
+                    "on_export_bib" : self.on_export_bib,
                     "on_sub_taxa": self.on_sub_taxa,
-                    "on_data_summary": self.on_data_summary
+                    "on_data_summary": self.on_data_summary,
+                    "on_data_overlap": self.on_data_overlap,
+                    "on_data_ind" : self.on_data_ind,
+                    "on_permute_all_trees": self.on_permute_all_trees
                     }
 
     self.gui.signal_autoconnect(signals)
@@ -182,7 +186,11 @@ class Diamond:
 
     self.logofile = logofile
     if self.logofile is not None:
-      gtk.window_set_default_icon_from_file(self.logofile)
+        for logo in  self.logofile:
+            try:
+                gtk.window_set_default_icon_from_file(logo)
+            except:
+                print "Error setting logo from file", logo
 
     self.init_treemodel()
 
@@ -253,7 +261,10 @@ class Diamond:
       self.treeview.set_model(self.treestore)
       self.treeview.thaw_child_notify()
       self.set_geometry_dim_tree()
-      self.treeview.get_selection().select_path(path)
+      self.treeview.expand_to_path(path)   
+      # We *must* select the path again otherwise we get a segfault if the user alters the XML
+      # without clicking on a path first.
+      self.treeview.get_selection().select_path(path)    
       self.scherror.destroy_error_list()
       plugin_xml = None
 
@@ -483,11 +494,11 @@ class Diamond:
     filter_names_and_patterns = {}
     if self.suffix is None:
       for xmlname in config.schemata:
-        filter_names_and_patterns[config.schemata[xmlname][0]] = "*." + xmlname
+        filter_names_and_patterns[config.schemata[xmlname][0]] = ["*." + xmlname]
     elif self.suffix in config.schemata.keys():
-      filter_names_and_patterns[config.schemata[self.suffix][0]] = "*." + self.suffix
+      filter_names_and_patterns[config.schemata[self.suffix][0]] = ["*." + self.suffix]
     else:
-      filter_names_and_patterns[self.suffix] = "*." + self.suffix
+      filter_names_and_patterns[self.suffix] = ["*." + self.suffix]
 
     filename = dialogs.get_filename(title = "Open XML file", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 
@@ -504,7 +515,7 @@ class Diamond:
     if not self.save_continue():
       return
 
-    filename = dialogs.get_filename(title = "Open RELAX NG schema", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = {"RNG files":"*.rng"}, folder_uri = self.schemafile_path)
+    filename = dialogs.get_filename(title = "Open RELAX NG schema", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = {"RNG files":["*.rng"]}, folder_uri = self.schemafile_path)
     if filename is not None:
       self.open_file(schemafile = filename)
 
@@ -551,11 +562,11 @@ class Diamond:
     filter_names_and_patterns = {}
     if self.suffix is None:
       for xmlname in config.schemata:
-        filter_names_and_patterns[config.schemata[xmlname][0]] = "*." + xmlname
+        filter_names_and_patterns[config.schemata[xmlname][0]] = ["*." + xmlname]
     elif self.suffix in config.schemata.keys():
-      filter_names_and_patterns[config.schemata[self.suffix][0]] = "*." + self.suffix
+      filter_names_and_patterns[config.schemata[self.suffix][0]] = ["*." + self.suffix]
     else:
-      filter_names_and_patterns[self.suffix] = "*." + self.suffix
+      filter_names_and_patterns[self.suffix] = ["*." + self.suffix]
 
     filename = dialogs.get_filename(title = "Save PHYML file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 
@@ -659,7 +670,7 @@ class Diamond:
 
   def on_about(self, widget=None):
     """
-    Tell the user how fecking great we are.
+    Tell the user how great we are.
     """
 
     about = gtk.AboutDialog()
@@ -677,10 +688,10 @@ class Diamond:
                       "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"+
                       "GNU General Public License for more details.\n"+
                       "You should have received a copy of the GNU General Public License\n"+
-                      "along with Diamond.  If not, see http://www.gnu.org/licenses/.")
+                      "along with the Supertree Toolkit.  If not, see http://www.gnu.org/licenses/.")
 
     if self.logofile is not None:
-      logo = gtk.gdk.pixbuf_new_from_file(self.logofile)
+      logo = gtk.gdk.pixbuf_new_from_file(self.logofile[0])
       about.set_logo(logo)
       
     try:
@@ -689,7 +700,8 @@ class Diamond:
     except:
       pass
     
-    about.show()
+    about.run()
+    about.destroy()
 
     return
 
@@ -973,6 +985,382 @@ class Diamond:
     f.write(summary)
     f.close()
 
+
+  def on_data_overlap(self, widget=None):
+   
+    
+    signals = {"on_data_overlap_dialog_close": self.on_data_overlap_dialog_cancel_button,
+               "on_data_overlap_dialog_cancel_clicked": self.on_data_overlap_dialog_cancel_button,
+               "on_data_overlap_dialog_clicked": self.run_data_overlap,
+               "on_data_overlap_dialog_browse_clicked": self.on_data_overlap_dialog_browse_button}
+
+    self.data_overlap_gui = gtk.glade.XML(self.gladefile, root="data_overlap_dialog")
+    self.dialog = self.data_overlap_gui.get_widget("data_overlap_dialog")
+    self.data_overlap_gui.signal_autoconnect(signals)
+    overlap = self.data_overlap_gui.get_widget("check_overlap_button")
+    overlap.connect("activate", self.run_data_overlap)
+    self.dialog.show()
+
+    return
+      
+  def run_data_overlap(self, button):
+
+    filename_textbox = self.data_overlap_gui.get_widget("entry1")
+    filename = filename_textbox.get_text()
+    graphic = self.data_overlap_gui.get_widget("checkbutton1").get_active()
+    detailed = self.data_overlap_gui.get_widget("checkbutton2").get_active()
+    overlap = max(int(self.data_overlap_gui.get_widget("spinbutton1").get_value()),2)
+
+    show = False
+    if (filename == "" and graphic):
+        show = True
+        filename = None
+    elif (filename == ""):
+        show = False
+        filename = None
+
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    if (show):
+        try:
+            sufficient_overlap, key_list, canvas = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed)
+        except IOError as detail:
+            msg = "Failed to calculate overlap.\n"+detail.message
+            dialogs.error(self.main_window,msg)
+            return
+    else:
+        try:
+            sufficient_overlap, key_list = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed)
+            # we need to save the csv file too
+            file_stub = os.path.splitext(filename)[0]
+            csv_file = file_stub+"_"+str(overlap)+".csv"
+            f = open(csv_file,"w")
+            i = 0
+            for key in key_list:
+                if type(key).__name__=='list':
+                    f.write(str(i)+","+",".join(key)+"\n")
+                else:
+                    f.write(str(i)+","+key+"\n")
+                i = i+1
+            f.close()
+
+        except IOError as detail:
+            msg = "Failed to calculate overlap.\n"+detail.message
+            dialogs.error(self.main_window,msg)
+            return
+
+    if (show):
+        # create our show result interface
+        signals = {"on_data_overlap_show_dialog_close": self.on_data_overlap_show_dialog_cancel_button}
+
+        data_overlap_show_gui = gtk.glade.XML(self.gladefile, root="data_overlap_show_dialog")
+        self.show_dialog = data_overlap_show_gui.get_widget("data_overlap_show_dialog")
+        data_overlap_show_gui.signal_autoconnect(signals)
+        draw = data_overlap_show_gui.get_widget("alignment1")
+        treeview_holder = data_overlap_show_gui.get_widget("scrolledwindow1")
+        draw.add(canvas)
+
+        # set label appropriately
+        infoLabel = data_overlap_show_gui.get_widget("informationLabel")
+        infoLabel.set_use_markup=True
+        if (sufficient_overlap):
+            infoLabel.set_text('Your data are sufficiently well connected at this overlap level')
+            infoLabel.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#00AA00'))
+        else:
+            infoLabel.set_text('Your data are not connected sufficiently at this overlap level')
+            infoLabel.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#AA0000'))
+        # now create the key table on the rhs
+        liststore = gtk.ListStore(int,str)
+        treeview = gtk.TreeView(liststore)
+        treeview_holder.add(treeview)
+        rendererText = gtk.CellRendererText()
+        column = gtk.TreeViewColumn("ID", rendererText, text=0)
+        column.set_sort_column_id(0)
+        treeview.append_column(column)
+        column2 = gtk.TreeViewColumn("Tree(s)", rendererText, text=1)
+        column2.set_sort_column_id(1)
+        treeview.append_column(column2)
+        count = 0
+        for id in key_list:
+            if (detailed):
+                liststore.append([count,id])
+                count += 1
+            else:
+                for tree in id:
+                    liststore.append([count,tree])
+                count += 1
+
+        self.show_dialog.show_all()
+    else:
+        # Need to make these clearer - big green tick and big red cross respectively
+        show_msg = ""
+        if not show:
+            show_msg = ". File save to "+filename
+        if sufficient_overlap:
+            dialogs.error(self.main_window, "Your data are sufficiently well connected at this overlap level"+show_msg)
+        else:
+            dialogs.error(self.main_window, "Your data are not connected sufficiently at this overlap level"+show_msg)
+    
+    XML = stk.add_historical_event(XML, "Data overlap carried out on data. Result is: " + str(sufficient_overlap) + " with overlap of "+str(overlap))
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (data overlap) to XML", skip_warning=True)
+
+    
+  def on_data_overlap_dialog_cancel_button(self, button):
+      """ Close the data overlap dialogue
+      """
+      self.dialog.hide()
+
+  def on_data_overlap_show_dialog_cancel_button(self, button):
+      """ Close the data overlap dialogue
+      """
+      self.show_dialog.hide()
+
+
+  def on_data_overlap_dialog_browse_button(self, button):
+      filter_names_and_patterns = {}
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose output graphic fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+      filename_textbox = self.data_overlap_gui.get_widget("entry1")
+      filename_textbox.set_text(filename)
+
+  # Data independence GUI
+  def on_data_ind(self, widget=None):
+    """ Check the data independence of the data - display the GUI
+        and call the function
+    """
+
+    signals = {"on_data_ind_dialog_close": self.on_data_ind_close_button,
+               "on_data_ind_close": self.on_data_ind_close_button,
+               "on_save_ind_data_phyml": self.on_data_ind_save_phyml_button,
+               "on_save_ind_data": self.on_data_ind_save_data_button,
+              } 
+    self.data_ind_gui = gtk.glade.XML(self.gladefile, root="data_ind_dialog")
+    self.data_ind_dialog = self.data_ind_gui.get_widget("data_ind_dialog")
+    self.data_ind_gui.signal_autoconnect(signals)
+
+    self.phyml_filename = None
+    self.filename = None    
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True)
+    liststore = gtk.ListStore(str,str)
+    treeview = gtk.TreeView(liststore)
+    rendererText = gtk.CellRendererText()
+    column = gtk.TreeViewColumn("Flagged tree", rendererText, text=0)
+    treeview.append_column(column)
+    column1 = gtk.TreeViewColumn("is subset of", rendererText, text=1)
+    treeview.append_column(column1)
+    for name in self.data_independence:
+        count = 0
+        if self.data_independence[name][1] == stk.SUBSET:
+            clashes = self.data_independence[name][0].split(',')
+            for c in clashes:
+                if (count == 0):
+                    liststore.append([name, c])
+                else:
+                    liststore.append([None, c])
+                count +=1
+            
+    window = self.data_ind_gui.get_widget("scrolledwindow1")
+    window.add(treeview)
+
+    liststore = gtk.ListStore(str,str)
+    treeview = gtk.TreeView(liststore)
+    rendererText = gtk.CellRendererText()
+    column = gtk.TreeViewColumn("Flagged tree", rendererText, text=0)
+    treeview.append_column(column)
+    column1 = gtk.TreeViewColumn("is identical to", rendererText, text=1)
+    treeview.append_column(column1)
+    for name in self.data_independence:
+        count = 0
+        if self.data_independence[name][1] == stk.IDENTICAL:
+            clashes = self.data_independence[name][0].split(',')
+            for c in clashes:
+                if (count == 0):
+                    liststore.append([name, c])
+                else:
+                    liststore.append([None, c])
+                count +=1
+            
+    window = self.data_ind_gui.get_widget("scrolledwindow2")
+    window.add(treeview)
+
+    self.data_ind_dialog.show_all()
+
+    return
+
+
+  def on_data_ind_close_button(self,widget=None):
+    # Add a history event
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    msg = "Data independence checked."
+    if (not self.phyml_filename == None):
+        msg = msg + " Phyml saved to: "+self.phyml_filename+"."
+    if (not self.filename == None):
+        msg = msg + " Independence data saved to: "+self.filename+"."
+    XML = stk.add_historical_event(XML, msg)
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (create matrix) to XML", skip_warning=True)
+    self.data_ind_dialog.hide()
+
+  def on_data_ind_save_phyml_button(self,widget=None):
+
+    # open browse window, grab filename
+    filter_names_and_patterns = {}
+    filter_names_and_patterns['Phyml file'] = ["*.phyml"]
+    filter_names_and_patterns['All files'] = ["*"]
+    # open file dialog
+    self.phyml_filename = dialogs.get_filename(title = "Choose output file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+
+    # check if files exist already
+    if (os.path.exists(self.phyml_filename)):
+        overwrite = dialogs.prompt(None,"Output phyml file exists. Overwrite?")
+        if (overwrite == gtk.RESPONSE_NO):
+            self.phyml_filename=None
+            return
+
+    f = open(self.phyml_filename,"w")
+    f.write(self.new_phyml_data)
+    f.close()
+    return
+
+  def on_data_ind_save_data_button(self,widget=None):
+
+    # open browse window, grab filename
+    filter_names_and_patterns = {}
+    filter_names_and_patterns['CSV file'] = ["*.csv"]
+    filter_names_and_patterns['All files'] = ["*"]
+    # open file dialog
+    self.filename = dialogs.get_filename(title = "Choose output file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+
+    # check if files exist already
+    if (os.path.exists(self.filename)):
+        overwrite = dialogs.prompt(None,"Output file exists. Overwrite?")
+        if (overwrite == gtk.RESPONSE_NO):
+            self.filename = None
+            return
+
+    # process data
+    data_ind = ""
+    #column headers
+    data_ind = "Source trees that are subsets of others\n"
+    data_ind = data_ind + "Flagged tree, is a subset of:\n"
+    for name in self.data_independence:
+        if ( self.data_independence[name][1] == stk.SUBSET):
+            data_ind += name + "," + self.data_independence[name][0] + "\n"
+    data_ind = data_ind + "\n\nFlagged tree, is identical to:\n"
+    for name in data_independence:
+        if ( self.data_independence[name][1] == stk.IDENTICAL):
+            data_ind += name + "," + self.data_independence[name][0] + "\n"
+    f = open(self.filename,"w")
+    f.write(data_ind)
+    f.close()
+    return
+
+  #permute all tree GUI
+  def on_permute_all_trees(self, widget=None):
+    """ Permute all permutable trees in the data set and save them all
+    """
+
+    signals = {"on_permute_trees_dialog_close": self.on_permute_trees_cancel_button,
+               "on_permute_trees_cancel_clicked": self.on_permute_trees_cancel_button,
+               "on_permute_trees_clicked": self.on_permute_trees_button,
+               "on_permute_trees_browse_clicked": self.on_permute_trees_browse_button}
+      
+    self.permute_trees_gui = gtk.glade.XML(self.gladefile, root="permute_trees_dialog")
+    self.permute_trees_dialog = self.permute_trees_gui.get_widget("permute_trees_dialog")
+    self.permute_trees_gui.signal_autoconnect(signals)
+    matrix_file = self.permute_trees_gui.get_widget("permute_trees_button")
+    matrix_file.connect("activate", self.on_permute_trees_button)
+    self.permute_trees_dialog.show()
+
+      
+  def on_permute_trees_button(self, button):
+    """
+    create the trees
+    """
+
+    filename_textbox = self.permute_trees_gui.get_widget("entry1")
+    filename = filename_textbox.get_text()
+    format_radio_1 = self.permute_trees_gui.get_widget("matrix_format_tnt_chooser")
+    format_radio_2 = self.permute_trees_gui.get_widget("matrix_format_nexus_chooser")
+    format_radio_3 = self.permute_trees_gui.get_widget("tree_format_nexus_chooser")
+    format_radio_4 = self.permute_trees_gui.get_widget("tree_format_newick_chooser")
+    format_radio_5 = self.permute_trees_gui.get_widget("tree_format_tnt_chooser")
+
+
+    if (format_radio_1.get_active()):
+        format = 'hennig'
+        treefile=None
+    elif (format_radio_2.get_active()):
+        format = 'nexus'
+        treefile=None
+    elif (format_radio_3.get_active()):
+        treefile = 'Newick'
+    elif (format_radio_4.get_active()):
+        treefile = 'Nexus'
+    elif (format_radio_5.get_active()):
+        treefile = 'tnt'
+    else:
+        format = None
+        dialogs.error(self.main_window,"Error creating matrix. Incorrect format.")
+        return
+
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    all_trees = stk.obtain_trees(XML)
+    # get all trees
+    tree_list = stk._find_trees_for_permuting(XML)
+
+    for t in tree_list:
+        # permute
+        if (not treefile == None):
+            output_string = stk.permute_tree(tree_list[t],treefile=treefile)
+        else:
+            output_string = stk.permute_tree(tree_list[t],matrix=format,treefile=None)
+
+        #save
+        new_output,ext = os.path.splitext(filename)
+        new_output += "_"+t+ext
+        f = open(new_output,'w')
+        f.write(output_string)
+        f.close
+  
+
+    # Add a history event
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    XML = stk.add_historical_event(XML, "Permuted trees written to: "+filename)
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (permute_trees) to XML", skip_warning=True)
+
+    
+    self.permute_trees_dialog.hide()
+
+    return
+
+  def on_permute_trees_cancel_button(self, button):
+      """ Close the permute_trees dialogue
+      """
+
+      self.permute_trees_dialog.hide()
+
+  def on_permute_trees_browse_button(self, button):
+      filter_names_and_patterns = {}
+      filter_names_and_patterns['Phylo files'] = ["*.tre","*nex","*.nwk","*.new","*.tnt"]
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose output file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+      filename_textbox = self.permute_trees_gui.get_widget("entry1")
+      filename_textbox.set_text(filename)
+
+  # create a matrix
   def on_create_matrix(self, widget=None):
     """ Creates a MRP matrix from the data in the phyml. Actually, this function
         merely opens the dialog form the glade file...
@@ -1018,6 +1406,15 @@ class Diamond:
     f = open(filename, "w")
     f.write(matrix)
     f.close()    
+
+    # Add a history event
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    XML = stk.add_historical_event(XML, "Matrix written to: "+filename)
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (create matrix) to XML", skip_warning=True)
+
     
     self.create_matrix_dialog.hide()
 
@@ -1032,8 +1429,7 @@ class Diamond:
   def on_create_matrix_browse_button(self, button):
       filter_names_and_patterns = {}
       # open file dialog
-      print "Opening file chooser"
-      filename = dialogs.get_filename(title = "Choose output matrix fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+      filename = dialogs.get_filename(title = "Choose output matrix file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
       filename_textbox = self.create_matrix_gui.get_widget("entry1")
       filename_textbox.set_text(filename)
 
@@ -1072,6 +1468,10 @@ class Diamond:
         dialogs.error(self.main_window, "Error exporting.")
     
     self.export_dialog.hide()
+    # Add a history event
+    XML = stk.add_historical_event(XML, "Data exported to: "+filename)
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (data export) to XML",skip_warning=True)
 
     return
 
@@ -1088,8 +1488,7 @@ class Diamond:
       filename_textbox = self.export_gui.get_widget("entry1")
       filename_textbox.set_text(filename)
 
-
-
+      return
 
   def on_import(self, widget=None):
     """ Export data to old-style STK data
@@ -1123,41 +1522,7 @@ class Diamond:
     # Add a history event
     XML = stk.add_historical_event(XML, "Data imported from: "+filename)
     ios = StringIO.StringIO(XML)
-
-    try:
-        tree_read = self.s.read(ios)
-
-        if tree_read is None:
-           dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
-           return
-        
-        errors = self.s.read_errors()
-        lost_eles, added_eles, lost_attrs, added_attrs = errors
-        if (len(lost_eles) > 0 or len(lost_attrs) > 0):
-            self.display_validation_errors(self.s.read_errors())
-        self.tree = tree_read
-    except:
-        dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
-        return
-
-    path = self.treestore.get_path(self.selected_iter)
-
-
-    self.set_saved(False)
-    self.treeview.freeze_child_notify()
-    self.treeview.set_model(None)
-    self.signals = {}
-    self.set_treestore(None, [self.tree], True)
-    self.treeview.set_model(self.treestore)
-    self.treeview.thaw_child_notify()
-    self.treeview.grab_focus()
-    self.treeview.get_selection().select_path(0)
-
-    self.selected_node = None
-    self.update_options_frame()
-  
-    self.scherror.destroy_error_list()
-
+    self.update_data(ios, "Error importing data whilst checking XML")
 
     #except STKImportExportError as e:
     #    dialogs.error(self.main_window, e.msg)
@@ -1182,6 +1547,128 @@ class Diamond:
       filename = dialogs.get_filename(title = "Choose import directory", action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
       filename_textbox = self.import_gui.get_widget("entry1")
       filename_textbox.set_text(filename)
+
+
+  def on_export_trees(self,widget=None):
+    """ Export all tree strings in the XML to a single file
+          Can be made anonymous or labelled by a unique identifier
+    """
+    signals = {"on_export_trees_close": self.on_export_trees_close,
+               "on_export_trees_cancelled_clicked": self.on_export_trees_close,
+               "on_export_trees_clicked": self.on_export_trees_save}
+
+    self.export_trees_gui = gtk.glade.XML(self.gladefile, root="export_trees")
+    self.export_trees_dialog = self.export_trees_gui.get_widget("export_trees")
+    self.export_trees_gui.signal_autoconnect(signals)
+    self.export_trees_dialog.show()
+
+
+  def on_export_trees_close(self, widget=None):
+      
+    self.export_trees_dialog.hide()
+
+
+  def on_export_trees_save(self, widget=None):
+     
+      format_radio_1 = self.export_trees_gui.get_widget("tree_format_nexus_chooser")
+      format_radio_2 = self.export_trees_gui.get_widget("tree_format_newick_chooser")
+      format_radio_3 = self.export_trees_gui.get_widget("tree_format_tnt_chooser")
+      anon_check = self.export_trees_gui.get_widget("checkbutton1")
+      if (format_radio_1.get_active()):
+          format = 'Nexus'
+      elif (format_radio_2.get_active()):
+          format = 'Newick'
+      elif (format_radio_3.get_active()):
+          format = 'tnt'
+      else:
+        format = None
+        dialogs.error(self.main_window,"Error exporting trees. Incorrect format.")
+        return
+      anonymous = False
+      if anon_check.get_active():
+          anonymous = True
+
+      
+      f = StringIO.StringIO()
+      self.tree.write(f)
+      XML = f.getvalue()
+      self.output_string = stk.amalgamate_trees(XML,format=format,anonymous=anonymous)
+
+      filter_names_and_patterns = {}
+      filter_names_and_patterns['Trees'] = ["*.tre","*nex","*.nwk","*.tnt"]
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose output trees fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+
+      f = open(filename,"w")
+      f.write(self.output_string)
+      f.close()
+
+      XML = stk.add_historical_event(XML, "Tree exported to: "+filename)
+      ios = StringIO.StringIO(XML)
+      self.update_data(ios, "Error adding history event (export trees) to XML", skip_warning=True)
+      self.export_trees_dialog.hide()
+
+      return
+
+## Export Bibliography
+  def on_export_bib(self,widget=None):
+    """ Export all tree strings in the XML to a single file
+          Can be made anonymous or labelled by a unique identifier
+    """
+    signals = {"on_export_bib_close": self.on_export_bib_close,
+               "on_export_bib_cancelled_clicked": self.on_export_bib_close,
+               "on_export_bib_clicked": self.on_export_bib_save}
+
+    self.export_bib_gui = gtk.glade.XML(self.gladefile, root="export_bib")
+    self.export_bib_dialog = self.export_bib_gui.get_widget("export_bib")
+    self.export_bib_gui.signal_autoconnect(signals)
+    self.export_bib_dialog.show()
+
+
+  def on_export_bib_close(self, widget=None):
+      
+    self.export_bib_dialog.hide()
+
+
+  def on_export_bib_save(self, widget=None):
+     
+      format_radio_1 = self.export_bib_gui.get_widget("file_format_bibtex_chooser")
+      format_radio_2 = self.export_bib_gui.get_widget("file_format_latex_chooser")
+      format_radio_3 = self.export_bib_gui.get_widget("file_format_html_chooser")
+      format_radio_4 = self.export_bib_gui.get_widget("file_format_long_chooser")
+      format_radio_5 = self.export_bib_gui.get_widget("file_format_short_chooser")
+      if (format_radio_1.get_active()):
+          format = 'bibtex'
+      elif (format_radio_2.get_active()):
+          format = 'latex'
+      elif (format_radio_3.get_active()):
+          format = 'html'      
+      elif (format_radio_4.get_active()):
+          format = 'long'
+      elif (format_radio_5.get_active()):
+          format = 'short'
+      else:
+        format = None
+        dialogs.error(self.main_window,"Error exporting bibliographic information. Incorrect format.")
+        return
+      
+
+      filter_names_and_patterns = {}
+      filter_names_and_patterns['Trees'] = ["*.bib","*.html","*.txt","*.tex"]
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose output fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+
+      f = StringIO.StringIO()
+      self.tree.write(f)
+      XML = f.getvalue()
+      self.output_string = stk.export_bibliography(XML,filename,format=format)
+
+      XML = stk.add_historical_event(XML, "Bibliographic information exported to: "+filename)
+      ios = StringIO.StringIO(XML)
+      self.update_data(ios, "Error adding history event (export bibliography) to XML", skip_warning=True)
+      self.export_bib_dialog.hide()
+
+      return
 
 
   def on_sub_taxa(self, widget=None):
@@ -1225,6 +1712,9 @@ class Diamond:
     # Add an event to the history of the file
     event_desc = "Taxa substitution from "+old_taxa+" to "+new_taxa+" via GUI using files: "+self.filename+" to "+filename
     XML = stk.add_historical_event(XML,event_desc) 
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (taxa sub) to XML",skip_warning=True)
+    
     XML2 = stk.sub_taxa(XML,old_taxon,new_taxon)
     f = open(filename, "w")
     f.write(XML2)
@@ -1252,8 +1742,8 @@ class Diamond:
      Imports a bibtex file and sets up a number of sources
      """
      filter_names_and_patterns = {}
-     filter_names_and_patterns['Bibtex file'] = "*.bib"
-     filter_names_and_patterns['All files'] = "*"
+     filter_names_and_patterns['Bibtex file'] = ["*.bib"]
+     filter_names_and_patterns['All files'] = ["*"]
      filename = dialogs.get_filename(title = "Choose .bib fle", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
      
      f = StringIO.StringIO()
@@ -1265,6 +1755,7 @@ class Diamond:
      try:
         XML = stk.import_bibliography(XML, filename)
         XML = _removeNonAscii(XML)
+        XML = stk.add_historical_event(XML, "Bibliographic information imported from: "+filename)
         ios = StringIO.StringIO(XML)
      except BibImportError as detail:
         dialogs.error(self.main_window,detail.msg)
@@ -1272,41 +1763,13 @@ class Diamond:
      except:
          dialogs.error(self.main_window,"Error importing bib file")
          return
-
-
+     
      try:
-        tree_read = self.s.read(ios)
-
-        if tree_read is None:
-           dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
-           return
-        
-        errors = self.s.read_errors()
-        lost_eles, added_eles, lost_attrs, added_attrs = errors
-        if (len(lost_eles) > 0 or len(lost_attrs) > 0):
-            self.display_validation_errors(self.s.read_errors())
-        self.tree = tree_read
+        stk._check_uniqueness(XML)
      except:
-        dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
-        return
+        dialogs.error(self.main_window,"Duplicated or unamed source. Suggest you run standardise source names")
 
-     path = self.treestore.get_path(self.selected_iter)
-
-
-     self.set_saved(False)
-     self.treeview.freeze_child_notify()
-     self.treeview.set_model(None)
-     self.signals = {}
-     self.set_treestore(None, [self.tree], True)
-     self.treeview.set_model(self.treestore)
-     self.treeview.thaw_child_notify()
-     self.treeview.grab_focus()
-     self.treeview.get_selection().select_path(0)
-
-     self.selected_node = None
-     self.update_options_frame()
-  
-     self.scherror.destroy_error_list()
+     self.update_data(ios, "Error converting bib file to XML", skip_warning=True)
      
      return  
 
@@ -1318,23 +1781,44 @@ class Diamond:
      f = StringIO.StringIO()
      self.tree.write(f)
      XML = f.getvalue() 
-     XML = stk.all_sourcenames(XML)
+     try:
+        XML = stk.all_sourcenames(XML)
+     except NoAuthors as detail:
+        dialogs.error(self.main_window,detail.msg)
+        return 
+         
      XML = _removeNonAscii(XML)
+     # Add a history event
+     XML = stk.add_historical_event(XML, "Source names standardised")
      ios = StringIO.StringIO(XML)
+
+     self.update_data(ios, "Error standardising names")
+
+     return 
+
+
+  def update_data(self,ios, error, skip_warning=False):
+
      try:
         tree_read = self.s.read(ios)
 
         if tree_read is None:
-           dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
+           dialogs.error_tb(self.main_window, error)
            return
 
-        self.display_validation_errors(self.s.read_errors())
+        if (not skip_warning):
+           errors = self.s.read_errors()
+           lost_eles, added_eles, lost_attrs, added_attrs = errors
+           if (len(lost_eles) > 0 or len(lost_attrs) > 0):
+              self.display_validation_errors(self.s.read_errors())
         self.tree = tree_read
      except:
-        dialogs.error_tb(self.main_window, "Error adding new sources to XML tree")
+        dialogs.error_tb(self.main_window, error)
         return
 
-     path = self.treestore.get_path(self.selected_iter)
+     path = None
+     if (self.selected_iter):
+        path = self.treestore.get_path(self.selected_iter)
 
      self.set_saved(False)
      self.treeview.freeze_child_notify()
@@ -1343,13 +1827,14 @@ class Diamond:
      self.set_treestore(None, [self.tree], True)
      self.treeview.set_model(self.treestore)
      self.treeview.thaw_child_notify()
-
      self.set_geometry_dim_tree()
-  
-     self.treeview.get_selection().select_path(path)
-
+     self.treeview.expand_to_path(path)    
+     # We *must* select the path again otherwise we get a segfault if the user alters the XML
+     # without clicking on a path first.
+     self.treeview.get_selection().select_path(path)    
      self.scherror.destroy_error_list()
-     return 
+
+     return
 
   ## LHS ###
 
@@ -1573,6 +2058,7 @@ class Diamond:
 
     return
 
+
   def set_combobox_liststore(self, column, cellCombo, treemodel, iter, user_data=None):
     """
     This hook function sets the properties of the gtk.CellRendererCombo for each
@@ -1584,9 +2070,12 @@ class Diamond:
     choice_or_tree, active_tree, liststore = treemodel.get(iter, 0, 1, 2)
 
     if self.groupmode and treemodel.iter_parent(iter) is None:
-      cellCombo.set_property("text", choice_or_tree.get_name_path())
+      text =  self.mangle_cell_text(choice_or_tree.get_name_path())
+      cellCombo.set_property("text", text)
     else:
-      cellCombo.set_property("text", str(choice_or_tree))
+      text = str(choice_or_tree)
+      text = self.mangle_cell_text(text)
+      cellCombo.set_property("text", text)
 
 
     cellCombo.set_property("model", liststore)
@@ -1597,6 +2086,20 @@ class Diamond:
     elif isinstance(choice_or_tree, choice.Choice):
       cellCombo.set_property("editable", True)
 
+    # Set the font for certain headings
+    if (cellCombo.get_property("text").lower() == "contributor" or
+        cellCombo.get_property("text").lower() == "bibliographic information" or
+        cellCombo.get_property("text").lower() == "source tree" or
+        cellCombo.get_property("text").lower() == "tree" or 
+        cellCombo.get_property("text").lower() == "taxa data" or
+        cellCombo.get_property("text").lower() == "character data" or 
+        cellCombo.get_property("text").lower() == "analysis used"):
+
+            cellCombo.set_property("font", "Sans Bold")
+    else:
+            cellCombo.set_property("font", "Sans")
+
+
     if self.iter_is_active(treemodel, iter):
       if active_tree.valid is True:
         cellCombo.set_property("foreground", "black")
@@ -1606,6 +2109,19 @@ class Diamond:
         cellCombo.set_property("foreground", "gray")
 
     return
+
+  def mangle_cell_text(self, text):
+      # title case
+      text = text.title()
+      # replace _ with spaces
+      text = text.replace("_"," ")
+      # replace DOI and URL correctly
+      text = text.replace("Doi","DOI")
+      text = text.replace("Url","URL")
+      text = text.replace("Iucn","IUCN")
+      text = text.replace("Uk Bap","UK BAP")
+
+      return text
 
   def set_cellpicture_choice(self, column, cell, treemodel, iter):
     """
@@ -1858,8 +2374,6 @@ class Diamond:
 
     self.selected_iter = iter = self.treestore.get_iter(path)
     choice_or_tree, active_tree = self.treestore.get(iter, 0, 1)
-
-    debug.dprint(active_tree)
 
     self.selected_node = self.get_painted_tree(iter)
     self.update_options_frame()

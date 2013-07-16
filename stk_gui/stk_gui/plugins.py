@@ -36,7 +36,7 @@ class PluginReceiver(gobject.GObject):
         sender.connect('plugin_changed_xml', self.report_signal)
         
     def report_signal(self, sender):
-        debug.deprint("A plugin has altered the XML: reloading.")
+        debug.deprint("A plugin has altered the XML: reloading.", 1)
 
 
 class PluginDetails(object):
@@ -65,9 +65,13 @@ def register_plugin(applies, name, cb):
 
 def configure_plugins(suffix):
   homedir = os.path.expanduser('~')
-  dirs = [os.path.join(homedir, ".stk", "plugins", suffix),
-      "/usr/local/share/plugin/" + suffix]
-  dirs.append('plugins/')
+  dirs = []
+  # devel plugins first
+  dirs.append('../plugins/'+suffix)
+  dirs.append("../../plugins/"+suffix)
+  dirs.extend([os.path.join(homedir, ".stk", "plugins", suffix),
+      "/usr/local/share/plugins/" + suffix,
+      "/usr/share/plugins/" + suffix])
   if sys.platform != "win32" and sys.platform != "win64":
     dirs.append("/etc/stk/plugins/" + suffix)
   if sys.platform == 'darwin':
@@ -75,6 +79,7 @@ def configure_plugins(suffix):
 
   for dir in dirs:
     sys.path.insert(0, dir)
+
     try:
       dir_list = os.listdir(dir)
       for file in dir_list:

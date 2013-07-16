@@ -363,7 +363,7 @@ class BibItem(dict):
         entry_type != "inbook"):
         return None
 
-    s='%s<source_publication>\n' %(sp*spc)
+    s='%s<bibliographic_information>\n' %(sp*spc)
     sp += 1
     s+='%s<%s%s>\n' %(sp*spc,p,entry_type)
 
@@ -526,11 +526,20 @@ class BibItem(dict):
         v = '\n%s<string_value lines="1">%s</string_value>\n%s'%(sp*spc,k,(sp-1)*spc)
         sp-=1
         s+= '%s<doi>%s</doi>\n' %(sp*spc,v)
-
+   
+    # everyone
+    k = self.get_field('url')
+    if (k != None):
+        if (helper.is_string_like(k)):
+            k= helper.replace_tags(k,'xml')
+        sp+=1
+        v = '\n%s<string_value lines="1">%s</string_value>\n%s'%(sp*spc,k,(sp-1)*spc)
+        sp-=1
+        s+= '%s<url>%s</url>\n' %(sp*spc,v)
 
     sp-=1
     s+= '%s</%s%s>\n' %(sp*spc,p,self.get('_type',''))
-    s+= '%s</%ssource_publication>\n' %(sp*spc,p)
+    s+= '%s</%sbibliographic_information>\n' %(sp*spc,p)
     return s
 
   def to_html(self,style={}):
@@ -694,11 +703,11 @@ class BibItem(dict):
     """ Compare if two items are in fact the same """
 
     # If the doi is the same, we are done
-    if self.get('doi','0') == self.get('doi','1'):
+    if self.get('doi','0') == it.get('doi','1'):
       return True
 
     # Check Journal and page, that should be enough (almost always)
-    if self('journal_abbrev','0')== it.get('journal_abbrev','1'):
+    if self.get('journal_abbrev','0')== it.get('journal_abbrev','1'):
       # Same journal AND either first page or volume coincide we assume is the same
       if self.get('firstpage','-1') == it.get('firstpage','-2'):
         return True

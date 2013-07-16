@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 
-#    This file is part of Diamond.
+#    This file is part of the SupertreeToolkit
 #
-#    Diamond is free software: you can redistribute it and/or modify
+#    STK is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    Diamond is distributed in the hope that it will be useful,
+#    STK is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
+#    along with STK.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import sys
@@ -111,13 +111,15 @@ def get_filename(title, action, parent=None, filter_names_and_patterns = {}, fol
   for filtername in filter_names_and_patterns:
     filter = gtk.FileFilter()
     filter.set_name(filtername)
-    filter.add_pattern(filter_names_and_patterns[filtername])
+    for pattern in filter_names_and_patterns[filtername]:
+        filter.add_pattern(pattern)
     filew.add_filter(filter)
 
   allfilter = gtk.FileFilter()
   allfilter.set_name("All known files")
   for filtername in filter_names_and_patterns:
-    allfilter.add_pattern(filter_names_and_patterns[filtername])
+    for pattern in filter_names_and_patterns[filtername]:
+        allfilter.add_pattern(pattern)
   filew.add_filter(allfilter)
 
   filter = gtk.FileFilter()

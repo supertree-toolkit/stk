@@ -84,7 +84,7 @@ def export_to_old(xml, output_dir, verbose=False):
             tree_dir = os.path.join(source_dir,"Tree_"+str(tree_no))
             os.mkdir(tree_dir)
             # save the tree data
-            tree = t.xpath("tree_data/string_value")[0].text
+            tree = t.xpath("tree/tree_string/string_value")[0].text
             stk.p4.var.warnReadNoFile = False
             stk.p4.var.trees = []
             stk.p4.read(tree)
@@ -166,8 +166,16 @@ def import_old_data(input_dir, verbose=False):
     # run data check
     try:
         supertree_toolkit._check_data(phyml)
+    except NotUniqueError as e:
+        msg = "Error with creating data\n"
+        msg += e.msg
+        raise STKImportExportError(msg)
+    except InvalidSTKData as e:
+        msg = "Error with creating data\n"
+        msg += e.msg
+        raise STKImportExportError(msg)
     except:
-        msg = "Error with creating data"
+        msg = "Error with creating data\n"
         raise STKImportExportError(msg)
 
     return phyml
@@ -206,7 +214,6 @@ def convert_to_phyml_source(xml_root):
     a = input_author.lower()
     if isinstance(a, unicode):
         a = unicodedata.normalize('NFKD', a).encode('ascii','ignore')
-        print a
     authors_t = a.split(',')
     authors_temp = []
     for a in authors_t:
@@ -216,7 +223,7 @@ def convert_to_phyml_source(xml_root):
         i = 0
         while i<len(authors_temp):
             if (i+1 < len(authors_temp)):
-                m = re.search(r'.', authors_temp[i+1])
+                m = re.search('\.', authors_temp[i+1])
                 if (m != None):
                     # next token contains a full stop so is probably an initial
                     author_list.append(str.strip(authors_temp[i+1]) + " " + str.strip(authors_temp[i]))
@@ -228,12 +235,12 @@ def convert_to_phyml_source(xml_root):
                 i += 1
     else:
         author_list = input_author.split(' and ')
-        
+
     if (len(author_list) == 0):
 	author_list.append(input_author)
    
     phyml_root = etree.Element("source")
-    publication = etree.SubElement(phyml_root,"source_publication")
+    publication = etree.SubElement(phyml_root,"bibliographic_information")
     # does it contain a booktitle?
     contains_booktitle = False
     if (contains_booktitle):
@@ -253,13 +260,14 @@ def convert_to_phyml_source(xml_root):
         string.attrib['lines'] = "1"
         string.text = o.last.capitalize()
         if (o.last.capitalize() == ''):
-	    string.text = a
+	        string.text = a
         first = etree.SubElement(ae,'other_names')
         string = etree.SubElement(first,'string_value')
         string.attrib['lines'] = "1"
-        string.text = o.first.capitalize()
+        other = o.first.capitalize()
+        string.text = other
         # reset to empty if needed
-        if (o.last == None):
+        if (o.first == None):
             string.text = ''
 
     # title and the publication data 
@@ -302,12 +310,89 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
     find_morph = etree.XPath('//Characters/Morphological/Type')
     find_behave = etree.XPath('//Characters/Behavioural/Type')
     find_other = etree.XPath('//Characters/Other/Type')
+    taxa_type = input_xml.xpath('/SourceTree/Taxa')[0].attrib['fossil']
+    if (taxa_type == "some"):
+        mixed = True
+        allextant = False
+        allfossil = False
+    elif (taxa_type == "all"):
+        mixed = False
+        allextant = False
+        allfossil = True
+    elif (taxa_type == "none"):
+        mixed = False
+        allextant = True
+        allfossil = False
+    else:
+        print "Unknown taxa types in "+xml_file
+        print "Setting to mixed fossil and extant so you have to correct this later"
+        mixed = True
+        allextant = False
+        allfossil = False
+
+
     # analysis   
     input_comments = input_xml.xpath('/SourceTree/Notes')[0].text
     input_analysis = input_xml.xpath('/SourceTree/Analysis/Type')[0].text
-    
+    # Theres a translation to be done here
+    if (input_analysis == "MP"):
+        input_analysis = "Maximum Parsimony"
+    if (input_analysis == "ML"):
+        input_analysis = "Maximum Likelihood"
+
+
     # construct new XML
     source_tree = etree.Element("source_tree")
+    # tree data
+    tree_ele = etree.SubElement(source_tree,"tree")
+    tree_string = etree.SubElement(tree_ele,"tree_string")
+    string = etree.SubElement(tree_string,"string_value")
+    string.attrib["lines"] = "1"
+    string.text = tree
+    # comment
+    if (not input_comments == None):
+        comment = etree.SubElement(tree_string,"comment")
+        comment.text = input_comments
+    # Figure and page number stuff
+    figure_legend = etree.SubElement(tree_ele,"figure_legend")
+    figure_legend.tail="\n      "
+    figure_legend_string = etree.SubElement(figure_legend,"string_value")
+    figure_legend_string.tail="\n      "
+    figure_legend_string.attrib['lines'] = "1"
+    figure_legend_string.text = "NA"
+    figure_number = etree.SubElement(tree_ele,"figure_number")
+    figure_number.tail="\n      "
+    figure_number_string = etree.SubElement(figure_number,"string_value")
+    figure_number_string.tail="\n      "
+    figure_number_string.attrib['lines'] = "1"
+    figure_number_string.text = "0"
+    page_number = etree.SubElement(tree_ele,"page_number")
+    page_number.tail="\n      "
+    page_number_string = etree.SubElement(page_number,"integer_value")
+    page_number_string.tail="\n      "
+    page_number_string.attrib['rank'] = "0"
+    page_number_string.text = "0"
+    tree_inference = etree.SubElement(tree_ele,"tree_inference")
+    optimality_criterion = etree.SubElement(tree_inference,"optimality_criterion")
+    # analysis
+    optimality_criterion.attrib['name'] = input_analysis
+    # taxa data
+    taxa_data = etree.SubElement(source_tree,"taxa_data")
+    if (allfossil):
+        taxa_type = etree.SubElement(taxa_data,"all_fossil")
+    elif (allextant):
+        taxa_type = etree.SubElement(taxa_data,"all_extant")
+    else:
+        taxa_type = etree.SubElement(taxa_data,"mixed_fossil_and_extant")
+        # We *should* add a taxon here to make sure this is valid
+        # phyml according to the schema. However, in doin so we will fail the
+        # taxon check as we don't know which taxon (or taxa) is a fossil, as
+        # this in formation is not recorded in the old STK XML files.
+        # We therefore leave this commented out as a reminder to the 
+        # next soul to edit this
+        #taxon = etree.SubElement(taxa_type,"taxon")
+
+
     character_data = etree.SubElement(source_tree,"character_data")
     # loop over characters add correctly
     chars = find_mol(input_xml)
@@ -330,18 +415,7 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
         new_char = etree.SubElement(character_data,"character")
         new_char.attrib['type'] = "other"
         new_char.attrib['name'] = c.text
-    # analysis
-    analysis_data = etree.SubElement(source_tree,"analysis_used")
-    analysis_type = etree.SubElement(analysis_data,"analysis")
-    analysis_type.attrib['name'] = input_analysis
-    # tree data
-    tree_data = etree.SubElement(source_tree,"tree_data")
-    string = etree.SubElement(tree_data,"string_value")
-    string.attrib["lines"] = "1"
-    string.text = tree
-    # comment
-    comment = etree.SubElement(source_tree,"comment")
-    comment.text = input_comments
+
     
     return source_tree
 
@@ -370,13 +444,21 @@ def create_xml_metadata(XML_string, this_source, filename):
     # The source publication info
     source = etree.SubElement(new_xml,"Source")
     author = etree.SubElement(source,"Author")
-    find_authors = etree.XPath("//author/surname")
-    surnames = find_authors(XML)
+    find_authors = etree.XPath("//author")
+    authors = find_authors(XML)
     authors_list = ''
-    for s in surnames:
+    for a in authors:
+        s = a.xpath('surname/string_value')[0].text
+        o = ''
+        try:
+            o = a.xpath('other_names/string_value')[0].text
+        except:
+            pass
         if (authors_list != ''):
             authors_list = authors_list+" and "
-        authors_list += s.xpath('string_value')[0].text
+        authors_list += s
+        if (not o == ''):
+            authors_list += ", "+o+"."
         
     author.text = authors_list
     year = etree.SubElement(source,"Year")
@@ -394,7 +476,12 @@ def create_xml_metadata(XML_string, this_source, filename):
         book.text = XML.xpath("//booktitle/string_value")[0].text
     page = etree.SubElement(source,"Pages")
     if (len(XML.xpath("//pages/string_value")) > 0):
-        page.text = XML.xpath("//pages/string_value")[0].text
+        tmp_txt =  XML.xpath("//pages/string_value")[0].text
+        if not tmp_txt == None:
+            tmp_txt = tmp_txt.replace("&#8211;","-")
+        else:
+            tmp_txt = ""
+        page.text = tmp_txt
     editor = etree.SubElement(source,"Editor")
     find_editors= etree.XPath("//editor/surname")
     surnames = find_editors(XML)
@@ -431,7 +518,7 @@ def create_xml_metadata(XML_string, this_source, filename):
 
     # character data
     character = etree.SubElement(new_xml,"Characters")
-    find_characters = etree.XPath("//character_data")
+    find_characters = etree.XPath("//character")
     characters_phyml = find_characters(source_XML)
     nMolecular = 0
     nMorpho = 0
@@ -442,21 +529,21 @@ def create_xml_metadata(XML_string, this_source, filename):
     behavioural = etree.SubElement(character,"Behavioural")
     other = etree.SubElement(character,"Other")
     for c in characters_phyml:
-        if c.xpath("character")[0].attrib['type'] == 'molecular':
+        if c.attrib['type'] == 'molecular':
             l = etree.SubElement(molecular,"Type")
-            l.text = c.xpath("character")[0].attrib['name']
+            l.text = c.attrib['name']
             nMolecular += 1
-        if c.xpath("character")[0].attrib['type'] == 'behavioural':
+        if c.attrib['type'] == 'behavioural':
             l = etree.SubElement(behavioural,"Type")
-            l.text = c.xpath("character")[0].attrib['name']
+            l.text = c.attrib['name']
             nBehaviour += 1
-        if c.xpath("character")[0].attrib['type'] == 'morphological':
+        if c.attrib['type'] == 'morphological':
             l = etree.SubElement(morphological,"Type")
-            l.text = c.xpath("character")[0].attrib['name']
+            l.text = c.attrib['name']
             nMorpho += 1
-        if c.xpath("character")[0].attrib['type'] == 'other':
+        if c.attrib['type'] == 'other':
             l = etree.SubElement(other,"Type")
-            l.text = c.xpath("character")[0].attrib['name']
+            l.text = c.attrib['name']
             nOther += 0
 
     if (nMolecular > 0):
@@ -482,7 +569,20 @@ def create_xml_metadata(XML_string, this_source, filename):
     tree_file_only += '.tre'
     tree_f.text = tree_file_only
 
-    etree.SubElement(new_xml,'Notes')
+    # Grab any comments under the tree and add it here
+    notes = etree.SubElement(new_xml,'Notes')
+    find_comments = etree.XPath("//comment")
+    comments_phyml = find_comments(source_XML)
+    comments = ""
+    for c in comments_phyml:
+        if (not c.text == None):
+            if (not comments == ""):
+                comments = "\n" + c.text
+            else:
+                comments += c.text
+
+    notes.text = comments
+
 
     xml_string = etree.tostring(new_xml, encoding='iso-8859-1', pretty_print=True)
 

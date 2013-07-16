@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-#    Supertree Toolkit. SOftware for managing and manipulating sources
+#    Supertree Toolkit. Software for managing and manipulating sources
 #    trees ready for supretree construction.
-#    Copyright (C) 2011, Jon Hill, Katie Davis
+#    Copyright (C) 2011-2013, Jon Hill, Katie Davis
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -30,7 +30,12 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir 
 sys.path.insert(0, stk_path)
 import stk.supertree_toolkit as supertree_toolkit
 import stk.stk_import_export as supertree_import_export
+from stk.stk_exceptions import *
+import stk.Getch as Getch
+import string
 
+# Set up a global Getch class for all functions to use
+inkey = Getch._Getch()
 
 # STK is the main command line program for the supertree toolkit
 # Using the XML files created by the GUI it can processes the data, without
@@ -72,11 +77,12 @@ def main():
     parser_cm.add_argument('--overwrite',
             action='store_true',
             default=False,
-            help="Overwrite the exisitng file without asking for confirmation")
+            help="Overwrite the existing file without asking for confirmation")
     # Set the function that gets called when the sub command is activated
     parser_cm.set_defaults(func=create_matrix)
 
 
+    # substitue taxa command
     parser_cm = subparsers.add_parser('sub_taxa',
             help='Substitute or delete taxa from the file'
             )
@@ -96,10 +102,11 @@ def main():
     parser_cm.add_argument('--overwrite',
             action='store_true',
             default=False,
-            help="Overwrite the exisitng file without asking for confirmation")
+            help="Overwrite the existing file without asking for confirmation")
     parser_cm.set_defaults(func=sub_taxa)
 
     
+    # import data command
     parser_cm = subparsers.add_parser('import_data',
             help='Import data from old STK dataset.'
             )
@@ -110,10 +117,11 @@ def main():
     parser_cm.add_argument('--overwrite',
             action='store_true',
             default=False,
-            help="Overwrite the exisitng file without asking for confirmation")
+            help="Overwrite the existing file without asking for confirmation")
     parser_cm.set_defaults(func=import_data)
 
 
+    # export data command
     parser_cm = subparsers.add_parser('export_data',
             help='Export data to old STK dataset.'
             )
@@ -124,9 +132,56 @@ def main():
     parser_cm.add_argument('--overwrite',
             action='store_true',
             default=False,
-            help="Overwrite the exisitng directory without asking for confirmation")
+            help="Overwrite the existing directory without asking for confirmation")
     parser_cm.set_defaults(func=export_data) 
 
+
+    # export trees command
+    parser_cm = subparsers.add_parser('export_trees',
+            help='Export all tree in data to single tree file'
+            )
+    parser_cm.add_argument('input',
+            help='The input Phyml file')
+    parser_cm.add_argument('output', 
+            help='The output tree file')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing directory without asking for confirmation")
+    # This one is optional
+    parser_cm.add_argument('-f',
+            '--format', 
+            choices=["Nexus","Newick","tnt"],
+            default="Nexus",
+            help='The format of the tree file. Nexus, Newick or tnt. Default is Nexus')
+    parser_cm.add_argument('--anonymous',
+            '-a',
+            action='store_true',
+            default=False,
+            help="Anonymise output file to remove source names. Only works for Nexus files; otherwise ignored.")
+    parser_cm.set_defaults(func=export_trees) 
+
+    # export trees command
+    parser_cm = subparsers.add_parser('export_bib',
+            help='Export all bibliographic data to a file'
+            )
+    parser_cm.add_argument('input',
+            help='The input Phyml file')
+    parser_cm.add_argument('output', 
+            help='The output bibliographic file')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing directory without asking for confirmation")
+    # This one is optional
+    parser_cm.add_argument('-f',
+            '--format', 
+            choices=["bibtex","latex","html","short","long","xml"],
+            default="bibtex",
+            help="""The format of the bibliographic file. Default is bibtex.
+                    Choice is from bibtex, latex, html, short, long, xml."""
+            )
+    parser_cm.set_defaults(func=export_bib) 
 
     # Data summary command
     parser_cm = subparsers.add_parser('data_summary',
@@ -147,25 +202,115 @@ def main():
             action='store_true',
             default=False,
             help="Output a detailed version of the summary")
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing files without asking for confirmation")
     parser_cm.set_defaults(func=data_summary)
 
     
     parser_cm = subparsers.add_parser('safe_taxonomic_reduction',
-            help='Perform safe taxonomic reduction on the data'
-            )
-    parser_cm.add_argument('input', 
-            help='The input phyml file')
+            help='Perform safe taxonomic reduction on the data')
     parser_cm.add_argument('-s',
             '--subs', 
             help="""Create two subs file to delete the data with sub_taxa and to replace C category"""+
                   """taxa back in afterwards.
                   The files withh be called sub_delete and sub_replace""")
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing files without asking for confirmation")
     parser_cm.add_argument('-o',
             '--output', 
-            help='Output to file, rather than stdout')    
-    # Set the function that gets called when the sub command is activated
+            help='Output to file, rather than stdout') 
+    parser_cm.add_argument('input', 
+            help='The input phyml file')
     parser_cm.set_defaults(func=safe_taxonomic_reduction)
 
+
+    # Data summary command
+    parser_cm = subparsers.add_parser('data_ind',
+            help='Check the independence of source trees within this dataset.')
+    parser_cm.add_argument('input', 
+            help='The input phyml file')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing files without asking for confirmation")
+    parser_cm.add_argument('-o',
+            default=False,
+            const=True,
+            nargs='?',
+            required=False,
+            help='Save output to a file, rather than to screen. '+
+            'If no file is specified, the summary is saved to the input file directory '+
+            'as "data_ind.txt" otherwise the given filename is used. See the manual on how to '+
+            'interpret these files.')
+    parser_cm.add_argument('-n',
+            '--newphyml', 
+            required=False,
+            help='Provide a new PHYML file with the trees that are a subset of other trees removed. The ' +
+            'trees that are identical to other trees are still in the data. Please provide a filename.')
+    parser_cm.set_defaults(func=data_ind)
+
+
+    # Data overlap command
+    parser_cm = subparsers.add_parser('data_overlap',
+            help='Check these data are sufficiently well connected'
+            )
+    parser_cm.add_argument('input', 
+            help='The input phyml file')
+    parser_cm.add_argument('-n',
+            '--number_overlap',
+            type=int,
+            help="Number of taxa in common for two trees to be connected. Default is 2.",
+            required=False,
+            )
+    parser_cm.add_argument('-g',
+            '--graphic',
+            default=False,
+            const=True,
+            nargs='?',
+            help='Save a graphical representation of the connectivity. This is in the form of a graph. '+
+            'You can specifiy a file name, or a filename will be automatically generated for you and '+
+            'saved in the same directory as the input file. A key.csv file will also be generated.')
+    parser_cm.add_argument('-d',
+            '--detailed',
+            action='store_true',
+            default=False,
+            help="Output a detailed version of the graph. For more than 200 source trees this could take a while.")
+    parser_cm.set_defaults(func=data_overlap)
+
+
+    # Permute trees command
+    parser_cm = subparsers.add_parser('permute_trees',
+            help='Create all possible trees from sources that contain non-monophyly. See manual for details.'
+            )
+    parser_cm.add_argument('input', 
+            help='The input phyml file')
+    parser_cm.add_argument('output', 
+            help='The output tree or matrix file(s). If multiple files are produced the sourcename will be appended to the filename.')
+    parser_cm.add_argument('-c',
+            '--create_matrix',
+            choices=['','hennig', 'nexus'],
+            help="Create a matrix of the given format for all permutable trees in the input file. Default is hennig",
+            required=False,
+            default='hennig',
+            )
+    parser_cm.add_argument('-t',
+            '--treefile',
+            choices=['','Nexus','Newick','tnt'],
+            help="Create a tree file of the given format for all permutable trees in the input file. Default is nexus",
+            required=False,
+            default='',
+            )
+    parser_cm.add_argument('-n',
+            '--treename',
+            default=None,
+            help="Do the permutation on a single tree only. Format of the name is Sourcename_treenumber, e.g. 'Hill_2011_1'",
+            required=False,
+            )
+    parser_cm.set_defaults(func=permute_trees)
 
     # parse the arguments, and strip out the common options
     args = parser.parse_args()
@@ -180,7 +325,6 @@ def main():
 def safe_taxonomic_reduction(args):
     """ Work out safe taxonomic reduction
     """
-
     # Parse the args
     verbose = args.verbose
     output_file = args.output
@@ -191,15 +335,7 @@ def safe_taxonomic_reduction(args):
     output, can_replace = supertree_toolkit.safe_taxonomic_reduction(XML,verbose=verbose)
     if (not subs == None or not subs):
         substitutions = supertree_toolkit.subs_file_from_str(output)
-
-    # Now save things if required
-    if (output_file == False or
-        output_file == None):
-        print data_summary
-    else:
-        f = open(output_file, "w")
-        f.write(output)
-        f.close()
+    
     subs_replace = "subs_replace"
     subs_delete = "subs_delete"
     if (not subs == False or
@@ -213,7 +349,85 @@ def safe_taxonomic_reduction(args):
                 f.write(d+" = \n")
             f.close()
 
+    f.open(output_file)
+    f.write(output)
+    f.close()
 
+def data_ind(args):
+    """ Check data independence
+    """
+
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    input_file = args.input
+    newphyml = args.newphyml
+    overwrite = args.overwrite
+
+    if (output_file == True):
+        # output file is set, but no file given
+        # set to default
+        # grab directory from input file
+        direc = os.path.dirname(input_file)
+        output_file = direc + os.path.sep + "data_independence.txt"
+
+    # check if output files are there
+    if (output_file and os.path.exists(output_file) and not overwrite):
+        print "Output file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+    if (not newphyml == None and os.path.exists(newphyml) and not overwrite):
+        print "Output Phyml file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+
+    XML = supertree_toolkit.load_phyml(input_file)
+    if (newphyml == None):
+        data_independence = supertree_toolkit.data_independence(XML)
+    else:
+        data_independence, new_phyml = supertree_toolkit.data_independence(XML,make_new_xml=True)
+
+    # process data
+    data_ind = ""
+    #column headers
+    data_ind = "Source trees that are subsets of others\n"
+    data_ind = data_ind + "Flagged tree, is a subset of:\n"
+    for name in data_independence:
+        if ( data_independence[name][1] == supertree_toolkit.SUBSET ):
+            data_ind += name + "," + data_independence[name][0] + "\n"
+    
+    data_ind += "\n\nSource trees that are identical to others\n"
+    data_ind = data_ind + "Flagged tree, is identical to:\n"
+    for name in data_independence:
+        if ( data_independence[name][1] == supertree_toolkit.IDENTICAL ):
+            data_ind += name + "," + data_independence[name][0] + "\n"
+        
+
+    if (output_file == False or
+        output_file == None):
+        print data_ind
+    else:
+        f = open(output_file, "w")
+        f.write(data_ind)
+        f.close()
+
+    if (not newphyml == None):
+        f = open(newphyml,"w")
+        f.write(new_phyml)
+        f.close()
+        
 def data_summary(args):
     """ Create a data summary
     """
@@ -240,8 +454,6 @@ def data_summary(args):
         f = open(output_file, "w")
         f.write(data_summary)
         f.close()
-        
-
 
 def create_matrix(args):
     """ This function creates a phylogenetic matrix from a PHYML file
@@ -273,14 +485,13 @@ def create_matrix(args):
         print "Output file exists. Either remove the file or use the --overwrite flag."
         print "Do you wish to continue? [Y/n]"
         while True:
-            input = sys.stdin.read(1)
-            if input == None:
-                input = 'y'
-            if input == 'n':
+            k=inkey()
+            if k.lower() == 'n':
                 print "Exiting..."
                 sys.exit(0)
-            if input == 'y':
+            if k.lower() == 'y':
                 break
+
 
 
     XML = supertree_toolkit.load_phyml(input_file)
@@ -337,13 +548,11 @@ def sub_taxa(args):
         print "Output file exists. Either remove the file or use the --overwrite flag."
         print "Do you wish to continue? [Y/n]"
         while True:
-            input = sys.stdin.read(1)
-            if input == None:
-                input = 'y'
-            if input == 'n':
+            k=inkey()
+            if k.lower() == 'n':
                 print "Exiting..."
                 sys.exit(0)
-            if input == 'y':
+            if k.lower() == 'y':
                 break
 
     XML = supertree_toolkit.load_phyml(input_file)
@@ -377,13 +586,11 @@ def import_data(args):
         print "Output file exists. Either remove the file or use the --overwrite flag."
         print "Do you wish to continue? [Y/n]"
         while True:
-            input = sys.stdin.read(1)
-            if input == None:
-                input = 'y'
-            if input == 'n':
+            k=inkey()
+            if k.lower() == 'n':
                 print "Exiting..."
                 sys.exit(0)
-            if input == 'y':
+            if k.lower() == 'y':
                 break
 
     phyml = supertree_import_export.import_old_data(input_dir,verbose=verbose) 
@@ -398,18 +605,435 @@ def export_data(args):
     """
     # Parse the args
     verbose = args.verbose
-    output_file = args.output
+    output_dir = args.output
     input_file = args.input
 
-    if (not os.path.exists(input)):
+    if (not os.path.exists(input_file)):
         print "Input phyml cannot be found. Exiting"
         sys.exit(-1)
 
-    if (os.path.exists(output)):
-        print "Output directory exists."
+    XML = supertree_toolkit.load_phyml(input_file)
+    try:
+        supertree_import_export.export_to_old(XML,output_dir,verbose=verbose) 
+    except STKImportExportError as e:
+        print e.msg
+
+
+def data_overlap(args):
+    """ Check the data are sufficient well connected in terms of their taxonomic overlap
+    """
+
+    verbose = args.verbose
+    input_file = args.input
+    output_file = None
+    if args.number_overlap == None:
+        overlap = 2
+    else:
+        overlap = args.number_overlap
+    if args.graphic == None:
+        graphic = False
+    else:
+        graphic = True
+        if args.graphic == True:
+            # generate filename
+            filename =  os.path.splitext(input_file)[0]
+            output_file = filename+"_"+str(overlap)+".pdf"
+        else:
+            output_file = args.graphic
+            # check it ends in .png...
+            extension = os.path.splitext(output_file)[1]
+            if (not extension == '.png' or not extension == '.svg' or not extension == '.pdf'):
+                print "Warning: unknown output format. Correcting the output file you gave to .pdf"
+                output_file = os.path.splitext(output_file)[0]+".pdf"
+
+    XML = supertree_toolkit.load_phyml(input_file)
+    overlap_ok, key_list = supertree_toolkit.data_overlap(XML,  overlap_amount=overlap, filename=output_file, detailed=args.detailed, verbose=verbose)
+    if (graphic):
+        # generate key file
+        filename =  os.path.splitext(input_file)[0]
+        csv_file = filename+'_key_list_'+str(overlap)+".csv"
+        i = 0
+        f = open(csv_file,"w")
+        for key in key_list:
+            if type(key).__name__=='list':
+                f.write(str(i)+","+",".join(key)+"\n")
+            else:
+                f.write(str(i)+","+key+"\n")
+            i = i+1
+        f.close()
+
+
+def export_trees(args):
+    """ Export source trees to a single tree file
+    """
+
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    input_file = args.input
+    format = args.format
+    anon = args.anonymous
+    overwrite = args.overwrite
+
+    if (not os.path.exists(input_file)):
+        print "Input phyml cannot be found. Exiting"
         sys.exit(-1)
 
-    supertree_import_export.export_to_old(input,output_dir,verbose=verbose) 
+    # check if output files are there
+    if (output_file and os.path.exists(output_file) and not overwrite):
+        print "Output file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+
+    XML = supertree_toolkit.load_phyml(input_file)
+
+    output_string = supertree_toolkit.amalgamate_trees(XML,format=format,anonymous=anon)
+
+    f = open(output_file,"w")
+    f.write(output_string)
+    f.close()
+
+def export_bib(args):
+    """ Export bibliographic information to a file
+    """
+
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    input_file = args.input
+    format = args.format
+    overwrite = args.overwrite
+
+    if (not os.path.exists(input_file)):
+        print "Input phyml cannot be found. Exiting"
+        sys.exit(-1)
+
+    # check if output files are there
+    if (output_file and os.path.exists(output_file) and not overwrite):
+        print "Output file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+
+    XML = supertree_toolkit.load_phyml(input_file)
+
+    output_string = supertree_toolkit.export_bibliography(XML,output_file,format=format)
+
+def safe_taxonomic_reduction(XML, matrix=None, verbose=False):
+    """ Perform STR on data to remove taxa that 
+    provide no useful additional information
+    """
+
+    # Algorithm descibed by ******
+    # modified for *supertrees*, which mainly involves cutting
+    # out stuff to do with multiple state characters
+
+    missing_char = "?"
+    TotalInvalid = 0
+
+    if (matrix):
+        # a matrix was supplied, so strip out the info needed
+        i = 0
+    else:
+        # create matrix, but keep the matrix as an array
+        # and get the taxa - hence we replicate most
+        # create matrix code
+        # *******REFACTOR: Split create_matrix into multiple 
+        # functions, so we can just call them here and in create_matrix
+        # get all trees
+        trees = obtain_trees(XML)
+        # and the taxa
+        taxa = []
+        taxa.append("MRPOutgroup")
+        taxa.extend(get_all_taxa(XML))
+        # our matrix, we'll then append the submatrix
+        # to this to make a 2D matrix
+        # Our matrix is of length nTaxa on the i dimension
+        # and nCharacters in the j direction
+        matrix = []
+        charsets = []
+        current_char = 1
+        for key in trees:
+            if (verbose):
+                print "Reading tree: "+key
+            submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
+            nChars = len(submatrix[0,:])
+            # loop over characters in the submatrix
+            for i in range(1,nChars):
+                # loop over taxa. Add '?' for an "unknown" taxa, otherwise
+                # get 0 or 1 from submatrix. May as well turn into a string whilst
+                # we're at it
+                current_row = []
+                for taxon in taxa:
+                    if (taxon in tree_taxa):
+                        # get taxon index
+                        t_index = tree_taxa.index(taxon)
+                        # then get correct matrix entry - note:
+                        # submatrix transposed wrt main matrix
+                        current_row.append(str(int(submatrix[t_index,i])))
+                    elif (taxon == "MRPOutgroup"):
+                        current_row.append('0')
+                    else:
+                        current_row.append('?')
+                matrix.append(current_row)
+            charsets.append(str(current_char) + "-" + str(current_char + nChars-2))
+            current_char += nChars-1
+        matrix = numpy.array(matrix)
+        matrix = matrix.transpose()
+
+    new_matrix = matrix
+    nChars = len(matrix[0][:])
+    # this is the heavy loop
+    t1 = 0
+    equiv_matrix = []
+    missing_chars = []
+    # count missing chars for each taxon
+    for taxon in taxa:
+        chars_t1 = numpy.asarray(matrix[t1][:])
+        missing = 0
+        for c in chars_t1:
+            if c == missing_char:
+                missing+=1
+        missing_chars.append(missing)
+        t1+=1
+
+    nTaxa = len(taxa)
+
+    t1 = 0
+    for taxon in taxa:
+        t2 = 0
+        equiv_matrix.append([taxon,missing_chars[t1]])
+        equiv_taxa = []
+        for taxon2 in taxa:
+            if (taxon2 == taxon):
+                t2 += 1
+                continue
+            NonEquiv = 0
+            t2_missing = missing_chars[t2]
+            yMissing = 0
+            xMissing = 0
+            Symmetric = 1
+            xMiss_yCode = 0
+            xCode_yMiss = 0
+            for i in range(nChars):
+                char1 = matrix[t1][i]
+                char2 = matrix[t2][i]
+                if ((char1 != missing_char) and (char2 != missing_char)) :
+                    if(char1 != char2):
+                        NonEquiv = 1
+                elif((char1 == missing_char) and (char2 != missing_char)):
+                    TotalInvalid+=1
+                    xMissing = 1
+                    xMiss_yCode = 1
+                    Symmetric = 0
+                elif((char1 != missing_char) and (char2 == missing_char)):
+                    TotalInvalid+=1
+                    yMissing = 1
+                    xCode_yMiss = 1
+                    Symmetric = 0
+                elif((char1 == missing_char) and (char2 == missing_char)):
+                    TotalInvalid+=1
+                    yMissing = 1
+                    xMissing = 1
+			
+            t2 = t2+1
+
+            if (NonEquiv == 1):
+                continue
+            else:
+                if(Symmetric == 1):
+                    if((xMissing == 0) and (yMissing == 0)):
+                        equiv_taxa.append([taxon2,"A",t2_missing])
+                        continue
+                    else:
+                        equiv_taxa.append([taxon2,"B",t2_missing])
+                        continue
+                elif(Symmetric == 0):
+                    if((xMissing == 0) and (yMissing == 1)):
+                        equiv_taxa.append([taxon2,"C",t2_missing])
+                        continue
+                    elif((xMissing == 1) and (yMissing == 0)):
+                        equiv_taxa.append([taxon2,"E",t2_missing])
+                        continue
+                    elif((xMissing == 1) and (yMissing == 1)):
+                        if((xCode_yMiss == 1) and (xMiss_yCode == 1)):
+                            equiv_taxa.append([taxon2,"D",t2_missing])
+                            continue
+                        elif(xMiss_yCode == 0):
+                            equiv_taxa.append([taxon2,"C",t2_missing])
+                            continue
+                        elif(xCode_yMiss == 0):
+                            equiv_taxa.append([taxon2,"E",t2_missing])
+                            continue
+        if (len(equiv_taxa) > 0):
+            equiv_matrix[t1].extend([equiv_taxa])
+        else:
+            equiv_matrix[t1].extend(["No equivalence"])
+        t1 += 1
+        if (verbose):
+            print "Done taxa "+str(t1)+" of "+str(nTaxa)
+            
+    can_replace = []
+    # need to work out which taxa to remove
+    for i in range(len(taxa)):
+        if equiv_matrix[i][2] == 'No equivalence':
+            continue
+        elif equiv_matrix[i][0] in can_replace:
+            # this taxon is already in the deleted list
+            continue
+        else:
+            nMissing_t1 = missing_chars[i]
+            equivs = equiv_matrix[i][2]
+            for e in equivs:
+                if (e[1] == "A" or e[1] == "B" or e[1] == "C"):
+                    # we can delete one of these taxa
+                    # first check which has more missing characters
+                    if nMissing_t1 > e[2]:
+                        can_replace.append(equiv_matrix[i][0])
+                        break # no point checking the rest, we've removed the parent taxon!
+                    else:
+                        if (not e[0] in can_replace):
+                            can_replace.append(e[0])
+
+
+    # create output
+    can_replace.sort()
+    output_string = "Equivalency Matrix\n"
+    labels = ('Taxon', 'No Missing', 'Equivalents')
+    output_data = []
+    for i in range(len(taxa)):
+        equivs = equiv_matrix[i][2]
+        eq = ""
+        if equivs == "No equivalence":
+            eq == equivs
+        else:
+            for e in equivs:
+                eq += e[0]+"("+e[1]+")  "
+        output_data.append([equiv_matrix[i][0],str(missing_chars[i]),eq])
+
+    output_string += indent([labels]+output_data, hasHeader=True, prefix='| ', postfix=' |')
+
+    output_string += "\n\n"
+    output_string += "Recommend you remove the following taxa:\n"
+    if (len(can_replace) == 0):
+        output_string += "No taxa can be removed\n"
+    else:
+        for c in can_replace:
+            output_string += c+"\n"
+
+    return output_string, can_replace
+
+def subs_file_from_str(str_output):
+    """From the textual output from STR (above), create
+    the subs file to put the C category taxa back into
+    the dataset. We work with the text out as it's the same as other software, 
+    which means this might work from them also...
+    """
+
+    file = StringIO(str_output)
+    i = 0
+    replacements = []
+    all_C_taxa = []
+    to_remove = []
+    for line in file:
+        if (i < 3):
+            i += 1
+            continue
+        else:
+            line = line.strip()
+            # remove the leading and trailing '|' so we get correct number
+            # of columns
+            line = line.strip('|')
+            data = line.split('|')
+            # data[0] = index taxa
+            # data[1] = missing characters
+            # data[2] = potential equivs
+            # we might have done with the table
+            if (not len(data) == 3):
+                break
+            index = data[0].strip()
+            pot_equivs = data[2].strip().split()
+            replace = ""
+            for e in pot_equivs:
+                if (e[-3:] == '(C)'):
+                    if  (not e[:-3] in all_C_taxa):
+                        replace += e[:-3]+","
+                    else:
+                        # add it to the need to remove list as it appear multiple times
+                        to_remove.append(e[:-3])
+            if (not replace == ""):
+                all_C_taxa.extend(replace[:-1].split(','))
+                replacements.append(index+" = "+replace+index)
+
+    # now need to remove the list in the to_remove list from the RHS
+    for i in range(len(replacements)):
+        for t in to_remove:
+            replacements[i] = replacements[i].replace(t+",","")
+
+    
+    return replacements
+
+
+def permute_trees(args):
+    """ Create all possible permutations of permutable trees in the input file.
+    Permutable trees have non-monophyletic taxa labelled with %d.
+    """
+
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    input_file = args.input
+    create_matrix = args.create_matrix
+    treefile = args.treefile
+    name = args.treename
+
+    if (not os.path.exists(input_file)):
+        print "Input phyml cannot be found. Exiting"
+        sys.exit(-1)
+
+    XML = supertree_toolkit.load_phyml(input_file)
+
+    tree_list = {}
+    all_trees = supertree_toolkit.obtain_trees(XML)
+    if (not name == None): # user has supplied a tree name - find it
+        # get tree
+        for t in all_trees:
+            if t == name:
+                tree_list[t] = all_trees[t]
+        if (len(tree_list) == 0):
+            print "Error finding that name. It should be in the form 'Hill_2011_1'"
+            sys.exit(-1)
+    else:
+        # get all trees
+        tree_list = supertree_toolkit._find_trees_for_permuting(XML)
+
+    for t in tree_list:
+        # permute
+        if (not treefile == ''):
+            output_string = supertree_toolkit.permute_tree(tree_list[t],treefile=treefile)
+        else:
+            output_string = supertree_toolkit.permute_tree(tree_list[t],matrix=create_matrix,treefile=None)
+
+        #save
+        new_output,ext = os.path.splitext(output_file)
+        new_output += "_"+t+ext
+        f = open(new_output,'w')
+        f.write(output_string)
+        f.close
+            
 
 if __name__ == "__main__":
     main()
+
+

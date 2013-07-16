@@ -329,7 +329,7 @@ class BibList(dict):
     elif formato == 'xml'   :  self.export_xml(fout)
     else:
       fi= helper.openfile(fout,'w')
-      if formato   == 'full'  :   fi.write(str(self))
+      if formato   == 'long'  :   fi.write(str(self))
       else:  fi.write(self.preview().encode(self.encoding))
       helper.closefile(fi)
 
@@ -417,7 +417,7 @@ class BibList(dict):
       s+= '<li class="%s"> %s </li>\n' %(tipo, ss)
     return s
 
-  def export_html(self, fname=None, style={}, head='',tail='', separate_css='biblio.css',encoding='utf-8'):
+  def export_html(self, fname=None, style={}, head='',tail='', separate_css=None,encoding='utf-8'):
     """
     Export a bibliography (set of items) to a file in bibtex format: style is a dictionary
     (like in bibitem objects) where the values is a pair (open,close) to insert around the
@@ -454,7 +454,6 @@ div.abstract {display: none;padding: 0em 1% 0em 1%; border: 3px double rgb(130,1
     if helper.is_string_like(separate_css):
       fi=helper.openfile(separate_css,'w');  fi.write(css_style);  helper.closefile(fi)
       name= os.path.commonprefix([os.path.dirname(fname),os.path.dirname(separate_css)])
-      print os.path.basename(separate_css)
       name= os.path.join(name,separate_css[len(name):])
       css='  <link title="new" rel="stylesheet" href="' + name + '" type="text/css">'
     else:
@@ -466,7 +465,7 @@ div.abstract {display: none;padding: 0em 1% 0em 1%; border: 3px double rgb(130,1
     <head>
     <meta http-equiv="Content-Type" content="text/html; charset='''+encoding.upper()+'''">
     ''' +  css + '''
-    <title>Publicaciones</title>
+    <title>Bibliography</title>
     <script language="JavaScript" type="text/javascript">
     //<![CDATA[
     function toggle(thisid) {
@@ -480,7 +479,7 @@ div.abstract {display: none;padding: 0em 1% 0em 1%; border: 3px double rgb(130,1
     </script>
     </head>
     <body>
-    <h2>Publicaciones</h2>
+    <h2>Bibliography</h2>
     <ol class="bibliography">
     '''
     if tail == '':

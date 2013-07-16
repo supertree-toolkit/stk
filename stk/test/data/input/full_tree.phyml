@@ -5,7 +5,7 @@
   </project_name>
   <sources>
     <source name="test1">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -24,19 +24,35 @@
             <integer_value rank="0">1996</integer_value>
           </year>
         </article>
-      </source_publication>
-      <character_data>
-        <character>
-          <character type="molecular" name="16S"/>
-        </character>
-      </character_data>
-      <analysis_used/>
-      <tree_data>
-        <string_value lines="1">Add your tree here</string_value>
-      </tree_data>
+      </bibliographic_information>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">Add your tree here</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">1</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">0</string_value>
+          </figure_number>
+          <page_number>
+            <integer_value rank="0">1</integer_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="12S"/>
+        </character_data>
+      </source_tree>
     </source>
     <source name="test2">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -54,8 +70,8 @@
               <other_names>
                 <string_value lines="1">Katie</string_value>
               </other_names>
-            </author>        
-              <author>
+            </author>
+            <author>
               <surname>
                 <string_value lines="1">Smith</string_value>
               </surname>
@@ -71,19 +87,35 @@
             <integer_value rank="0">1996</integer_value>
           </year>
         </article>
-      </source_publication>
-      <character_data>
-        <character>
-          <character type="molecular" name="16S"/>
-        </character>
-      </character_data>
-      <analysis_used/>
-      <tree_data>
-        <string_value lines="1">Add your tree here</string_value>
-      </tree_data>
+      </bibliographic_information>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">Add your tree here</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">1</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">0</string_value>
+          </figure_number>
+          <page_number>
+            <integer_value rank="0">1</integer_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="12S"/>
+        </character_data>
+      </source_tree>
     </source>
     <source name="test3">
-      <source_publication>
+      <bibliographic_information>
         <article>
           <authors>
             <author>
@@ -101,7 +133,7 @@
               <other_names>
                 <string_value lines="1">Katie</string_value>
               </other_names>
-          </author>
+            </author>
           </authors>
           <title>
             <string_value lines="1">A great paper</string_value>
@@ -110,16 +142,32 @@
             <integer_value rank="0">1996</integer_value>
           </year>
         </article>
-      </source_publication>
-      <character_data>
-        <character>
-          <character type="molecular" name="16S"/>
-        </character>
-      </character_data>
-      <analysis_used/>
-      <tree_data>
-        <string_value lines="1">Add your tree here</string_value>
-      </tree_data>
+      </bibliographic_information>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">Add your tree here</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">1</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <integer_value rank="0">1</integer_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="12S"/>
+        </character_data>
+      </source_tree>
     </source>
   </sources>
   <history/>

@@ -1,0 +1,199 @@
+<phylo_storage>
+  <project_name>
+    <string_value lines="1"/>
+  </project_name>
+  <sources>
+    <source name="Artiss_etal_2001">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Artiss</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Thomas</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Schultz</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Ted R.</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Polhemus</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Dan A.</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Simon</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Chris</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Molecular phylogenetic analysis of the dragonfly genera Libellula, Ladona, and Plathemis (Odonata : Libellulidae) based on mitochondrial cytochrome oxidase I and 16S rRNA sequence data</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2001</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Molecular Phylogenetics and Evolution</string_value>
+          </journal>
+          <volume>
+            <string_value lines="1">18</string_value>
+          </volume>
+          <pages>
+            <string_value lines="1">348-361</string_value>
+          </pages>
+          <issue>
+            <string_value lines="1">3</string_value>
+          </issue>
+          <doi>
+            <string_value lines="1">10.1006/mpev.2000.0867</string_value>
+          </doi>
+        </article>
+      </bibliographic_information>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1"/>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1"/>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1"/>
+          </figure_number>
+          <page_number>
+            <integer_value rank="0"/>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion/>
+          </tree_inference>
+        </tree>
+        <taxa_data>
+          <mixed_fossil_and_extant>
+            <taxon>
+              <fossil/>
+            </taxon>
+          </mixed_fossil_and_extant>
+        </taxa_data>
+        <character_data>
+          <character/>
+        </character_data>
+      </source_tree>
+    </source>
+    <source name="Ascione_etal_2012">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Ascione</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Alessandra</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Ciarcia</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Sabatino</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Donato</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Valentino Di</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Mazzoli</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Stefano</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Vitale</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Stefano</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">{The Pliocene-Quaternary wedge-top basins of southern Italy: an expression of propagating lateral slab tear beneath the Apennines}</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2012</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Basin Research</string_value>
+          </journal>
+          <volume>
+            <string_value lines="1">24</string_value>
+          </volume>
+          <pages>
+            <string_value lines="1">456-474</string_value>
+          </pages>
+          <issue>
+            <string_value lines="1">4</string_value>
+          </issue>
+          <doi>
+            <string_value lines="1">10.1111/j.1365-2117.2011.00534.x</string_value>
+          </doi>
+          <url>
+            <string_value lines="1">http://doi.wiley.com/10.1111/j.1365-2117.2011.00534.x</string_value>
+          </url> 
+        </article>
+      </bibliographic_information>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1"/>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1"/>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1"/>
+          </figure_number>
+          <page_number>
+            <integer_value rank="0"/>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion/>
+          </tree_inference>
+        </tree>
+        <taxa_data>
+          <mixed_fossil_and_extant>
+            <taxon>
+              <fossil/>
+            </taxon>
+          </mixed_fossil_and_extant>
+        </taxa_data>
+        <character_data>
+          <character/>
+        </character_data>
+      </source_tree>
+    </source>
+  </sources>
+  <history/>
+</phylo_storage>
