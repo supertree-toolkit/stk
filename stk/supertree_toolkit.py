@@ -25,9 +25,10 @@ import math
 import re
 import numpy 
 from lxml import etree
-import yapbib.biblist as biblist
-import yapbib.bibparse as bibparse
-import yapbib.bibitem as bibitem
+sys.path.insert(0,"../../")
+import stk.yapbib.biblist as biblist
+import stk.yapbib.bibparse as bibparse
+import stk.yapbib.bibitem as bibitem
 import string
 from stk_exceptions import *
 import traceback
@@ -43,7 +44,6 @@ from matplotlib.ticker import MaxNLocator
 from matplotlib import backends
 import datetime
 import gtk
-from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
 
 #plt.ion()
 
@@ -1440,6 +1440,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             pp=plt.colorbar(cs, orientation='horizontal', format='%d', ticks=ticks)
             pp.set_label("No. connected edges")
             if (show):
+                from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
                 canvas = FigureCanvas(fig)  # a gtk.DrawingArea 
                 return sufficient_overlap, key_list, canvas
             else:
@@ -1481,6 +1482,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             
                 limits=plt.axis('off')
             if (show):
+                from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
                 canvas = FigureCanvas(fig)  # a gtk.DrawingArea 
                 return sufficient_overlap, key_list,canvas
             else:

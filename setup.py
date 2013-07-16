@@ -9,13 +9,16 @@ from subprocess import call
 class install(_install):
     def run(self):
         _install.run(self)
-        call(["update-desktop-database"])
+        try:
+            call(["update-desktop-database"])
+        except:
+            pass
         
 
 try:
   destdir = os.environ["DESTDIR"]
 except KeyError:
-  destdir = "/usr/local/share/"
+  destdir = "/usr/share/"
 try:
     set
 except NameError:
@@ -58,8 +61,8 @@ else:
             data_files = [(destdir + "stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.png", "stk_gui/gui/stk.svg"])] +
                    plugin_data_files + schema_data_files +
                    [(destdir + "stk/schemata", ["schema/phyml"])] +
-                   [("/usr/local/share/icons/hicolor/48x48/apps/", ["stk_gui/gui/stk.png"])] +
-                   [("/usr/local/share/applications/",["stk.desktop"])]
+                   [(destdir+"/usr/share/icons/hicolor/48x48/apps/", ["stk_gui/gui/stk.png"])] +
+                   [(destdir+"/usr/share/applications/",["stk.desktop"])]
     )
 
 setup(
@@ -69,12 +72,12 @@ setup(
       author = "The STK Team",
       author_email = "jon.hill@imperial.ac.uk",
       url = "https://launchpad.net/supertree-tookit",
-      packages = ['stk', 'stk_gui', 'yapbib', 'dxdiff', 'stk.p4','stk.nameparser'],
+      packages = ['stk', 'stk_gui', 'stk.yapbib', 'stk.p4','stk.nameparser'],
       package_dir = {
           'stk': 'stk', 
           'stk_gui':'stk_gui/stk_gui', 
-          'yapbib':'stk/yapbib', 
-          'dxdiff':'stk_gui/dxdiff/dxdiff',
+          'stk.yapbib':'stk/yapbib', 
+          #'stk.dxdiff':'stk_gui/dxdiff/dxdiff',
           # Note, we use out own P4 - better tested within STK this way and removes the requirement
           # of pre-installing it. It also means we don't overwrite any previous p4 install.
           'stk.p4':'stk/p4',

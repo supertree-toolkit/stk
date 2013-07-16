@@ -107,10 +107,13 @@ def main():
     input_filename = None
 
   logofile = None
-  for possible_logofile in ["/usr/local/share/stk/stk.png",
-                            os.path.join(stk_path, "gui/stk.svg"), 
+  for possible_logofile in [os.path.join(stk_path, "gui/stk.svg"),
+                            os.path.join(stk_path, "gui/stk.png"),
+                            "/usr/share/stk/stk.png",
+                            "/usr/share/stk/stk.svg",
+                            "/usr/local/share/stk/stk.png",
                             "/usr/local/share/stk/stk.svg",
-                            os.path.join(stk_path, "gui/stk.png"),]:
+                            ]:
       try:
         os.stat(possible_logofile)
       
@@ -138,6 +141,7 @@ def main():
       for possible_schemafile in [
             os.path.join(stk_path, "../../../../share/schemata/stk/phylo_storage.rng"),
             "/usr/local/share/stk/schemata/schema/phylo_storage.rng",
+            "/usr/share/stk/schemata/schema/phylo_storage.rng",
             os.path.join(os.path.realpath(os.path.dirname(__file__)),"../../schema/phylo_storage.rng")]:
         try:
           os.stat(possible_schemafile)
@@ -168,7 +172,8 @@ def main():
   							 os.path.join(stk_path, os.pardir, "gui", "gui.glade"),
                              os.path.join(stk_path, "share", "stk", "gui", "gui.glade"),
                              "../gui/gui.glade",
-                             "/usr/local/share/stk/gui.glade"]:
+                             "/usr/local/share/stk/gui.glade",
+                             "/usr/share/stk/gui.glade"]:
     try:
       os.stat(possible_gladefile)
       gladefile = possible_gladefile
