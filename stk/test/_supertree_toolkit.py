@@ -138,7 +138,10 @@ class TestSetSourceNames(unittest.TestCase):
     def test_str(self):
         """Test STR function. Just prints out the equiv matrix
         """
-        safe_taxonomic_reduction(etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)); 
+        output = safe_taxonomic_reduction(etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)); 
+        f = open("test.dat","w")
+        f.write(output[0])
+        f.close()
         self.assert_(True)
         # Need a better test here
   
