@@ -1,4 +1,4 @@
-VERSION=0.1.1
+VERSION=1.5
 
 default:
 	python setup.py build
