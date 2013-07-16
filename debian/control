@@ -16,5 +16,4 @@ Conflicts:
 Replaces:
 Provides: ${python:Provides}
 XB-Python-Version: ${python:Versions}
-Description: A package to maintain, curate and process data ready for inclusion
-    in supertree analysis. This package includes a GUI and CLI tools.
+Description: A package to maintain, curate and process data ready for inclusion in supertree analysis. This package includes a GUI and CLI tools.
