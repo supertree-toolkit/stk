@@ -67,7 +67,7 @@ else:
 
 setup(
       name='supertree-toolkit',
-      version='0.1.1',
+      version='1.5',
       description="Supertree data source management",
       author = "The STK Team",
       author_email = "jon.hill@imperial.ac.uk",
