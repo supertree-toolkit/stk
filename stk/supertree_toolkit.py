@@ -1827,6 +1827,43 @@ def add_historical_event(XML, event_description):
     XML = etree.tostring(xml_root,pretty_print=True)
 
     return XML
+
+def read_matrix(filename):
+
+    matrix = []
+    taxa = []
+
+    try:
+        p4.var.doCheckForDuplicateSequences = False
+        p4.read(filename)
+        p4.var.doCheckForDuplicateSequences = True
+        # get data out
+        a = p4.var.alignments[0]
+        a.setNexusSets()
+        sequences = a.sequences
+        matrix = []
+        taxa = []
+        for s in sequences:
+            char_row = []
+            for i in range(0,len(s.sequence)):
+                char_row.append(s.sequence[i])
+            matrix.append(char_row)
+            taxa.append(s.name)
+    except:
+        # Raises exception with STK-type nexus matrix and with Hennig
+        # open file and find out type
+        f = open(filename,"r")
+        data = f.read()
+        data = data.lower()
+        f.close()
+        if (data.find("#nexus") > -1):
+            matrix,taxa = _read_nexus_matrix(filename)
+        elif (data.find("xread") > -1):
+            matrix,taxa = _read_hennig_matrix(filename)
+        else:
+            raise MatrixError("Invalid matrix format")
+
+    return matrix,taxa
     
 ################ PRIVATE FUNCTIONS ########################
 
@@ -2323,3 +2360,42 @@ def _amalgamate_trees(trees,format,anonymous=False):
 
     return output_string
 
+
+def _read_nexus_matrix(filename):
+    """ Read in essential info from a NEXUS matrix file
+        This does not include the charset as we don't actually use it
+        for anything and is not saved in TNT format anyway
+    """
+
+    taxa = []
+    matrix = []
+    f = open(filename,"r")
+    inData = False
+    for line in f:
+        linel = line.lower()
+        if linel.find(";") > -1:
+            inData = False
+        if (inData):
+            linel = linel.strip()
+            if len(linel) == 0:
+                continue # empty line
+            
+            data = line.split()
+            taxa.append(data[0])
+            char_row = []
+            for n in range(0,len(data[1])):
+                char_row.append(data[1][n])
+            matrix.append(char_row)
+        if (linel.find('matrix') > -1):
+            inData = True
+
+    return matrix,taxa
+
+def _read_hennig_matrix(filename):
+    """ Read in essential info from a TNT matrix file
+        - actually just calls our NEXUS reader as the file
+        layout is surprisingly similar...
+    """
+
+    return _read_nexus_matrix(filename)
+    

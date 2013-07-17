@@ -9,7 +9,7 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir,
 sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters, data_independence
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
-from stk.supertree_toolkit import data_overlap
+from stk.supertree_toolkit import data_overlap, read_matrix
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML
 from lxml import etree
 from util import *
@@ -354,6 +354,53 @@ class TestSetSourceNames(unittest.TestCase):
         # let's just settle with the correct datetime being found
         self.assertRegexpMatches(XML2, now1)
 
+    def test_read_matrix_nexus(self):
+        matrix,taxa = read_matrix("data/input/matrix.nex")
+        expected_taxa = ['MRPOutgroup','A','B','B_b','C','D','E','F']
+        expected_matrix = [
+                            ["0","0","0","0","0","0"],
+                            ["1","0","1","0","1","0"],
+                            ["1","0","?","?","1","0"],
+                            ["?","?","1","0","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["?","?","?","?","0","1"],
+                            ["?","?","?","?","0","1"]
+                          ]
+        self.assertListEqual(expected_taxa,taxa)
+        self.assertListEqual(expected_matrix,matrix)
+
+    def test_read_matrix_tnt(self):
+        matrix,taxa = read_matrix("data/input/matrix.tnt")
+        expected_taxa = ['MRPOutgroup','A','B','B_b','C','D','E','F']
+        expected_matrix = [
+                            ["0","0","0","0","0","0"],
+                            ["1","0","1","0","1","0"],
+                            ["1","0","?","?","1","0"],
+                            ["?","?","1","0","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["?","?","?","?","0","1"],
+                            ["?","?","?","?","0","1"]
+                          ]
+        self.assertListEqual(expected_taxa,taxa)
+        self.assertListEqual(expected_matrix,matrix)
+
+    def test_read_matrix_nexus_p4(self):
+        matrix,taxa = read_matrix("data/input/matrix_p4.nex")
+        expected_taxa = ['MRPOutgroup','A','B','B_b','C','D','E','F']
+        expected_matrix = [
+                            ["0","0","0","0","0","0"],
+                            ["1","0","1","0","1","0"],
+                            ["1","0","?","?","1","0"],
+                            ["?","?","1","0","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["?","?","?","?","0","1"],
+                            ["?","?","?","?","0","1"]
+                          ]
+        self.assertListEqual(expected_taxa,taxa)
+        self.assertListEqual(expected_matrix,matrix)
 
 if __name__ == '__main__':
     unittest.main()
