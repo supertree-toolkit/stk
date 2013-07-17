@@ -38,7 +38,7 @@ def prompt(parent, message, type = gtk.MESSAGE_QUESTION, has_cancel = False):
 
   return prompt_response.response
 
-def long_message(parent, message):
+def long_message(parent, message,monospace=False):
   """
   Display a message prompt, with the message contained within a scrolled window.
   """
@@ -57,6 +57,10 @@ def long_message(parent, message):
   scrolled_window.add(text_view)
   text_view.show()
 
+  if (monospace):
+      import pango
+      font_desc = pango.FontDescription('monospace')
+      text_view.modify_font(font_desc)
   text_view.get_buffer().set_text(message)
   text_view.set_cursor_visible(False)
   text_view.set_property("editable", False)

@@ -1406,13 +1406,15 @@ class Diamond:
     str_progressbar = self.str_gui.get_widget("progressbar1")
     str_progressbar.set_pulse_step(0.1)
     self.str_q = Queue()
+    # make the fourth argument true for verbose output
     self.str_p = Process(target=stk.safe_taxonomic_reduction,args=(XML,None,None,False,self.str_q))
     self.str_p.start()
-    while True:
+    waiting=True
+    while waiting:
         try:
-            output, can_replace= str_q.get(True,1.0) # get items, with 0.1 second timeout
-            break
-        except:
+            output, can_replace= self.str_q.get(True,0.1)
+            waiting=False
+        except Queue.empty:
             str_progressbar.pulse()
             time.sleep(0.5)
             while gtk.events_pending():
@@ -1421,10 +1423,13 @@ class Diamond:
     if (replace_subs):
         substitutions = stk.subs_file_from_str(output)
     
-    filename_stub =  os.path.splitext(filename)[0]
-    subs_replace = filename_stub+"_subs_replace"
-    subs_delete = filename_stub+"_subs_delete"
     if (replace_subs):
+        if (filename == ''):
+            filename = "str.dat"
+        filename_stub =  os.path.splitext(filename)[0]
+        subs_replace = filename_stub+"_subs_replace"
+        subs_delete = filename_stub+"_subs_delete"
+
         f = open(subs_replace, "w")
         for r in substitutions:
             f.write(r+"\n")
@@ -1435,9 +1440,12 @@ class Diamond:
             f.write(d+" = \n")
         f.close()
 
-    f = open(filename)
-    f.write(output)
-    f.close()
+    if (filename == ""):
+        dialogs.long_message(self.main_window, output,monospace=True)
+    else:
+        f = open(filename,"w")
+        f.write(output)
+        f.close()
 
     # Add a history event
     f = StringIO.StringIO()
