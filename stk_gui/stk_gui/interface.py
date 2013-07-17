@@ -1422,10 +1422,19 @@ class Diamond:
     self.str_p.join()
     if (replace_subs):
         substitutions = stk.subs_file_from_str(output)
-    
+
+    if (filename == ""):
+        dialogs.long_message(self.main_window, output,monospace=True)
+    else:
+        f = open(filename,"w")
+        f.write(output)
+        f.close()
+
     if (replace_subs):
         if (filename == ''):
-            filename = "str.dat"
+            from os.path import expanduser
+            home = expanduser("~")
+            filename = os.path.join(home,"str.dat")
         filename_stub =  os.path.splitext(filename)[0]
         subs_replace = filename_stub+"_subs_replace"
         subs_delete = filename_stub+"_subs_delete"
@@ -1440,12 +1449,6 @@ class Diamond:
             f.write(d+" = \n")
         f.close()
 
-    if (filename == ""):
-        dialogs.long_message(self.main_window, output,monospace=True)
-    else:
-        f = open(filename,"w")
-        f.write(output)
-        f.close()
 
     # Add a history event
     f = StringIO.StringIO()
