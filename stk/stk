@@ -243,6 +243,7 @@ def main():
             default=False,
             help="Overwrite the existing files without asking for confirmation")
     parser_cm.add_argument('-o',
+            '--output',
             default=False,
             const=True,
             nargs='?',

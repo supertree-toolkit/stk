@@ -8,7 +8,6 @@ from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_taxa_f
 from stk.supertree_toolkit import import_trees, _trees_equal, _find_trees_for_permuting, permute_tree
 
 import os
-import stk
 from lxml import etree
 from util import *
 import StringIO
