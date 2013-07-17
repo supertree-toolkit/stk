@@ -220,6 +220,9 @@ def main():
             action='store_true',
             default=False,
             help="Overwrite the existing files without asking for confirmation")
+    parser_cm.add_argument('--matrix',
+            default='',
+            help="A matrix has already been calculated. Give the filename")
     parser_cm.add_argument('-o',
             '--output', 
             help='Output to file, rather than stdout') 
@@ -330,7 +333,16 @@ def safe_taxonomic_reduction(args):
     output_file = args.output
     input_file = args.input
     subs = args.subs
+    matrix = args.matrix
 
+    if (not matrix == '' and not os.path.exists(matrix)):
+        print "Matrix file cannot be found"
+        print "Exiting"
+        sys.exit(-1)
+
+    if matrix == '':
+        matrix = None
+    
     XML = supertree_toolkit.load_phyml(input_file)
     output, can_replace = supertree_toolkit.safe_taxonomic_reduction(XML,verbose=verbose)
     if (not subs == None or not subs):
