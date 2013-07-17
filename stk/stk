@@ -214,15 +214,17 @@ def main():
     parser_cm.add_argument('-s',
             '--subs', 
             help="""Create two subs file to delete the data with sub_taxa and to replace C category"""+
-                  """taxa back in afterwards.
+                  """taxa back in afterwards. Supply a directory.
                   The files withh be called sub_delete and sub_replace""")
     parser_cm.add_argument('--overwrite',
             action='store_true',
             default=False,
             help="Overwrite the existing files without asking for confirmation")
     parser_cm.add_argument('--matrix',
-            default='',
-            help="A matrix has already been calculated. Give the filename")
+            '-m',
+            action='store_true',
+            default=False,
+            help="The input file is a matrix, not a PHYML")
     parser_cm.add_argument('-o',
             '--output', 
             help='Output to file, rather than stdout') 
@@ -333,26 +335,36 @@ def safe_taxonomic_reduction(args):
     output_file = args.output
     input_file = args.input
     subs = args.subs
-    matrix = args.matrix
+    matrix_file = args.matrix
 
-    if (not matrix == '' and not os.path.exists(matrix)):
+    if (matrix_file and not os.path.exists(input_file)):
         print "Matrix file cannot be found"
         print "Exiting"
         sys.exit(-1)
 
-    if matrix == '':
+    print args
+    if not matrix_file:
         matrix = None
+        taxa = None
+        XML = supertree_toolkit.load_phyml(input_file)
+    else:
+        matrix,taxa = supertree_toolkit.read_matrix(input_file)
+        XML = None
     
-    XML = supertree_toolkit.load_phyml(input_file)
-    output, can_replace = supertree_toolkit.safe_taxonomic_reduction(XML,verbose=verbose)
+    output, can_replace = supertree_toolkit.safe_taxonomic_reduction(XML,matrix=matrix,taxa=taxa,verbose=verbose)
     if (not subs == None or not subs):
         substitutions = supertree_toolkit.subs_file_from_str(output)
-   
-    filename =  os.path.splitext(output_file)[0]
-    subs_replace = filename+"_subs_replace"
-    subs_delete = filename+"_subs_delete"
+  
+    if (output_file == None):
+        print output
+    else:
+        f = open(output_file,"w")
+        f.write(output)
+        f.close()
     if (not subs == False or
         not subs == None):
+            subs_replace = os.path.join(subs,"subs_replace")
+            subs_delete = os.path.join(subs,"subs_delete")
             f = open(subs_replace, "w")
             for r in substitutions:
                 f.write(r+"\n")
@@ -361,10 +373,6 @@ def safe_taxonomic_reduction(args):
             for d in can_replace:
                 f.write(d+" = \n")
             f.close()
-
-    f = open(output_file)
-    f.write(output)
-    f.close()
 
 def data_ind(args):
     """ Check data independence
@@ -743,259 +751,6 @@ def export_bib(args):
 
     output_string = supertree_toolkit.export_bibliography(XML,output_file,format=format)
 
-def safe_taxonomic_reduction(XML, matrix=None, verbose=False):
-    """ Perform STR on data to remove taxa that 
-    provide no useful additional information
-    """
-
-    # Algorithm descibed by ******
-    # modified for *supertrees*, which mainly involves cutting
-    # out stuff to do with multiple state characters
-
-    missing_char = "?"
-    TotalInvalid = 0
-
-    if (matrix):
-        # a matrix was supplied, so strip out the info needed
-        i = 0
-    else:
-        # create matrix, but keep the matrix as an array
-        # and get the taxa - hence we replicate most
-        # create matrix code
-        # *******REFACTOR: Split create_matrix into multiple 
-        # functions, so we can just call them here and in create_matrix
-        # get all trees
-        trees = obtain_trees(XML)
-        # and the taxa
-        taxa = []
-        taxa.append("MRPOutgroup")
-        taxa.extend(get_all_taxa(XML))
-        # our matrix, we'll then append the submatrix
-        # to this to make a 2D matrix
-        # Our matrix is of length nTaxa on the i dimension
-        # and nCharacters in the j direction
-        matrix = []
-        charsets = []
-        current_char = 1
-        for key in trees:
-            if (verbose):
-                print "Reading tree: "+key
-            submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
-            nChars = len(submatrix[0,:])
-            # loop over characters in the submatrix
-            for i in range(1,nChars):
-                # loop over taxa. Add '?' for an "unknown" taxa, otherwise
-                # get 0 or 1 from submatrix. May as well turn into a string whilst
-                # we're at it
-                current_row = []
-                for taxon in taxa:
-                    if (taxon in tree_taxa):
-                        # get taxon index
-                        t_index = tree_taxa.index(taxon)
-                        # then get correct matrix entry - note:
-                        # submatrix transposed wrt main matrix
-                        current_row.append(str(int(submatrix[t_index,i])))
-                    elif (taxon == "MRPOutgroup"):
-                        current_row.append('0')
-                    else:
-                        current_row.append('?')
-                matrix.append(current_row)
-            charsets.append(str(current_char) + "-" + str(current_char + nChars-2))
-            current_char += nChars-1
-        matrix = numpy.array(matrix)
-        matrix = matrix.transpose()
-
-    new_matrix = matrix
-    nChars = len(matrix[0][:])
-    # this is the heavy loop
-    t1 = 0
-    equiv_matrix = []
-    missing_chars = []
-    # count missing chars for each taxon
-    for taxon in taxa:
-        chars_t1 = numpy.asarray(matrix[t1][:])
-        missing = 0
-        for c in chars_t1:
-            if c == missing_char:
-                missing+=1
-        missing_chars.append(missing)
-        t1+=1
-
-    nTaxa = len(taxa)
-
-    t1 = 0
-    for taxon in taxa:
-        t2 = 0
-        equiv_matrix.append([taxon,missing_chars[t1]])
-        equiv_taxa = []
-        for taxon2 in taxa:
-            if (taxon2 == taxon):
-                t2 += 1
-                continue
-            NonEquiv = 0
-            t2_missing = missing_chars[t2]
-            yMissing = 0
-            xMissing = 0
-            Symmetric = 1
-            xMiss_yCode = 0
-            xCode_yMiss = 0
-            for i in range(nChars):
-                char1 = matrix[t1][i]
-                char2 = matrix[t2][i]
-                if ((char1 != missing_char) and (char2 != missing_char)) :
-                    if(char1 != char2):
-                        NonEquiv = 1
-                elif((char1 == missing_char) and (char2 != missing_char)):
-                    TotalInvalid+=1
-                    xMissing = 1
-                    xMiss_yCode = 1
-                    Symmetric = 0
-                elif((char1 != missing_char) and (char2 == missing_char)):
-                    TotalInvalid+=1
-                    yMissing = 1
-                    xCode_yMiss = 1
-                    Symmetric = 0
-                elif((char1 == missing_char) and (char2 == missing_char)):
-                    TotalInvalid+=1
-                    yMissing = 1
-                    xMissing = 1
-			
-            t2 = t2+1
-
-            if (NonEquiv == 1):
-                continue
-            else:
-                if(Symmetric == 1):
-                    if((xMissing == 0) and (yMissing == 0)):
-                        equiv_taxa.append([taxon2,"A",t2_missing])
-                        continue
-                    else:
-                        equiv_taxa.append([taxon2,"B",t2_missing])
-                        continue
-                elif(Symmetric == 0):
-                    if((xMissing == 0) and (yMissing == 1)):
-                        equiv_taxa.append([taxon2,"C",t2_missing])
-                        continue
-                    elif((xMissing == 1) and (yMissing == 0)):
-                        equiv_taxa.append([taxon2,"E",t2_missing])
-                        continue
-                    elif((xMissing == 1) and (yMissing == 1)):
-                        if((xCode_yMiss == 1) and (xMiss_yCode == 1)):
-                            equiv_taxa.append([taxon2,"D",t2_missing])
-                            continue
-                        elif(xMiss_yCode == 0):
-                            equiv_taxa.append([taxon2,"C",t2_missing])
-                            continue
-                        elif(xCode_yMiss == 0):
-                            equiv_taxa.append([taxon2,"E",t2_missing])
-                            continue
-        if (len(equiv_taxa) > 0):
-            equiv_matrix[t1].extend([equiv_taxa])
-        else:
-            equiv_matrix[t1].extend(["No equivalence"])
-        t1 += 1
-        if (verbose):
-            print "Done taxa "+str(t1)+" of "+str(nTaxa)
-            
-    can_replace = []
-    # need to work out which taxa to remove
-    for i in range(len(taxa)):
-        if equiv_matrix[i][2] == 'No equivalence':
-            continue
-        elif equiv_matrix[i][0] in can_replace:
-            # this taxon is already in the deleted list
-            continue
-        else:
-            nMissing_t1 = missing_chars[i]
-            equivs = equiv_matrix[i][2]
-            for e in equivs:
-                if (e[1] == "A" or e[1] == "B" or e[1] == "C"):
-                    # we can delete one of these taxa
-                    # first check which has more missing characters
-                    if nMissing_t1 > e[2]:
-                        can_replace.append(equiv_matrix[i][0])
-                        break # no point checking the rest, we've removed the parent taxon!
-                    else:
-                        if (not e[0] in can_replace):
-                            can_replace.append(e[0])
-
-
-    # create output
-    can_replace.sort()
-    output_string = "Equivalency Matrix\n"
-    labels = ('Taxon', 'No Missing', 'Equivalents')
-    output_data = []
-    for i in range(len(taxa)):
-        equivs = equiv_matrix[i][2]
-        eq = ""
-        if equivs == "No equivalence":
-            eq == equivs
-        else:
-            for e in equivs:
-                eq += e[0]+"("+e[1]+")  "
-        output_data.append([equiv_matrix[i][0],str(missing_chars[i]),eq])
-
-    output_string += indent([labels]+output_data, hasHeader=True, prefix='| ', postfix=' |')
-
-    output_string += "\n\n"
-    output_string += "Recommend you remove the following taxa:\n"
-    if (len(can_replace) == 0):
-        output_string += "No taxa can be removed\n"
-    else:
-        for c in can_replace:
-            output_string += c+"\n"
-
-    return output_string, can_replace
-
-def subs_file_from_str(str_output):
-    """From the textual output from STR (above), create
-    the subs file to put the C category taxa back into
-    the dataset. We work with the text out as it's the same as other software, 
-    which means this might work from them also...
-    """
-
-    file = StringIO(str_output)
-    i = 0
-    replacements = []
-    all_C_taxa = []
-    to_remove = []
-    for line in file:
-        if (i < 3):
-            i += 1
-            continue
-        else:
-            line = line.strip()
-            # remove the leading and trailing '|' so we get correct number
-            # of columns
-            line = line.strip('|')
-            data = line.split('|')
-            # data[0] = index taxa
-            # data[1] = missing characters
-            # data[2] = potential equivs
-            # we might have done with the table
-            if (not len(data) == 3):
-                break
-            index = data[0].strip()
-            pot_equivs = data[2].strip().split()
-            replace = ""
-            for e in pot_equivs:
-                if (e[-3:] == '(C)'):
-                    if  (not e[:-3] in all_C_taxa):
-                        replace += e[:-3]+","
-                    else:
-                        # add it to the need to remove list as it appear multiple times
-                        to_remove.append(e[:-3])
-            if (not replace == ""):
-                all_C_taxa.extend(replace[:-1].split(','))
-                replacements.append(index+" = "+replace+index)
-
-    # now need to remove the list in the to_remove list from the RHS
-    for i in range(len(replacements)):
-        for t in to_remove:
-            replacements[i] = replacements[i].replace(t+",","")
-
-    
-    return replacements
 
 
 def permute_trees(args):

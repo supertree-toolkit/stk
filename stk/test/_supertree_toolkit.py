@@ -180,7 +180,6 @@ class TestSetSourceNames(unittest.TestCase):
         self.assertListEqual(expected_can_replace,can_replace)
         self.assertListEqual(expected_substitutions,substitutions)
         
-
     def test_str_from_matrix(self):
         """Test STR function. Just prints out the equiv matrix
         """
