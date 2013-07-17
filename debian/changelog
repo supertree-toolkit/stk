@@ -1,5 +1,13 @@
 supertree-toolkit (1.5) precise; urgency=low
 
+  * Alpha release
+  * Fixed a number of small bugs
+  * Added most of old STK functionality
+
+ -- Jon Hill <jhill1@imperial.ac.uk>  Wed, 17 Jul 2013 06:53:00 +0100
+
+supertree-toolkit (0.1.1) precise; urgency=low
+
   [ jhill1 ]
   * Initial release. (Closes: #XXXXXX)
 

@@ -14,7 +14,7 @@ else
 endif
 
 uninstall:
-	rm -rf /usr/local/lib/python2.7/dist-packages/supertree_toolkit-0.1.1.egg-info/
+	rm -rf /usr/local/lib/python2.7/dist-packages/supertree_toolkit-*.egg-info/
 	rm -rf /usr/local/lib/python2.7/dist-packages/stk*
 	rm -rf /usr/local/lib/python2.7/dist-packages/p4
 	rm -rf /usr/local/lib/python2.7/dist-packages/yapbib/
