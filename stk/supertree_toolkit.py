@@ -534,7 +534,7 @@ def export_bibliography(XML,filename,format="bibtex"):
     
     return
 
-def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False):
+def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=None):
     """ Perform STR on data to remove taxa that 
     provide no useful additional information
     """
@@ -736,7 +736,10 @@ def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False):
         for c in can_replace:
             output_string += c+"\n"
 
-    return output_string, can_replace
+    if (queue == None):
+        return output_string, can_replace
+    else:
+        queue.put([output_string, can_replace])
 
 def subs_file_from_str(str_output):
     """From the textual output from STR (above), create

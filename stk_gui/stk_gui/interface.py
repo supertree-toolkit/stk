@@ -1374,6 +1374,8 @@ class Diamond:
       
     self.str_gui = gtk.glade.XML(self.gladefile, root="str_dialog")
     self.str_dialog = self.str_gui.get_widget("str_dialog")
+    str_progressbar = self.str_gui.get_widget("progressbar1")
+    str_progressbar.set_fraction(0.)
     self.str_gui.signal_autoconnect(signals)
     self.str_dialog.show()
 
@@ -1382,6 +1384,8 @@ class Diamond:
     """
     Actually do the STR
     """
+    from multiprocessing import Queue, Process
+    import time
 
     filename_textbox = self.str_gui.get_widget("entry1")
     filename = filename_textbox.get_text()
@@ -1400,13 +1404,22 @@ class Diamond:
     XML = f.getvalue()
     # Set up progress bar
     str_progressbar = self.str_gui.get_widget("progressbar1")
-    str_progressbar.set_pulse_step(0.25)
-    str_progressbar.pulse()
-    output, can_replace = stk.safe_taxonomic_reduction(XML)
-    str_progressbar.pulse()
+    str_progressbar.set_pulse_step(0.1)
+    self.str_q = Queue()
+    self.str_p = Process(target=stk.safe_taxonomic_reduction,args=(XML,None,None,False,self.str_q))
+    self.str_p.start()
+    while True:
+        try:
+            output, can_replace= str_q.get(True,1.0) # get items, with 0.1 second timeout
+            break
+        except:
+            str_progressbar.pulse()
+            time.sleep(0.5)
+            while gtk.events_pending():
+                gtk.main_iteration()
+    self.str_p.join()
     if (replace_subs):
         substitutions = stk.subs_file_from_str(output)
-        str_progressbar.pulse()
     
     filename_stub =  os.path.splitext(filename)[0]
     subs_replace = filename_stub+"_subs_replace"
@@ -1442,8 +1455,14 @@ class Diamond:
   def on_str_cancel_button(self, button):
       """ Close the STR dialogue
       """
-
+         
+      try:
+        self.str_p.terminate()
+      except:
+          pass
       self.str_dialog.hide()
+      while gtk.events_pending():
+        gtk.main_iteration()
 
   def on_str_browse_button(self, button):
       filter_names_and_patterns = {}
