@@ -161,7 +161,7 @@ class TestSetSourceNames(unittest.TestCase):
 
 
     def test_str(self):
-        """Test STR function. Just prints out the equiv matrix
+        """Test STR function.
         """
         # PerEQ.pl gives the following:
         # Taxon       No. Missing  Equivs
@@ -181,7 +181,7 @@ class TestSetSourceNames(unittest.TestCase):
         self.assertListEqual(expected_substitutions,substitutions)
         
     def test_str_from_matrix(self):
-        """Test STR function. Just prints out the equiv matrix
+        """Test STR function from matrix
         """
         matrix,taxa = read_matrix("data/input/matrix.nex")
         output, can_replace = safe_taxonomic_reduction(XML=None,matrix=matrix,taxa=taxa); 

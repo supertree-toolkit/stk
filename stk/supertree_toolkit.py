@@ -1834,6 +1834,7 @@ def read_matrix(filename):
     taxa = []
 
     try:
+        p4.var.alignments = []
         p4.var.doCheckForDuplicateSequences = False
         p4.read(filename)
         p4.var.doCheckForDuplicateSequences = True
@@ -1843,6 +1844,9 @@ def read_matrix(filename):
         sequences = a.sequences
         matrix = []
         taxa = []
+        p4.var.alignments = []
+        # Also need to reset nexusSets...subtle! Only spotted after running all tests
+        p4.var.nexusSets = None
         for s in sequences:
             char_row = []
             for i in range(0,len(s.sequence)):
@@ -1915,7 +1919,8 @@ def _assemble_tree_matrix(tree_string):
     p4.var.warnReadNoFile = False    
     p4.var.trees = []
     p4.read(tree_string)
-    tree = p4.var.trees[0]    
+    tree = p4.var.trees[0]
+    p4.var.trees = []
     try:
         mrp = MRP.mrp([tree])
         adjmat = []
@@ -1952,6 +1957,7 @@ def _delete_taxon(taxon, tree):
     p4.var.trees = []
     p4.read(tree)
     tree_obj = p4.var.trees[0]
+    p4.var.trees = []
     for node in tree_obj.iterNodes():
         if node.name == taxon:
             tree_obj.removeNode(node.nodeNum,alsoRemoveBiRoot=False)
@@ -2168,7 +2174,8 @@ def _getTaxaFromNewick(tree):
     p4.read(tree)
     t_obj = p4.var.trees[0]
     terminals = t_obj.getAllLeafNames(0)
-    p4.var.warnReadNoFile = True    
+    p4.var.warnReadNoFile = True
+    p4.var.trees = []
 
     return terminals
 
@@ -2209,6 +2216,7 @@ def _trees_equal(t1,t2):
 
     tree_1 = p4.var.trees[0]
     tree_2 = p4.var.trees[1]
+    p4.var.trees = []
     
     # add the taxanames
     # Sort, otherwose p4 things the txnames are different
