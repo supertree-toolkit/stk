@@ -534,7 +534,7 @@ def export_bibliography(XML,filename,format="bibtex"):
     
     return
 
-def safe_taxonomic_reduction(XML, matrix=None, verbose=False):
+def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False):
     """ Perform STR on data to remove taxa that 
     provide no useful additional information
     """
@@ -546,9 +546,9 @@ def safe_taxonomic_reduction(XML, matrix=None, verbose=False):
     missing_char = "?"
     TotalInvalid = 0
 
-    if (matrix):
-        # a matrix was supplied, so strip out the info needed
-        i = 0
+    if (not matrix==None):
+        if (taxa == None):
+            raise InvalidSTKData("If you supply a matrix to STR, you also need to supply taxa")
     else:
         # create matrix, but keep the matrix as an array
         # and get the taxa - hence we replicate most
