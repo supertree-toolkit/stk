@@ -2,7 +2,7 @@
 #
 #    Supertree Toolkit. Software for managing and manipulating sources
 #    trees ready for supretree construction.
-#    Copyright (C) 2011, Jon Hill, Katie Davis
+#    Copyright (C) 2011-2013, Jon Hill, Katie Davis
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -208,12 +208,34 @@ def main():
             help="Overwrite the existing files without asking for confirmation")
     parser_cm.set_defaults(func=data_summary)
 
+    
+    parser_cm = subparsers.add_parser('safe_taxonomic_reduction',
+            help='Perform safe taxonomic reduction on the data')
+    parser_cm.add_argument('-s',
+            '--subs', 
+            help="""Create two subs file to delete the data with sub_taxa and to replace C category"""+
+                  """taxa back in afterwards. Supply a directory.
+                  The files withh be called sub_delete and sub_replace""")
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing files without asking for confirmation")
+    parser_cm.add_argument('--matrix',
+            '-m',
+            action='store_true',
+            default=False,
+            help="The input file is a matrix, not a PHYML")
+    parser_cm.add_argument('-o',
+            '--output', 
+            help='Output to file, rather than stdout') 
+    parser_cm.add_argument('input', 
+            help='The input phyml file')
+    parser_cm.set_defaults(func=safe_taxonomic_reduction)
+
+
     # Data summary command
     parser_cm = subparsers.add_parser('data_ind',
-            help='Check the independence of source trees within this dataset.'
-            )
-    # Now add the command line args for this command
-    # These arguments are not-optional
+            help='Check the independence of source trees within this dataset.')
     parser_cm.add_argument('input', 
             help='The input phyml file')
     parser_cm.add_argument('--overwrite',
@@ -235,7 +257,6 @@ def main():
             required=False,
             help='Provide a new PHYML file with the trees that are a subset of other trees removed. The ' +
             'trees that are identical to other trees are still in the data. Please provide a filename.')
-    # Set the function that gets called when the sub command is activated
     parser_cm.set_defaults(func=data_ind)
 
 
@@ -306,6 +327,53 @@ def main():
     # Each command is given a function to execute via the "set_default" argument
     args.func(args)
 
+
+def safe_taxonomic_reduction(args):
+    """ Work out safe taxonomic reduction
+    """
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    input_file = args.input
+    subs = args.subs
+    matrix_file = args.matrix
+
+    if (matrix_file and not os.path.exists(input_file)):
+        print "Matrix file cannot be found"
+        print "Exiting"
+        sys.exit(-1)
+
+    print args
+    if not matrix_file:
+        matrix = None
+        taxa = None
+        XML = supertree_toolkit.load_phyml(input_file)
+    else:
+        matrix,taxa = supertree_toolkit.read_matrix(input_file)
+        XML = None
+    
+    output, can_replace = supertree_toolkit.safe_taxonomic_reduction(XML,matrix=matrix,taxa=taxa,verbose=verbose)
+    if (not subs == None or not subs):
+        substitutions = supertree_toolkit.subs_file_from_str(output)
+  
+    if (output_file == None):
+        print output
+    else:
+        f = open(output_file,"w")
+        f.write(output)
+        f.close()
+    if (not subs == False or
+        not subs == None):
+            subs_replace = os.path.join(subs,"subs_replace")
+            subs_delete = os.path.join(subs,"subs_delete")
+            f = open(subs_replace, "w")
+            for r in substitutions:
+                f.write(r+"\n")
+            f.close()
+            f = open(subs_delete, "w")
+            for d in can_replace:
+                f.write(d+" = \n")
+            f.close()
 
 def data_ind(args):
     """ Check data independence
@@ -381,7 +449,7 @@ def data_ind(args):
         f = open(newphyml,"w")
         f.write(new_phyml)
         f.close()
-
+        
 def data_summary(args):
     """ Create a data summary
     """
@@ -683,6 +751,8 @@ def export_bib(args):
     XML = supertree_toolkit.load_phyml(input_file)
 
     output_string = supertree_toolkit.export_bibliography(XML,output_file,format=format)
+
+
 
 def permute_trees(args):
     """ Create all possible permutations of permutable trees in the input file.

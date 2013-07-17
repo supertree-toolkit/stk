@@ -44,6 +44,7 @@ from matplotlib.ticker import MaxNLocator
 from matplotlib import backends
 import datetime
 import gtk
+from indent import *
 
 #plt.ion()
 
@@ -532,6 +533,265 @@ def export_bibliography(XML,filename,format="bibtex"):
     bibliography.output(fout=filename,formato=format,verbose=False)
     
     return
+
+def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=None):
+    """ Perform STR on data to remove taxa that 
+    provide no useful additional information
+    """
+
+    # Algorithm descibed by ******
+    # modified for *supertrees*, which mainly involves cutting
+    # out stuff to do with multiple state characters
+
+    missing_char = "?"
+    TotalInvalid = 0
+
+    if (not matrix==None):
+        if (taxa == None):
+            raise InvalidSTKData("If you supply a matrix to STR, you also need to supply taxa")
+    else:
+        # create matrix, but keep the matrix as an array
+        # and get the taxa - hence we replicate most
+        # create matrix code
+        # *******REFACTOR: Split create_matrix into multiple 
+        # functions, so we can just call them here and in create_matrix
+        # get all trees
+        trees = obtain_trees(XML)
+        # and the taxa
+        taxa = []
+        taxa.append("MRPOutgroup")
+        taxa.extend(get_all_taxa(XML))
+        # our matrix, we'll then append the submatrix
+        # to this to make a 2D matrix
+        # Our matrix is of length nTaxa on the i dimension
+        # and nCharacters in the j direction
+        matrix = []
+        charsets = []
+        current_char = 1
+        for key in trees:
+            if (verbose):
+                print "Reading tree: "+key
+            submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
+            nChars = len(submatrix[0,:])
+            # loop over characters in the submatrix
+            for i in range(1,nChars):
+                # loop over taxa. Add '?' for an "unknown" taxa, otherwise
+                # get 0 or 1 from submatrix. May as well turn into a string whilst
+                # we're at it
+                current_row = []
+                for taxon in taxa:
+                    if (taxon in tree_taxa):
+                        # get taxon index
+                        t_index = tree_taxa.index(taxon)
+                        # then get correct matrix entry - note:
+                        # submatrix transposed wrt main matrix
+                        current_row.append(str(int(submatrix[t_index,i])))
+                    elif (taxon == "MRPOutgroup"):
+                        current_row.append('0')
+                    else:
+                        current_row.append('?')
+                matrix.append(current_row)
+            charsets.append(str(current_char) + "-" + str(current_char + nChars-2))
+            current_char += nChars-1
+        matrix = numpy.array(matrix)
+        matrix = matrix.transpose()
+
+    new_matrix = matrix
+    nChars = len(matrix[0][:])
+    # this is the heavy loop
+    t1 = 0
+    equiv_matrix = []
+    missing_chars = []
+    # count missing chars for each taxon
+    for taxon in taxa:
+        chars_t1 = numpy.asarray(matrix[t1][:])
+        missing = 0
+        for c in chars_t1:
+            if c == missing_char:
+                missing+=1
+        missing_chars.append(missing)
+        t1+=1
+
+    nTaxa = len(taxa)
+
+    t1 = 0
+    for taxon in taxa:
+        t2 = 0
+        equiv_matrix.append([taxon,missing_chars[t1]])
+        equiv_taxa = []
+        for taxon2 in taxa:
+            if (taxon2 == taxon):
+                t2 += 1
+                continue
+            NonEquiv = 0
+            t2_missing = missing_chars[t2]
+            yMissing = 0
+            xMissing = 0
+            Symmetric = 1
+            xMiss_yCode = 0
+            xCode_yMiss = 0
+            for i in range(nChars):
+                char1 = matrix[t1][i]
+                char2 = matrix[t2][i]
+                if ((char1 != missing_char) and (char2 != missing_char)) :
+                    if(char1 != char2):
+                        NonEquiv = 1
+                elif((char1 == missing_char) and (char2 != missing_char)):
+                    TotalInvalid+=1
+                    xMissing = 1
+                    xMiss_yCode = 1
+                    Symmetric = 0
+                elif((char1 != missing_char) and (char2 == missing_char)):
+                    TotalInvalid+=1
+                    yMissing = 1
+                    xCode_yMiss = 1
+                    Symmetric = 0
+                elif((char1 == missing_char) and (char2 == missing_char)):
+                    TotalInvalid+=1
+                    yMissing = 1
+                    xMissing = 1
+			
+            t2 = t2+1
+
+            if (NonEquiv == 1):
+                continue
+            else:
+                if(Symmetric == 1):
+                    if((xMissing == 0) and (yMissing == 0)):
+                        equiv_taxa.append([taxon2,"A",t2_missing])
+                        continue
+                    else:
+                        equiv_taxa.append([taxon2,"B",t2_missing])
+                        continue
+                elif(Symmetric == 0):
+                    if((xMissing == 0) and (yMissing == 1)):
+                        equiv_taxa.append([taxon2,"C",t2_missing])
+                        continue
+                    elif((xMissing == 1) and (yMissing == 0)):
+                        equiv_taxa.append([taxon2,"E",t2_missing])
+                        continue
+                    elif((xMissing == 1) and (yMissing == 1)):
+                        if((xCode_yMiss == 1) and (xMiss_yCode == 1)):
+                            equiv_taxa.append([taxon2,"D",t2_missing])
+                            continue
+                        elif(xMiss_yCode == 0):
+                            equiv_taxa.append([taxon2,"C",t2_missing])
+                            continue
+                        elif(xCode_yMiss == 0):
+                            equiv_taxa.append([taxon2,"E",t2_missing])
+                            continue
+        if (len(equiv_taxa) > 0):
+            equiv_matrix[t1].extend([equiv_taxa])
+        else:
+            equiv_matrix[t1].extend(["No equivalence"])
+        t1 += 1
+        if (verbose):
+            print "Done taxa "+str(t1)+" of "+str(nTaxa)
+            
+    can_replace = []
+    # need to work out which taxa to remove
+    for i in range(len(taxa)):
+        if equiv_matrix[i][2] == 'No equivalence':
+            continue
+        elif equiv_matrix[i][0] in can_replace:
+            # this taxon is already in the deleted list
+            continue
+        else:
+            nMissing_t1 = missing_chars[i]
+            equivs = equiv_matrix[i][2]
+            for e in equivs:
+                if (e[1] == "A" or e[1] == "B" or e[1] == "C"):
+                    # we can delete one of these taxa
+                    # first check which has more missing characters
+                    if nMissing_t1 > e[2]:
+                        can_replace.append(equiv_matrix[i][0])
+                        break # no point checking the rest, we've removed the parent taxon!
+                    else:
+                        if (not e[0] in can_replace):
+                            can_replace.append(e[0])
+
+
+    # create output
+    can_replace.sort()
+    output_string = "Equivalency Matrix\n"
+    labels = ('Taxon', 'No Missing', 'Equivalents')
+    output_data = []
+    for i in range(len(taxa)):
+        equivs = equiv_matrix[i][2]
+        eq = ""
+        if equivs == "No equivalence":
+            eq == equivs
+        else:
+            for e in equivs:
+                eq += e[0]+"("+e[1]+")  "
+        output_data.append([equiv_matrix[i][0],str(missing_chars[i]),eq])
+
+    output_string += indent([labels]+output_data, hasHeader=True, prefix='| ', postfix=' |')
+
+    output_string += "\n\n"
+    output_string += "Recommend you remove the following taxa:\n"
+    if (len(can_replace) == 0):
+        output_string += "No taxa can be removed\n"
+    else:
+        for c in can_replace:
+            output_string += c+"\n"
+
+    if (queue == None):
+        return output_string, can_replace
+    else:
+        queue.put([output_string, can_replace])
+        return
+
+def subs_file_from_str(str_output):
+    """From the textual output from STR (above), create
+    the subs file to put the C category taxa back into
+    the dataset. We work with the text out as it's the same as other software, 
+    which means this might work from them also...
+    """
+
+    file = StringIO(str_output)
+    i = 0
+    replacements = []
+    all_C_taxa = []
+    to_remove = []
+    for line in file:
+        if (i < 3):
+            i += 1
+            continue
+        else:
+            line = line.strip()
+            # remove the leading and trailing '|' so we get correct number
+            # of columns
+            line = line.strip('|')
+            data = line.split('|')
+            # data[0] = index taxa
+            # data[1] = missing characters
+            # data[2] = potential equivs
+            # we might have done with the table
+            if (not len(data) == 3):
+                break
+            index = data[0].strip()
+            pot_equivs = data[2].strip().split()
+            replace = ""
+            for e in pot_equivs:
+                if (e[-3:] == '(C)'):
+                    if  (not e[:-3] in all_C_taxa):
+                        replace += e[:-3]+","
+                    else:
+                        # add it to the need to remove list as it appear multiple times
+                        to_remove.append(e[:-3])
+            if (not replace == ""):
+                all_C_taxa.extend(replace[:-1].split(','))
+                replacements.append(index+" = "+replace+index)
+
+    # now need to remove the list in the to_remove list from the RHS
+    for i in range(len(replacements)):
+        for t in to_remove:
+            replacements[i] = replacements[i].replace(t+",","")
+
+    
+    return replacements
+
 
 def import_trees(filename):
     """ Return an array of all trees in a file. 
@@ -1571,6 +1831,47 @@ def add_historical_event(XML, event_description):
     XML = etree.tostring(xml_root,pretty_print=True)
 
     return XML
+
+def read_matrix(filename):
+
+    matrix = []
+    taxa = []
+
+    try:
+        p4.var.alignments = []
+        p4.var.doCheckForDuplicateSequences = False
+        p4.read(filename)
+        p4.var.doCheckForDuplicateSequences = True
+        # get data out
+        a = p4.var.alignments[0]
+        a.setNexusSets()
+        sequences = a.sequences
+        matrix = []
+        taxa = []
+        p4.var.alignments = []
+        # Also need to reset nexusSets...subtle! Only spotted after running all tests
+        p4.var.nexusSets = None
+        for s in sequences:
+            char_row = []
+            for i in range(0,len(s.sequence)):
+                char_row.append(s.sequence[i])
+            matrix.append(char_row)
+            taxa.append(s.name)
+    except:
+        # Raises exception with STK-type nexus matrix and with Hennig
+        # open file and find out type
+        f = open(filename,"r")
+        data = f.read()
+        data = data.lower()
+        f.close()
+        if (data.find("#nexus") > -1):
+            matrix,taxa = _read_nexus_matrix(filename)
+        elif (data.find("xread") > -1):
+            matrix,taxa = _read_hennig_matrix(filename)
+        else:
+            raise MatrixError("Invalid matrix format")
+
+    return matrix,taxa
     
 ################ PRIVATE FUNCTIONS ########################
 
@@ -1622,20 +1923,30 @@ def _assemble_tree_matrix(tree_string):
     p4.var.warnReadNoFile = False    
     p4.var.trees = []
     p4.read(tree_string)
-    tree = p4.var.trees[0]    
-    mrp = MRP.mrp([tree])
-    adjmat = []
-    names = []
-    for i in range(0,mrp.nTax):
-        seq = (mrp.sequences[i].sequence)
-        names.append(mrp.taxNames[i])
-        chars = []
-        chars.append(1)
-        for c in seq:
-            chars.append(int(c))
-        adjmat.append(chars)
+    tree = p4.var.trees[0]
+    p4.var.trees = []
+    try:
+        mrp = MRP.mrp([tree])
+        adjmat = []
+        names = []
+        for i in range(0,mrp.nTax):
+            seq = (mrp.sequences[i].sequence)
+            names.append(mrp.taxNames[i])
+            chars = []
+            chars.append(1)
+            for c in seq:
+                chars.append(int(c))
+            adjmat.append(chars)
 
-    adjmat = numpy.array(adjmat)
+        adjmat = numpy.array(adjmat)
+    except p4.Glitch:
+        names = _getTaxaFromNewick(tree_string)
+        adjmat = []
+        for i in range(0,len(names)):
+            adjmat.append([1])
+        adjmat = numpy.array(adjmat)
+
+        print "Warning: Found uninformative tree in data. Including it in the matrix anyway"
 
     return adjmat, names
 
@@ -1650,6 +1961,7 @@ def _delete_taxon(taxon, tree):
     p4.var.trees = []
     p4.read(tree)
     tree_obj = p4.var.trees[0]
+    p4.var.trees = []
     for node in tree_obj.iterNodes():
         if node.name == taxon:
             tree_obj.removeNode(node.nodeNum,alsoRemoveBiRoot=False)
@@ -1866,7 +2178,8 @@ def _getTaxaFromNewick(tree):
     p4.read(tree)
     t_obj = p4.var.trees[0]
     terminals = t_obj.getAllLeafNames(0)
-    p4.var.warnReadNoFile = True    
+    p4.var.warnReadNoFile = True
+    p4.var.trees = []
 
     return terminals
 
@@ -1907,6 +2220,7 @@ def _trees_equal(t1,t2):
 
     tree_1 = p4.var.trees[0]
     tree_2 = p4.var.trees[1]
+    p4.var.trees = []
     
     # add the taxanames
     # Sort, otherwose p4 things the txnames are different
@@ -2058,3 +2372,42 @@ def _amalgamate_trees(trees,format,anonymous=False):
 
     return output_string
 
+
+def _read_nexus_matrix(filename):
+    """ Read in essential info from a NEXUS matrix file
+        This does not include the charset as we don't actually use it
+        for anything and is not saved in TNT format anyway
+    """
+
+    taxa = []
+    matrix = []
+    f = open(filename,"r")
+    inData = False
+    for line in f:
+        linel = line.lower()
+        if linel.find(";") > -1:
+            inData = False
+        if (inData):
+            linel = linel.strip()
+            if len(linel) == 0:
+                continue # empty line
+            
+            data = line.split()
+            taxa.append(data[0])
+            char_row = []
+            for n in range(0,len(data[1])):
+                char_row.append(data[1][n])
+            matrix.append(char_row)
+        if (linel.find('matrix') > -1):
+            inData = True
+
+    return matrix,taxa
+
+def _read_hennig_matrix(filename):
+    """ Read in essential info from a TNT matrix file
+        - actually just calls our NEXUS reader as the file
+        layout is surprisingly similar...
+    """
+
+    return _read_nexus_matrix(filename)
+    

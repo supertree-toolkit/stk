@@ -1,12 +1,15 @@
 import unittest
 import math
 import sys
+sys.path.insert(0,"../../")
+sys.path.insert(0,"../")
+from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters, safe_taxonomic_reduction
 import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters, data_independence
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
-from stk.supertree_toolkit import data_overlap
+from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML
 from lxml import etree
 from util import *
@@ -157,6 +160,37 @@ class TestSetSourceNames(unittest.TestCase):
         self.assert_(True)
 
 
+    def test_str(self):
+        """Test STR function.
+        """
+        # PerEQ.pl gives the following:
+        # Taxon       No. Missing  Equivs
+        # MRPOutgroup  	    0 
+        # A 		        0 	    B(C*) B_b(C*)
+        # B 		        2	    A(E) B_b(D)
+        # B_b    		    4	    A(E) B(D) E(D) F (D)
+        # C 		        2	    D(B*) E(D) F(D)
+        # D 		        2	    C(B*) E(D) F(D)
+        # E 		        4	    B_b(D) C(D) D(D) F (B*)
+        # F 		        4	    B_b(D) C(D) D(D) E (B*)
+        output, can_replace = safe_taxonomic_reduction(etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)); 
+        substitutions = subs_file_from_str(output)
+        expected_can_replace = ["B","B_b","D","F"]
+        expected_substitutions = ['A = B,B_b,A']
+        self.assertListEqual(expected_can_replace,can_replace)
+        self.assertListEqual(expected_substitutions,substitutions)
+        
+    def test_str_from_matrix(self):
+        """Test STR function from matrix
+        """
+        matrix,taxa = read_matrix("data/input/matrix.nex")
+        output, can_replace = safe_taxonomic_reduction(XML=None,matrix=matrix,taxa=taxa); 
+        substitutions = subs_file_from_str(output)
+        expected_can_replace = ["B","B_b","D","F"]
+        expected_substitutions = ['A = B,B_b,A']
+        self.assertListEqual(expected_can_replace,can_replace)
+        self.assertListEqual(expected_substitutions,substitutions)
+  
     def test_get_all_characters(self):
         """ Check the characters dictionary
         """
@@ -340,6 +374,54 @@ class TestSetSourceNames(unittest.TestCase):
         # coincidence the two calls straddle a minute - can't really test for that without lots of parsing, etc, so
         # let's just settle with the correct datetime being found
         self.assertRegexpMatches(XML2, now1)
+
+    def test_read_matrix_nexus(self):
+        matrix,taxa = read_matrix("data/input/matrix.nex")
+        expected_taxa = ['MRPOutgroup','A','B','B_b','C','D','E','F']
+        expected_matrix = [
+                            ["0","0","0","0","0","0"],
+                            ["1","0","1","0","1","0"],
+                            ["1","0","?","?","1","0"],
+                            ["?","?","1","0","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["?","?","?","?","0","1"],
+                            ["?","?","?","?","0","1"]
+                          ]
+        self.assertListEqual(expected_taxa,taxa)
+        self.assertListEqual(expected_matrix,matrix)
+
+    def test_read_matrix_tnt(self):
+        matrix,taxa = read_matrix("data/input/matrix.tnt")
+        expected_taxa = ['MRPOutgroup','A','B','B_b','C','D','E','F']
+        expected_matrix = [
+                            ["0","0","0","0","0","0"],
+                            ["1","0","1","0","1","0"],
+                            ["1","0","?","?","1","0"],
+                            ["?","?","1","0","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["?","?","?","?","0","1"],
+                            ["?","?","?","?","0","1"]
+                          ]
+        self.assertListEqual(expected_taxa,taxa)
+        self.assertListEqual(expected_matrix,matrix)
+
+    def test_read_matrix_nexus_p4(self):
+        matrix,taxa = read_matrix("data/input/matrix_p4.nex")
+        expected_taxa = ['MRPOutgroup','A','B','B_b','C','D','E','F']
+        expected_matrix = [
+                            ["0","0","0","0","0","0"],
+                            ["1","0","1","0","1","0"],
+                            ["1","0","?","?","1","0"],
+                            ["?","?","1","0","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["?","?","?","?","0","1"],
+                            ["?","?","?","?","0","1"]
+                          ]
+        self.assertListEqual(expected_taxa,taxa)
+        self.assertListEqual(expected_matrix,matrix)
 
 if __name__ == '__main__':
     unittest.main()
