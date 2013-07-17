@@ -173,7 +173,8 @@ class Diamond:
                     "on_data_summary": self.on_data_summary,
                     "on_data_overlap": self.on_data_overlap,
                     "on_data_ind" : self.on_data_ind,
-                    "on_permute_all_trees": self.on_permute_all_trees
+                    "on_permute_all_trees": self.on_permute_all_trees,
+                    "on_str": self.on_str
                     }
 
     self.gui.signal_autoconnect(signals)
@@ -1359,6 +1360,99 @@ class Diamond:
       filename = dialogs.get_filename(title = "Choose output file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
       filename_textbox = self.permute_trees_gui.get_widget("entry1")
       filename_textbox.set_text(filename)
+
+
+  #STR GUI
+  def on_str(self, widget=None):
+    """ Perform STR in the dataset
+    """
+
+    signals = {"on_str_dialog_close": self.on_str_cancel_button,
+               "on_str_cancel_clicked": self.on_str_cancel_button,
+               "on_str_clicked": self.on_str_button,
+               "on_str_browse_clicked": self.on_str_browse_button}
+      
+    self.str_gui = gtk.glade.XML(self.gladefile, root="str_dialog")
+    self.str_dialog = self.str_gui.get_widget("str_dialog")
+    self.str_gui.signal_autoconnect(signals)
+    self.str_dialog.show()
+
+
+  def on_str_button(self, button):
+    """
+    Actually do the STR
+    """
+
+    filename_textbox = self.str_gui.get_widget("entry1")
+    filename = filename_textbox.get_text()
+    delete_subs_checkbox = self.str_gui.get_widget("checkbutton1")
+    replace_subs_checkbox = self.str_gui.get_widget("checkbutton2")
+
+    delete_subs = False
+    replace_subs = False
+    if (delete_subs_checkbox.get_active()):
+        delete_subs = True
+    if (replace_subs_checkbox.get_active()):
+        replace_subs = True
+   
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    # Set up progress bar
+    str_progressbar = self.str_gui.get_widget("progressbar1")
+    str_progressbar.set_pulse_step(0.25)
+    str_progressbar.pulse()
+    output, can_replace = stk.safe_taxonomic_reduction(XML)
+    str_progressbar.pulse()
+    if (replace_subs):
+        substitutions = stk.subs_file_from_str(output)
+        str_progressbar.pulse()
+    
+    filename_stub =  os.path.splitext(filename)[0]
+    subs_replace = filename_stub+"_subs_replace"
+    subs_delete = filename_stub+"_subs_delete"
+    if (replace_subs):
+        f = open(subs_replace, "w")
+        for r in substitutions:
+            f.write(r+"\n")
+        f.close()
+    if (delete_subs):
+        f = open(subs_delete, "w")
+        for d in can_replace:
+            f.write(d+" = \n")
+        f.close()
+
+    f = open(filename)
+    f.write(output)
+    f.close()
+
+    # Add a history event
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    XML = stk.add_historical_event(XML, "STR matrix written to: "+filename)
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (STR) to XML", skip_warning=True)
+
+    
+    self.str_dialog.hide()
+
+    return
+
+  def on_str_cancel_button(self, button):
+      """ Close the STR dialogue
+      """
+
+      self.str_dialog.hide()
+
+  def on_str_browse_button(self, button):
+      filter_names_and_patterns = {}
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose output file", action = gtk.FILE_CHOOSER_ACTION_SAVE, folder_uri = self.file_path)
+      filename_textbox = self.str_gui.get_widget("entry1")
+      filename_textbox.set_text(filename)
+
+
 
   # create a matrix
   def on_create_matrix(self, widget=None):

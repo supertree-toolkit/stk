@@ -335,9 +335,10 @@ def safe_taxonomic_reduction(args):
     output, can_replace = supertree_toolkit.safe_taxonomic_reduction(XML,verbose=verbose)
     if (not subs == None or not subs):
         substitutions = supertree_toolkit.subs_file_from_str(output)
-    
-    subs_replace = "subs_replace"
-    subs_delete = "subs_delete"
+   
+    filename =  os.path.splitext(output_file)[0]
+    subs_replace = filename+"_subs_replace"
+    subs_delete = filename+"_subs_delete"
     if (not subs == False or
         not subs == None):
             f = open(subs_replace, "w")
@@ -349,7 +350,7 @@ def safe_taxonomic_reduction(args):
                 f.write(d+" = \n")
             f.close()
 
-    f.open(output_file)
+    f = open(output_file)
     f.write(output)
     f.close()
 
