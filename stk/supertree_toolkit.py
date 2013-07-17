@@ -739,7 +739,6 @@ def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=N
     if (queue == None):
         return output_string, can_replace
     else:
-        print "Adding to queue"
         queue.put([output_string, can_replace])
         return
 
