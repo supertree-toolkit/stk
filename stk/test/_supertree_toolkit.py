@@ -430,11 +430,14 @@ class TestSetSourceNames(unittest.TestCase):
         except UninformativeTreeError as e:
             msg = e.msg
             self.assertRegexpMatches(msg,"contains only 2 taxa and is not informative")
-            self.assertRegexpMatches(msg,"contains a single clade and is not informative")
-            self.assert_(len(msg.splitlines()) == 3)
+            self.assertRegexpMatches(msg,"doesn't contain any clades and is not informative")
+            self.assert_(len(msg.splitlines()) == 5) # 4 bad trees in this data (+ the return at the start of the error msg)
 
 
-
+    def test_clean_data_autoclean(self):
+        XML = etree.tostring(etree.parse('data/input/clean_data.phyml',parser),pretty_print=True)
+        XML2 = _clean_data(XML,clean=True)
+        
 
 
 if __name__ == '__main__':
