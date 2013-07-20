@@ -2410,4 +2410,39 @@ def _read_hennig_matrix(filename):
     """
 
     return _read_nexus_matrix(filename)
+   
+
+def _clean_data(XML):
+    """ Checks for non-informative trees and recommends their removal
+    """
+
+    trees = obtain_trees(XML)
+    for t in trees:
+        tree = trees[t]
+        try:
+            p4.var.warnReadNoFile = False
+            p4.var.nexus_warnSkipUnknownBlock = False
+            p4.var.trees = []
+            p4.read(tree)
+            p4.var.nexus_warnSkipUnknownBlock = True
+            p4.var.warnReadNoFile = True
+        except:
+            raise TreeParseError("Error parsing tree "+t+" when checking data")
+
+        # check if tree contains more than two taxa
+        tree = p4.var.trees[0]
+        p4.var.trees = []
+        terminals = tree.getAllLeafNames(tree.root)
+        message=""
+        if (len(terminals) < 3):
+            message = message+"\nTree "+t+" contains only 2 taxa and is not informative"
+        # if tree contains three or more taxa, check it's rooted somewhere
+        if (tree.getDegree(tree.root) == len(terminals)):
+            message = message+"\nTree "+t+" contains a single clade and is not informative"
+
+        if (not message == ""):
+            raise UninformativeTreeError(message)
+
+        
     
+

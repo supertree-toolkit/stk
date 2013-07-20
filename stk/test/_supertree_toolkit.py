@@ -9,7 +9,7 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir,
 sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters, data_independence
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
-from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str
+from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, _clean_data
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML
 from lxml import etree
 from util import *
@@ -103,7 +103,7 @@ class TestSetSourceNames(unittest.TestCase):
         #this test should pass, but wrap it up anyway
         try:
             _check_taxa(etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)); 
-        except e as InvalidSTKData:
+        except InvalidSTKData as e:
             print e.msg
             self.assert_(False)
             return
@@ -422,6 +422,20 @@ class TestSetSourceNames(unittest.TestCase):
                           ]
         self.assertListEqual(expected_taxa,taxa)
         self.assertListEqual(expected_matrix,matrix)
+
+    def test_clean_data(self):
+        XML = etree.tostring(etree.parse('data/input/clean_data.phyml',parser),pretty_print=True)
+        try:
+            _clean_data(XML)
+        except UninformativeTreeError as e:
+            msg = e.msg
+            self.assertRegexpMatches(msg,"contains only 2 taxa and is not informative")
+            self.assertRegexpMatches(msg,"contains a single clade and is not informative")
+            self.assert_(len(msg.splitlines()) == 3)
+
+
+
+
 
 if __name__ == '__main__':
     unittest.main()

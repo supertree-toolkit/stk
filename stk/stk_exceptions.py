@@ -98,7 +98,17 @@ class TreeParseError(Error):
         self.msg = msg
 
 class NoAuthors(Error):
-    """Exception raised when ther are no authors
+    """Exception raised when there are no authors
+    Attributes:
+          msg -- explaination of error
+    """
+
+    def __init__(self, msg):
+        self.msg = msg
+
+
+class UninformativeTreeError(Error):
+    """Exception raised when a tree contains no useful information
     Attributes:
           msg -- explaination of error
     """
