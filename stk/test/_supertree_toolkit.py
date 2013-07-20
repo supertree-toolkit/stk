@@ -9,7 +9,7 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir,
 sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters, data_independence
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
-from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, _clean_data, obtain_trees, get_all_source_names
+from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML
 from lxml import etree
 from util import *
@@ -425,7 +425,7 @@ class TestSetSourceNames(unittest.TestCase):
 
     def test_clean_data(self):
         XML = etree.tostring(etree.parse('data/input/clean_data.phyml',parser),pretty_print=True)
-        XML = _clean_data(XML)
+        XML = clean_data(XML)
         trees = obtain_trees(XML)
         self.assert_(len(trees) == 1)
         # check only one source remains

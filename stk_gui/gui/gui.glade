@@ -1892,6 +1892,17 @@
                         <signal name="activate" handler="on_create_matrix" swapped="no"/>
                       </widget>
                     </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="clean_data">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Clean data by removing bad data</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Clean Data</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_clean_data" swapped="no"/>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
               </widget>

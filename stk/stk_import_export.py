@@ -36,12 +36,15 @@ from stk_internals import *
 import stk.p4
 import unicodedata
 
-def export_to_old(xml, output_dir, verbose=False):
+def export_to_old(xml, output_dir, verbose=False, ignoreWarnings=False):
 
     """ Create an old STK dataset from a PHYML file. Hopefuly not useful 
     in the long run as all functionality will be replicated, but may 
     be useful in the short term
     """
+
+    if not ignoreWarnings:
+        xml = _clean_data(xml)
 
     # Parse the file and away we go:
     xml_root = _parse_xml(xml)

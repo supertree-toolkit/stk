@@ -534,10 +534,13 @@ def export_bibliography(XML,filename,format="bibtex"):
     
     return
 
-def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=None):
+def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=None, ignoreWarnings=False):
     """ Perform STR on data to remove taxa that 
     provide no useful additional information
     """
+
+    if not ignoreWarnings:
+        _check_data(XML)
 
     # Algorithm descibed by ******
     # modified for *supertrees*, which mainly involves cutting
@@ -1015,9 +1018,12 @@ def import_tree(filename, gui=None, tree_no = -1):
     tree = trees[tree_no]
     return tree
 
-def get_all_characters(XML):
+def get_all_characters(XML,ignoreWarnings=False):
     """Returns a dictionary containing a list of characters within each 
     character type"""
+
+    if not ignoreWarnings:
+        _check_data(XML)
 
     xml_root = _parse_xml(XML)
     find = etree.XPath("//character")
@@ -1205,7 +1211,7 @@ def obtain_trees(XML):
 
     return trees
 
-def amalgamate_trees(XML,format="Nexus",anonymous=False):
+def amalgamate_trees(XML,format="Nexus",anonymous=False,ignoreWarnings=False):
     """ Create a string containing all trees in the XML.
         String can be formatted to one of Nexus, Newick or TNT.
         Only Nexus formatting takes into account the anonymous
@@ -1214,6 +1220,8 @@ def amalgamate_trees(XML,format="Nexus",anonymous=False):
         callers responsibility
     """
 
+    if not ignoreWarnings:
+        _check_data(XML)
 
     # Check format flag - let the caller handle
     if (not (format == "Nexus" or 
@@ -1226,7 +1234,7 @@ def amalgamate_trees(XML,format="Nexus",anonymous=False):
     return _amalgamate_trees(trees,format,anonymous)
         
 
-def get_all_taxa(XML, pretty=False):
+def get_all_taxa(XML, pretty=False, ignoreWarnings=False):
     """ Produce a taxa list by scanning all trees within 
     a PHYML file. 
 
@@ -1234,6 +1242,9 @@ def get_all_taxa(XML, pretty=False):
 
     Setting pretty=True means all underscores will be
     replaced by spaces"""
+
+    if not ignoreWarnings:
+        _check_data(XML)
 
     trees = obtain_trees(XML)
 
@@ -1256,9 +1267,12 @@ def get_all_taxa(XML, pretty=False):
     return taxa_list
 
 
-def create_matrix(XML,format="hennig"):
+def create_matrix(XML,format="hennig",ignoreWarnings=False):
     """ From all trees in the XML, create a matrix
     """
+
+    if not ignoreWarnings:
+        _check_data(XML)
 
     # get all trees
     trees = obtain_trees(XML)
@@ -1305,7 +1319,7 @@ def load_phyml(filename):
     return etree.tostring(etree.parse(filename,parser),pretty_print=True)
 
 
-def substitute_taxa(XML, old_taxa, new_taxa=None):
+def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
@@ -1316,6 +1330,10 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
     elements for those taxa removed. It's up to the calling function to
     do something sensible with this infomation
     """
+
+    if not ignoreWarnings:
+        _check_data(XML)
+
 
     # are the input values lists or simple strings?
     if (isinstance(old_taxa,str)):
@@ -1496,13 +1514,16 @@ def permute_tree(tree,matrix="hennig",treefile=None):
     return output_string
 
 
-def data_summary(XML,detailed=False):
+def data_summary(XML,detailed=False,ignoreWarnings=False):
     """Creates a text string that summarises the current data set via a number of 
     statistics such as the number of character types, distribution of years of publication,
     etc.
 
     Up to the calling function to display string nicely
     """
+
+    if not ignoreWarnings:
+        _check_data(XML)
 
     xml_root = _parse_xml(XML)
     proj_name = xml_root.xpath('/phylo_storage/project_name/string_value')[0].text
@@ -1569,7 +1590,7 @@ def data_summary(XML,detailed=False):
 
     return output_string
 
-def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=False, verbose=False):
+def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=False, verbose=False, ignoreWarnings=False):
     """ Calculate the amount of taxonomic overlap between source trees.
     The output is a True/False by default, but you can specify an 
     optional filename, which will save a nice graphic. For the GUI,
@@ -1581,6 +1602,9 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
     source tres this could be very big and take along time. More likely, you'll run
     out of memory.
     """
+
+    if not ignoreWarnings:
+        _check_data(XML)
 
     sufficient_overlap = False
     key_list = None
@@ -1750,10 +1774,14 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
 
     return sufficient_overlap, key_list
 
-def data_independence(XML,make_new_xml=False):
+def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
     """ Return a list of sources that are not independent.
     This is decided on the source data and the analysis
     """
+
+    if not ignoreWarnings:
+        _check_data(XML)
+
     # data storage:
     #
     # tree_name, character string, taxa_list
@@ -1872,7 +1900,31 @@ def read_matrix(filename):
             raise MatrixError("Invalid matrix format")
 
     return matrix,taxa
-    
+
+
+def clean_data(XML):
+    """ Cleans up (i.e. deletes) non-informative trees and empty sources
+        Same function as check data, but instead of raising message, simply fixes the problems.
+    """
+
+    # check all names are unique - this is easy...
+    try:
+        _check_uniqueness(XML) # this will raise an error is the test is not passed
+    except NotUniqueError:
+        XML = set_unique_names(XML)
+
+    # now the taxa
+    XML = _check_taxa(XML,delete=True) 
+
+    # check trees are informative
+    XML = _check_informative_trees(XML,delete=True)
+
+    # check sources
+    XML = _check_sources(XML,delete=True)
+
+    return XML
+
+
 ################ PRIVATE FUNCTIONS ########################
 
 def _uniquify(l):
@@ -2486,29 +2538,5 @@ def _check_informative_trees(XML,delete=False):
 
         return XML
 
-
-
-
-def _clean_data(XML):
-    """ Cleans up (i.e. deletes) non-informative trees and empty sources
-        Same function as check data, but instead of raising message, simply fixes the problems.
-    """
-
-    # check all names are unique - this is easy...
-    try:
-        _check_uniqueness(XML) # this will raise an error is the test is not passed
-    except NotUniqueError:
-        XML = set_unique_names(XML)
-
-    # now the taxa
-    XML = _check_taxa(XML,delete=True) 
-
-    # check trees are informative
-    XML = _check_informative_trees(XML,delete=True)
-
-    # check sources
-    XML = _check_sources(XML,delete=True)
-
-    return XML
 
 

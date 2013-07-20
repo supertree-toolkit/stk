@@ -174,7 +174,8 @@ class Diamond:
                     "on_data_overlap": self.on_data_overlap,
                     "on_data_ind" : self.on_data_ind,
                     "on_permute_all_trees": self.on_permute_all_trees,
-                    "on_str": self.on_str
+                    "on_str": self.on_str,
+                    "on_clean_data": self.on_clean_data
                     }
 
     self.gui.signal_autoconnect(signals)
@@ -1914,6 +1915,31 @@ class Diamond:
      XML = _removeNonAscii(XML)
      # Add a history event
      XML = stk.add_historical_event(XML, "Source names standardised")
+     ios = StringIO.StringIO(XML)
+
+     self.update_data(ios, "Error standardising names")
+
+     return 
+
+
+
+  def on_clean_data(self, widget = None):
+     """
+     cleans up the data
+     """
+     f = StringIO.StringIO()
+     self.tree.write(f)
+     XML = f.getvalue() 
+     XML = stk.clean_data(XML)
+     try:
+        XML = stk.all_sourcenames(XML)
+     except NoAuthors as detail:
+        dialogs.error(self.main_window,detail.msg)
+        return 
+         
+     XML = _removeNonAscii(XML)
+     # Add a history event
+     XML = stk.add_historical_event(XML, "Cleaned data")
      ios = StringIO.StringIO(XML)
 
      self.update_data(ios, "Error standardising names")
