@@ -870,8 +870,6 @@ def clean_data(args):
     f.close()
     
 
-    
-
 if __name__ == "__main__":
     main()
 

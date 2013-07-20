@@ -1940,32 +1940,35 @@ def _check_uniqueness(XML):
     the keys of the sources
     """
 
-    xml_root = _parse_xml(XML)
-    # By getting source, we can then loop over each source_tree
-    # within that source and construct a unique name
-    find = etree.XPath("//source")
-    sources = find(xml_root)
+    try:
+        xml_root = _parse_xml(XML)
+        # By getting source, we can then loop over each source_tree
+        # within that source and construct a unique name
+        find = etree.XPath("//source")
+        sources = find(xml_root)
 
-    names = []
-    message = ""
-    # loop through all sources
-    for s in sources:
-        # for each source, get source name
-        names.append(s.attrib['name'])
+        names = []
+        message = ""
+        # loop through all sources
+        for s in sources:
+            # for each source, get source name
+            names.append(s.attrib['name'])
 
-    names.sort()
-    last_name = "" # This will actually throw an non-unique error if a name is empty
-    # not great, but still an error!
-    for name in names:
-        if name == last_name:
-            # if non-unique throw exception
-            message = message + \
-                    "The source names in the dataset are not unique. Please run the auto-name function on these data. Name: "+name+"\n"
-        last_name = name
+        names.sort()
+        last_name = "" # This will actually throw an non-unique error if a name is empty
+        # not great, but still an error!
+        for name in names:
+            if name == last_name:
+                # if non-unique throw exception
+                message = message + \
+                        "The source names in the dataset are not unique. Please run the auto-name function on these data. Name: "+name+"\n"
+            last_name = name
 
-    if (not message == ""):
-        raise NotUniqueError(message)
-
+        if (not message == ""):
+            raise NotUniqueError(message)
+    except:
+        raise NotUniqueError("Error parsing the data to check uniqueness")
+    
     return
 
 
