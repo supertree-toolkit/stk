@@ -1907,8 +1907,8 @@ def _check_uniqueness(XML):
     for name in names:
         if name == last_name:
             # if non-unique throw exception
-            message =+ "The source names in the dataset are not unique." +\
-                    "Please run the auto-name function on these data. Name: "+name+"\n"
+            message = message + \
+                    "The source names in the dataset are not unique. Please run the auto-name function on these data. Name: "+name+"\n"
         last_name = name
 
     if (not message == ""):
@@ -2127,7 +2127,7 @@ def _check_taxa(XML,delete=False):
                         t.get_parent().remove(t)
                     else:
                         # no - raise an error!
-                        message =+ "Taxon: "+xml_taxon+" is not in the tree "+name+"\n"
+                        message = message + "Taxon: "+xml_taxon+" is not in the tree "+name+"\n"
     if not delete:               
         if (not message==""):
             raise InvalidSTKData(message)
@@ -2165,7 +2165,7 @@ def _check_sources(XML,delete=True):
         else:
             return
     else:
-        return 
+        return etree.tostring(xml_root,pretty_print=True)        
 
 
 def _check_data(XML):
@@ -2443,7 +2443,7 @@ def _read_hennig_matrix(filename):
     return _read_nexus_matrix(filename)
 
 
-def _check_informative_trees(XML):
+def _check_informative_trees(XML,delete=False):
     """ Checks that all trees in the data set are informative and raises error if not
     """
 
@@ -2474,9 +2474,19 @@ def _check_informative_trees(XML):
             message = message+"\nTree "+t+" doesn't contain any clades and is not informative"
             remove.append(t)
 
-    if (not clean):
+    if (not delete):
         if (not message == ""):
             raise UninformativeTreeError(message)
+        else:
+            return
+    else:
+        remove.sort(reverse=True)
+        for t in remove:
+            XML = _swap_tree_in_XML(XML,None,t,delete=True)
+
+        return XML
+
+
 
 
 def _clean_data(XML):
