@@ -116,6 +116,7 @@ class UninformativeTreeError(Error):
     def __init__(self, msg):
         self.msg = msg
 
+
 class EmptySourceError(Error):
     """Exception raised when a tree contains no useful information
     Attributes:

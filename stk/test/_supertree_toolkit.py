@@ -432,7 +432,16 @@ class TestSetSourceNames(unittest.TestCase):
         names = get_all_source_names(XML)
         self.assert_(len(names) == 1)
         self.assert_(names[0] == "Hill_2011")
-        
+       
+    def test_check_data(self):
+        XML = etree.tostring(etree.parse('data/input/clean_data.phyml',parser),pretty_print=True)
+        self.assertRaises(UninformativeTreeError,_check_data,XML)
+
+        try:
+            _check_data(XML)
+        except UninformativeTreeError as e:
+            self.assertRegexpMatches(e.msg,"contains only 2 taxa and is not informative")
+            self.assertRegexpMatches(e.msg,"doesn't contain any clades and is not informative")
 
 if __name__ == '__main__':
     unittest.main()
