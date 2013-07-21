@@ -163,6 +163,23 @@
                 <property name="position">4</property>
               </packing>
             </child>
+            <child>
+              <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
+                <property name="label" translatable="yes">Ignore Warnings</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="has_tooltip">True</property>
+                <property name="tooltip" translatable="yes">Ignore warnings regarding data quality</property>
+                <property name="use_action_appearance">False</property>
+                <property name="draw_indicator">True</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">5</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="expand">True</property>
@@ -307,7 +324,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
-            <property name="position">4</property>
+            <property name="position">5</property>
           </packing>
         </child>
       </widget>
@@ -526,7 +543,21 @@
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
+            <property name="label" translatable="yes">Ignore Warnings</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="has_tooltip">True</property>
+            <property name="tooltip" translatable="yes">Ignore warnings regarding data quality</property>
+            <property name="use_action_appearance">False</property>
+            <property name="draw_indicator">True</property>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
         </child>
       </widget>
     </child>
@@ -680,6 +711,25 @@
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox2">
         <property name="can_focus">False</property>
+        <child>
+          <widget class="GtkScrolledWindow" id="scrolledwindow1">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="vscrollbar_policy">automatic</property>
+            <child>
+              <widget class="GtkTextView" id="textview1">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+              </widget>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
         <child internal-child="action_area">
           <widget class="GtkHButtonBox" id="dialog-action_area2">
             <property name="can_focus">False</property>
@@ -719,25 +769,6 @@
             <property name="fill">True</property>
             <property name="pack_type">end</property>
             <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="GtkScrolledWindow" id="scrolledwindow1">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="hscrollbar_policy">automatic</property>
-            <property name="vscrollbar_policy">automatic</property>
-            <child>
-              <widget class="GtkTextView" id="textview1">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-              </widget>
-            </child>
-          </widget>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
           </packing>
         </child>
       </widget>
@@ -1037,6 +1068,23 @@
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
+                <property name="label" translatable="yes">Ignore Warnings</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="has_tooltip">True</property>
+                <property name="tooltip" translatable="yes">Ignore warnings regarding data quality</property>
+                <property name="use_action_appearance">False</property>
+                <property name="draw_indicator">True</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </widget>
@@ -1892,6 +1940,17 @@
                         <signal name="activate" handler="on_create_matrix" swapped="no"/>
                       </widget>
                     </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="clean_data">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Clean data by removing bad data</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Clean Data</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_clean_data" swapped="no"/>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
               </widget>
@@ -2560,15 +2619,32 @@
               </packing>
             </child>
             <child>
+              <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
+                <property name="label" translatable="yes">Ignore Warnings</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="has_tooltip">True</property>
+                <property name="tooltip" translatable="yes">Ignore warnings regarding data quality</property>
+                <property name="use_action_appearance">False</property>
+                <property name="draw_indicator">True</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">5</property>
+              </packing>
+            </child>
+            <child>
               <widget class="GtkProgressBar" id="progressbar1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="activity_mode">True</property>
               </widget>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">5</property>
+                <property name="position">6</property>
               </packing>
             </child>
           </widget>
@@ -2761,6 +2837,22 @@ Leave new taxon blank to delete</property>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
+                <property name="label" translatable="yes">Ignore Warnings</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="tooltip" translatable="yes">Ignore warnings regarding data quality</property>
+                <property name="use_action_appearance">False</property>
+                <property name="draw_indicator">True</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">5</property>
               </packing>
             </child>
           </widget>

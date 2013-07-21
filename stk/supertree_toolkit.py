@@ -534,10 +534,13 @@ def export_bibliography(XML,filename,format="bibtex"):
     
     return
 
-def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=None):
+def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=None, ignoreWarnings=False):
     """ Perform STR on data to remove taxa that 
     provide no useful additional information
     """
+
+    if not ignoreWarnings and not XML == None:
+        _check_data(XML)
 
     # Algorithm descibed by ******
     # modified for *supertrees*, which mainly involves cutting
@@ -1205,7 +1208,7 @@ def obtain_trees(XML):
 
     return trees
 
-def amalgamate_trees(XML,format="Nexus",anonymous=False):
+def amalgamate_trees(XML,format="Nexus",anonymous=False,ignoreWarnings=False):
     """ Create a string containing all trees in the XML.
         String can be formatted to one of Nexus, Newick or TNT.
         Only Nexus formatting takes into account the anonymous
@@ -1214,6 +1217,8 @@ def amalgamate_trees(XML,format="Nexus",anonymous=False):
         callers responsibility
     """
 
+    if not ignoreWarnings:
+        _check_data(XML)
 
     # Check format flag - let the caller handle
     if (not (format == "Nexus" or 
@@ -1256,9 +1261,12 @@ def get_all_taxa(XML, pretty=False):
     return taxa_list
 
 
-def create_matrix(XML,format="hennig"):
+def create_matrix(XML,format="hennig",ignoreWarnings=False):
     """ From all trees in the XML, create a matrix
     """
+
+    if not ignoreWarnings:
+        _check_data(XML)
 
     # get all trees
     trees = obtain_trees(XML)
@@ -1305,7 +1313,7 @@ def load_phyml(filename):
     return etree.tostring(etree.parse(filename,parser),pretty_print=True)
 
 
-def substitute_taxa(XML, old_taxa, new_taxa=None):
+def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
@@ -1316,6 +1324,10 @@ def substitute_taxa(XML, old_taxa, new_taxa=None):
     elements for those taxa removed. It's up to the calling function to
     do something sensible with this infomation
     """
+
+    if not ignoreWarnings:
+        _check_data(XML)
+
 
     # are the input values lists or simple strings?
     if (isinstance(old_taxa,str)):
@@ -1496,13 +1508,16 @@ def permute_tree(tree,matrix="hennig",treefile=None):
     return output_string
 
 
-def data_summary(XML,detailed=False):
+def data_summary(XML,detailed=False,ignoreWarnings=False):
     """Creates a text string that summarises the current data set via a number of 
     statistics such as the number of character types, distribution of years of publication,
     etc.
 
     Up to the calling function to display string nicely
     """
+
+    if not ignoreWarnings:
+        _check_data(XML)
 
     xml_root = _parse_xml(XML)
     proj_name = xml_root.xpath('/phylo_storage/project_name/string_value')[0].text
@@ -1569,7 +1584,7 @@ def data_summary(XML,detailed=False):
 
     return output_string
 
-def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=False, verbose=False):
+def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=False, verbose=False, ignoreWarnings=False):
     """ Calculate the amount of taxonomic overlap between source trees.
     The output is a True/False by default, but you can specify an 
     optional filename, which will save a nice graphic. For the GUI,
@@ -1581,6 +1596,9 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
     source tres this could be very big and take along time. More likely, you'll run
     out of memory.
     """
+
+    if not ignoreWarnings:
+        _check_data(XML)
 
     sufficient_overlap = False
     key_list = None
@@ -1750,10 +1768,14 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
 
     return sufficient_overlap, key_list
 
-def data_independence(XML,make_new_xml=False):
+def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
     """ Return a list of sources that are not independent.
     This is decided on the source data and the analysis
     """
+
+    if not ignoreWarnings:
+        _check_data(XML)
+
     # data storage:
     #
     # tree_name, character string, taxa_list
@@ -1872,7 +1894,31 @@ def read_matrix(filename):
             raise MatrixError("Invalid matrix format")
 
     return matrix,taxa
-    
+
+
+def clean_data(XML):
+    """ Cleans up (i.e. deletes) non-informative trees and empty sources
+        Same function as check data, but instead of raising message, simply fixes the problems.
+    """
+
+    # check all names are unique - this is easy...
+    try:
+        _check_uniqueness(XML) # this will raise an error is the test is not passed
+    except NotUniqueError:
+        XML = set_unique_names(XML)
+
+    # now the taxa
+    XML = _check_taxa(XML,delete=True) 
+
+    # check trees are informative
+    XML = _check_informative_trees(XML,delete=True)
+
+    # check sources
+    XML = _check_sources(XML,delete=True)
+
+    return XML
+
+
 ################ PRIVATE FUNCTIONS ########################
 
 def _uniquify(l):
@@ -1888,14 +1934,17 @@ def _check_uniqueness(XML):
     the keys of the sources
     """
 
-    xml_root = _parse_xml(XML)
-    # By getting source, we can then loop over each source_tree
-    # within that source and construct a unique name
-    find = etree.XPath("//source")
-    sources = find(xml_root)
-
+    try:
+        xml_root = _parse_xml(XML)
+        # By getting source, we can then loop over each source_tree
+        # within that source and construct a unique name
+        find = etree.XPath("//source")
+        sources = find(xml_root)
+    except:
+        raise InvalidSTKData("Error parsing the data to check uniqueness")
+    
     names = []
-
+    message = ""
     # loop through all sources
     for s in sources:
         # for each source, get source name
@@ -1907,9 +1956,13 @@ def _check_uniqueness(XML):
     for name in names:
         if name == last_name:
             # if non-unique throw exception
-            raise NotUniqueError("The source names in the dataset are not unique." +
-                    "Please run the auto-name function on these data. Name: "+name)
+            message = message + \
+                    "The source names in the dataset are not unique. Please run the auto-name function on these data. Name: "+name+"\n"
         last_name = name
+
+    if (not message == ""):
+        raise NotUniqueError(message)
+
     return
 
 
@@ -1988,7 +2041,7 @@ def _sub_taxon(old_taxon, new_taxon, tree):
 
     return new_tree
 
-def _swap_tree_in_XML(XML, tree, name):
+def _swap_tree_in_XML(XML, tree, name, delete=False):
     """ Swap tree with name, 'name' with this new one.
         If tree is None, name is removed.
         If source no longer contains any trees, the source is removed
@@ -2022,9 +2075,11 @@ def _swap_tree_in_XML(XML, tree, name):
                         return etree.tostring(xml_root,pretty_print=True)
                     else:
                         s.remove(t.getparent().getparent())
-                        # we now need to check the source to check if there are
-                        # any trees in this source now, if not, remove
-                        s.getparent().remove(s)
+                        if (delete):
+                            # we now need to check the source to check if there are
+                            # any trees in this source now, if not, remove
+                            if (len(s.xpath("source_tree/tree/tree_string")) == 0):
+                                s.getparent().remove(s)
                         return etree.tostring(xml_root,pretty_print=True)
                 tree_no += 1
 
@@ -2092,14 +2147,19 @@ def _parse_subs_file(filename):
 
     return old_taxa, new_taxa
 
-def _check_taxa(XML):
+def _check_taxa(XML,delete=False):
     """ Checks that taxa in the XML are in the tree for the source thay are added to
     """
 
-    # grab all sources
-    xml_root = _parse_xml(XML)
-    find = etree.XPath("//source")
-    sources = find(xml_root)
+    try:
+        # grab all sources
+        xml_root = _parse_xml(XML)
+        find = etree.XPath("//source")
+        sources = find(xml_root)
+    except:
+        raise InvalidSTKData("Error parsing the data to check taxa")
+    
+    message = ""
 
     # for each source
     for s in sources:
@@ -2114,21 +2174,36 @@ def _check_taxa(XML):
             for t in taxa:
                 xml_taxon = t.attrib['name']
                 if (tree.find(xml_taxon) == -1):
-                    # no - raise an error!
-                    raise InvalidSTKData("Taxon: "+xml_taxon+" is not in the tree "+name)
+                    if (delete):
+                        # remove
+                        t.get_parent().remove(t)
+                    else:
+                        # no - raise an error!
+                        message = message + "Taxon: "+xml_taxon+" is not in the tree "+name+"\n"
+    if not delete:               
+        if (not message==""):
+            raise InvalidSTKData(message)
+        else:
+            return
+    else:
+        return etree.tostring(xml_root,pretty_print=True)        
 
-    return
 
-def _check_sources(XML):
+def _check_sources(XML,delete=True):
     """ Check that all sources in the dataset have at least one tree_string associated
         with them
     """
 
-    xml_root = _parse_xml(XML)
-    # By getting source, we can then loop over each source_tree
-    # within that source and construct a unique name
-    find = etree.XPath("//source")
-    sources = find(xml_root)
+    try:
+        xml_root = _parse_xml(XML)
+        # By getting source, we can then loop over each source_tree
+        # within that source and construct a unique name
+        find = etree.XPath("//source")
+        sources = find(xml_root)
+    except:
+        raise InvalidSTKData("Error parsing the data to check source")
+            
+    message = ""
     # for each source
     for s in sources:
         # get a list of taxa in the XML
@@ -2136,7 +2211,18 @@ def _check_sources(XML):
         name = s.attrib['name']
         trees = obtain_trees(etree.tostring(this_source))
         if (len(trees) < 1):
-            raise InvalidSTKData("Source "+name+" has no trees")
+            if (not delete):
+                message =+ "Source "+name+" has no trees\n"
+            else:
+                s.getparent().remove(s)
+
+    if not delete:
+        if (not message == ""):
+            raise InvalidSTKData(message)
+        else:
+            return
+    else:
+        return etree.tostring(xml_root,pretty_print=True)        
 
 
 
@@ -2151,6 +2237,9 @@ def _check_data(XML):
 
     # now the taxa
     _check_taxa(XML) # again will raise an error if test fails
+
+    # check trees are informative
+    _check_informative_trees(XML)
 
     # check sources
     _check_sources(XML)
@@ -2410,4 +2499,54 @@ def _read_hennig_matrix(filename):
     """
 
     return _read_nexus_matrix(filename)
+
+
+def _check_informative_trees(XML,delete=False):
+    """ Checks that all trees in the data set are informative and raises error if not
+    """
+
+    try:
+        trees = obtain_trees(XML)
+    except:
+        raise InvalidSTKData("Error parsing the data to check trees")
+    remove = []
+    message=""
+    for t in trees:
+        tree = trees[t]
+        try:
+            p4.var.warnReadNoFile = False
+            p4.var.nexus_warnSkipUnknownBlock = False
+            p4.var.trees = []
+            p4.read(tree)
+            p4.var.nexus_warnSkipUnknownBlock = True
+            p4.var.warnReadNoFile = True
+        except:
+            raise TreeParseError("Error parsing tree "+t+" when checking data")
+
+        # check if tree contains more than two taxa
+        tree = p4.var.trees[0]
+        p4.var.trees = []
+        terminals = tree.getAllLeafNames(tree.root)
+        if (len(terminals) < 3):
+            message = message+"\nTree "+t+" contains only 2 taxa and is not informative"
+            remove.append(t)
+        # if tree contains three or more taxa, check it's rooted somewhere
+        elif (tree.getDegree(tree.root) == len(terminals)):
+            message = message+"\nTree "+t+" doesn't contain any clades and is not informative"
+            remove.append(t)
+
+    if (not delete):
+        if (not message == ""):
+            raise UninformativeTreeError(message)
+        else:
+            return
+    else:
+        remove.sort(reverse=True)
+        for t in remove:
+            XML = _swap_tree_in_XML(XML,None,t,delete=True)
+
+        return XML
+
     
+
+

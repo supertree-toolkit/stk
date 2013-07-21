@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0,"../../")
 from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_taxa_from_tree, get_characters_from_tree, amalgamate_trees
-from stk.supertree_toolkit import import_trees, _trees_equal, _find_trees_for_permuting, permute_tree
+from stk.supertree_toolkit import import_trees, _trees_equal, _find_trees_for_permuting, permute_tree, get_all_source_names
 
 import os
 from lxml import etree
@@ -197,6 +197,23 @@ class TestImportTree(unittest.TestCase):
         self.assert_(len(trees) == old_len-1)
         # check that no sources are empty
 
+    
+    def test_delete_tree_XML_and_remove_source(self):
+        XML = etree.tostring(etree.parse('data/input/clean_data.phyml',parser),pretty_print=True)
+        names = ["Hill_2012_1","Hill_2012_2"]
+        names.sort(reverse=True)
+        trees = obtain_trees(XML)
+        old_len = len(trees)
+        new_xml = XML
+        for name in names:
+            new_xml = _swap_tree_in_XML(new_xml, None, name, delete=True)
+
+        trees = obtain_trees(new_xml)
+        self.assert_(len(trees) == old_len-2)
+        # check only one source remains
+        names = get_all_source_names(new_xml)
+        self.assert_(len(names) == 1)
+        self.assert_(names[0] == "Hill_2011")
 
 
     def test_substitute_taxa_single(self):

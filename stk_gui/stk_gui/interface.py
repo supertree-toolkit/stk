@@ -174,7 +174,8 @@ class Diamond:
                     "on_data_overlap": self.on_data_overlap,
                     "on_data_ind" : self.on_data_ind,
                     "on_permute_all_trees": self.on_permute_all_trees,
-                    "on_str": self.on_str
+                    "on_str": self.on_str,
+                    "on_clean_data": self.on_clean_data
                     }
 
     self.gui.signal_autoconnect(signals)
@@ -959,7 +960,22 @@ class Diamond:
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
-    data_summary = stk.data_summary(XML,detailed=True)
+    try:
+        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=False)
+    except NotUniqueError as detail:
+        msg = "Failed to summarise data.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=True)
+    except InvalidSTKData as detail:
+        msg = "Failed to summarise data.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=True)        
+    except UninformativeTreeError as detail:
+        msg = "Failed to summarise data.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=True)        
+
+
     textbox.get_buffer().set_text(data_summary)
     textbox.set_editable(False)
     self.data_summary_dialog.show()
@@ -1010,6 +1026,7 @@ class Diamond:
     filename = filename_textbox.get_text()
     graphic = self.data_overlap_gui.get_widget("checkbutton1").get_active()
     detailed = self.data_overlap_gui.get_widget("checkbutton2").get_active()
+    ignoreWarnings = self.data_overlap_gui.get_widget("ignoreWarnings_checkbutton").get_active()
     overlap = max(int(self.data_overlap_gui.get_widget("spinbutton1").get_value()),2)
 
     show = False
@@ -1025,14 +1042,27 @@ class Diamond:
     XML = f.getvalue()
     if (show):
         try:
-            sufficient_overlap, key_list, canvas = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed)
+            sufficient_overlap, key_list, canvas = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed,ignoreWarnings=ignoreWarnings)
         except IOError as detail:
             msg = "Failed to calculate overlap.\n"+detail.message
             dialogs.error(self.main_window,msg)
             return
+        except NotUniqueError as detail:
+            msg = "Failed to calculate overlap.\n"+detail.msg
+            dialogs.error(self.main_window,msg)
+            return
+        except InvalidSTKData as detail:
+            msg = "Failed to calculate overlap.\n"+detail.msg
+            dialogs.error(self.main_window,msg)
+            return
+        except UninformativeTreeError as detail:
+            msg = "Failed to calculate overlap.\n"+detail.msg
+            dialogs.error(self.main_window,msg)
+            return 
+
     else:
         try:
-            sufficient_overlap, key_list = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed)
+            sufficient_overlap, key_list = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed,ignoreWarnings=ignoreWarnings)
             # we need to save the csv file too
             file_stub = os.path.splitext(filename)[0]
             csv_file = file_stub+"_"+str(overlap)+".csv"
@@ -1050,7 +1080,18 @@ class Diamond:
             msg = "Failed to calculate overlap.\n"+detail.message
             dialogs.error(self.main_window,msg)
             return
-
+        except NotUniqueError as detail:
+            msg = "Failed to calculate overlap.\n"+detail.msg
+            dialogs.error(self.main_window,msg)
+            return
+        except InvalidSTKData as detail:
+            msg = "Failed to calculate overlap.\n"+detail.msg
+            dialogs.error(self.main_window,msg)
+            return
+        except UninformativeTreeError as detail:
+            msg = "Failed to calculate overlap.\n"+detail.msg
+            dialogs.error(self.main_window,msg)
+            return 
     if (show):
         # create our show result interface
         signals = {"on_data_overlap_show_dialog_close": self.on_data_overlap_show_dialog_cancel_button}
@@ -1146,7 +1187,20 @@ class Diamond:
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
-    self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True)
+    try:
+        self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=False)
+    except NotUniqueError as detail:
+        msg = "Failed to check data independence.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
+    except InvalidSTKData as detail:
+        msg = "Failed to check data independence.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
+    except UninformativeTreeError as detail:
+        msg = "Failed to check data independence.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
     liststore = gtk.ListStore(str,str)
     treeview = gtk.TreeView(liststore)
     rendererText = gtk.CellRendererText()
@@ -1294,7 +1348,6 @@ class Diamond:
     format_radio_4 = self.permute_trees_gui.get_widget("tree_format_newick_chooser")
     format_radio_5 = self.permute_trees_gui.get_widget("tree_format_tnt_chooser")
 
-
     if (format_radio_1.get_active()):
         format = 'hennig'
         treefile=None
@@ -1391,6 +1444,7 @@ class Diamond:
     filename = filename_textbox.get_text()
     delete_subs_checkbox = self.str_gui.get_widget("checkbutton1")
     replace_subs_checkbox = self.str_gui.get_widget("checkbutton2")
+    ignoreWarnings = self.str_gui.get_widget("ignoreWarnings_checkbutton").get_active()
 
     delete_subs = False
     replace_subs = False
@@ -1407,7 +1461,20 @@ class Diamond:
     str_progressbar.set_pulse_step(0.1)
     self.str_q = Queue()
     # make the fourth argument true for verbose output
-    self.str_p = Process(target=stk.safe_taxonomic_reduction,args=(XML,None,None,False,self.str_q))
+    try:
+        self.str_p = Process(target=stk.safe_taxonomic_reduction,args=(XML,None,None,False,self.str_q,ignoreWarnings))
+    except NotUniqueError as detail:
+        msg = "Failed to calculate STR.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except InvalidSTKData as detail:
+        msg = "Failed to calculate STR.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except UninformativeTreeError as detail:
+        msg = "Failed to calculate STR.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return 
     self.str_p.start()
     waiting=True
     while waiting:
@@ -1513,6 +1580,8 @@ class Diamond:
     filename = filename_textbox.get_text()
     format_radio_1 = self.create_matrix_gui.get_widget("matrix_format_tnt_chooser")
     format_radio_2 = self.create_matrix_gui.get_widget("matrix_format_nexus_chooser")
+    ignoreWarnings = self.create_matrix_gui.get_widget("ignoreWarnings_checkbutton").get_active()
+
 
     if (format_radio_1.get_active()):
         format = 'hennig'
@@ -1526,10 +1595,29 @@ class Diamond:
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
-    matrix = stk.create_matrix(XML,format=format)
-    f = open(filename, "w")
-    f.write(matrix)
-    f.close()    
+    try:
+        matrix = stk.create_matrix(XML,format=format,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "Failed to create matrixe.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except InvalidSTKData as detail:
+        msg = "Failed to create matrix.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except UninformativeTreeError as detail:
+        msg = "Failed to create matrix.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return 
+    
+    try:
+        f = open(filename, "w")
+        f.write(matrix)
+        f.close()    
+    except:
+        msg = "Failed to create matrix file.\n"
+        dialogs.error(self.main_window,msg)
+        return 
 
     # Add a history event
     f = StringIO.StringIO()
@@ -1580,16 +1668,32 @@ class Diamond:
 
     filename_textbox = self.export_gui.get_widget("entry1")
     filename = filename_textbox.get_text()
+    ignoreWarnings = self.export_gui.get_widget("ignoreWarnings_checkbutton").get_active()
+
 
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
     try:
-        stk_import_export.export_to_old(XML,filename,verbose=False) 
+        stk_import_export.export_to_old(XML,filename,verbose=False,ignoreWarnings=ignoreWarnings) 
     except STKImportExportError as e:
         dialogs.error(self.main_window, e.msg)
+        return
+    except NotUniqueError as detail:
+        msg = "Failed to export data.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except InvalidSTKData as detail:
+        msg = "Failed to export data.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except UninformativeTreeError as detail:
+        msg = "Failed to export data.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return     
     except:
         dialogs.error(self.main_window, "Error exporting.")
+        return
     
     self.export_dialog.hide()
     # Add a history event
@@ -1698,6 +1802,8 @@ class Diamond:
       format_radio_2 = self.export_trees_gui.get_widget("tree_format_newick_chooser")
       format_radio_3 = self.export_trees_gui.get_widget("tree_format_tnt_chooser")
       anon_check = self.export_trees_gui.get_widget("checkbutton1")
+      ignoreWarnings = self.export_trees_gui.get_widget("ignoreWarnings_checkbutton").get_active()
+
       if (format_radio_1.get_active()):
           format = 'Nexus'
       elif (format_radio_2.get_active()):
@@ -1716,7 +1822,20 @@ class Diamond:
       f = StringIO.StringIO()
       self.tree.write(f)
       XML = f.getvalue()
-      self.output_string = stk.amalgamate_trees(XML,format=format,anonymous=anonymous)
+      try:
+        self.output_string = stk.amalgamate_trees(XML,format=format,anonymous=anonymous,ignoreWarnings=ignoreWarnings)
+      except NotUniqueError as detail:
+        msg = "Failed to export trees.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+      except InvalidSTKData as detail:
+        msg = "Failed to export trees.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+      except UninformativeTreeError as detail:
+        msg = "Failed to export trees.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return 
 
       filter_names_and_patterns = {}
       filter_names_and_patterns['Trees'] = ["*.tre","*nex","*.nwk","*.tnt"]
@@ -1823,6 +1942,8 @@ class Diamond:
     filename = filename_textbox.get_text()
     old_taxon = self.sub_taxa_gui.get_widget("old_taxon").get_text()
     new_taxon = self.sub_taxa_gui.get_widget("new_taxon").get_text()
+    ignoreWarnings = self.sub_taxa_gui.get_widget("ignoreWarnings_checkbutton").get_active()
+
 
     # check the text entries
     # is old_taxon in the tree?
@@ -1833,16 +1954,31 @@ class Diamond:
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
+   
+    try:
+        XML2 = stk.sub_taxa(XML,old_taxon,new_taxon,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "Failed to substitute taxa.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except InvalidSTKData as detail:
+        msg = "Failed to substitute taxa.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except UninformativeTreeError as detail:
+        msg = "Failed to substitute taxa.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return 
+
+    f = open(filename, "w")
+    f.write(XML2)
+    f.close()    
+
     # Add an event to the history of the file
     event_desc = "Taxa substitution from "+old_taxa+" to "+new_taxa+" via GUI using files: "+self.filename+" to "+filename
     XML = stk.add_historical_event(XML,event_desc) 
     ios = StringIO.StringIO(XML)
     self.update_data(ios, "Error adding history event (taxa sub) to XML",skip_warning=True)
-    
-    XML2 = stk.sub_taxa(XML,old_taxon,new_taxon)
-    f = open(filename, "w")
-    f.write(XML2)
-    f.close()    
     
     self.sub_taxa_dialog.hide()
 
@@ -1914,6 +2050,31 @@ class Diamond:
      XML = _removeNonAscii(XML)
      # Add a history event
      XML = stk.add_historical_event(XML, "Source names standardised")
+     ios = StringIO.StringIO(XML)
+
+     self.update_data(ios, "Error standardising names")
+
+     return 
+
+
+
+  def on_clean_data(self, widget = None):
+     """
+     cleans up the data
+     """
+     f = StringIO.StringIO()
+     self.tree.write(f)
+     XML = f.getvalue() 
+     XML = stk.clean_data(XML)
+     try:
+        XML = stk.all_sourcenames(XML)
+     except NoAuthors as detail:
+        dialogs.error(self.main_window,detail.msg)
+        return 
+         
+     XML = _removeNonAscii(XML)
+     # Add a history event
+     XML = stk.add_historical_event(XML, "Cleaned data")
      ios = StringIO.StringIO(XML)
 
      self.update_data(ios, "Error standardising names")
