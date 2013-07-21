@@ -44,7 +44,7 @@ def export_to_old(xml, output_dir, verbose=False, ignoreWarnings=False):
     """
 
     if not ignoreWarnings:
-        xml = _clean_data(xml)
+        xml = supertree_toolkit.clean_data(xml)
 
     # Parse the file and away we go:
     xml_root = _parse_xml(xml)

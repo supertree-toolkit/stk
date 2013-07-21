@@ -539,7 +539,7 @@ def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=N
     provide no useful additional information
     """
 
-    if not ignoreWarnings:
+    if not ignoreWarnings and not XML == None:
         _check_data(XML)
 
     # Algorithm descibed by ******
