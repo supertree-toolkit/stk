@@ -10,7 +10,8 @@ sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters, data_independence
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
 from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
-from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML
+from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
+from stk.supertree_toolkit import get_all_taxa
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -436,12 +437,34 @@ class TestSetSourceNames(unittest.TestCase):
     def test_check_data(self):
         XML = etree.tostring(etree.parse('data/input/clean_data.phyml',parser),pretty_print=True)
         self.assertRaises(UninformativeTreeError,_check_data,XML)
-
         try:
             _check_data(XML)
         except UninformativeTreeError as e:
             self.assertRegexpMatches(e.msg,"contains only 2 taxa and is not informative")
             self.assertRegexpMatches(e.msg,"doesn't contain any clades and is not informative")
+
+    def test_replace_genera(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        XML,generic,subs = replace_genera(XML,dry_run=True)
+        self.assert_(XML == None)
+        # Old STK gave the following subs
+        # Gallus = Gallus gallus
+        # Larus = Larus argentatus,Larus marinus
+        # Struthio = Struthio camelus
+        expected_genera = ['Gallus','Larus','Struthio']
+        expected_subs = ['Gallus_gallus','Larus_argentatus,Larus_marinus','Struthio_camelus']
+        self.assertListEqual(expected_genera,generic)
+        self.assertListEqual(expected_subs,subs)
+
+    def test_replace_genera2(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        XML,generic,subs = replace_genera(XML)
+        # see above for answer
+        taxa = get_all_taxa(XML)
+        self.assertNotIn('Gallus',taxa)
+        self.assertNotIn('Larus',taxa)
+        self.assertNotIn('Struthio',taxa)
+        self.assertIn('Gallus_gallus',taxa) # should be anyway :)
 
 if __name__ == '__main__':
     unittest.main()

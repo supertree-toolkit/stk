@@ -1919,6 +1919,45 @@ def clean_data(XML):
     return XML
 
 
+
+def replace_genera(XML,dry_run=False,ignoreWarnings=False):
+    """ Remove all generic taxa by replacing them with a polytomy of
+        all species in the dataset belonging to that genera
+    """
+        
+    if not ignoreWarnings:
+        _check_data(XML)
+
+    # get all the taxa
+    taxa = get_all_taxa(XML)
+
+    generic = []
+    # find all the generic and build an internal subs file
+    for t in taxa:
+        if t.find("_") == -1:
+            # no underscore, so just generic
+            generic.append(t)
+    
+    subs = []
+    generic_to_replace = []
+    for t in generic:
+        currentSub = []
+        for taxon in taxa:
+            if (not taxon == t) and taxon.find(t) > -1:
+                currentSub.append(taxon)
+        if (len(currentSub) > 0):
+            subs.append(",".join(currentSub))
+            generic_to_replace.append(t)
+    
+    if (dry_run):
+        return None,generic_to_replace,subs
+
+    XML = substitute_taxa(XML, generic_to_replace, subs, ignoreWarnings=ignoreWarnings)
+
+    XML = clean_data(XML)
+
+    return XML,generic_to_replace,subs
+
 ################ PRIVATE FUNCTIONS ########################
 
 def _uniquify(l):
