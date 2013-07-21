@@ -374,8 +374,21 @@ def safe_taxonomic_reduction(args):
     else:
         matrix,taxa = supertree_toolkit.read_matrix(input_file)
         XML = None
-    
-    output, can_replace = supertree_toolkit.safe_taxonomic_reduction(XML,matrix=matrix,taxa=taxa,verbose=verbose,ignoreWarnings=ignoreWarnings)
+    try: 
+        output, can_replace = supertree_toolkit.safe_taxonomic_reduction(XML,matrix=matrix,taxa=taxa,verbose=verbose,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to carry out STR.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to carry out STR.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to carry out STR.\n"+detail.msg
+        print msg
+        return
+
     if (not subs == None or not subs):
         substitutions = supertree_toolkit.subs_file_from_str(output)
   
@@ -440,10 +453,23 @@ def data_ind(args):
                 break
 
     XML = supertree_toolkit.load_phyml(input_file)
-    if (newphyml == None):
-        data_independence = supertree_toolkit.data_independence(XML)
-    else:
-        data_independence, new_phyml = supertree_toolkit.data_independence(XML,make_new_xml=True,ignoreWarnings=ignoreWarnings)
+    try:
+        if (newphyml == None):
+            data_independence = supertree_toolkit.data_independence(XML,ignoreWarnings=ignoreWarnings)
+        else:
+            data_independence, new_phyml = supertree_toolkit.data_independence(XML,make_new_xml=True,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to check independence.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to check independence.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to check independence.\n"+detail.msg
+        print msg
+        return
 
     # process data
     data_ind = ""
@@ -493,7 +519,21 @@ def data_summary(args):
         output_file = direc + os.path.sep + "data_summary.txt"
 
     XML = supertree_toolkit.load_phyml(input_file)
-    data_summary = supertree_toolkit.data_summary(XML,detailed=detailed,ignoreWarnings=ignoreWarnings)
+    try:
+        data_summary = supertree_toolkit.data_summary(XML,detailed=detailed,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to create data summary.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to creae data summary.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to create data summary.\n"+detail.msg
+        print msg
+        return
+    
     if (output_file == False or
         output_file == None):
         print data_summary
@@ -541,7 +581,21 @@ def create_matrix(args):
                 break
 
     XML = supertree_toolkit.load_phyml(input_file)
-    matrix = supertree_toolkit.create_matrix(XML,format=f_format,ignoreWarnings=ignoreWarnings)
+    try:
+        matrix = supertree_toolkit.create_matrix(XML,format=f_format,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to create matrix.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to create matrix.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to create matrix.\n"+detail.msg
+        print msg
+        return
+
     f = open(output_file, "w")
     f.write(matrix)
     f.close()
@@ -605,7 +659,21 @@ def sub_taxa(args):
                 break
 
     XML = supertree_toolkit.load_phyml(input_file)
-    XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings)
+    try:
+        XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to substituting taxa.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to substituting taxa.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to substituting taxa.\n"+detail.msg
+        print msg
+        return
+
     # Add an event to the history of the file
     XML = supertree_toolkit.add_historical_event(XML, "Taxa substituted using command: " +" ".join(sys.argv)) 
     f = open(output_file,'w')
@@ -668,7 +736,18 @@ def export_data(args):
         supertree_import_export.export_to_old(XML,output_dir,verbose=verbose,ignoreWarnings=ignoreWarnings) 
     except STKImportExportError as e:
         print e.msg
-
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to export data.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to export data.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to export data.\n"+detail.msg
+        print msg
+        return
 
 
 def data_overlap(args):
@@ -701,7 +780,21 @@ def data_overlap(args):
                 output_file = os.path.splitext(output_file)[0]+".pdf"
 
     XML = supertree_toolkit.load_phyml(input_file)
-    overlap_ok, key_list = supertree_toolkit.data_overlap(XML,  overlap_amount=overlap, filename=output_file, detailed=args.detailed, verbose=verbose,ignoreWarnings=ignoreWarnings)
+    try:
+        overlap_ok, key_list = supertree_toolkit.data_overlap(XML,  overlap_amount=overlap, filename=output_file, detailed=args.detailed, verbose=verbose,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to check overlap.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to check overlap.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to check overlap.\n"+detail.msg
+        print msg
+        return
+
     if (graphic):
         # generate key file
         filename =  os.path.splitext(input_file)[0]
@@ -748,7 +841,20 @@ def export_trees(args):
 
     XML = supertree_toolkit.load_phyml(input_file)
 
-    output_string = supertree_toolkit.amalgamate_trees(XML,format=format,anonymous=anon,ignoreWarnings=ignoreWarnings)
+    try:
+        output_string = supertree_toolkit.amalgamate_trees(XML,format=format,anonymous=anon,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to export trees.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to export trees.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to export trees.\n"+detail.msg
+        print msg
+        return
 
     f = open(output_file,"w")
     f.write(output_string)
