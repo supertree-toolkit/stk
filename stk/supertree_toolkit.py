@@ -1946,29 +1946,29 @@ def _check_uniqueness(XML):
         # within that source and construct a unique name
         find = etree.XPath("//source")
         sources = find(xml_root)
-
-        names = []
-        message = ""
-        # loop through all sources
-        for s in sources:
-            # for each source, get source name
-            names.append(s.attrib['name'])
-
-        names.sort()
-        last_name = "" # This will actually throw an non-unique error if a name is empty
-        # not great, but still an error!
-        for name in names:
-            if name == last_name:
-                # if non-unique throw exception
-                message = message + \
-                        "The source names in the dataset are not unique. Please run the auto-name function on these data. Name: "+name+"\n"
-            last_name = name
-
-        if (not message == ""):
-            raise NotUniqueError(message)
     except:
-        raise NotUniqueError("Error parsing the data to check uniqueness")
+        raise InvalidSTKData("Error parsing the data to check uniqueness")
     
+    names = []
+    message = ""
+    # loop through all sources
+    for s in sources:
+        # for each source, get source name
+        names.append(s.attrib['name'])
+
+    names.sort()
+    last_name = "" # This will actually throw an non-unique error if a name is empty
+    # not great, but still an error!
+    for name in names:
+        if name == last_name:
+            # if non-unique throw exception
+            message = message + \
+                    "The source names in the dataset are not unique. Please run the auto-name function on these data. Name: "+name+"\n"
+        last_name = name
+
+    if (not message == ""):
+        raise NotUniqueError(message)
+
     return
 
 
@@ -2157,11 +2157,14 @@ def _check_taxa(XML,delete=False):
     """ Checks that taxa in the XML are in the tree for the source thay are added to
     """
 
-    # grab all sources
-    xml_root = _parse_xml(XML)
-    find = etree.XPath("//source")
-    sources = find(xml_root)
-
+    try:
+        # grab all sources
+        xml_root = _parse_xml(XML)
+        find = etree.XPath("//source")
+        sources = find(xml_root)
+    except:
+        raise InvalidSTKData("Error parsing the data to check taxa")
+    
     message = ""
 
     # for each source
@@ -2191,16 +2194,21 @@ def _check_taxa(XML,delete=False):
     else:
         return etree.tostring(xml_root,pretty_print=True)        
 
+
 def _check_sources(XML,delete=True):
     """ Check that all sources in the dataset have at least one tree_string associated
         with them
     """
 
-    xml_root = _parse_xml(XML)
-    # By getting source, we can then loop over each source_tree
-    # within that source and construct a unique name
-    find = etree.XPath("//source")
-    sources = find(xml_root)
+    try:
+        xml_root = _parse_xml(XML)
+        # By getting source, we can then loop over each source_tree
+        # within that source and construct a unique name
+        find = etree.XPath("//source")
+        sources = find(xml_root)
+    except:
+        raise InvalidSTKData("Error parsing the data to check source")
+            
     message = ""
     # for each source
     for s in sources:
@@ -2221,6 +2229,7 @@ def _check_sources(XML,delete=True):
             return
     else:
         return etree.tostring(xml_root,pretty_print=True)        
+
 
 
 def _check_data(XML):
@@ -2502,7 +2511,10 @@ def _check_informative_trees(XML,delete=False):
     """ Checks that all trees in the data set are informative and raises error if not
     """
 
-    trees = obtain_trees(XML)
+    try:
+        trees = obtain_trees(XML)
+    except:
+        raise InvalidSTKData("Error parsing the data to check trees")
     remove = []
     message=""
     for t in trees:
@@ -2541,5 +2553,6 @@ def _check_informative_trees(XML,delete=False):
 
         return XML
 
+    
 
 

@@ -961,7 +961,21 @@ class Diamond:
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
-    data_summary = stk.data_summary(XML,detailed=True)
+    try:
+        data_summary = stk.data_summary(XML,detailed=True)
+    except NotUniqueError as detail:
+        msg = "Failed to summerise data.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except InvalidSTKData as detail:
+        msg = "Failed to summerise data.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except UninformativeTreeError as detail:
+        msg = "Failed to summerise data.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return 
+
     textbox.get_buffer().set_text(data_summary,ignoreWarnings=ignoreWarnings)
     textbox.set_editable(False)
     self.data_summary_dialog.show()
@@ -1174,7 +1188,20 @@ class Diamond:
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
-    self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=ignoreWarnings)
+    try:
+        self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "Failed to check data independence.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except InvalidSTKData as detail:
+        msg = "Failed to check data independence.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except UninformativeTreeError as detail:
+        msg = "Failed to check data independence.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return 
     liststore = gtk.ListStore(str,str)
     treeview = gtk.TreeView(liststore)
     rendererText = gtk.CellRendererText()
@@ -1435,7 +1462,20 @@ class Diamond:
     str_progressbar.set_pulse_step(0.1)
     self.str_q = Queue()
     # make the fourth argument true for verbose output
-    self.str_p = Process(target=stk.safe_taxonomic_reduction,args=(XML,None,None,False,self.str_q,ignoreWarnings))
+    try:
+        self.str_p = Process(target=stk.safe_taxonomic_reduction,args=(XML,None,None,False,self.str_q,ignoreWarnings))
+    except NotUniqueError as detail:
+        msg = "Failed to calculate STR.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except InvalidSTKData as detail:
+        msg = "Failed to calculate STR.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except UninformativeTreeError as detail:
+        msg = "Failed to calculate STR.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return 
     self.str_p.start()
     waiting=True
     while waiting:
@@ -1556,7 +1596,21 @@ class Diamond:
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
-    matrix = stk.create_matrix(XML,format=format,ignoreWarnings=ignoreWarnings)
+    try:
+        matrix = stk.create_matrix(XML,format=format,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "Failed to create matrixe.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except InvalidSTKData as detail:
+        msg = "Failed to create matrix.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except UninformativeTreeError as detail:
+        msg = "Failed to create matrix.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return 
+    
     f = open(filename, "w")
     f.write(matrix)
     f.close()    
@@ -1620,8 +1674,22 @@ class Diamond:
         stk_import_export.export_to_old(XML,filename,verbose=False,ignoreWarnings=ignoreWarnings) 
     except STKImportExportError as e:
         dialogs.error(self.main_window, e.msg)
+        return
+    except NotUniqueError as detail:
+        msg = "Failed to export data.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except InvalidSTKData as detail:
+        msg = "Failed to export data.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except UninformativeTreeError as detail:
+        msg = "Failed to export data.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return     
     except:
         dialogs.error(self.main_window, "Error exporting.")
+        return
     
     self.export_dialog.hide()
     # Add a history event
@@ -1750,7 +1818,20 @@ class Diamond:
       f = StringIO.StringIO()
       self.tree.write(f)
       XML = f.getvalue()
-      self.output_string = stk.amalgamate_trees(XML,format=format,anonymous=anonymous,ignoreWarnings=ignoreWarnings)
+      try:
+        self.output_string = stk.amalgamate_trees(XML,format=format,anonymous=anonymous,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "Failed to export trees.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except InvalidSTKData as detail:
+        msg = "Failed to export trees.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except UninformativeTreeError as detail:
+        msg = "Failed to export trees.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return 
 
       filter_names_and_patterns = {}
       filter_names_and_patterns['Trees'] = ["*.tre","*nex","*.nwk","*.tnt"]
@@ -1869,8 +1950,22 @@ class Diamond:
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
-    
-    XML2 = stk.sub_taxa(XML,old_taxon,new_taxon,ignoreWarnings=ignoreWarnings)
+   
+    try:
+        XML2 = stk.sub_taxa(XML,old_taxon,new_taxon,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "Failed to substitute taxa.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except InvalidSTKData as detail:
+        msg = "Failed to substitute taxa.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except UninformativeTreeError as detail:
+        msg = "Failed to substitute taxa.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return 
+
     f = open(filename, "w")
     f.write(XML2)
     f.close()    
