@@ -954,7 +954,6 @@ class Diamond:
     self.data_summary_gui = gtk.glade.XML(self.gladefile, root="data_summary_output")
     self.data_summary_dialog = self.data_summary_gui.get_widget("data_summary_output")
     textbox = self.data_summary_gui.get_widget("textview1")
-    ignoreWarnings = self.data_summary_gui.get_widget("ignoreWarnings_checkbutton").get_active()
     self.data_summary_gui.signal_autoconnect(signals)
     summary_button = self.data_summary_gui.get_widget("data_summary_save_button")
     summary_button.connect("activate", self.on_data_summary_save_clicked) 
@@ -962,21 +961,22 @@ class Diamond:
     self.tree.write(f)
     XML = f.getvalue()
     try:
-        data_summary = stk.data_summary(XML,detailed=True)
+        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=False)
     except NotUniqueError as detail:
-        msg = "Failed to summerise data.\n"+detail.msg
+        msg = "Failed to summarise data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        return
+        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=True)
     except InvalidSTKData as detail:
-        msg = "Failed to summerise data.\n"+detail.msg
+        msg = "Failed to summarise data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        return
+        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=True)        
     except UninformativeTreeError as detail:
-        msg = "Failed to summerise data.\n"+detail.msg
+        msg = "Failed to summarise data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        return 
+        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=True)        
 
-    textbox.get_buffer().set_text(data_summary,ignoreWarnings=ignoreWarnings)
+
+    textbox.get_buffer().set_text(data_summary)
     textbox.set_editable(False)
     self.data_summary_dialog.show()
 
@@ -1180,7 +1180,6 @@ class Diamond:
               } 
     self.data_ind_gui = gtk.glade.XML(self.gladefile, root="data_ind_dialog")
     self.data_ind_dialog = self.data_ind_gui.get_widget("data_ind_dialog")
-    ignoreWarnings = self.data_ind_gui.get_widget("ignoreWarnings_checkbutton").get_active()
     self.data_ind_gui.signal_autoconnect(signals)
 
     self.phyml_filename = None
@@ -1189,19 +1188,19 @@ class Diamond:
     self.tree.write(f)
     XML = f.getvalue()
     try:
-        self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=ignoreWarnings)
+        self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=False)
     except NotUniqueError as detail:
         msg = "Failed to check data independence.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        return
+        self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
     except InvalidSTKData as detail:
         msg = "Failed to check data independence.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        return
+        self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
     except UninformativeTreeError as detail:
         msg = "Failed to check data independence.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        return 
+        self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
     liststore = gtk.ListStore(str,str)
     treeview = gtk.TreeView(liststore)
     rendererText = gtk.CellRendererText()
@@ -1611,9 +1610,14 @@ class Diamond:
         dialogs.error(self.main_window,msg)
         return 
     
-    f = open(filename, "w")
-    f.write(matrix)
-    f.close()    
+    try:
+        f = open(filename, "w")
+        f.write(matrix)
+        f.close()    
+    except:
+        msg = "Failed to create matrix file.\n"
+        dialogs.error(self.main_window,msg)
+        return 
 
     # Add a history event
     f = StringIO.StringIO()
@@ -1820,15 +1824,15 @@ class Diamond:
       XML = f.getvalue()
       try:
         self.output_string = stk.amalgamate_trees(XML,format=format,anonymous=anonymous,ignoreWarnings=ignoreWarnings)
-    except NotUniqueError as detail:
+      except NotUniqueError as detail:
         msg = "Failed to export trees.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-    except InvalidSTKData as detail:
+      except InvalidSTKData as detail:
         msg = "Failed to export trees.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-    except UninformativeTreeError as detail:
+      except UninformativeTreeError as detail:
         msg = "Failed to export trees.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 

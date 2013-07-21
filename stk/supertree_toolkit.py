@@ -1018,12 +1018,9 @@ def import_tree(filename, gui=None, tree_no = -1):
     tree = trees[tree_no]
     return tree
 
-def get_all_characters(XML,ignoreWarnings=False):
+def get_all_characters(XML):
     """Returns a dictionary containing a list of characters within each 
     character type"""
-
-    if not ignoreWarnings:
-        _check_data(XML)
 
     xml_root = _parse_xml(XML)
     find = etree.XPath("//character")
@@ -1234,7 +1231,7 @@ def amalgamate_trees(XML,format="Nexus",anonymous=False,ignoreWarnings=False):
     return _amalgamate_trees(trees,format,anonymous)
         
 
-def get_all_taxa(XML, pretty=False, ignoreWarnings=False):
+def get_all_taxa(XML, pretty=False):
     """ Produce a taxa list by scanning all trees within 
     a PHYML file. 
 
@@ -1242,9 +1239,6 @@ def get_all_taxa(XML, pretty=False, ignoreWarnings=False):
 
     Setting pretty=True means all underscores will be
     replaced by spaces"""
-
-    if not ignoreWarnings:
-        _check_data(XML)
 
     trees = obtain_trees(XML)
 
