@@ -339,6 +339,23 @@ def main():
             help="Overwrite the existing file without asking for confirmation")
     parser_cm.set_defaults(func=clean_data)
 
+    # Replace genera
+    parser_cm = subparsers.add_parser('replace_genera',
+            help='Replace higher order (generic) taxa with a polytomy of specific taxa'
+            )
+    parser_cm.add_argument('input', 
+            help='The input phyml file')
+    parser_cm.add_argument('output', 
+            help='The output phyml file')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing file without asking for confirmation")
+    parser_cm.add_argument('--only_subs',
+            action='store_true',
+            default=False,
+            help="Don't carry out the subs, but generate a subs file as output instead")
+    parser_cm.set_defaults(func=replace_genera)
 
     # parse the arguments, and strip out the common options
     args = parser.parse_args()
@@ -607,6 +624,7 @@ def sub_taxa(args):
     and make a new file with these taxa subbed/removed from all trees
     and XML
     """
+
     # Parse the args
     verbose = args.verbose
     output_file = args.output
@@ -619,6 +637,7 @@ def sub_taxa(args):
     new_taxon = args.newtaxon
     ignoreWarnings = args.ignoreWarnings
     
+
     # check all the options
     # We need either a subs file *or* an old taxon, but not both
     if (old_taxon == None and subs_file == None):
@@ -635,7 +654,7 @@ def sub_taxa(args):
 
     if (subs_file):
         try:
-            old_taxa, new_taxa = stk_._parse_subs_file(subs_file)
+            old_taxa, new_taxa = supertree_toolkit.parse_subs_file(subs_file)
         except UnableToParseSubsFile as e:
             print e.msg
             sys.exit(-1)
@@ -645,6 +664,7 @@ def sub_taxa(args):
     if (not os.path.exists(input_file)):
         print "Input file cannot be found. Exiting"
         sys.exit(-1)
+
 
     # Does the output file already exist?
     if (os.path.exists(output_file) and not overwrite):
@@ -657,6 +677,7 @@ def sub_taxa(args):
                 sys.exit(0)
             if k.lower() == 'y':
                 break
+
 
     XML = supertree_toolkit.load_phyml(input_file)
     try:
@@ -674,12 +695,14 @@ def sub_taxa(args):
         print msg
         return
 
+
     # Add an event to the history of the file
     XML = supertree_toolkit.add_historical_event(XML, "Taxa substituted using command: " +" ".join(sys.argv)) 
     f = open(output_file,'w')
     f.write(XML)
 
     sys.exit(0)
+
 
 # Note data import is *not* perfect due:
 #   - more data in the new format
@@ -975,6 +998,47 @@ def clean_data(args):
     f.write(XML)
     f.close()
     
+def replace_genera(args):
+    """ replace genera with a polytomy of species in that genera (if in data)
+    """
+
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    input_file = args.input
+    overwrite = args.overwrite
+    only_subs = args.only_subs
+    ignoreWarnings = args.ignoreWarnings
+
+    if (not os.path.exists(input_file)):
+        print "Input phyml cannot be found. Exiting"
+        sys.exit(-1)
+
+    # check if output files are there
+    if (os.path.exists(output_file) and not overwrite):
+        print "Output file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+
+    XML = supertree_toolkit.load_phyml(input_file)
+    XML,generic,subs = supertree_toolkit.replace_genera(XML,dry_run=only_subs,ignoreWarnings=ignoreWarnings)
+    
+    f = open(output_file, "w")
+    if (only_subs):
+        i = 0
+        for g in generic:
+            f.write(g+" = "+subs[i]+"\n")
+            i+=1
+    else:
+        f.write(XML)
+    f.close()
+
 
 if __name__ == "__main__":
     main()
