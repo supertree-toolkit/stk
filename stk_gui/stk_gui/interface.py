@@ -175,6 +175,7 @@ class Diamond:
                     "on_data_ind" : self.on_data_ind,
                     "on_permute_all_trees": self.on_permute_all_trees,
                     "on_str": self.on_str,
+                    "on_replace_genera": self.on_replace_genera,
                     "on_clean_data": self.on_clean_data
                     }
 
@@ -2077,7 +2078,33 @@ class Diamond:
      XML = stk.add_historical_event(XML, "Cleaned data")
      ios = StringIO.StringIO(XML)
 
-     self.update_data(ios, "Error standardising names")
+     self.update_data(ios, "Error cleaning data")
+
+     return 
+
+  def on_replace_genera_click(self, widget = None):
+    pass
+
+
+  def on_replace_genera_click(self, widget = None):
+     """
+     cleans up the data
+     """
+     f = StringIO.StringIO()
+     self.tree.write(f)
+     XML = f.getvalue() 
+     try:
+        XML,genera,subs = replace_genera(XML)
+     except NoAuthors as detail:
+        dialogs.error(self.main_window,detail.msg)
+        return 
+         
+     XML = _removeNonAscii(XML)
+     # Add a history event
+     XML = stk.add_historical_event(XML, "Cleaned data")
+     ios = StringIO.StringIO(XML)
+
+     self.update_data(ios, "Error replacing genera")
 
      return 
 
