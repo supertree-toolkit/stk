@@ -2051,9 +2051,12 @@ def _check_uniqueness(XML):
     names = []
     message = ""
     # loop through all sources
-    for s in sources:
-        # for each source, get source name
-        names.append(s.attrib['name'])
+    try:
+        for s in sources:
+            # for each source, get source name
+            names.append(s.attrib['name'])
+    except:
+        raise InvalidSTKData("Error parsing the data to check uniqueness")
 
     names.sort()
     last_name = "" # This will actually throw an non-unique error if a name is empty
