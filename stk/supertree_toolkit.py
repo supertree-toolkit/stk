@@ -1919,6 +1919,112 @@ def clean_data(XML):
     return XML
 
 
+
+def replace_genera(XML,dry_run=False,ignoreWarnings=False):
+    """ Remove all generic taxa by replacing them with a polytomy of
+        all species in the dataset belonging to that genera
+    """
+        
+    if not ignoreWarnings:
+        _check_data(XML)
+
+    # get all the taxa
+    taxa = get_all_taxa(XML)
+
+    generic = []
+    # find all the generic and build an internal subs file
+    for t in taxa:
+        if t.find("_") == -1:
+            # no underscore, so just generic
+            generic.append(t)
+    
+    subs = []
+    generic_to_replace = []
+    for t in generic:
+        currentSub = []
+        for taxon in taxa:
+            if (not taxon == t) and taxon.find(t) > -1:
+                currentSub.append(taxon)
+        if (len(currentSub) > 0):
+            subs.append(",".join(currentSub))
+            generic_to_replace.append(t)
+    
+    if (dry_run):
+        return None,generic_to_replace,subs
+
+    XML = substitute_taxa(XML, generic_to_replace, subs, ignoreWarnings=ignoreWarnings)
+
+    XML = clean_data(XML)
+
+    return XML,generic_to_replace,subs
+
+
+def parse_subs_file(filename):
+    """ Reads in a subs file and returns two arrays:
+        new_taxa and the corresponding old_taxa
+
+        None is used to indicated deleted taxa
+    """
+
+    try:
+        f = open(filename,'r')
+    except:
+        raise UnableToParseSubsFile("Unable to open subs file. Check your path")
+
+    old_taxa = []
+    new_taxa = []
+    i = 0
+    n_t = ""
+    for line in f.readlines(): 
+        if (re.search('\s+=\s+', line) != None): # new taxa description
+            data = re.split('\s+=\s+', line) # note the spaces!
+            old_taxa.append(data[0].strip())
+            if (i != 0):
+                # append the last lot of new_taxa onto array
+                i += 1
+                if (n_t == ""):
+                    new_taxa.append(None)
+                else:
+                    # strip all spaces out around commas
+                    n_t = n_t.replace(' ,', ',')
+                    n_t = n_t.replace(', ', ',')
+                    n_t = n_t.replace(" ","_")
+                    new_taxa.append(n_t)
+            # now start parsing n_t
+            n_t = ""
+            if (len(data) > 1):
+                # strip off any quotes - we must add them, but it's easier to strip then add than
+                # check, then add
+                data[1] = re.sub("'","",data[1])
+                # might contain non-standard characters, quote these names
+                data[1] = re.sub(r"(,|^)(?P<name>\w*[=\+]\w*)",r"\1'\g<name>'", data[1])
+                n_t = n_t + data[1].strip()
+                i = i+1
+        else:
+            if (line.strip() != "" and not n_t.endswith(',') and not line.strip().startswith(',')):
+                n_t = n_t + ","
+            n_t = n_t + line.strip()
+
+    f.close()
+    # Add the last new taxa
+    if (n_t == ""):
+        new_taxa.append(None)
+    else:
+        n_t = n_t.replace(' ,', ',')
+        n_t = n_t.replace(', ', ',')
+        n_t = n_t.replace(" ","_")
+        new_taxa.append(n_t.strip())
+
+    if (len(old_taxa) != len(new_taxa)):
+        raise UnableToParseSubsFile("Output arrays are not same length. File incorrectly formatted")
+    if (len(old_taxa) == 0):
+        raise UnableToParseSubsFile("No substitutions found! File incorrectly formatted")
+ 
+
+    return old_taxa, new_taxa
+
+
+
 ################ PRIVATE FUNCTIONS ########################
 
 def _uniquify(l):
@@ -1946,9 +2052,12 @@ def _check_uniqueness(XML):
     names = []
     message = ""
     # loop through all sources
-    for s in sources:
-        # for each source, get source name
-        names.append(s.attrib['name'])
+    try:
+        for s in sources:
+            # for each source, get source name
+            names.append(s.attrib['name'])
+    except:
+        raise InvalidSTKData("Error parsing the data to check uniqueness")
 
     names.sort()
     last_name = "" # This will actually throw an non-unique error if a name is empty
@@ -2085,67 +2194,6 @@ def _swap_tree_in_XML(XML, tree, name, delete=False):
 
     return XML
 
-def _parse_subs_file(filename):
-    """ Reads in a subs file and returns two arrays:
-        new_taxa and the corresponding old_taxa
-
-        None is used to indicated deleted taxa
-    """
-
-    try:
-        f = open(filename,'r')
-    except:
-        raise UnableToParseSubsFile("Unable to open subs file. Check your path")
-
-    old_taxa = []
-    new_taxa = []
-    i = 0
-    n_t = ""
-    for line in f.readlines(): 
-        if (re.search('\s+=\s+', line) != None): # new taxa description
-            data = re.split('\s+=\s+', line) # note the spaces!
-            old_taxa.append(data[0].strip())
-            if (i != 0):
-                # append the last lot of new_taxa onto array
-                i += 1
-                if (n_t == ""):
-                    new_taxa.append(None)
-                else:
-                    # strip all spaces out around commas
-                    n_t = n_t.replace(' ,', ',')
-                    n_t = n_t.replace(', ', ',')
-                    new_taxa.append(n_t)
-            # now start parsing n_t
-            n_t = ""
-            if (len(data) > 1):
-                # strip off any quotes - we must add them, but it's easier to strip then add than
-                # check, then add
-                data[1] = re.sub("'","",data[1])
-                # might contain non-standard characters, quote these names
-                data[1] = re.sub(r"(,|^)(?P<name>\w*[=\+]\w*)",r"\1'\g<name>'", data[1])
-                n_t = n_t + data[1].strip()
-                i = i+1
-        else:
-            if (line.strip() != "" and not n_t.endswith(',') and not line.strip().startswith(',')):
-                n_t = n_t + ","
-            n_t = n_t + line.strip()
-
-    f.close()
-    # Add the last new taxa
-    if (n_t == ""):
-        new_taxa.append(None)
-    else:
-        n_t = n_t.replace(' ,', ',')
-        n_t = n_t.replace(', ', ',')
-        new_taxa.append(n_t.strip())
-
-    if (len(old_taxa) != len(new_taxa)):
-        raise UnableToParseSubsFile("Output arrays are not same length. File incorrectly formatted")
-    if (len(old_taxa) == 0):
-        raise UnableToParseSubsFile("No substitutions found! File incorrectly formatted")
- 
-
-    return old_taxa, new_taxa
 
 def _check_taxa(XML,delete=False):
     """ Checks that taxa in the XML are in the tree for the source thay are added to

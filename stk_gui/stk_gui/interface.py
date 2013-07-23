@@ -175,6 +175,7 @@ class Diamond:
                     "on_data_ind" : self.on_data_ind,
                     "on_permute_all_trees": self.on_permute_all_trees,
                     "on_str": self.on_str,
+                    "on_replace_genera": self.on_replace_genera,
                     "on_clean_data": self.on_clean_data
                     }
 
@@ -1598,7 +1599,7 @@ class Diamond:
     try:
         matrix = stk.create_matrix(XML,format=format,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
-        msg = "Failed to create matrixe.\n"+detail.msg
+        msg = "Failed to create matrix.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
     except InvalidSTKData as detail:
@@ -2077,9 +2078,114 @@ class Diamond:
      XML = stk.add_historical_event(XML, "Cleaned data")
      ios = StringIO.StringIO(XML)
 
-     self.update_data(ios, "Error standardising names")
+     self.update_data(ios, "Error cleaning data")
 
      return 
+
+  def on_replace_genera(self, widget = None):
+    signals = {"on_replace_genera_dialog_close": self.on_replace_genera_cancel_button,
+               "on_replace_genera_cancel_clicked": self.on_replace_genera_cancel_button,
+               "on_replace_genera_button_clicked": self.on_replace_genera_click,
+               "on_replace_genera_subs_browse_clicked": self.on_replace_genera_subs_browse_button,
+               "on_replace_genera_phyml_browse_clicked": self.on_replace_genera_phyml_browse_button
+               }
+
+    self.replace_genera_gui = gtk.glade.XML(self.gladefile, root="replace_genera_dialog")
+    self.replace_genera_dialog = self.replace_genera_gui.get_widget("replace_genera_dialog")
+    self.replace_genera_gui.signal_autoconnect(signals)
+    self.replace_genera_dialog.show()
+
+    return
+
+  def on_replace_genera_click(self, widget = None):
+     """
+     replace generic level taxa with a polytomy of specific taxa in the dataset belonging to that genera
+     """
+
+     gen_subs = self.replace_genera_gui.get_widget("replace_genera_subs_checkbox").get_active()
+     gen_phyml = self.replace_genera_gui.get_widget("replace_genera_phyml_checkbox").get_active()
+     ignoreWarnings = self.replace_genera_gui.get_widget("ignoreWarnings_checkbutton").get_active()
+     filename_subs = self.replace_genera_gui.get_widget("entry1").get_text()
+     filename_phyml = self.replace_genera_gui.get_widget("entry2").get_text()
+
+
+     f = StringIO.StringIO()
+     self.tree.write(f)
+     XML = f.getvalue() 
+     try:
+        new_XML,genera,subs = stk.replace_genera(XML,ignoreWarnings=ignoreWarnings)
+     except NotUniqueError as detail:
+        msg = "Failed to replace generic taxa.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+     except InvalidSTKData as detail:
+        msg = "Failed to replace generic taxa.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+     except UninformativeTreeError as detail:
+        msg = "Failed to replace generic taxa.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return 
+
+     if (gen_subs):
+         try:
+            subs_file = open(filename_subs, "w")
+            i = 0
+            for g in genera:
+                subs_file.write(g+" = "+subs[i]+"\n")
+                i+=1
+            subs_file.close()
+         except IOError as detail:
+            msg = "Failed to save subs file.\n"+detail.message
+            dialogs.error(self.main_window,msg)
+         except:
+            msg = "Failed to save subs file.\n"
+            dialogs.error(self.main_window,msg)
+            return
+
+     if (gen_phyml):
+         try:
+            phyml = open(filename_phyml, "w")
+            phyml.write(new_XML)
+            phyml.close()    
+         except IOError as detail:
+            msg = "Failed to save phyml file.\n"+detail.message
+            dialogs.error(self.main_window,msg)
+         except:
+            msg = "Failed to save phyml file.\n"
+            dialogs.error(self.main_window,msg)
+            return
+         
+     XML = _removeNonAscii(XML)
+     # Add a history event
+     msg = "Replace generic taxa. "
+     if (gen_subs):
+         msg += "Subs file saved to "+filename_subs+" "
+     if (gen_phyml):
+         msg += "New Phyml saved to "+filename_phyml
+     XML = stk.add_historical_event(XML, msg)
+     ios = StringIO.StringIO(XML)
+
+     self.update_data(ios, "Error replacing genera")
+
+     return 
+
+  def on_replace_genera_cancel_button(self, button):
+
+      self.replace_genera_dialog.hide()
+
+  def on_replace_genera_subs_browse_button(self, button):
+      filter_names_and_patterns = {}
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose output subs file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+      filename_textbox = self.replace_genera_gui.get_widget("entry1")
+      filename_textbox.set_text(filename)
+  def on_replace_genera_phyml_browse_button(self, button):
+      filter_names_and_patterns = {}
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose output phyml file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+      filename_textbox = self.replace_genera_gui.get_widget("entry2")
+      filename_textbox.set_text(filename)
 
 
   def update_data(self,ios, error, skip_warning=False):
