@@ -3,14 +3,15 @@ import math
 import sys
 sys.path.insert(0,"../../")
 sys.path.insert(0,"../")
-from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters, safe_taxonomic_reduction
+from stk.supertree_toolkit import _check_uniqueness, parse_subs_file, _check_taxa, _check_data, get_all_characters, safe_taxonomic_reduction
 import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-from stk.supertree_toolkit import _check_uniqueness, _parse_subs_file, _check_taxa, _check_data, get_all_characters, data_independence
+from stk.supertree_toolkit import _check_uniqueness, _check_taxa, _check_data, get_all_characters, data_independence
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
 from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
-from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML
+from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
+from stk.supertree_toolkit import get_all_taxa
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -48,10 +49,10 @@ class TestSetSourceNames(unittest.TestCase):
         """ tests a very standard subs file with some 
             deletes and subs
         """
-        second_sub = "Anomalopteryx didiformis,Megalapteryx benhami,Megalapteryx didinus,Pachyornis australis,Pachyornis elephantopus,Pachyornis mappini,Euryapteryx curtus,Euryapteryx geranoides,Emeus crassus,Dinornis giganteus,Dinornis novaezealandiae"
-        third_subs = "Avisaurus archibaldi,Avisaurus gloriae,Cathayornis,Concornis lacustris,Enantiornis leali,Eoalulavis,Gobipteryx minuta,Iberomesornis,Lectavis bretincola,Neuquenornis volans,Noguerornis,Sinornis santensis,Soroavisaurus australis,Two medicine form,Yungavolucris brevipedalis"
+        second_sub = "Anomalopteryx_didiformis,Megalapteryx_benhami,Megalapteryx_didinus,Pachyornis_australis,Pachyornis_elephantopus,Pachyornis_mappini,Euryapteryx_curtus,Euryapteryx_geranoides,Emeus_crassus,Dinornis_giganteus,Dinornis_novaezealandiae"
+        third_subs = "Avisaurus_archibaldi,Avisaurus_gloriae,Cathayornis,Concornis_lacustris,Enantiornis_leali,Eoalulavis,Gobipteryx_minuta,Iberomesornis,Lectavis_bretincola,Neuquenornis_volans,Noguerornis,Sinornis_santensis,Soroavisaurus_australis,Two_medicine_form,Yungavolucris_brevipedalis"
         
-        old_taxa, new_taxa = _parse_subs_file('data/input/sub_files/subs1.txt')
+        old_taxa, new_taxa = parse_subs_file('data/input/sub_files/subs1.txt')
         self.assert_(old_taxa[0] == "MRPoutgroup")
         self.assert_(new_taxa[0] == None)
         self.assert_(new_taxa[1] == second_sub);
@@ -71,7 +72,7 @@ class TestSetSourceNames(unittest.TestCase):
         bad2 = "taxa5,taxa6"
         edge4 =  "taxa3,taxa6,taxa4,taxa5"
 
-        old_taxa, new_taxa = _parse_subs_file('data/input/sub_files/subs_edge.txt')
+        old_taxa, new_taxa = parse_subs_file('data/input/sub_files/subs_edge.txt')
 
         self.assert_(len(old_taxa) == len(new_taxa))
         self.assert_(len(old_taxa) == 7)
@@ -90,11 +91,12 @@ class TestSetSourceNames(unittest.TestCase):
 
         #this test should die, so wrap it up...
         try:
-            old_taxa, new_taxa = _parse_subs_file('data/input/nonsense.dat'); 
+            old_taxa, new_taxa = parse_subs_file('data/input/nonsense.dat'); 
         except UnableToParseSubsFile:
             self.assert_(True)
             return
         self.assert_(False)
+
 
     def test_taxa_tree(self):
         """Tests the _check_taxa function
@@ -436,12 +438,53 @@ class TestSetSourceNames(unittest.TestCase):
     def test_check_data(self):
         XML = etree.tostring(etree.parse('data/input/clean_data.phyml',parser),pretty_print=True)
         self.assertRaises(UninformativeTreeError,_check_data,XML)
-
         try:
             _check_data(XML)
         except UninformativeTreeError as e:
             self.assertRegexpMatches(e.msg,"contains only 2 taxa and is not informative")
             self.assertRegexpMatches(e.msg,"doesn't contain any clades and is not informative")
+
+    def test_replace_genera(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        XML,generic,subs = replace_genera(XML,dry_run=True)
+        self.assert_(XML == None)
+        # Old STK gave the following subs
+        # Gallus = Gallus gallus
+        # Larus = Larus argentatus,Larus marinus
+        # Struthio = Struthio camelus
+        expected_genera = ['Gallus','Larus','Struthio']
+        expected_subs = ['Gallus_gallus','Larus_argentatus,Larus_marinus','Struthio_camelus']
+        self.assertListEqual(expected_genera,generic)
+        self.assertListEqual(expected_subs,subs)
+
+    def test_replace_genera2(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        XML,generic,subs = replace_genera(XML)
+        # see above for answer
+        taxa = get_all_taxa(XML)
+        self.assertNotIn('Gallus',taxa)
+        self.assertNotIn('Larus',taxa)
+        self.assertNotIn('Struthio',taxa)
+        self.assertIn('Gallus_gallus',taxa) # should be anyway :)
+      
+
+    def test_replace_genera_subs(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        XML,generic,subs = replace_genera(XML)
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".dat")
+        f = open(temp_file, "w")
+        i = 0
+        for g in generic:
+            f.write(g+" = "+subs[i]+"\n")
+            i+=1
+        f.close()
+        old_taxa, new_taxa = parse_subs_file(temp_file)
+        expected_old = ['Gallus','Larus','Struthio']
+        expected_new = ['Gallus_gallus','Larus_argentatus,Larus_marinus','Struthio_camelus']                
+        self.assertListEqual(expected_old,old_taxa)
+        self.assertListEqual(expected_new,new_taxa)
+
+
 
 if __name__ == '__main__':
     unittest.main()
