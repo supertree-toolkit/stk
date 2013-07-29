@@ -11,7 +11,7 @@ from stk.supertree_toolkit import _check_uniqueness, _check_taxa, _check_data, g
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
 from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
-from stk.supertree_toolkit import get_all_taxa
+from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -483,6 +483,18 @@ class TestSetSourceNames(unittest.TestCase):
         expected_new = ['Gallus_gallus','Larus_argentatus,Larus_marinus','Struthio_camelus']                
         self.assertListEqual(expected_old,old_taxa)
         self.assertListEqual(expected_new,new_taxa)
+
+    def test_get_all_siblings(self):
+        t = _parse_tree("(A,B,C,D,E,F,G,H,I,J);")
+        siblings = _get_all_siblings(t.node(1))
+        expected = ["B","C","D","E","F","G","H","I","J"]
+        self.assertListEqual(siblings,expected)
+        siblings = _get_all_siblings(t.node(3)) # selects C - so tests we get left siblings too
+        expected = ["A","B","D","E","F","G","H","I","J"]
+        self.assertListEqual(siblings,expected)
+
+
+
 
 
 
