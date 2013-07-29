@@ -7,7 +7,7 @@ import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tree, _trees_equal 
-from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree
+from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree, _collapse_nodes
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -329,21 +329,25 @@ class TestSubs(unittest.TestCase):
         self.assert_(_trees_equal(new_tree, tree1), "Correctly collapse tree")
 
 
-#my @hard_tree;
-#$hard_tree[0] = "(Daphnia,Drosophila,Euphausia,Exopheticus,Petrolisthes,Pinnotherelia,Tritodynamia,(Ligia,(Armadillidium,Eocarcinus,Metapenaeus,((((((Himalayapotamon,Jasus,Polycheles,(Enoplometopus,((Pemphix,(((Thaumastocheles,(Acanthacaris,Enoplometopus1,Eryma,Homarus,Metanephrops,Nephropides,Nephrops,Nephropsis,Thaumastocheles1,Thaumastochelopsis,((Euastacus,(Astacoides,Geocharax,(Paranephrops,(Astacopsis,(Ombrastacoides,(Gramastacus,Cherax))))),(Parastacus,(Samastacus,Virilastacus))))))))))))))))))))";
-#@input_trees = @hard_tree;
-#$tree1 = "(Daphnia,Drosophila,Euphausia,Exopheticus,Petrolisthes,Pinnotherelia,Tritodynamia,(Ligia,(Armadillidium,Eocarcinus,Metapenaeus,(Himalayapotamon,Jasus,Polycheles,(Enoplometopus,(Pemphix,(Thaumastocheles,(Acanthacaris,Enoplometopus1,Eryma,Homarus,Metanephrops,Nephropides,Nephrops,Nephropsis,Thaumastocheles1,Thaumastochelopsis,(Euastacus,(Parastacidae,Geocharax,(Parastacidae2,(Astacopsis,Parastacidae1))),Parastacidae3)))))))))";
-#Bio::STK::replace_taxon_tree(\@input_trees,"Astacoides",['Parastacidae'],1);
-#Bio::STK::replace_taxon_tree(\@input_trees,"Astacoides1",['Parastacidae'],1);
-#Bio::STK::replace_taxon_tree(\@input_trees,"Cherax",['Parastacidae'],1);
-#Bio::STK::replace_taxon_tree(\@input_trees,"Cherax1",['Parastacidae'],1);
-#Bio::STK::replace_taxon_tree(\@input_trees,"Gramastacus",['Parastacidae'],1);
-#Bio::STK::replace_taxon_tree(\@input_trees,"Ombrastacoides",['Parastacidae'],1);
-#Bio::STK::replace_taxon_tree(\@input_trees,"Paranephrops",['Parastacidae'],1);
-#Bio::STK::replace_taxon_tree(\@input_trees,"Parastacus",['Parastacidae'],1);
-#Bio::STK::replace_taxon_tree(\@input_trees,"Samastacus",['Parastacidae'],1);
-#Bio::STK::replace_taxon_tree(\@input_trees,"Virilastacus",['Parastacidae'],1);
-#is ($input_trees[0], $tree1, "Correctly collapse tree");
+        hard_tree = "(Daphnia,Drosophila,Euphausia,Exopheticus,Petrolisthes,Pinnotherelia,Tritodynamia,(Ligia,(Armadillidium,Eocarcinus,Metapenaeus,((((((Himalayapotamon,Jasus,Polycheles,(Enoplometopus,((Pemphix,(((Thaumastocheles,(Acanthacaris,Enoplometopus1,Eryma,Homarus,Metanephrops,Nephropides,Nephrops,Nephropsis,Thaumastocheles1,Thaumastochelopsis,((Euastacus,(Astacoides,Geocharax,(Paranephrops,(Astacopsis,(Ombrastacoides,(Gramastacus,Cherax))))),(Parastacus,(Samastacus,Virilastacus))))))))))))))))))));";
+        answer = "(Daphnia,Drosophila,Euphausia,Exopheticus,Petrolisthes,Pinnotherelia,Tritodynamia,(Ligia,(Armadillidium,Eocarcinus,Metapenaeus,(Himalayapotamon,Jasus,Polycheles,(Enoplometopus,(Pemphix,(Thaumastocheles,(Acanthacaris,Enoplometopus1,Eryma,Homarus,Metanephrops,Nephropides,Nephrops,Nephropsis,Thaumastocheles1,Thaumastochelopsis,(Euastacus,(Parastacidae,Geocharax,(Parastacidae2,(Astacopsis,Parastacidae1))),Parastacidae3)))))))));";
+        new_tree = _sub_taxa_in_tree(hard_tree,"Astacoides",'Parastacidae');
+        new_tree = _sub_taxa_in_tree(new_tree,"Astacoides1",'Parastacidae');
+        new_tree = _sub_taxa_in_tree(new_tree,"Cherax",'Parastacidae');
+        new_tree = _sub_taxa_in_tree(new_tree,"Cherax1",'Parastacidae');
+        new_tree = _sub_taxa_in_tree(new_tree,"Gramastacus",'Parastacidae');
+        new_tree = _sub_taxa_in_tree(new_tree,"Ombrastacoides",'Parastacidae');
+        new_tree = _sub_taxa_in_tree(new_tree,"Paranephrops",'Parastacidae');
+        new_tree = _sub_taxa_in_tree(new_tree,"Parastacus",'Parastacidae');
+        new_tree = _sub_taxa_in_tree(new_tree,"Samastacus",'Parastacidae');
+        new_tree = _sub_taxa_in_tree(new_tree,"Virilastacus",'Parastacidae');
+        self.assert_(_trees_equal(new_tree, answer), "Correctly collapse tree")
+
+    def test_collapse_nodes(self):
+        in_tree = "(taxa_a, (taxa_b, taxa_c), taxa_d, (taxa_e, taxa_h, (taxa_f, (taxa_g, taxa_h1, taxa_h2))));"
+        answer = "(taxa_a, (taxa_b, taxa_c), taxa_d, (taxa_e, taxa_h, (taxa_f, (taxa_g, taxa_h1))));"
+        new_tree = _collapse_nodes(in_tree);
+        self.assert_(_trees_equal(new_tree, answer), "Correctly collapse nodes")
         
 
 

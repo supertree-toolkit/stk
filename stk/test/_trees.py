@@ -268,17 +268,17 @@ class TestTreeManipulation(unittest.TestCase):
     def test_delete_taxa_missing(self):
         t = "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;"
         new_tree = _delete_taxon("Fred", t)
-        self.assert_(new_tree == "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;")
+        self.assert_(_trees_equal(new_tree, "((A_1,B_1),F_1,E_1,(G_1,H_1));"))
 
     def test_sub_taxa(self):
         t = "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;"
         new_tree = _sub_taxon("H_1", "blah", t)
-        self.assert_(new_tree == "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,blah:1.00000)0.00000:0.00000)0.00000:0.00000;")
+        self.assert_(_trees_equal(new_tree, "((A_1,B_1),F_1,E_1,(G_1,blah));"))
 
     def test_sub_taxa_missing(self):
         t = "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;"
         new_tree = _sub_taxon("Fred", "Blah",  t)
-        self.assert_(new_tree == "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;")
+        self.assert_(_trees_equal(new_tree, "((A_1,B_1),F_1,E_1,(G_1,H_1));"))
 
 
     def test_insert_tree_XML(self):

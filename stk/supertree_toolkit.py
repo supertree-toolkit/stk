@@ -2098,6 +2098,8 @@ def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None):
                 tree = _sub_taxon(taxon, new_taxa[i], tree)
         i += 1
 
+    tree = _collapse_nodes(tree)
+
     return tree 
 
 def _tree_contains(taxon,tree):
@@ -2198,26 +2200,26 @@ def _sub_taxon(old_taxon, new_taxon, tree):
             # of the same name should be kept, so...
             t1 = _parse_tree(tree)
             siblings = _get_all_siblings(t1.node(my_old_taxon))
+            in_sibs = False
             if (len(siblings) > 0):
-                in_sibs = False
                 for tt in siblings:
                     m = re.match('('+t+')([0-9]?$)', tt)
                     if not m == None:
                         in_sibs = True
-                if (not in_sibs):
-                    # get the next number...
-                    tree_taxa = t1.getAllLeafNames(t1.root)
-                    digit = 1
-                    for tt in tree_taxa:
-                        m = re.match('('+t+')([0-9]+$)', tt)
+            if (not in_sibs):
+                # get the next number...
+                tree_taxa = t1.getAllLeafNames(t1.root)
+                digit = 1
+                for tt in tree_taxa:
+                    m = re.match('('+t+')([0-9]+$)', tt)
+                    if (not m == None):
+                        # matching taxa
                         if (not m == None):
-                            # matching taxa
-                            if (not m == None):
-                                d = int(m.group(2))
-                                if d >= digit:
-                                    digit = d+1
-                    t = re.sub(r"(,|^)(?P<name>\w*[=\+]\w*)",r"\1'\g<name>'", t)
-                    correct_taxa.append(t+str(digit))
+                            d = int(m.group(2))
+                            if d >= digit:
+                                digit = d+1
+                t = re.sub(r"(,|^)(?P<name>\w*[=\+]\w*)",r"\1'\g<name>'", t)
+                correct_taxa.append(t+str(digit))
             # so the above get the old taxon siblings, and if the new taxon is not
             # in that list, it means it occurs in a different clade to the old_taxon
             # and hence we can't just delete this - we'd be removing structure otherwise
@@ -2233,7 +2235,43 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     # simple text swap
     new_tree = tree.replace(old_taxon,new_taxon)
 
+    # we might now need a final collapse - e.g. we might get ...(taxon1,taxon2),... due
+    # to replacements, but they didn't collapse, so let's do this
+    new_tree = _collapse_nodes(new_tree)
+
     return new_tree
+
+def _collapse_nodes(in_tree):
+    """ Collapses nodes where the siblings are actually the same
+        taxon, denoted by taxon1, taxon2, etc
+    """
+
+    taxa = _getTaxaFromNewick(in_tree)
+    tree = _parse_tree(in_tree)
+    
+    for t in taxa:
+        # we might have removed the current taxon in a previous loop
+        try:
+            siblings = _get_all_siblings(tree.node(t))
+        except p4.Glitch:
+            continue
+        m = re.match('(.*[a-zA-Z])([0-9]+$)', t)
+        if (not m == None):
+            t = m.group(1)
+        for s in siblings:
+            m = re.match('('+t+')([0-9]?$)', s)
+            if not m == None:
+                # remove this
+                tree.removeNode(tree.node(s),alsoRemoveSingleChildParentNode=True,alsoRemoveBiRoot=False)
+
+    # We also need to clean tree up
+    tree.getPreAndPostOrderAboveRoot()
+    for n in tree.iterPostOrder():
+        if n.getNChildren() == 1 and n.isLeaf == 0:
+            tree.collapseNode(n)
+
+    return tree.writeNewick(fName=None,toString=True).strip()    
+
 
 def _swap_tree_in_XML(XML, tree, name, delete=False):
     """ Swap tree with name, 'name' with this new one.
