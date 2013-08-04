@@ -1955,7 +1955,7 @@ class Diamond:
     self.liststore_sub = gtk.ListStore(str,str)
     rendererText = gtk.CellRendererText()
     column = gtk.TreeViewColumn("Taxa to be subbed", rendererText, text=0)
-    sub_list_treeview.append_column(column)
+    self.sub_list_treeview.append_column(column)
     column1 = gtk.TreeViewColumn("Subs", rendererText, text=1)
     self.sub_list_treeview.append_column(column1)
     # No data yet
@@ -1979,7 +1979,7 @@ class Diamond:
   def on_reset_clicked(self,button):
 
       # clear the RHS liststore
-      self.sub_list.clear()
+      self.liststore_sub.clear()
       # restore LHS to taxa list
       self.liststore_taxa.clear()
       f = StringIO.StringIO()
