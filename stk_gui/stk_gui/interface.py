@@ -1958,6 +1958,7 @@ class Diamond:
     self.sub_list_treeview.append_column(column)
     column1 = gtk.TreeViewColumn("Subs", rendererText, text=1)
     self.sub_list_treeview.append_column(column1)
+    self.sub_list_treeview.set_model(self.liststore_sub)
     # No data yet
  
     self.sub_taxa_dialog.show_all()
@@ -2000,7 +2001,11 @@ class Diamond:
   def on_move_to_subs_clicked(self,button):
 
       # move the selected taxa to RHS with empty sub
-
+      treeselection =  self.taxa_list_treeview.get_selection()
+      (model,row) = treeselection.get_selected()
+      taxa = model.get_value(row,0)
+      model.remove(row)
+      self.liststore_sub.append([taxa,None])
       return
 
       
