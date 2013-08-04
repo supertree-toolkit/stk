@@ -1922,36 +1922,68 @@ class Diamond:
 
     signals = {"on_sub_taxa_dialog_close": self.on_sub_taxa_cancel_button,
                "on_sub_taxa_cancel_clicked": self.on_sub_taxa_cancel_button,
-               "on_sub_taxa_clicked": self.on_sub_taxa_sub_taxa_button,
-               "on_sub_taxa_broswe_clicked": self.on_sub_taxa_browse_button}
+               "on_sub_taxa_clicked": self.on_sub_taxa_sub_taxa_button}
 
     self.sub_taxa_gui = gtk.glade.XML(self.gladefile, root="sub_taxa_dialog")
     self.sub_taxa_dialog = self.sub_taxa_gui.get_widget("sub_taxa_dialog")
     self.sub_taxa_gui.signal_autoconnect(signals)
     sub_taxa_button = self.sub_taxa_gui.get_widget("sub_taxa_button")
     sub_taxa_button.connect("activate", self.on_sub_taxa_sub_taxa_button)
+    taxa_list_treeview = self.sub_taxa_gui.get_widget("treeview_taxa_list")
+    sub_list_treeview = self.sub_taxa_gui.get_widget("treeview_sub_taxa")
+
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+
+    # construct list and treeview
+    taxa = stk.get_all_taxa(XML)
+    liststore_taxa = gtk.ListStore(str)
+    rendererText = gtk.CellRendererText()
+    column = gtk.TreeViewColumn("Taxa in data", rendererText, text=0)
+    taxa_list_treeview.append_column(column)
+    for t in taxa:
+        liststore_taxa.append([t])
+
+    # now set up the other list
+    liststore_sub = gtk.ListStore(str,str)
+    rendererText = gtk.CellRendererText()
+    column = gtk.TreeViewColumn("Taxa to be subbed", rendererText, text=0)
+    sub_list_treeview.append_column(column)
+    column1 = gtk.TreeViewColumn("Subs", rendererText, text=1)
+    sub_list_treeview.append_column(column1)
+    # No data yet
+
+    # turn on drag and drop
+    sub_list_treeview.enable_model_drag_source( gtk.gdk.BUTTON1_MASK,
+                                                self.TARGETS,
+                                                gtk.gdk.ACTION_DEFAULT|
+                                                gtk.gdk.ACTION_MOVE)
+    sub_list_treeview.enable_model_drag_dest(self.TARGETS,
+                                             gtk.gdk.ACTION_DEFAULT)
+    sub_list_treeview.connect("drag_data_get", self.drag_data_get_data)
+    sub_list_treeview.connect("drag_data_received", self.drag_data_received_data)
+ 
     self.sub_taxa_dialog.show()
 
     return
       
   def on_sub_taxa_sub_taxa_button(self, button):
     """
-    create the matrix requested 
+    substitute taxa 
     """
 
-    filename_textbox = self.sub_taxa_gui.get_widget("entry1")
-    filename = filename_textbox.get_text()
+    # open browse button and get a filename
+    filter_names_and_patterns = {}
+    filter_names_and_patterns['Phyml file'] = ["*.phyml"]
+    filter_names_and_patterns['All files'] = ["*"]
+    # open file dialog
+    filename = dialogs.get_filename(title = "Choose output PHYML fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+
     old_taxon = self.sub_taxa_gui.get_widget("old_taxon").get_text()
     new_taxon = self.sub_taxa_gui.get_widget("new_taxon").get_text()
     ignoreWarnings = self.sub_taxa_gui.get_widget("ignoreWarnings_checkbutton").get_active()
-
-
-    # check the text entries
-    # is old_taxon in the tree?
-    # is new_taxon already in a tree where old_taxon lives?
-    # is new_taxon == new_taxon or blank?
-    # replace spaces with _ for the actual sub
-
+    
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
@@ -1970,13 +2002,18 @@ class Diamond:
         msg = "Failed to substitute taxa.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
+    event_desc = "Taxa substitution from "+old_taxa+" to "+new_taxa+" via GUI to "+filename
+    XML2 = stk.add_historical_event(XML2,event_desc) 
+    ios = StringIO.StringIO(XML)
+    self.update_data(ios, "Error adding history event (taxa sub) to new XML",skip_warning=True)
+
 
     f = open(filename, "w")
     f.write(XML2)
     f.close()    
 
     # Add an event to the history of the file
-    event_desc = "Taxa substitution from "+old_taxa+" to "+new_taxa+" via GUI using files: "+self.filename+" to "+filename
+    event_desc = "Taxa substitution from "+old_taxa+" to "+new_taxa+" via GUI to "+filename
     XML = stk.add_historical_event(XML,event_desc) 
     ios = StringIO.StringIO(XML)
     self.update_data(ios, "Error adding history event (taxa sub) to XML",skip_warning=True)
@@ -1991,12 +2028,6 @@ class Diamond:
 
       self.sub_taxa_dialog.hide()
 
-  def on_sub_taxa_browse_button(self, button):
-      filter_names_and_patterns = {}
-      # open file dialog
-      filename = dialogs.get_filename(title = "Choose output matrix fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
-      filename_textbox = self.sub_taxa_gui.get_widget("entry1")
-      filename_textbox.set_text(filename)
   
   def on_import_bib(self, widget = None):
      """

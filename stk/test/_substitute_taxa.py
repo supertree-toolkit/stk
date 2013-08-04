@@ -6,7 +6,7 @@ sys.path.insert(0,"../")
 import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tree, _trees_equal 
+from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tree, _trees_equal, substitute_taxa_in_trees
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree, _collapse_nodes
 from lxml import etree
 from util import *
@@ -16,8 +16,6 @@ import tempfile
 parser = etree.XMLParser(remove_blank_text=True)
 import re
 
-# Class to test all those loverly internal methods
-# or stuff that doesn't fit within the other tests
 
 class TestSubs(unittest.TestCase):
 
@@ -213,6 +211,26 @@ class TestSubs(unittest.TestCase):
         self.assert_(contains_Fred)
         self.assert_(not contains_A) # we should not have A in a tree
         self.assert_(not contains_B) # we should not have B in a tree
+
+    def test_substitute_in_trees(self):
+        trees = []
+        trees.append("(A, B, (C, D), E, F, G);")
+        trees.append("(A, B, (C, D), E, F, H);")
+        trees.append("(A, B, (C, D), E, F, K);")
+        trees.append("(A, B, (C, D), E, F, G, H, K, L);")
+
+        new_trees = substitute_taxa_in_trees(trees,["G", "K"],["Boo", None])
+
+        # we should end up with...
+        expected_trees = []
+        expected_trees.append("(A, B, (C, D), E, F, Boo);")
+        expected_trees.append("(A, B, (C, D), E, F, H);")
+        expected_trees.append("(A, B, (C, D), E, F);")
+        expected_trees.append("(A, B, (C, D), E, F, Boo, H, L);")
+
+        self.assertListEqual(expected_trees,new_trees)
+
+
 
     def old_stk_replace_taxa_tests(self):
         original_trees = "((((Catharacta_maccormicki,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);";

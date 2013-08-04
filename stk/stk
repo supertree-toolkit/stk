@@ -33,6 +33,7 @@ import stk.stk_import_export as supertree_import_export
 from stk.stk_exceptions import *
 import stk.Getch as Getch
 import string
+import stk.p4 as p4
 
 # Set up a global Getch class for all functions to use
 inkey = Getch._Getch()
@@ -678,10 +679,21 @@ def sub_taxa(args):
             if k.lower() == 'y':
                 break
 
-
-    XML = supertree_toolkit.load_phyml(input_file)
+    treefile = False
     try:
-        XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings)
+        XML = supertree_toolkit.load_phyml(input_file)
+    except lxml.etree.XMLSyntaxError:
+        try:
+            trees = supertree_toolkit.import_trees(input_file) 
+            treefile = True
+        except:
+            print "Error loading file as PHYML or a tree file. Check your input, please"
+            sys.exit(-1)
+    try:
+        if (tree_file):
+            new_trees = supertree_toolkit.substitute_taxa_in_trees(trees,old_taxa,new_taxa)
+        else:
+            XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
@@ -696,10 +708,25 @@ def sub_taxa(args):
         return
 
 
-    # Add an event to the history of the file
-    XML = supertree_toolkit.add_historical_event(XML, "Taxa substituted using command: " +" ".join(sys.argv)) 
-    f = open(output_file,'w')
-    f.write(XML)
+    if (treefile):
+        try:
+            p4.var.warnReadNoFile = False
+            p4.var.nexus_warnSkipUnknownBlock = False
+            p4.var.trees = []
+            p4.read(tree_block)
+            p4.var.nexus_warnSkipUnknownBlock = True
+            p4.var.warnReadNoFile = True
+        except:
+            raise TreeParseError("Error parsing " + filename)
+        trees = p4.var.trees
+        p4.var.trees = []
+        trees.writeNexus(fname=output_file)
+    else:
+        # Add an event to the history of the file
+        XML = supertree_toolkit.add_historical_event(XML, "Taxa substituted using command: " +" ".join(sys.argv)) 
+        f = open(output_file,'w')
+        f.write(XML)
+        f.close()
 
     sys.exit(0)
 

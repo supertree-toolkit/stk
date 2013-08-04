@@ -1351,6 +1351,38 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False):
     return etree.tostring(xml_root,pretty_print=True)
 
 
+def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, ignoreWarnings=False):
+    """
+    Swap the taxa in the old_taxa array for the ones in the
+    new_taxa array
+    
+    If the new_taxa array is missing, simply delete the old_taxa
+
+    Returns a new list of trees with the taxa swapped from each tree 
+    It's up to the calling function to
+    do something sensible with this infomation
+    """
+
+    # are the input values lists or simple strings?
+    if (isinstance(old_taxa,str)):
+        old_taxa = [old_taxa]
+    if (new_taxa and isinstance(new_taxa,str)):
+        new_taxa = [new_taxa]
+
+    # check they are same lengths now
+    if (new_taxa):
+        if (len(old_taxa) != len(new_taxa)):
+            print "Substitution failed. Old and new are different lengths"
+            return # need to raise exception here
+
+    new_trees = []
+    for tree in trees:
+        new_trees.append(_sub_taxa_in_tree(tree,old_taxa,new_taxa))
+ 
+    return new_trees
+
+
+
 def permute_tree(tree,matrix="hennig",treefile=None):
     """ Permute a tree where there is uncertianty in taxa location.
     Output either a tree file or matrix file of all possible 

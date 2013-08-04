@@ -2992,7 +2992,7 @@
                     <property name="hscrollbar_policy">automatic</property>
                     <property name="vscrollbar_policy">automatic</property>
                     <child>
-                      <widget class="GtkTextView" id="taxa_list">
+                      <widget class="GtkTreeView" id="treeview_taxa_list">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                       </widget>
@@ -3050,7 +3050,7 @@
                     <property name="hscrollbar_policy">automatic</property>
                     <property name="vscrollbar_policy">automatic</property>
                     <child>
-                      <widget class="GtkTreeView" id="treeview1">
+                      <widget class="GtkTreeView" id="treeview_sub_taxa">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                       </widget>
