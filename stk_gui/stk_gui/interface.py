@@ -1922,7 +1922,12 @@ class Diamond:
 
     signals = {"on_sub_taxa_dialog_close": self.on_sub_taxa_cancel_button,
                "on_sub_taxa_cancel_clicked": self.on_sub_taxa_cancel_button,
-               "on_sub_taxa_clicked": self.on_sub_taxa_sub_taxa_button}
+               "on_sub_taxa_clicked": self.on_sub_taxa_sub_taxa_button,
+               "on_move_to_subs_clicked": self.on_move_to_subs_clicked,
+               "on_remove_from_subs_clicked": self.on_remove_from_subs_clicked,
+               "on_reset_clicked": self.on_reset_clicked,
+               "on_import_subs_clicked": self.on_import_subs_clicked,
+               "on_export_subs_clicked": self.on_export_subs_clicked}
 
     self.sub_taxa_gui = gtk.glade.XML(self.gladefile, root="sub_taxa_dialog")
     self.sub_taxa_dialog = self.sub_taxa_gui.get_widget("sub_taxa_dialog")
@@ -1944,6 +1949,7 @@ class Diamond:
     taxa_list_treeview.append_column(column)
     for t in taxa:
         liststore_taxa.append([t])
+    taxa_list_treeview.set_model(liststore_taxa)
 
     # now set up the other list
     liststore_sub = gtk.ListStore(str,str)
@@ -1954,19 +1960,41 @@ class Diamond:
     sub_list_treeview.append_column(column1)
     # No data yet
 
-    # turn on drag and drop
-    sub_list_treeview.enable_model_drag_source( gtk.gdk.BUTTON1_MASK,
-                                                self.TARGETS,
-                                                gtk.gdk.ACTION_DEFAULT|
-                                                gtk.gdk.ACTION_MOVE)
-    sub_list_treeview.enable_model_drag_dest(self.TARGETS,
-                                             gtk.gdk.ACTION_DEFAULT)
-    sub_list_treeview.connect("drag_data_get", self.drag_data_get_data)
-    sub_list_treeview.connect("drag_data_received", self.drag_data_received_data)
  
-    self.sub_taxa_dialog.show()
+    self.sub_taxa_dialog.show_all()
 
     return
+
+  def on_export_subs_clicked(self, button):
+    
+      # get data from RH tree view and create a subs file
+      pass
+
+  def on_import_subs_clicked(self,button):
+
+      # read in a subs file an populate the RHS
+
+      # Need to check for existing taxa, etc?
+      pass
+
+  def on_reset_clicked(self,button):
+
+      # clear the RHS liststore
+      # restore LHS to taxa list
+      return
+
+  def on_remove_from_subs_clicked(self,button):
+
+      # Move a sub from the RHS and put the old taxon back to LHS
+
+      return
+
+  def on_move_to_subs_clicked(self,button):
+
+      # move the selected taxa to RHS with empty sub
+
+      return
+
       
   def on_sub_taxa_sub_taxa_button(self, button):
     """
