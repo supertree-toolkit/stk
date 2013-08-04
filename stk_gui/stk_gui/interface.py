@@ -1934,8 +1934,8 @@ class Diamond:
     self.sub_taxa_gui.signal_autoconnect(signals)
     sub_taxa_button = self.sub_taxa_gui.get_widget("sub_taxa_button")
     sub_taxa_button.connect("activate", self.on_sub_taxa_sub_taxa_button)
-    taxa_list_treeview = self.sub_taxa_gui.get_widget("treeview_taxa_list")
-    sub_list_treeview = self.sub_taxa_gui.get_widget("treeview_sub_taxa")
+    self.taxa_list_treeview = self.sub_taxa_gui.get_widget("treeview_taxa_list")
+    self.sub_list_treeview = self.sub_taxa_gui.get_widget("treeview_sub_taxa")
 
     f = StringIO.StringIO()
     self.tree.write(f)
@@ -1943,23 +1943,22 @@ class Diamond:
 
     # construct list and treeview
     taxa = stk.get_all_taxa(XML)
-    liststore_taxa = gtk.ListStore(str)
+    self.liststore_taxa = gtk.ListStore(str)
     rendererText = gtk.CellRendererText()
     column = gtk.TreeViewColumn("Taxa in data", rendererText, text=0)
-    taxa_list_treeview.append_column(column)
+    self.taxa_list_treeview.append_column(column)
     for t in taxa:
-        liststore_taxa.append([t])
-    taxa_list_treeview.set_model(liststore_taxa)
+        self.liststore_taxa.append([t])
+    self.taxa_list_treeview.set_model(self.liststore_taxa)
 
     # now set up the other list
-    liststore_sub = gtk.ListStore(str,str)
+    self.liststore_sub = gtk.ListStore(str,str)
     rendererText = gtk.CellRendererText()
     column = gtk.TreeViewColumn("Taxa to be subbed", rendererText, text=0)
     sub_list_treeview.append_column(column)
     column1 = gtk.TreeViewColumn("Subs", rendererText, text=1)
-    sub_list_treeview.append_column(column1)
+    self.sub_list_treeview.append_column(column1)
     # No data yet
-
  
     self.sub_taxa_dialog.show_all()
 
@@ -1980,7 +1979,16 @@ class Diamond:
   def on_reset_clicked(self,button):
 
       # clear the RHS liststore
+      self.sub_list.clear()
       # restore LHS to taxa list
+      self.liststore_taxa.clear()
+      f = StringIO.StringIO()
+      self.tree.write(f)
+      XML = f.getvalue()
+      taxa = stk.get_all_taxa(XML)
+      for t in taxa:
+        self.liststore_taxa.append([t])
+      
       return
 
   def on_remove_from_subs_clicked(self,button):
