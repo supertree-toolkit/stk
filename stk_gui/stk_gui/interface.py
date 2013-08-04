@@ -1946,6 +1946,7 @@ class Diamond:
     self.liststore_taxa = gtk.ListStore(str)
     rendererText = gtk.CellRendererText()
     column = gtk.TreeViewColumn("Taxa in data", rendererText, text=0)
+    column.set_sort_column_id(0)
     self.taxa_list_treeview.append_column(column)
     for t in taxa:
         self.liststore_taxa.append([t])
@@ -1954,9 +1955,12 @@ class Diamond:
     # now set up the other list
     self.liststore_sub = gtk.ListStore(str,str)
     rendererText = gtk.CellRendererText()
+    editcell = gtk.CellRendererText()
+    editcell.set_property('editable', True)
     column = gtk.TreeViewColumn("Taxa to be subbed", rendererText, text=0)
     self.sub_list_treeview.append_column(column)
-    column1 = gtk.TreeViewColumn("Subs", rendererText, text=1)
+    column1 = gtk.TreeViewColumn("Subs", editcell, text=1)
+    editcell.connect('edited', self.edited_cb)
     self.sub_list_treeview.append_column(column1)
     self.sub_list_treeview.set_model(self.liststore_sub)
     # No data yet
@@ -1965,17 +1969,65 @@ class Diamond:
 
     return
 
+  def construct_subs_from_treeview(self):
+
+      # Collect the old taxa and new taxa and form a subs_file data construct
+      # (which is a list containing old_taxa and an equal-length list
+      # containing the subs (or None)
+      old_taxa = []
+      new_taxa = []
+      for row in self.liststore_sub:
+          # easy as we have no rows with children
+          old_taxa.append(row[0])
+          if (row[1] == None or len(row[1]) == 0): # if a user clicks and presses a return, you get '', not None
+              new_taxa.append(None)
+          else:
+              new_taxa.append(row[1])
+      return old_taxa, new_taxa 
+    
   def on_export_subs_clicked(self, button):
     
-      # get data from RH tree view and create a subs file
-      pass
+    # get data from RH tree view and create a subs file
+    old_taxa, new_taxa = self.construct_subs_from_treeview()
+    # open browse button and get a filename
+    filter_names_and_patterns = {}
+    # open file dialog
+    filename = dialogs.get_filename(title = "Choose output subs fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+    
+    i = 0
+    f = open(filename,"w")
+    for t in old_taxa:
+       if new_taxa[i] == None:
+           f.write(t+" = \n")
+       else:
+           f.write(t+" = "+new_taxa[i]+"\n")
+       i+=1
+    f.close()
 
   def on_import_subs_clicked(self,button):
 
-      # read in a subs file an populate the RHS
+    # read in a subs file an populate the RHS
+    # get data from RH tree view and create a subs file
+    old_taxa, new_taxa = self.construct_subs_from_treeview()
+    # open browse button and get a filename
+    filter_names_and_patterns = {}
+    # open file dialog
+    filename = dialogs.get_filename(title = "Choose input subs fle", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 
-      # Need to check for existing taxa, etc?
-      pass
+    old_taxa, new_taxa = stk.parse_subs_file(filename)
+
+    # Need to check for existing taxa, etc
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+    taxa = stk.get_all_taxa(XML)
+    i = 0
+    for t in old_taxa:
+        if (t in taxa):
+            self.liststore_sub.append([t,new_taxa[i]])
+        i += 1
+    return
+
 
   def on_reset_clicked(self,button):
 
@@ -1992,10 +2044,20 @@ class Diamond:
       
       return
 
+  def edited_cb(self, cell, path, new_text):
+      # check new_text is valid
+      self.liststore_sub[path][1] = new_text
+      return
+
   def on_remove_from_subs_clicked(self,button):
 
       # Move a sub from the RHS and put the old taxon back to LHS
-
+      treeselection =  self.sub_list_treeview.get_selection()
+      (model,row) = treeselection.get_selected()
+      if (not row == None):
+        taxa = model.get_value(row,0)
+        model.remove(row)
+        self.liststore_taxa.append([taxa])
       return
 
   def on_move_to_subs_clicked(self,button):
@@ -2003,9 +2065,10 @@ class Diamond:
       # move the selected taxa to RHS with empty sub
       treeselection =  self.taxa_list_treeview.get_selection()
       (model,row) = treeselection.get_selected()
-      taxa = model.get_value(row,0)
-      model.remove(row)
-      self.liststore_sub.append([taxa,None])
+      if (not row == None):
+        taxa = model.get_value(row,0)
+        model.remove(row)
+        self.liststore_sub.append([taxa,None])
       return
 
       
@@ -2021,16 +2084,15 @@ class Diamond:
     # open file dialog
     filename = dialogs.get_filename(title = "Choose output PHYML fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 
-    old_taxon = self.sub_taxa_gui.get_widget("old_taxon").get_text()
-    new_taxon = self.sub_taxa_gui.get_widget("new_taxon").get_text()
     ignoreWarnings = self.sub_taxa_gui.get_widget("ignoreWarnings_checkbutton").get_active()
+    old_taxa, new_taxa = self.construct_subs_from_treeview()
     
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
    
     try:
-        XML2 = stk.sub_taxa(XML,old_taxon,new_taxon,ignoreWarnings=ignoreWarnings)
+        XML2 = stk.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
         msg = "Failed to substitute taxa.\n"+detail.msg
         dialogs.error(self.main_window,msg)
@@ -2043,7 +2105,12 @@ class Diamond:
         msg = "Failed to substitute taxa.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
-    event_desc = "Taxa substitution from "+old_taxa+" to "+new_taxa+" via GUI to "+filename
+    event_desc = "Taxa substitution from \n"
+    i = 0
+    for t in old_taxa:
+        event_desc += "\t"+t+" to "+str(new_taxa[i])+"\n"
+        i += 1
+    event_desc += "via GUI"
     XML2 = stk.add_historical_event(XML2,event_desc) 
     ios = StringIO.StringIO(XML)
     self.update_data(ios, "Error adding history event (taxa sub) to new XML",skip_warning=True)
@@ -2054,7 +2121,7 @@ class Diamond:
     f.close()    
 
     # Add an event to the history of the file
-    event_desc = "Taxa substitution from "+old_taxa+" to "+new_taxa+" via GUI to "+filename
+    event_desc += ". Saved to "+filename
     XML = stk.add_historical_event(XML,event_desc) 
     ios = StringIO.StringIO(XML)
     self.update_data(ios, "Error adding history event (taxa sub) to XML",skip_warning=True)
