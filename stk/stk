@@ -33,6 +33,8 @@ import stk.stk_import_export as supertree_import_export
 from stk.stk_exceptions import *
 import stk.Getch as Getch
 import string
+import stk.p4 as p4
+import lxml
 
 # Set up a global Getch class for all functions to use
 inkey = Getch._Getch()
@@ -678,10 +680,25 @@ def sub_taxa(args):
             if k.lower() == 'y':
                 break
 
-
-    XML = supertree_toolkit.load_phyml(input_file)
+    treefile = False
     try:
-        XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings)
+        XML = supertree_toolkit.load_phyml(input_file)
+    except lxml.etree.XMLSyntaxError:
+        try:
+            trees = supertree_toolkit.import_trees(input_file) 
+            treefile = True
+        except:
+            print "Error loading file as PHYML or a tree file. Check your input, please"
+            sys.exit(-1)
+    try:
+        if (treefile):
+            new_trees_list = supertree_toolkit.substitute_taxa_in_trees(trees,old_taxa,new_taxa)
+            new_trees = {}
+            i = 1
+            for t in new_trees_list:
+                new_trees["tree_"+str(i)] = t
+        else:
+            XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
@@ -696,10 +713,17 @@ def sub_taxa(args):
         return
 
 
-    # Add an event to the history of the file
-    XML = supertree_toolkit.add_historical_event(XML, "Taxa substituted using command: " +" ".join(sys.argv)) 
-    f = open(output_file,'w')
-    f.write(XML)
+    if (treefile):
+        output = supertree_toolkit._amalgamate_trees(new_trees,format='Nexus')
+        f = open(output_file,'w')
+        f.write(output)
+        f.close()
+    else:
+        # Add an event to the history of the file
+        XML = supertree_toolkit.add_historical_event(XML, "Taxa substituted using command: " +" ".join(sys.argv)) 
+        f = open(output_file,'w')
+        f.write(XML)
+        f.close()
 
     sys.exit(0)
 

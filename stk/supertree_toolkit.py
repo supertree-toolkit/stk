@@ -955,18 +955,7 @@ def import_trees(filename):
 
     treedata = content
     
-    try:
-        p4.var.warnReadNoFile = False
-        p4.var.nexus_warnSkipUnknownBlock = False
-        p4.var.trees = []
-        p4.read(treedata)
-        p4.var.nexus_warnSkipUnknownBlock = True
-        p4.var.warnReadNoFile = True
-    except:
-        raise TreeParseError("Error parsing " + filename)
-    trees = p4.var.trees
-    p4.var.trees = []
-    
+    trees = _parse_trees(treedata)
     r_trees = []
     for t in trees:
         r_trees.append(t.writeNewick(fName=None,toString=True).strip())
@@ -1103,18 +1092,7 @@ def get_taxa_from_tree(XML, tree_name, sort=False):
     taxa_list = []
     for t in trees:
         if t == tree_name:
-            tree = trees[t]
-            try:
-                p4.var.warnReadNoFile = False
-                p4.var.nexus_warnSkipUnknownBlock = False
-                p4.var.trees = []
-                p4.read(tree)
-                p4.var.nexus_warnSkipUnknownBlock = True
-                p4.var.warnReadNoFile = True
-            except:
-                raise TreeParseError("Error parsing tree to get taxa")
-            tree = p4.var.trees[0]
-            p4.var.trees = []
+            tree = _parse_tree(trees[t]) 
             terminals = tree.getAllLeafNames(tree.root)
             for term in terminals:
                 taxa_list.append(str(term))
@@ -1285,18 +1263,7 @@ def create_matrix_from_trees(trees,format="hennig"):
 
     taxa = []
     for t in trees:
-        tree = trees[t]
-        try:
-            p4.var.warnReadNoFile = False
-            p4.var.nexus_warnSkipUnknownBlock = False
-            p4.var.trees = []
-            p4.read(tree)
-            p4.var.nexus_warnSkipUnknownBlock = True
-            p4.var.warnReadNoFile = True
-        except:
-            raise TreeParseError("Error parsing tree to get taxa")
-        tree = p4.var.trees[0]
-        p4.var.trees = []
+        tree = _parse_tree(trees[t])
         terminals = tree.getAllLeafNames(tree.root)
         for term in terminals:
             taxa_list.append(str(term))
@@ -1349,19 +1316,8 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False):
 
     for name in trees.iterkeys():
         tree = trees[name]
-        i = 0
-        for taxon in old_taxa:
-            # tree contains the old_taxon, do something with it
-            if (tree.find(taxon) > 0):
-                if (new_taxa == None or new_taxa[i] == None):
-                    # we are deleting taxa
-                    tree = _delete_taxon(taxon, tree)
-                    XML = _swap_tree_in_XML(XML,tree,name)
-                else:
-                    # we are substituting
-                    tree = _sub_taxon(taxon, new_taxa[i], tree)
-                    XML = _swap_tree_in_XML(XML,tree,name)
-            i += 1
+        new_tree = _sub_taxa_in_tree(tree,old_taxa,new_taxa)
+        XML = _swap_tree_in_XML(XML,new_tree,name)
  
 
     # now loop over all taxon elements in the XML, and 
@@ -1393,6 +1349,38 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False):
         i = i+1
 
     return etree.tostring(xml_root,pretty_print=True)
+
+
+def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, ignoreWarnings=False):
+    """
+    Swap the taxa in the old_taxa array for the ones in the
+    new_taxa array
+    
+    If the new_taxa array is missing, simply delete the old_taxa
+
+    Returns a new list of trees with the taxa swapped from each tree 
+    It's up to the calling function to
+    do something sensible with this infomation
+    """
+
+    # are the input values lists or simple strings?
+    if (isinstance(old_taxa,str)):
+        old_taxa = [old_taxa]
+    if (new_taxa and isinstance(new_taxa,str)):
+        new_taxa = [new_taxa]
+
+    # check they are same lengths now
+    if (new_taxa):
+        if (len(old_taxa) != len(new_taxa)):
+            print "Substitution failed. Old and new are different lengths"
+            return # need to raise exception here
+
+    new_trees = []
+    for tree in trees:
+        new_trees.append(_sub_taxa_in_tree(tree,old_taxa,new_taxa))
+ 
+    return new_trees
+
 
 
 def permute_tree(tree,matrix="hennig",treefile=None):
@@ -2082,11 +2070,7 @@ def _assemble_tree_matrix(tree_string):
                  taxa list: in same order as in the matrix
     """
 
-    p4.var.warnReadNoFile = False    
-    p4.var.trees = []
-    p4.read(tree_string)
-    tree = p4.var.trees[0]
-    p4.var.trees = []
+    tree = _parse_tree(tree_string)
     try:
         mrp = MRP.mrp([tree])
         adjmat = []
@@ -2112,43 +2096,214 @@ def _assemble_tree_matrix(tree_string):
 
     return adjmat, names
 
+def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None):
+    """Swap the taxa in the old_taxa array for the ones in the
+    new_taxa array
+    
+    If the new_taxa array is missing, simply delete the old_taxa
+    """
+    
+    # are the input values lists or simple strings?
+    if (isinstance(old_taxa,str)):
+        old_taxa = [old_taxa]
+    if (new_taxa == None):
+        new_taxa = [None]
+    elif (new_taxa and isinstance(new_taxa,str)):
+        new_taxa = [new_taxa]
+
+    # check they are same lengths now
+    if (new_taxa):
+        if (len(old_taxa) != len(new_taxa)):
+            print "Substitution failed. Old and new are different lengths"
+            return # need to raise exception here
+
+    i = 0
+    for taxon in old_taxa:
+        # tree contains the old_taxon, do something with it
+        taxon = taxon.replace(" ","_")
+        if (_tree_contains(taxon,tree)):
+            if (new_taxa == None or new_taxa[i] == None):
+                # we are deleting taxa
+                tree = _delete_taxon(taxon, tree)
+            else:
+                # we are substituting
+                tree = _sub_taxon(taxon, new_taxa[i], tree)
+        i += 1
+
+    tree = _collapse_nodes(tree)
+
+    return tree 
+
+def _tree_contains(taxon,tree):
+    """ Returns if a taxon is contained in the tree
+    """
+
+    taxon = taxon.replace(" ","_")
+    tree = _parse_tree(tree) 
+    terminals = tree.getAllLeafNames(tree.root)
+    # p4 strips off ', so we need to do so for the input taxon
+    taxon = taxon.replace("'","")
+    for t in terminals:
+        if (t == taxon):
+            return True
+
+    return False
+
+
 def _delete_taxon(taxon, tree):
     """ Delete a taxon from a tree string
     """
 
+    taxon = taxon.replace(" ","_")
+    taxon = taxon.replace("'","")
     # check if taxa is in there first
     if (tree.find(taxon) == -1):
         return tree #raise exception?
-    p4.var.warnReadNoFile = False    
-    p4.var.trees = []
-    p4.read(tree)
-    tree_obj = p4.var.trees[0]
-    p4.var.trees = []
+
+    tree_obj = _parse_tree(tree)
     for node in tree_obj.iterNodes():
         if node.name == taxon:
             tree_obj.removeNode(node.nodeNum,alsoRemoveBiRoot=False)
             break
-    p4.var.warnReadNoFile = True    
-
 
     return tree_obj.writeNewick(fName=None,toString=True).strip()
-       
+
+
+def _get_all_siblings(node):
+    """ Get all siblings of a node
+    """
+
+    # p4 returns the rightmost sibling, so we need to get all the right siblings,
+    # and the leftSiblings
+    siblings = []
+    siblings_left = True
+    newNode = node
+    while siblings_left:
+        newNode = newNode.sibling
+        if not newNode == None:
+            if not newNode.name == None:
+                siblings.append(newNode.name)
+        else:
+            siblings_left = False
+    # now the left siblings
+    siblings_left = True
+    newNode = node
+    while siblings_left:
+        newNode = newNode.leftSibling()
+        if not newNode == None:
+            if not newNode.name == None:
+                siblings.append(newNode.name)
+        else:
+            siblings_left = False
+    
+    siblings.sort()
+    return siblings
+
 
 def _sub_taxon(old_taxon, new_taxon, tree):
     """ Simple swap of taxa
     """
 
-    # swap spaces for _, as we're dealing with Newick strings here
-    new_taxon = new_taxon.replace(" ","_")
-
     # check if taxa is in there first
     if (tree.find(old_taxon) == -1):
         return tree #raise exception?
 
+    # swap spaces for _, as we're dealing with Newick strings here
+    new_taxon = new_taxon.replace(" ","_")
+    new_taxon = new_taxon.replace("'","")
+    my_old_taxon = old_taxon.replace("'","")
+
+    # trying to replace the same thing
+    if (new_taxon == my_old_taxon):
+        return tree
+
+    # remove duplicates in the new taxa
+    taxa = new_taxon.split(",")
+    taxa = _uniquify(taxa) 
+    # now check if any of the new taxa are in the tree already, if so skip
+    correct_taxa = []
+    for t in taxa:
+        if (not _tree_contains(t,tree)):
+            t = re.sub(r"(,|^)(?P<name>\w*[=\+]\w*)",r"\1'\g<name>'", t)
+            correct_taxa.append(t)
+        else:
+            # This one is in the tree, but we don't want to 
+            # oversimplify the tree, i.e. non-monophyletic taxa
+            # of the same name should be kept, so...
+            t1 = _parse_tree(tree)
+            siblings = _get_all_siblings(t1.node(my_old_taxon))
+            in_sibs = False
+            if (len(siblings) > 0):
+                for tt in siblings:
+                    m = re.match('('+t+')([0-9]?$)', tt)
+                    if not m == None:
+                        in_sibs = True
+            if (not in_sibs):
+                # get the next number...
+                tree_taxa = t1.getAllLeafNames(t1.root)
+                digit = 1
+                for tt in tree_taxa:
+                    m = re.match('('+t+')([0-9]+$)', tt)
+                    if (not m == None):
+                        # matching taxa
+                        if (not m == None):
+                            d = int(m.group(2))
+                            if d >= digit:
+                                digit = d+1
+                t = re.sub(r"(,|^)(?P<name>\w*[=\+]\w*)",r"\1'\g<name>'", t)
+                correct_taxa.append(t+str(digit))
+            # so the above get the old taxon siblings, and if the new taxon is not
+            # in that list, it means it occurs in a different clade to the old_taxon
+            # and hence we can't just delete this - we'd be removing structure otherwise
+            # BUT we append a 1 (or 2, etc)
+
+
+    new_taxon = ",".join(correct_taxa)
+
+    if (len(new_taxon) == 0):
+        # we need to delete instead
+        return _delete_taxon(old_taxon,tree)
+
     # simple text swap
     new_tree = tree.replace(old_taxon,new_taxon)
 
+    # we might now need a final collapse - e.g. we might get ...(taxon1,taxon2),... due
+    # to replacements, but they didn't collapse, so let's do this
+    new_tree = _collapse_nodes(new_tree)
+
     return new_tree
+
+def _collapse_nodes(in_tree):
+    """ Collapses nodes where the siblings are actually the same
+        taxon, denoted by taxon1, taxon2, etc
+    """
+
+    taxa = _getTaxaFromNewick(in_tree)
+    tree = _parse_tree(in_tree)
+    
+    for t in taxa:
+        # we might have removed the current taxon in a previous loop
+        try:
+            siblings = _get_all_siblings(tree.node(t))
+        except p4.Glitch:
+            continue
+        m = re.match('(.*[a-zA-Z])([0-9]+$)', t)
+        if (not m == None):
+            t = m.group(1)
+        for s in siblings:
+            m = re.match('('+t+')([0-9]?$)', s)
+            if not m == None:
+                # remove this
+                tree.removeNode(tree.node(s),alsoRemoveSingleChildParentNode=True,alsoRemoveBiRoot=False)
+
+    # We also need to clean tree up
+    tree.getPreAndPostOrderAboveRoot()
+    for n in tree.iterPostOrder():
+        if n.getNChildren() == 1 and n.isLeaf == 0:
+            tree.collapseNode(n)
+
+    return tree.writeNewick(fName=None,toString=True).strip()    
+
 
 def _swap_tree_in_XML(XML, tree, name, delete=False):
     """ Swap tree with name, 'name' with this new one.
@@ -2310,13 +2465,8 @@ def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
 def _getTaxaFromNewick(tree):
     """ Get the terminal nodes from a Newick string"""
 
-    p4.var.warnReadNoFile = False    
-    p4.var.trees = []
-    p4.read(tree)
-    t_obj = p4.var.trees[0]
+    t_obj = _parse_tree(tree)
     terminals = t_obj.getAllLeafNames(0)
-    p4.var.warnReadNoFile = True
-    p4.var.trees = []
 
     return terminals
 
@@ -2344,20 +2494,8 @@ def _trees_equal(t1,t2):
     """ compare two trees using Robinson-Foulds metric
     """
 
-    try:
-        p4.var.warnReadNoFile = False
-        p4.var.nexus_warnSkipUnknownBlock = False
-        p4.var.trees = []
-        p4.read(t1)
-        p4.read(t2)
-        p4.var.nexus_warnSkipUnknownBlock = True
-        p4.var.warnReadNoFile = True
-    except:
-        raise TreeParseError("Error parsing " + filename)
-
-    tree_1 = p4.var.trees[0]
-    tree_2 = p4.var.trees[1]
-    p4.var.trees = []
+    tree_1 = _parse_tree(t1)
+    tree_2 = _parse_tree(t2)
     
     # add the taxanames
     # Sort, otherwose p4 things the txnames are different
@@ -2561,19 +2699,9 @@ def _check_informative_trees(XML,delete=False):
     message=""
     for t in trees:
         tree = trees[t]
-        try:
-            p4.var.warnReadNoFile = False
-            p4.var.nexus_warnSkipUnknownBlock = False
-            p4.var.trees = []
-            p4.read(tree)
-            p4.var.nexus_warnSkipUnknownBlock = True
-            p4.var.warnReadNoFile = True
-        except:
-            raise TreeParseError("Error parsing tree "+t+" when checking data")
+        tree = _parse_tree(tree)
 
         # check if tree contains more than two taxa
-        tree = p4.var.trees[0]
-        p4.var.trees = []
         terminals = tree.getAllLeafNames(tree.root)
         if (len(terminals) < 3):
             message = message+"\nTree "+t+" contains only 2 taxa and is not informative"
@@ -2595,6 +2723,39 @@ def _check_informative_trees(XML,delete=False):
 
         return XML
 
+def _parse_trees(tree_block):
+    """ Parse a string containing multiple trees 
+        to a list of p4 tree objects
+    """
     
+    try:
+        p4.var.warnReadNoFile = False
+        p4.var.nexus_warnSkipUnknownBlock = False
+        p4.var.trees = []
+        p4.read(tree_block)
+        p4.var.nexus_warnSkipUnknownBlock = True
+        p4.var.warnReadNoFile = True
+    except:
+        raise TreeParseError("Error parsing " + filename)
+    trees = p4.var.trees
+    p4.var.trees = []
+    return trees
 
+def _parse_tree(tree):
+    """ Parse a newick string to p4 tree object
+    """
+
+    try:
+        p4.var.warnReadNoFile = False
+        p4.var.nexus_warnSkipUnknownBlock = False
+        p4.var.trees = []
+        p4.read(tree)
+        p4.var.nexus_warnSkipUnknownBlock = True
+        p4.var.warnReadNoFile = True
+    except:
+        raise TreeParseError("Error parsing " + str(tree))
+
+    t = p4.var.trees[0]
+    p4.var.trees = []
+    return t
 
