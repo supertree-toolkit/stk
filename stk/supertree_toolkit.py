@@ -2012,6 +2012,64 @@ def parse_subs_file(filename):
     return old_taxa, new_taxa
 
 
+def create_subset(XML,searchTerms,andSearch=True,includeMultiple=True):
+    """Create a new dataset which is a subset of the incoming one.
+       searchTerms is a dict, with the following keys:
+       years - list consisting of the years to include. An entry can contain two years seperated by -. A range will then
+               be used.
+       authors - list of author names
+       characters - list of charcters to include
+       charater_types - list of character types to include (Molecular, Morphological, Behavioural or Other)
+       analyses - list of analyses to include (MRP, etc)
+       taxa - list of taxa that must be in a source tree
+
+       Multiple requests produce *and* matches (so between 2000-2010 *and* Molecular *and* contain Gallus gallus) unless 
+       andSearch is false. If it is, an *or* search is used. So the example would be years 2000-2010 *or* Molecular
+       *or* contain Gallus gallus
+
+       includeMultiple means that a source can contain Molecular and Morophological characters and match
+       Molecular (or, indeed, Morpholoigcal). Set to False to include if it's *only* Molecular you're
+       after (i.e. trees with mixed character sets will be ignored). This applies to characters and character_types
+       only (as the other terms don't make sense with this off).
+
+       Note: this funtion is not (yet) taxonomically aware, so Galliformes will only return trees that actually have
+       a leaf called Galliformes. Gallus gallus will not match. 
+
+       Also note: The tree strings are searched for taxa, not the taxa elements (which are optional)
+
+       A new PHYML file will be produced. The calling function must do something sensible with that
+    """
+
+    # check we have something to create a subset with
+    if (years==None and authors==None and characters==None and character_types==None and analyses==None):
+        return None
+        # raise error? Return XML as if nothing happened?
+
+    # We just need to preprocess the years
+    final_years = []
+    years = search_terms['years']
+    for y in years:
+        if str(y).find('-') == -1:
+            final_years.append(int(y))
+        else:
+            yRange = y.split('-')
+            for i in range(int(yRange[0]),int(yRange[1])+1):
+                final_years.append(i)
+    final_years.sort()
+    search_terms['years'] = final_years
+
+    # Easiest way to do this is to remove all sources from the incoming XML (after taking a copy!)
+    # and add them back if they match the request requirements. That way, we keep the history, etc, etc
+
+
+    # take a copy
+
+    # remove sources
+
+    # edit name (append _subset)
+
+    # this is the tricky part
+
 
 ################ PRIVATE FUNCTIONS ########################
 
