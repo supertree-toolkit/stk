@@ -101,7 +101,7 @@ class TestImportExportTree(unittest.TestCase):
 
     def test_amalgamate_trees_anonymous(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
-        output_string = amalgamate_trees(XML,format="Nexus",anonymous=True)
+        output_string = amalgamate_trees(XML,format="nexus",anonymous=True)
         trees = obtain_trees(XML)
         # save the file and read it back in. Then we check correct format (i.e. readable) and
         # we can check the trees are correct
@@ -123,7 +123,7 @@ class TestImportExportTree(unittest.TestCase):
 
     def test_amalgamate_trees_nexus(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
-        output_string = amalgamate_trees(XML,format="Nexus",anonymous=False)
+        output_string = amalgamate_trees(XML,format="nexus",anonymous=False)
         trees = obtain_trees(XML)
         # save the file and read it back in. Then we check correct format (i.e. readable) and
         # we can check the trees are correct
@@ -144,7 +144,7 @@ class TestImportExportTree(unittest.TestCase):
 
     def test_amalgamate_trees_newick(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
-        output_string = amalgamate_trees(XML,format="Newick")
+        output_string = amalgamate_trees(XML,format="newick")
         trees = obtain_trees(XML)
         # save the file and read it back in. Then we check correct format (i.e. readable) and
         # we can check the trees are correct
@@ -383,7 +383,7 @@ class TestTreeMetaData(unittest.TestCase):
     def test_permute_trees(self):
         XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
         trees = obtain_trees(XML)
-        output = permute_tree(trees['Hill_2011_1'],treefile="Newick")
+        output = permute_tree(trees['Hill_2011_1'],treefile="newick")
         temp_file_handle, temp_file = tempfile.mkstemp(suffix=".new")
         f = open(temp_file,"w")
         f.write(output)
@@ -398,7 +398,7 @@ class TestTreeMetaData(unittest.TestCase):
     def test_permute_trees_2(self):
         XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
         trees = obtain_trees(XML)
-        output = permute_tree(trees['Davis_2011_1'],treefile="Newick")
+        output = permute_tree(trees['Davis_2011_1'],treefile="newick")
         temp_file_handle, temp_file = tempfile.mkstemp(suffix=".new")
         f = open(temp_file,"w")
         f.write(output)
