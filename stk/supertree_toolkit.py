@@ -1186,7 +1186,7 @@ def obtain_trees(XML):
 
     return trees
 
-def amalgamate_trees(XML,format="Nexus",anonymous=False,ignoreWarnings=False):
+def amalgamate_trees(XML,format="nexus",anonymous=False,ignoreWarnings=False):
     """ Create a string containing all trees in the XML.
         String can be formatted to one of Nexus, Newick or TNT.
         Only Nexus formatting takes into account the anonymous
@@ -1199,8 +1199,8 @@ def amalgamate_trees(XML,format="Nexus",anonymous=False,ignoreWarnings=False):
         _check_data(XML)
 
     # Check format flag - let the caller handle
-    if (not (format == "Nexus" or 
-        format == "Newick" or
+    if (not (format == "nexus" or 
+        format == "newick" or
         format == "tnt")):
             return None
 
@@ -2625,9 +2625,15 @@ def _create_matrix(trees, taxa, format="hennig"):
     matrix = numpy.array(matrix)
     matrix = matrix.transpose()
 
+    return _create_matrix_string(matrix,taxa,charsets=charsets,names=names,format=format)
+
+
+def _create_matrix_string(matrix,taxa,charsets=None,names=None,format='hennig'):
+
+    last_char = len(matrix[0])    
     if (format == 'hennig'):
         matrix_string = "xread\n"
-        matrix_string += str(len(taxa)) + " "+str(current_char-1)+"\n"
+        matrix_string += str(len(taxa)) + " "+str(last_char)+"\n"
         matrix_string += "\tformat missing = ?"
         matrix_string += ";\n"
         matrix_string += "\n\tmatrix\n\n";
@@ -2645,7 +2651,7 @@ def _create_matrix(trees, taxa, format="hennig"):
         matrix_string += "procedure /;"
     elif (format == 'nexus'):
         matrix_string = "#nexus\n\nbegin data;\n"
-        matrix_string += "\tdimensions ntax = "+str(len(taxa)) +" nchar = "+str(current_char-1)+";\n"
+        matrix_string += "\tdimensions ntax = "+str(len(taxa)) +" nchar = "+str(last_char)+";\n"
         matrix_string += "\tformat missing = ?"
         matrix_string += ";\n"
         matrix_string += "\n\tmatrix\n\n"
@@ -2658,38 +2664,45 @@ def _create_matrix(trees, taxa, format="hennig"):
                 string += t
             matrix_string += string + "\n"
             i += 1
+        if (not charsets == None):
             
-        matrix_string += "\t;\nend;\n\n"
-        matrix_string += "begin sets;\n"
-        i = 0
-        for char in charsets:
-            matrix_string += "\tcharset "+names[i] + " "
-            matrix_string += char + "\n"
-            i += 1
+            matrix_string += "\t;\nend;\n\n"
+            matrix_string += "begin sets;\n"
+            if (names == None):
+                names = []
+                i = 1
+                for c in charset:
+                    names.append("chars_"+str(i))
+            i = 0
+            for char in charsets:
+                matrix_string += "\tcharset "+names[i] + " "
+                matrix_string += char + "\n"
+                i += 1
         matrix_string += "end;\n\n"
     else:
         raise MatrixError("Invalid matrix format")
 
     return matrix_string
+
     
 def _amalgamate_trees(trees,format,anonymous=False):
-        # all trees are in Newick string format already
+    # all trees are in Newick string format already
     # For each format, Newick, Nexus and TNT this format
     # is adequate. 
     # Newick: Do nothing - write one tree per line
     # Nexus: Add header, write one tree per line, prepending tree info, taking into acount annonymous flag
     # TNT: strip commas, write one tree per line
     output_string = ""
-    if format == "Nexus":
+    if format == "nexus":
         output_string += "#NEXUS\n\nBEGIN TREES;\n\n"
     tree_count = 0
     for tree in trees:
-        if format == "Nexus":
+        if format == "nexus":
             if anonymous:
                 output_string += "\tTREE tree_"+str(tree_count)+" = "+trees[tree]+"\n"
             else:
                 output_string += "\tTREE "+tree+" = "+trees[tree]+"\n"
-        elif format == "Newick":
+        elif format == "newick":
             output_string += trees[tree]+"\n"
         elif format == "tnt":
             t = trees[tree];
@@ -2698,7 +2711,7 @@ def _amalgamate_trees(trees,format,anonymous=False):
             output_string += t+"\n"
         tree_count += 1
     # Footer
-    if format == "Nexus":
+    if format == "nexus":
         output_string += "\n\nEND;"
     elif format == "tnt":
         output_string += "\n\nproc-;"

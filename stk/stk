@@ -160,9 +160,9 @@ def main():
     # This one is optional
     parser_cm.add_argument('-f',
             '--format', 
-            choices=["Nexus","Newick","tnt"],
-            default="Nexus",
-            help='The format of the tree file. Nexus, Newick or tnt. Default is Nexus')
+            choices=["nexus","newick","tnt"],
+            default="nexus",
+            help='The format of the tree file. nexus, newick or tnt. Default is Nexus')
     parser_cm.add_argument('--anonymous',
             '-a',
             action='store_true',
@@ -307,14 +307,14 @@ def main():
             help='The output tree or matrix file(s). If multiple files are produced the sourcename will be appended to the filename.')
     parser_cm.add_argument('-c',
             '--create_matrix',
-            choices=['','hennig', 'nexus'],
+            choices=['hennig', 'nexus'],
             help="Create a matrix of the given format for all permutable trees in the input file. Default is hennig",
             required=False,
             default='hennig',
             )
     parser_cm.add_argument('-t',
             '--treefile',
-            choices=['','Nexus','Newick','tnt'],
+            choices=['nexus','newick','tnt'],
             help="Create a tree file of the given format for all permutable trees in the input file. Default is nexus",
             required=False,
             default='',
@@ -358,6 +358,28 @@ def main():
             default=False,
             help="Don't carry out the subs, but generate a subs file as output instead")
     parser_cm.set_defaults(func=replace_genera)
+
+
+    # convert files
+    parser_cm = subparsers.add_parser('convert_files',
+            help='Convert tree or matrix files to other formats'
+            )
+    parser_cm.add_argument('input', 
+            help='The input file')
+    parser_cm.add_argument('output', 
+            help='The output file')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing file without asking for confirmation")
+    parser_cm.add_argument('--format',
+            choices=['nexus','newick','tnt'],
+            help="Create the output file of the given format. Default is nexus. Newick doesn't make sense for matrix files.",
+            required=False,
+            default='nexus',
+            )
+    parser_cm.set_defaults(func=convert_file)
+
 
     # parse the arguments, and strip out the common options
     args = parser.parse_args()
@@ -1061,6 +1083,67 @@ def replace_genera(args):
             i+=1
     else:
         f.write(XML)
+    f.close()
+
+def convert_file(args):
+
+    # Parse the args
+    verbose = args.verbose
+    output_file = args.output
+    input_file = args.input
+    overwrite = args.overwrite
+    output_format = args.format
+
+    # open file and decide if tree or matrix
+    try:
+        f = open(input_file,"r")
+    except:
+        print "Unable to open file " + input_file
+        sys.exit(-1)
+    data = f.read()
+    data = data.lower()
+    if (not data.find('matrix') == -1):
+        matrix = True
+    else:
+        matrix = False
+
+
+    if (matrix):
+        try:
+            matrix, taxa = supertree_toolkit.read_matrix(input_file)
+            if (output_format == "tnt"):
+                output_format = 'hennig'
+            output = supertree_toolkit._create_matrix_string(matrix,taxa,format=output_format)
+        except:
+            print "Error saving matrix"
+            sys.exit(-1)
+    else:
+        try:
+            trees = supertree_toolkit.import_trees(input_file)
+            # turn trees into dict
+            new_trees = {}
+            i = 1
+            for t in trees:
+                new_trees['tree_'+str(i)] = t
+            output = supertree_toolkit._amalgamate_trees(new_trees,format=output_format)
+        except:
+            print "Error saving tree"
+            sys.exit(-1)
+
+
+    # check if output files are there
+    if (os.path.exists(output_file) and not overwrite):
+        print "Output file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break    
+    f = open(output_file, "w")
+    f.write(output)
     f.close()
 
 
