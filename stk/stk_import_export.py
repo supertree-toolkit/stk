@@ -166,21 +166,6 @@ def import_old_data(input_dir, verbose=False):
     # create all sourcenames
     phyml = supertree_toolkit.all_sourcenames(etree.tostring(xml_root))
 
-    # run data check
-    try:
-        supertree_toolkit._check_data(phyml)
-    except NotUniqueError as e:
-        msg = "Error with creating data\n"
-        msg += e.msg
-        raise STKImportExportError(msg)
-    except InvalidSTKData as e:
-        msg = "Error with creating data\n"
-        msg += e.msg
-        raise STKImportExportError(msg)
-    except:
-        msg = "Error with creating data\n"
-        raise STKImportExportError(msg)
-
     return phyml
 
 
