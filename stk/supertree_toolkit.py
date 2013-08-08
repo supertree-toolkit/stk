@@ -2012,14 +2012,14 @@ def parse_subs_file(filename):
     return old_taxa, new_taxa
 
 
-def create_subset(XML,searchTerms,andSearch=True,includeMultiple=True):
+def create_subset(XML,search_terms,andSearch=True,includeMultiple=True):
     """Create a new dataset which is a subset of the incoming one.
        searchTerms is a dict, with the following keys:
        years - list consisting of the years to include. An entry can contain two years seperated by -. A range will then
                be used.
        authors - list of author names
        characters - list of charcters to include
-       charater_types - list of character types to include (Molecular, Morphological, Behavioural or Other)
+       character_types - list of character types to include (Molecular, Morphological, Behavioural or Other)
        analyses - list of analyses to include (MRP, etc)
        taxa - list of taxa that must be in a source tree
 
@@ -2040,36 +2040,170 @@ def create_subset(XML,searchTerms,andSearch=True,includeMultiple=True):
        A new PHYML file will be produced. The calling function must do something sensible with that
     """
 
-    # check we have something to create a subset with
-    if (years==None and authors==None and characters==None and character_types==None and analyses==None):
-        return None
-        # raise error? Return XML as if nothing happened?
+    if len(search_terms) == 0:
+        print "Warning: No search terms present, returning original XML"
+        return XML
 
     # We just need to preprocess the years
     final_years = []
-    years = search_terms['years']
-    for y in years:
-        if str(y).find('-') == -1:
-            final_years.append(int(y))
-        else:
-            yRange = y.split('-')
-            for i in range(int(yRange[0]),int(yRange[1])+1):
-                final_years.append(i)
-    final_years.sort()
-    search_terms['years'] = final_years
+    try:
+        years = search_terms['years']
+        for y in years:
+            if str(y).find('-') == -1:
+                final_years.append(int(y))
+            else:
+                yRange = y.split('-')
+                for i in range(int(yRange[0]),int(yRange[1])+1):
+                    final_years.append(i)
+        final_years.sort()
+        search_terms['years'] = final_years
+    except KeyError:
+        pass
+
 
     # Easiest way to do this is to remove all sources from the incoming XML (after taking a copy!)
     # and add them back if they match the request requirements. That way, we keep the history, etc, etc
-
-
-    # take a copy
+    original_XML = XML
+    xml_root = _parse_xml(XML)
+    orig_xml_root = _parse_xml(original_XML)
 
     # remove sources
+    # Find all "source" trees
+    sources = []
+    for ele in xml_root.iter():
+        if (ele.tag == "source"):
+            sources.append(ele)
+    for s in sources:
+        s.getparent().remove(s)
 
     # edit name (append _subset)
+    proj_name = xml_root.xpath('/phylo_storage/project_name/string_value')[0].text
+    proj_name += "_subset"
+    xml_root.xpath('/phylo_storage/project_name/string_value')[0].text = proj_name
 
     # this is the tricky part
+    # Loop over sources in the original data and if a tree matches the search requirements, add the source
+    # then add the matching tree
+    sources = []
+    for ele in orig_xml_root.iter():
+        if (ele.tag == "source"):
+            sources.append(ele)
 
+    matching_sources = []
+    # Years are first. This is easy - the source only has one year. 
+    # Note years is already [] is we get a key error
+    try:
+        years = search_terms['years']
+        if len(years) > 0:
+            for s in sources:
+                yrs = s.find(".//year")
+                y = int(yrs.xpath("integer_value")[0].text)
+                if y in years:
+                    matching_sources.append(s)
+            if (andSearch):
+                sources = matching_sources
+                matching_sources = []
+    except KeyError:
+        pass
+
+    # Now character types. Not easy - we need to check each source tree and add the source
+    # and matching source trees only.
+    try:
+        charTypes = search_terms['character_types']
+        if (len(charTypes) > 0):
+            for s in sources:
+                st = s.findall(".//source_tree")
+                include_source = False
+                for t in st:
+                    ct = t.findall(".//character")
+                    include = False
+                    if (includeMultiple):
+                        for c in ct:
+                            if c.attrib['type'] in charTypes:
+                                include = True
+                                include_source = True
+                        if (not include):    
+                            t.getparent().remove(t)
+                    else:
+                        include = True
+                        for c in ct:
+                            if not c.attrib['type'] in charTypes:
+                                include = False
+                                break
+                        if (include):
+                            include_source = True                                
+                        if (not include):    
+                            t.getparent().remove(t)
+                if include_source:
+                    # This is the source with the non-matching source_tree elements removed
+                    matching_sources.append(s)
+            if (andSearch):
+                sources = matching_sources
+                matching_sources = []
+    except KeyError:
+        charTypes = []
+
+
+    # Now character
+    try:
+        chars = search_terms['characters']
+        if (len(chars) > 0):
+            for s in sources:
+                st = s.findall(".//source_tree")
+                include_source = False
+                for t in st:
+                    ct = t.findall(".//character")
+                    include = False
+                    for c in ct:
+                        if c.attrib['name'] in chars:
+                            include = True
+                            include_source = True
+                    if (not include):    
+                        t.getparent().remove(t)
+                if include_source:
+                    # This is the source with the non-matching source_tree elements removed
+                    matching_sources.append(s)
+            if (andSearch):
+                sources = matching_sources
+                matching_sources = []
+    except:
+        chars = []
+
+    # Now analyses
+    try:
+        analyses = search_terms['analyses']
+        if (len(chars) > 0):
+            for s in sources:
+                oc = s.findall(".//optimality_criterion")
+                include = False
+                for o in oc:
+                    if o.attrib['name'] in analyses:
+                        include = True
+                    else:
+                        source_tree = o.getparent().getparent().getparent()
+                        source_tree.getparent().remove(source_tree)
+                if include:
+                    # This is the source with the non-matching source_tree elements removed
+                    matching_sources.append(s)
+            if (andSearch):
+                sources = matching_sources
+                matching_sources = []
+    except:
+        analyses = [] 
+
+    # If we did an "and" search, the matching sources are in the sources list, otherwise
+    # they're in the matching_sources list
+    # So we can now append those sources to the stub of an XML we created at the begining
+    if (not andSearch):
+        sources = matching_sources
+
+    srcs = xml_root.xpath("phylo_storage/sources")
+    for s in sources:
+        xml_root[1].append(s)
+    
+    XML = etree.tostring(xml_root,pretty_print=True)
+
+    return XML
 
 ################ PRIVATE FUNCTIONS ########################
 
