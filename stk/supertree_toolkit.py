@@ -2110,7 +2110,7 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True):
     # and matching source trees only.
     try:
         charTypes = search_terms['character_types']
-        if (len(charTypes) > 0):
+        for current_char in charTypes:
             for s in sources:
                 st = s.findall(".//source_tree")
                 include_source = False
@@ -2119,7 +2119,7 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True):
                     include = False
                     if (includeMultiple):
                         for c in ct:
-                            if c.attrib['type'] in charTypes:
+                            if c.attrib['type']==current_char:
                                 include = True
                                 include_source = True
                         if (not include):    
@@ -2147,7 +2147,7 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True):
     # Now character
     try:
         chars = search_terms['characters']
-        if (len(chars) > 0):
+        for current_char in chars:
             for s in sources:
                 st = s.findall(".//source_tree")
                 include_source = False
@@ -2155,7 +2155,7 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True):
                     ct = t.findall(".//character")
                     include = False
                     for c in ct:
-                        if c.attrib['name'] in chars:
+                        if c.attrib['name'] == current_char:
                             include = True
                             include_source = True
                     if (not include):    
@@ -2171,8 +2171,8 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True):
 
     # Now analyses
     try:
-        analyses = search_terms['analyses']
-        if (len(chars) > 0):
+        analyses = search_terms['analyses'] # assume one only analysis is searched for?
+        if (len(analyses) > 0):
             for s in sources:
                 oc = s.findall(".//optimality_criterion")
                 include = False
