@@ -2017,7 +2017,6 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True):
        searchTerms is a dict, with the following keys:
        years - list consisting of the years to include. An entry can contain two years seperated by -. A range will then
                be used.
-       authors - list of author names
        characters - list of charcters to include
        character_types - list of character types to include (Molecular, Morphological, Behavioural or Other)
        analyses - list of analyses to include (MRP, etc)
@@ -2197,7 +2196,7 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True):
         if (andSearch):
             sources = matching_sources
             matching_sources = []  
-    except:
+    except KeyError:
         chars = []
 
     # Now analyses
@@ -2219,8 +2218,34 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True):
             if (andSearch):
                 sources = matching_sources
                 matching_sources = []
-    except:
+    except KeyError:
         analyses = [] 
+
+    # Now taxa - if a tree contains any of the taxa listed, include it
+    try:
+        taxa = search_terms['taxa'] # assume one only analysis is searched for?
+        if (len(taxa) > 0):
+            for s in sources:
+                st = s.findall(".//source_tree")
+                include_source = False
+                for t in st:
+                    treestring = t.xpath("tree/tree_string/string_value")[0].text
+                    include = False
+                    for taxon in taxa:
+                        if (_tree_contains(taxon,treestring)):
+                            include = True
+                            include_source = True
+                            break
+                    if (not include):    
+                        t.getparent().remove(t)
+                if include_source:
+                    # This is the source with the non-matching source_tree elements removed
+                    matching_sources.append(s)
+        if (andSearch):
+            sources = matching_sources
+            matching_sources = []  
+    except KeyError:
+        taxa = [] 
 
     # If we did an "and" search, the matching sources are in the sources list, otherwise
     # they're in the matching_sources list
