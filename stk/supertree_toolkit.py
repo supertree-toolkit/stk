@@ -2021,6 +2021,7 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
        character_types - list of character types to include (Molecular, Morphological, Behavioural or Other)
        analyses - list of analyses to include (MRP, etc)
        taxa - list of taxa that must be in a source tree
+       fossils - one of none, all
 
        Multiple requests produce *and* matches (so between 2000-2010 *and* Molecular *and* contain Gallus gallus) unless 
        andSearch is false. If it is, an *or* search is used. So the example would be years 2000-2010 *or* Molecular
@@ -2244,6 +2245,35 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
                 if include_source:
                     # This is the source with the non-matching source_tree elements removed
                     matching_sources.append(s)
+        if (andSearch):
+            sources = matching_sources
+            matching_sources = []  
+    except KeyError:
+        taxa = [] 
+
+    # Finally, fossils. Just seach for all or none
+    try:
+        fossil = search_terms['fossil'] # can be none or all
+        for s in sources:
+            st = s.findall(".//source_tree")
+            include_source = False
+            for t in st:
+                all_extant = False
+                all_fossil = False
+                if (len(t.findall(".//all_extant")) > 0):
+                    all_extant = True
+                elif (len(t.findall(".//all_fossil")) > 0):
+                    all_fossil = True
+                include = False
+                if ((fossil == "all_extant" and all_extant) or
+                    (fossil == "all_fossil" and all_fossil)):
+                    include = True
+                    include_source = True
+                if (not include):    
+                    t.getparent().remove(t)
+            if include_source:
+                # This is the source with the non-matching source_tree elements removed
+                matching_sources.append(s)
         if (andSearch):
             sources = matching_sources
             matching_sources = []  
