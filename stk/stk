@@ -381,6 +381,53 @@ def main():
     parser_cm.set_defaults(func=convert_file)
 
 
+    # create subset
+    parser_cm = subparsers.add_parser('create_subset',
+            help="""Create a subset from the PHYML containing only certain years, characters, 
+                    taxa or analyses. Use the data summary command to see all the data, such 
+                    as characters, that are present in your data. By default does an "and" search' and 
+                    allows matches when trees contain the desired character type and other types. See 
+                    manual for examples"""
+            )
+    parser_cm.add_argument('input', 
+            help='The input file')
+    parser_cm.add_argument('output', 
+            help='The output file')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing file without asking for confirmation")
+    parser_cm.add_argument('--years',
+            help="Only include data with these years. You can add multiple years per --year flar, use --year flags and/or use ranges, e.g. 2010-2013",
+            required=False,
+            )
+    parser_cm.add_argument('--taxa',
+            help="Only include data with these taxa. You can add multiple --taxa per flag or use multiple --taxa flags",
+            required=False,
+            )
+    parser_cm.add_argument('--character_types',
+            help="Only include data with these character_types. You can add multiple --character_types or use multiple --character_types flags. Choices are molecular, morphological, behavioural, other",
+            choices=['molecular', 'morphological', 'behavioural', 'other'],
+            required=False,
+            )
+    parser_cm.add_argument('--character',
+            help="Only include data with these characters. You can add multiple --characters per flag or use multiple --character flags",
+            required=False,
+            )
+    parser_cm.add_argument('--analyses',
+            help="Only include data created with these analyses. You can add multiple --analyses per flag or use multiple --analyses flags",
+            required=False,
+            )
+    parser_cm.add_argument('--or',
+            action='store_true',
+            default=False,
+            help="Apply search terms using 'or'. Default is 'and'.")
+    parser_cm.add_argument('--only',
+            action='store_true',
+            default=False,
+            help="Apply character and character types search such that the tree must contain *only* the desired terms."
+            )
+    parser_cm.set_defaults(func=create_subset)
     # parse the arguments, and strip out the common options
     args = parser.parse_args()
     verbose = args.verbose
