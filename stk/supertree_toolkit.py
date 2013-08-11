@@ -2012,7 +2012,7 @@ def parse_subs_file(filename):
     return old_taxa, new_taxa
 
 
-def create_subset(XML,search_terms,andSearch=True,includeMultiple=True):
+def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWarnings=False):
     """Create a new dataset which is a subset of the incoming one.
        searchTerms is a dict, with the following keys:
        years - list consisting of the years to include. An entry can contain two years seperated by -. A range will then
@@ -2042,6 +2042,9 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True):
     if len(search_terms) == 0:
         print "Warning: No search terms present, returning original XML"
         return XML
+
+    if not ignoreWarnings:
+        _check_data(XML)
 
     # We just need to preprocess the years
     final_years = []

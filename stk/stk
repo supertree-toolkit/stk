@@ -1132,6 +1132,7 @@ def replace_genera(args):
         f.write(XML)
     f.close()
 
+
 def convert_file(args):
 
     # Parse the args
@@ -1193,6 +1194,66 @@ def convert_file(args):
     f.write(output)
     f.close()
 
+
+def create_subset(args):
+
+    # Parse the args
+    verbose = args.verbose
+    ignoreWarnings = args.ignoreWarnings
+    output_file = args.output
+    input_file = args.input
+    overwrite = args.overwrite
+    years = args.years
+    taxa = args.taxa
+    character_types = args.character_types
+    characters = args.characters
+    analyses = args.analyses
+    andSearch = not args.or
+    includeMultiple = not args.only
+
+    if (not os.path.exists(input_file)):
+        print "Input phyml cannot be found. Exiting"
+        sys.exit(-1)
+
+    # check if output files are there
+    if (os.path.exists(output_file) and not overwrite):
+        print "Output file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+
+
+    # The search function does all the hard work, we just need to create the search dictionary
+    searchTerms = {'years':years,
+                   'taxa':taxa,
+                   'character_types': character_types,
+                   'characters': characters,
+                   'analyses': analyses}
+    XML = supertree_toolkit.load_phyml(input_file)
+
+    try:
+        new_xml = create_subset(XML,searchTerms,andSearch=andSearch,includeMultiple=includeMultiple,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to create subset.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to create subset.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to create subset.\n"+detail.msg
+        print msg
+        return
+    
+    f = open(output_file, "w")
+    f.write(new_XML)
+    f.close()
 
 if __name__ == "__main__":
     main()
