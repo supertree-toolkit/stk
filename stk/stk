@@ -419,6 +419,7 @@ def main():
             required=False,
             )
     parser_cm.add_argument('--or',
+            dest="or_search", 
             action='store_true',
             default=False,
             help="Apply search terms using 'or'. Default is 'and'.")
@@ -428,6 +429,7 @@ def main():
             help="Apply character and character types search such that the tree must contain *only* the desired terms."
             )
     parser_cm.set_defaults(func=create_subset)
+
     # parse the arguments, and strip out the common options
     args = parser.parse_args()
     verbose = args.verbose
@@ -1208,7 +1210,7 @@ def create_subset(args):
     character_types = args.character_types
     characters = args.characters
     analyses = args.analyses
-    andSearch = not args.or
+    andSearch = not args.or_search
     includeMultiple = not args.only
 
     if (not os.path.exists(input_file)):
