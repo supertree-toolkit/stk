@@ -410,12 +410,17 @@ def main():
             choices=['molecular', 'morphological', 'behavioural', 'other'],
             required=False,
             )
-    parser_cm.add_argument('--character',
+    parser_cm.add_argument('--characters',
             help="Only include data with these characters. You can add multiple --characters per flag or use multiple --character flags",
             required=False,
             )
     parser_cm.add_argument('--analyses',
             help="Only include data created with these analyses. You can add multiple --analyses per flag or use multiple --analyses flags",
+            required=False,
+            )
+    parser_cm.add_argument('--fossil',
+            help="Set fossils to all_extant (no fossils) or all_fossil. Default is that a mix is allowed and requires no option.",
+            choices=['all_extant','all_fossil'],    
             required=False,
             )
     parser_cm.add_argument('--or',
@@ -1212,6 +1217,7 @@ def create_subset(args):
     analyses = args.analyses
     andSearch = not args.or_search
     includeMultiple = not args.only
+    fossil = args.fossil
 
     if (not os.path.exists(input_file)):
         print "Input phyml cannot be found. Exiting"
@@ -1229,17 +1235,29 @@ def create_subset(args):
             if k.lower() == 'y':
                 break
 
+    if (years == None):
+        years = []
+    if (taxa == None):
+        taxa = []
+    if (character_types == None):
+        character_types = []
+    if (characters == None):
+        characters = []
+    if (analyses == None):
+        analyses = []
+
 
     # The search function does all the hard work, we just need to create the search dictionary
     searchTerms = {'years':years,
                    'taxa':taxa,
                    'character_types': character_types,
                    'characters': characters,
-                   'analyses': analyses}
+                   'analyses': analyses,
+                   'fossil' : fossil}
     XML = supertree_toolkit.load_phyml(input_file)
 
     try:
-        new_xml = create_subset(XML,searchTerms,andSearch=andSearch,includeMultiple=includeMultiple,ignoreWarnings=ignoreWarnings)
+        new_XML = supertree_toolkit.create_subset(XML,searchTerms,andSearch=andSearch,includeMultiple=includeMultiple,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
         msg = "***Error: Failed to create subset.\n"+detail.msg
         print msg
@@ -1252,6 +1270,9 @@ def create_subset(args):
         msg = "***Error: Failed to create subset.\n"+detail.msg
         print msg
         return
+
+    new_XML = supertree_toolkit.add_historical_event(new_XML, "Subset created with " +" ".join(sys.argv)) 
+    
     
     f = open(output_file, "w")
     f.write(new_XML)

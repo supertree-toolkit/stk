@@ -2021,7 +2021,7 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
        character_types - list of character types to include (Molecular, Morphological, Behavioural or Other)
        analyses - list of analyses to include (MRP, etc)
        taxa - list of taxa that must be in a source tree
-       fossils - one of none, all
+       fossil - all_fossil or all_extant
 
        Multiple requests produce *and* matches (so between 2000-2010 *and* Molecular *and* contain Gallus gallus) unless 
        andSearch is false. If it is, an *or* search is used. So the example would be years 2000-2010 *or* Molecular
@@ -2113,46 +2113,47 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
     # and matching source trees only.
     try:
         charTypes = search_terms['character_types']
-        for s in sources:
-            st = s.findall(".//source_tree")
-            include_source = False
-            for t in st:
-                ct = t.findall(".//character")
-                include = False
-                if (andSearch and includeMultiple): # and search but tree can contain other types too
-                    # uniqify ct, sort and compare to sorted charTypes - charTypes is a subset 
-                    # of ct, include
-                    this_trees_chars = []
-                    for c in ct:
-                        this_trees_chars.append(c.attrib['type'])
-                    if (set(charTypes).issubset(this_trees_chars)):
-                        include = True
-                        include_source = True
-                    if (not include):    
-                        t.getparent().remove(t)
-                elif (andSearch==False): # or search 
-                    for c in ct:
-                        if c.attrib['type'] in charTypes:
+        if (len(charTypes) > 0):
+            for s in sources:
+                st = s.findall(".//source_tree")
+                include_source = False
+                for t in st:
+                    ct = t.findall(".//character")
+                    include = False
+                    if (andSearch and includeMultiple): # and search but tree can contain other types too
+                        # uniqify ct, sort and compare to sorted charTypes - charTypes is a subset 
+                        # of ct, include
+                        this_trees_chars = []
+                        for c in ct:
+                            this_trees_chars.append(c.attrib['type'])
+                        if (set(charTypes).issubset(this_trees_chars)):
                             include = True
                             include_source = True
-                    if (not include):    
-                        t.getparent().remove(t)
-                else: # and search and tree must contain *only* the search terms
-                    include = True
-                    for c in ct:
-                        if not c.attrib['type'] in charTypes:
-                            include = False
-                            break
-                    if (include):
-                        include_source = True                                
-                    if (not include):    
-                        t.getparent().remove(t)
-            if include_source:
-                # This is the source with the non-matching source_tree elements removed
-                matching_sources.append(s)
-        if (andSearch):
-            sources = matching_sources
-            matching_sources = []     
+                        if (not include):    
+                            t.getparent().remove(t)
+                    elif (andSearch==False): # or search 
+                        for c in ct:
+                            if c.attrib['type'] in charTypes:
+                                include = True
+                                include_source = True
+                        if (not include):    
+                            t.getparent().remove(t)
+                    else: # and search and tree must contain *only* the search terms
+                        include = True
+                        for c in ct:
+                            if not c.attrib['type'] in charTypes:
+                                include = False
+                                break
+                        if (include):
+                            include_source = True                                
+                        if (not include):    
+                            t.getparent().remove(t)
+                if include_source:
+                    # This is the source with the non-matching source_tree elements removed
+                    matching_sources.append(s)
+            if (andSearch):
+                sources = matching_sources
+                matching_sources = []     
     except KeyError:
         charTypes = []
 
@@ -2160,46 +2161,47 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
     # Now character
     try:
         chars = search_terms['characters']
-        for s in sources:
-            st = s.findall(".//source_tree")
-            include_source = False
-            for t in st:
-                ct = t.findall(".//character")
-                include = False
-                if (andSearch and includeMultiple): # and search but tree can contain other types too
-                    # uniqify ct, sort and compare to sorted charTypes - charTypes is a subset 
-                    # of ct, include
-                    this_trees_chars = []
-                    for c in ct:
-                        this_trees_chars.append(c.attrib['name'])
-                    if (set(chars).issubset(this_trees_chars)):
-                        include = True
-                        include_source = True
-                    if (not include):    
-                        t.getparent().remove(t)
-                elif (andSearch==False): # or search 
-                    for c in ct:
-                        if c.attrib['name'] in chars:
+        if (len(chars) == 0):
+            for s in sources:
+                st = s.findall(".//source_tree")
+                include_source = False
+                for t in st:
+                    ct = t.findall(".//character")
+                    include = False
+                    if (andSearch and includeMultiple): # and search but tree can contain other types too
+                        # uniqify ct, sort and compare to sorted charTypes - charTypes is a subset 
+                        # of ct, include
+                        this_trees_chars = []
+                        for c in ct:
+                            this_trees_chars.append(c.attrib['name'])
+                        if (set(chars).issubset(this_trees_chars)):
                             include = True
                             include_source = True
-                    if (not include):    
-                        t.getparent().remove(t)
-                else: # and search and tree must contain *only* the search terms
-                    include = True
-                    for c in ct:
-                        if not c.attrib['name'] in chars:
-                            include = False
-                            break
-                    if (include):
-                        include_source = True                                
-                    if (not include):    
-                        t.getparent().remove(t)
-            if include_source:
-                # This is the source with the non-matching source_tree elements removed
-                matching_sources.append(s)
-        if (andSearch):
-            sources = matching_sources
-            matching_sources = []  
+                        if (not include):    
+                            t.getparent().remove(t)
+                    elif (andSearch==False): # or search 
+                        for c in ct:
+                            if c.attrib['name'] in chars:
+                                include = True
+                                include_source = True
+                        if (not include):    
+                            t.getparent().remove(t)
+                    else: # and search and tree must contain *only* the search terms
+                        include = True
+                        for c in ct:
+                            if not c.attrib['name'] in chars:
+                                include = False
+                                break
+                        if (include):
+                            include_source = True                                
+                        if (not include):    
+                            t.getparent().remove(t)
+                if include_source:
+                    # This is the source with the non-matching source_tree elements removed
+                    matching_sources.append(s)
+            if (andSearch):
+                sources = matching_sources
+                matching_sources = []  
     except KeyError:
         chars = []
 
@@ -2245,38 +2247,39 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
                 if include_source:
                     # This is the source with the non-matching source_tree elements removed
                     matching_sources.append(s)
-        if (andSearch):
-            sources = matching_sources
-            matching_sources = []  
+            if (andSearch):
+                sources = matching_sources
+                matching_sources = []  
     except KeyError:
         taxa = [] 
 
     # Finally, fossils. Just seach for all or none
     try:
         fossil = search_terms['fossil'] # can be none or all
-        for s in sources:
-            st = s.findall(".//source_tree")
-            include_source = False
-            for t in st:
-                all_extant = False
-                all_fossil = False
-                if (len(t.findall(".//all_extant")) > 0):
-                    all_extant = True
-                elif (len(t.findall(".//all_fossil")) > 0):
-                    all_fossil = True
-                include = False
-                if ((fossil == "all_extant" and all_extant) or
-                    (fossil == "all_fossil" and all_fossil)):
-                    include = True
-                    include_source = True
-                if (not include):    
-                    t.getparent().remove(t)
-            if include_source:
-                # This is the source with the non-matching source_tree elements removed
-                matching_sources.append(s)
-        if (andSearch):
-            sources = matching_sources
-            matching_sources = []  
+        if (fossil == "all_extant" or fossil == "all_fossil"):
+            for s in sources:
+                st = s.findall(".//source_tree")
+                include_source = False
+                for t in st:
+                    all_extant = False
+                    all_fossil = False
+                    if (len(t.findall(".//all_extant")) > 0):
+                        all_extant = True
+                    elif (len(t.findall(".//all_fossil")) > 0):
+                        all_fossil = True
+                    include = False
+                    if ((fossil == "all_extant" and all_extant) or
+                        (fossil == "all_fossil" and all_fossil)):
+                        include = True
+                        include_source = True
+                    if (not include):    
+                        t.getparent().remove(t)
+                if include_source:
+                    # This is the source with the non-matching source_tree elements removed
+                    matching_sources.append(s)
+            if (andSearch):
+                sources = matching_sources
+                matching_sources = []  
     except KeyError:
         taxa = [] 
 
