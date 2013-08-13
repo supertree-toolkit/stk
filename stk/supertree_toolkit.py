@@ -2161,7 +2161,7 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
     # Now character
     try:
         chars = search_terms['characters']
-        if (len(chars) == 0):
+        if (len(chars) > 0):
             for s in sources:
                 st = s.findall(".//source_tree")
                 include_source = False
