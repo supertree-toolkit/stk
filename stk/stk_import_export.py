@@ -204,8 +204,9 @@ def convert_to_phyml_source(xml_root):
         a = unicodedata.normalize('NFKD', a).encode('ascii','ignore')
     authors_t = a.split(',')
     authors_temp = []
-    for a in authors_t:
-        authors_temp.extend(a.split(' and '))
+    if (len(authors_t) > 1):
+        for a in authors_t:
+            authors_temp.extend(a.split(' and '))
 
     if (len(authors_temp) > 1):
         i = 0
@@ -220,12 +221,13 @@ def convert_to_phyml_source(xml_root):
                     author_list.append(authors_temp[i])
                     i += 1
             else:
+                author_list.append(authors_temp[i])
                 i += 1
     else:
-        author_list = input_author.split(' and ')
+        author_list = a.split('and')
 
     if (len(author_list) == 0):
-	author_list.append(input_author)
+	    author_list.append(input_author)
    
     phyml_root = etree.Element("source")
     publication = etree.SubElement(phyml_root,"bibliographic_information")
@@ -263,6 +265,10 @@ def convert_to_phyml_source(xml_root):
     string = etree.SubElement(title,"string_value")
     string.attrib['lines'] = "1"
     string.text = input_title
+    volume = etree.SubElement(article,"volume")
+    string = etree.SubElement(volume,"string_value")
+    string.attrib['lines'] = "1"
+    string.text = input_volume
     year = etree.SubElement(article,"year")
     integer = etree.SubElement(year,"integer_value")
     integer.attrib['rank'] = "0"

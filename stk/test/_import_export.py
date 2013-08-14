@@ -98,7 +98,7 @@ class TestImportExport(unittest.TestCase):
                 'Barber_Peterson_2004',
                 'Baker_etal_2005',
                 'Andersson_1999a',
-                'Baptista_Visser_1999'
+                'Baptista_etal_1999'
                 ]
         for s in sources:
             name = s.attrib['name']
@@ -108,6 +108,10 @@ class TestImportExport(unittest.TestCase):
                 find = etree.XPath('source_tree')
                 trees = find(s)
                 self.assert_(len(trees) == 3)
+            if name == "Baptista_etal_1999":
+                volume = s.xpath('.//bibliographic_information/article/volume/string_value')[0].text
+                self.assert_(volume == "140")
+
 
         # check total number of characters
 
