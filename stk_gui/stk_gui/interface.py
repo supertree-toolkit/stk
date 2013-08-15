@@ -176,7 +176,8 @@ class Diamond:
                     "on_permute_all_trees": self.on_permute_all_trees,
                     "on_str": self.on_str,
                     "on_replace_genera": self.on_replace_genera,
-                    "on_clean_data": self.on_clean_data
+                    "on_clean_data": self.on_clean_data,
+                    "on_create_subset": self.on_create_subset
                     }
 
     self.gui.signal_autoconnect(signals)
@@ -2325,6 +2326,45 @@ class Diamond:
       filename = dialogs.get_filename(title = "Choose output phyml file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
       filename_textbox = self.replace_genera_gui.get_widget("entry2")
       filename_textbox.set_text(filename)
+
+
+  # create subset of data
+  def on_create_subset(self, widget=None):
+    """ Create a sibset of the data. 
+    """
+
+    signals = {"on_subset_dialog_close": self.on_subset_cancel_button,
+               "on_subset_cancel_clicked": self.on_subset_cancel_button,
+               "on_subset_clicked": self.on_subset_button,
+               "on_subset_add_clicked": self.on_subset_add_clicked}
+
+    self.sub_taxa_gui = gtk.glade.XML(self.gladefile, root="sub_taxa_dialog")
+    self.sub_taxa_dialog = self.sub_taxa_gui.get_widget("sub_taxa_dialog")
+    self.sub_taxa_gui.signal_autoconnect(signals)
+    sub_taxa_button = self.sub_taxa_gui.get_widget("sub_taxa_button")
+    sub_taxa_button.connect("activate", self.on_sub_taxa_sub_taxa_button)
+    self.taxa_list_treeview = self.sub_taxa_gui.get_widget("treeview_taxa_list")
+    self.sub_list_treeview = self.sub_taxa_gui.get_widget("treeview_sub_taxa")
+
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+
+    # now set up the other list
+    self.liststore_sub = gtk.ListStore(str,str)
+    rendererText = gtk.CellRendererText()
+    editcell = gtk.CellRendererText()
+    column = gtk.TreeViewColumn("Taxa to be subbed", rendererText, text=0)
+    self.sub_list_treeview.append_column(column)
+    column1 = gtk.TreeViewColumn("Subs", editcell, text=1)
+    editcell.connect('edited', self.edited_cb)
+    self.sub_list_treeview.append_column(column1)
+    self.sub_list_treeview.set_model(self.liststore_sub)
+    # No data yet
+ 
+    self.sub_taxa_dialog.show_all()
+
+    return
 
 
   def update_data(self,ios, error, skip_warning=False):

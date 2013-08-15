@@ -1955,6 +1955,17 @@
                       <widget class="GtkMenuItem" id="clean_data">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Create a subset from these data</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Create subset</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_create_subset" swapped="no"/>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="clean_data">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="tooltip" translatable="yes">Clean data by removing bad data</property>
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Clean Data</property>
@@ -3162,6 +3173,8 @@
     <property name="default_width">600</property>
     <property name="default_height">800</property>
     <property name="type_hint">dialog</property>
+    <signal name="close" handler="on_subset_dialog_close" swapped="no"/>
+    <signal name="destroy" handler="on_subset_dialog_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox15">
         <property name="visible">True</property>
@@ -3179,6 +3192,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
+                <signal name="clicked" handler="on_subset_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -3193,6 +3207,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
+                <signal name="clicked" handler="on_subset_cancel_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -3247,6 +3262,7 @@
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_stock">True</property>
+                        <signal name="clicked" handler="on_subset_add_clicked" swapped="no"/>
                       </widget>
                       <packing>
                         <property name="expand">True</property>
