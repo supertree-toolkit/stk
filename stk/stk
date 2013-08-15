@@ -833,7 +833,10 @@ def import_data(args):
             if k.lower() == 'y':
                 break
 
-    phyml = supertree_import_export.import_old_data(input_dir,verbose=verbose) 
+    try:
+        phyml = supertree_import_export.import_old_data(input_dir,verbose=verbose) 
+    except STKImportExportError as e:
+        print e.msg
     # Add an event to the history of the file
     phyml = supertree_toolkit.add_historical_event(phyml, "Data created using: "+ " ".join(sys.argv)) 
     f = open(output_file, "w")
