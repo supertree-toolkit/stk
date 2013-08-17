@@ -878,8 +878,8 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkRadioButton" id="file_format_html_chooser">
-                        <property name="label" translatable="yes">HTML</property>
+                      <widget class="GtkRadioButton" id="file_format_short_chooser">
+                        <property name="label" translatable="yes">Text (short)</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -912,8 +912,8 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkRadioButton" id="file_format_short_chooser">
-                        <property name="label" translatable="yes">Text (short)</property>
+                      <widget class="GtkRadioButton" id="file_format_html_chooser">
+                        <property name="label" translatable="yes">HTML</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -1963,7 +1963,7 @@
                       </widget>
                     </child>
                     <child>
-                      <widget class="GtkMenuItem" id="clean_data">
+                      <widget class="GtkMenuItem" id="clean_data1">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip" translatable="yes">Clean data by removing bad data</property>
@@ -2166,13 +2166,9 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkHButtonBox" id="plugin_buttonbox">
+          <widget class="GtkStatusbar" id="statusBar">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="layout_style">start</property>
-            <child>
-              <placeholder/>
-            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -2181,9 +2177,13 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkStatusbar" id="statusBar">
+          <widget class="GtkHButtonBox" id="plugin_buttonbox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="layout_style">start</property>
+            <child>
+              <placeholder/>
+            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -3169,9 +3169,9 @@
   <widget class="GtkDialog" id="subset_dialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
-    <property name="title" translatable="yes">Substitute Taxa</property>
+    <property name="title" translatable="yes">Create Subset</property>
     <property name="default_width">600</property>
-    <property name="default_height">800</property>
+    <property name="default_height">600</property>
     <property name="type_hint">dialog</property>
     <signal name="close" handler="on_subset_dialog_close" swapped="no"/>
     <signal name="destroy" handler="on_subset_dialog_close" swapped="no"/>
@@ -3260,6 +3260,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="tooltip" translatable="yes">Add a new search term</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_stock">True</property>
                         <signal name="clicked" handler="on_subset_add_clicked" swapped="no"/>
@@ -3268,6 +3269,22 @@
                         <property name="expand">True</property>
                         <property name="fill">False</property>
                         <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="GtkButton" id="subset_remove">
+                        <property name="label">gtk-delete</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="tooltip" translatable="yes">Remove selected search term</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="use_stock">True</property>
+                      </widget>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">False</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                   </widget>
@@ -3282,6 +3299,49 @@
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkHBox" id="hbox2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <widget class="GtkCheckButton" id="or_search_check">
+                    <property name="label" translatable="yes">"Or" search</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="tooltip" translatable="yes">Perform an "or" search. Default is "and"</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="draw_indicator">True</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkCheckButton" id="only_search_check">
+                    <property name="label" translatable="yes">"Only" search</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="tooltip" translatable="yes">If "character" or "character type", select those that &lt;b&gt;only&lt;/b&gt; contain the desired term, rather then mixed terms</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="draw_indicator">True</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
               </packing>
             </child>
             <child>
