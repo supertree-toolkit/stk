@@ -381,6 +381,60 @@ def main():
     parser_cm.set_defaults(func=convert_file)
 
 
+    # create subset
+    parser_cm = subparsers.add_parser('create_subset',
+            help="""Create a subset from the PHYML containing only certain years, characters, 
+                    taxa or analyses. Use the data summary command to see all the data, such 
+                    as characters, that are present in your data. By default does an "and" search' and 
+                    allows matches when trees contain the desired character type and other types. See 
+                    manual for examples"""
+            )
+    parser_cm.add_argument('input', 
+            help='The input file')
+    parser_cm.add_argument('output', 
+            help='The output file')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing file without asking for confirmation")
+    parser_cm.add_argument('--years',
+            help="Only include data with these years. You can add multiple years per --year flar, use --year flags and/or use ranges, e.g. 2010-2013",
+            required=False,
+            )
+    parser_cm.add_argument('--taxa',
+            help="Only include data with these taxa. You can add multiple --taxa per flag or use multiple --taxa flags",
+            required=False,
+            )
+    parser_cm.add_argument('--character_types',
+            help="Only include data with these character_types. You can add multiple --character_types or use multiple --character_types flags. Choices are molecular, morphological, behavioural, other",
+            choices=['molecular', 'morphological', 'behavioural', 'other'],
+            required=False,
+            )
+    parser_cm.add_argument('--characters',
+            help="Only include data with these characters. You can add multiple --characters per flag or use multiple --character flags",
+            required=False,
+            )
+    parser_cm.add_argument('--analyses',
+            help="Only include data created with these analyses. You can add multiple --analyses per flag or use multiple --analyses flags",
+            required=False,
+            )
+    parser_cm.add_argument('--fossil',
+            help="Set fossils to all_extant (no fossils) or all_fossil. Default is that a mix is allowed and requires no option.",
+            choices=['all_extant','all_fossil'],    
+            required=False,
+            )
+    parser_cm.add_argument('--or',
+            dest="or_search", 
+            action='store_true',
+            default=False,
+            help="Apply search terms using 'or'. Default is 'and'.")
+    parser_cm.add_argument('--only',
+            action='store_true',
+            default=False,
+            help="Apply character and character types search such that the tree must contain *only* the desired terms."
+            )
+    parser_cm.set_defaults(func=create_subset)
+
     # parse the arguments, and strip out the common options
     args = parser.parse_args()
     verbose = args.verbose
@@ -1088,6 +1142,7 @@ def replace_genera(args):
         f.write(XML)
     f.close()
 
+
 def convert_file(args):
 
     # Parse the args
@@ -1149,6 +1204,82 @@ def convert_file(args):
     f.write(output)
     f.close()
 
+
+def create_subset(args):
+
+    # Parse the args
+    verbose = args.verbose
+    ignoreWarnings = args.ignoreWarnings
+    output_file = args.output
+    input_file = args.input
+    overwrite = args.overwrite
+    years = args.years
+    taxa = args.taxa
+    character_types = args.character_types
+    characters = args.characters
+    analyses = args.analyses
+    andSearch = not args.or_search
+    includeMultiple = not args.only
+    fossil = args.fossil
+
+    if (not os.path.exists(input_file)):
+        print "Input phyml cannot be found. Exiting"
+        sys.exit(-1)
+
+    # check if output files are there
+    if (os.path.exists(output_file) and not overwrite):
+        print "Output file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+
+    if (years == None):
+        years = []
+    if (taxa == None):
+        taxa = []
+    if (character_types == None):
+        character_types = []
+    if (characters == None):
+        characters = []
+    if (analyses == None):
+        analyses = []
+
+
+    # The search function does all the hard work, we just need to create the search dictionary
+    searchTerms = {'years':years,
+                   'taxa':taxa,
+                   'character_types': character_types,
+                   'characters': characters,
+                   'analyses': analyses,
+                   'fossil' : fossil}
+    XML = supertree_toolkit.load_phyml(input_file)
+
+    try:
+        new_XML = supertree_toolkit.create_subset(XML,searchTerms,andSearch=andSearch,includeMultiple=includeMultiple,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to create subset.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to create subset.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to create subset.\n"+detail.msg
+        print msg
+        return
+
+    new_XML = supertree_toolkit.add_historical_event(new_XML, "Subset created with " +" ".join(sys.argv)) 
+    
+    
+    f = open(output_file, "w")
+    f.write(new_XML)
+    f.close()
 
 if __name__ == "__main__":
     main()
