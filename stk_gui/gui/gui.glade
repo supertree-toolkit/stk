@@ -3280,6 +3280,7 @@
                         <property name="tooltip" translatable="yes">Remove selected search term</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_stock">True</property>
+                        <signal name="clicked" handler="on_subset_remove_clicked" swapped="no"/>
                       </widget>
                       <packing>
                         <property name="expand">True</property>

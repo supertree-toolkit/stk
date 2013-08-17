@@ -2336,7 +2336,8 @@ class Diamond:
     signals = {"on_subset_dialog_close": self.on_subset_cancel_button,
                "on_subset_cancel_clicked": self.on_subset_cancel_button,
                "on_subset_clicked": self.on_subset_button,
-               "on_subset_add_clicked": self.on_subset_add_clicked}
+               "on_subset_add_clicked": self.on_subset_add_clicked,
+               "on_subset_remove_clicked": self.on_subset_remove_clicked}
 
     self.subset_gui = gtk.glade.XML(self.gladefile, root="subset_dialog")
     self.subset_dialog = self.subset_gui.get_widget("subset_dialog")
@@ -2403,12 +2404,18 @@ class Diamond:
       self.liststore_search[path][1] = new_text
       return
 
+  def on_subset_remove_clicked(self, button):
+      treeselection =  self.search_list_treeview.get_selection()
+      (model,row) = treeselection.get_selected()
+      if (not row == None):
+        model.remove(row)
+      return
 
   def on_subset_cancel_button(self, button):
       self.subset_dialog.hide()
 
   def on_subset_add_clicked(self, button):
-      self.liststore_search.append((None,None))
+      self.liststore_search.append(("Year",None))
       
 
   def on_subset_button(self, button):
@@ -2440,12 +2447,14 @@ class Diamond:
         if row[0] == "Fossil":
             searchTerms['fossil'].extend(row[1].split(","))
 
-     ignoreWarnings = self.subset_gui.get_widget("ignoreWarnings_checkbutton").get_active()    
+     ignoreWarnings = self.subset_gui.get_widget("ignoreWarnings_checkbutton").get_active() 
+     andSearch = not (self.subset_gui.get_widget("or_search_check").get_active())
+     includeMultiple = not (self.subset_gui.get_widget("only_search_check").get_active())
      f = StringIO.StringIO()
      self.tree.write(f)
      XML = f.getvalue() 
      try:
-        new_XML = stk.create_subset(XML,searchTerms,andSearch=True,includeMultiple=True,ignoreWarnings=ignoreWarnings)
+        new_XML = stk.create_subset(XML,searchTerms,andSearch=andSearch,includeMultiple=includeMultiple,ignoreWarnings=ignoreWarnings)
      except NotUniqueError as detail:
         msg = "Failed to replace generic taxa.\n"+detail.msg
         dialogs.error(self.main_window,msg)
