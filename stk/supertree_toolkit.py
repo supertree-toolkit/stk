@@ -1133,6 +1133,27 @@ def get_analyses_used(XML):
 
     return analyses
 
+def get_characters_used(XML):
+    """ Return a sorted, unique array of all character names used
+    in this dataset
+    """
+
+    c_ = []
+
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//character")
+    chars = find(xml_root)
+
+    for c in chars:
+        name = c.attrib['name']
+        ctype = c.attrib['type']
+        c_.append((name,ctype))
+
+    characters = _uniquify(c_) 
+    characters.sort()
+
+    return characters
+
 def get_publication_years(XML):
     """Return a dictionary of years and the number of publications
     within that year
