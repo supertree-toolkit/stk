@@ -464,3 +464,99 @@ real_tensor =
       },
       comment
    )
+
+
+consensus =
+(
+    element consensus_type {
+        attribute name {string}
+    }|
+    element consensus_type {
+        attribute name {"Strict"}
+    }|
+    element consensus_type {
+        attribute name {"Majority Rules 50%"}
+    }|
+    element consensus_type {
+        attribute name {"Adams"}
+    }
+)
+
+support =
+(
+    element type_of_support {
+        attribute name {string}
+    }|
+    element type_of_support {
+        attribute name {"Jacknifing"}
+    }|
+    element type_of_support {
+        attribute name {"Bootstrapping"}
+    }|
+    element type_of_support {
+        attribute name {"Bremer Support"}
+    }
+)
+
+evolution_models =
+(
+    element model_of_evolution {
+        attribute name {string},
+        attribute character {string},
+        (
+        empty
+        )
+    }*
+)
+
+conservation = 
+(
+    element conservation_status {
+		element iucn_red_list {
+            element category {
+			    anystring
+		    }?,
+            element criteria {
+			    anystring
+		    }?,
+		    element url {
+			    anystring
+		    }?
+		}?,
+		element uk_bap {
+		    element category {
+			    anystring
+		    }?,
+		    element criteria {
+			    anystring
+		    }?,
+		    element url {
+			    anystring
+		    }?
+		}?
+    }?
+)
+
+
+char_info=
+(
+    ## Is the data online anywhere, e.g. as a NEXUS file?
+    element link_to_online_data {
+        anystring
+    }?,
+    element alignment_method {
+        element algorithm_or_method {
+            string
+        }?,
+        software?,
+        element parameters_used {
+            anystring
+        }?,
+        ## was the alignment corrected in any way?
+        element corrected {
+            empty
+        }?
+    }?,
+    comment
+)
+

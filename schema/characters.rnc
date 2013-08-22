@@ -74,24 +74,3 @@ characters =
           }+
     )
 
-char_info=
-(
-    ## Is the data online anywhere, e.g. as a NEXUS file?
-    element link_to_online_data {
-        anystring
-    }?,
-    element alignment_method {
-        element algorithm_or_method {
-            string
-        }?,
-        software?,
-        element parameters_used {
-            anystring
-        }?,
-        ## was the alignment corrected in any way?
-        element corrected {
-            empty
-        }?
-    }?,
-    comment
-)

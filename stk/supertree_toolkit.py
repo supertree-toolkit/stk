@@ -278,21 +278,11 @@ def import_bibliography(XML, bibfile):
             page_number_string.tail="\n      "
             page_number_string.attrib['rank'] = "0"
             tree_inference = etree.SubElement(tree,"tree_inference")
-            optimality_criterion = etree.SubElement(tree_inference,"optimality_criterion")
             # taxa data
             taxa = etree.SubElement(s_tree,"taxa_data")
             taxa.tail="\n      "
-            mixed_fossil_and_extant = etree.SubElement(taxa,"mixed_fossil_and_extant")
-            mixed_fossil_and_extant.tail="\n      "
-            taxon = etree.SubElement(mixed_fossil_and_extant,"taxon")
-            taxon.tail="\n      "
-            fossil = etree.SubElement(taxon,"fossil")
-            fossil.tail="\n   "
-            # character data
-            character_data = etree.SubElement(s_tree,"character_data")
-            character_data.tail="\n      "
-            character = etree.SubElement(character_data,"character")
-            character.tail="\n      "
+            # Note: we do not add all elements as otherwise they get set to some option
+            # rather than remaining blank (and hence blue int he interface)
 
             # append our new source to the main tree
             # if sources has no valid source, overwrite,
