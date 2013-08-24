@@ -16,6 +16,7 @@
 #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
 
 import plist
+import re
 
 class MixedTree:
   def __init__(self, parent, child):

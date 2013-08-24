@@ -176,7 +176,8 @@ class Diamond:
                     "on_permute_all_trees": self.on_permute_all_trees,
                     "on_str": self.on_str,
                     "on_replace_genera": self.on_replace_genera,
-                    "on_clean_data": self.on_clean_data
+                    "on_clean_data": self.on_clean_data,
+                    "on_create_subset": self.on_create_subset
                     }
 
     self.gui.signal_autoconnect(signals)
@@ -2326,6 +2327,160 @@ class Diamond:
       filename_textbox = self.replace_genera_gui.get_widget("entry2")
       filename_textbox.set_text(filename)
 
+
+  # create subset of data
+  def on_create_subset(self, widget=None):
+    """ Create a sibset of the data. 
+    """
+
+    signals = {"on_subset_dialog_close": self.on_subset_cancel_button,
+               "on_subset_cancel_clicked": self.on_subset_cancel_button,
+               "on_subset_clicked": self.on_subset_button,
+               "on_subset_add_clicked": self.on_subset_add_clicked,
+               "on_subset_remove_clicked": self.on_subset_remove_clicked}
+
+    self.subset_gui = gtk.glade.XML(self.gladefile, root="subset_dialog")
+    self.subset_dialog = self.subset_gui.get_widget("subset_dialog")
+    self.subset_gui.signal_autoconnect(signals)
+    subset_button = self.subset_gui.get_widget("subset_button")
+    subset_button.connect("activate", self.on_subset_button)
+    self.search_list_treeview = self.subset_gui.get_widget("treeview_search_terms")
+
+    f = StringIO.StringIO()
+    self.tree.write(f)
+    XML = f.getvalue()
+
+    # Set up the treeview, that can be used to
+    # construct the search
+    # First set up the "thing" to search for dropdown box
+    self.search_in = gtk.ListStore(gobject.TYPE_STRING) # Yes, this uses a ListStore too...not at all confusing.
+    self.search_in.append(['Year'])
+    self.search_in.append(['Taxa'])
+    self.search_in.append(['Character type'])
+    self.search_in.append(['Character'])
+    self.search_in.append(['Analysis'])
+    self.search_in.append(['Fossil'])
+
+    # now we make dropdown boxes for some of the things we can search for
+    self.fossil_search = gtk.ListStore(gobject.TYPE_STRING)
+    self.fossil_search.append(["all_fossil"])
+    self.fossil_search.append(["all_extant"])
+
+    self.character_type_search = gtk.ListStore(gobject.TYPE_STRING)
+    self.character_type_search.append(["Molecular"])
+    self.character_type_search.append(["Morphological"])
+    self.character_type_search.append(["Behavioural"])
+    self.character_type_search.append(["Other"])
+
+    
+    self.liststore_search = gtk.ListStore(str,str)
+    
+    cb = gtk.CellRendererCombo()
+    cb.set_property("model",self.search_in)
+    cb.set_property('text-column', 0)
+    cb.set_property('editable', gtk.TRUE)
+    column = gtk.TreeViewColumn("Search in", cb, text=0)
+    self.search_list_treeview.append_column(column)
+    cb.connect("edited", self.combo_changed, self.liststore_search)
+    
+    rendererText = gtk.CellRendererText()
+    column1 = gtk.TreeViewColumn("Search terms", rendererText, text=1)
+    rendererText.set_property('editable', True)
+    rendererText.connect('edited', self.edited_st)
+    self.search_list_treeview.append_column(column1)
+
+    self.search_list_treeview.set_model(self.liststore_search)
+    # No data yet
+ 
+    self.subset_dialog.show_all()
+
+    return
+
+  def combo_changed(self, widget, path, text, model):
+        model[path][0] = text
+
+  def edited_st(self, cell, path, new_text):
+      # check new_text is valid
+      self.liststore_search[path][1] = new_text
+      return
+
+  def on_subset_remove_clicked(self, button):
+      treeselection =  self.search_list_treeview.get_selection()
+      (model,row) = treeselection.get_selected()
+      if (not row == None):
+        model.remove(row)
+      return
+
+  def on_subset_cancel_button(self, button):
+      self.subset_dialog.hide()
+
+  def on_subset_add_clicked(self, button):
+      self.liststore_search.append(("Year",None))
+      
+
+  def on_subset_button(self, button):
+     # build search and do it
+
+     filter_names_and_patterns = {}
+     filter_names_and_patterns['Phyml file'] = ["*.phyml"]
+     filter_names_and_patterns['All files'] = ["*"]
+     filename = dialogs.get_filename(title = "Choose .phyml fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+
+     searchTerms = {'years':[],
+                   'taxa':[],
+                   'character_types': [],
+                   'characters': [],
+                   'analyses': [],
+                   'fossil' : []}
+     for row in self.liststore_search:
+        # Print values of all columns
+        if row[0] == "Year":
+            searchTerms['years'].extend(row[1].split(","))
+        if row[0] == "Taxa":
+            searchTerms['taxa'].extend(row[1].split(","))
+        if row[0] == "Character type":
+            searchTerms['character_types'].extend(row[1].split(","))
+        if row[0] == "Character":
+            searchTerms['character'].extend(row[1].split(","))
+        if row[0] == "Analysis":
+            searchTerms['analyses'].extend(row[1].split(","))
+        if row[0] == "Fossil":
+            searchTerms['fossil'].extend(row[1].split(","))
+
+     ignoreWarnings = self.subset_gui.get_widget("ignoreWarnings_checkbutton").get_active() 
+     andSearch = not (self.subset_gui.get_widget("or_search_check").get_active())
+     includeMultiple = not (self.subset_gui.get_widget("only_search_check").get_active())
+     f = StringIO.StringIO()
+     self.tree.write(f)
+     XML = f.getvalue() 
+     try:
+        new_XML = stk.create_subset(XML,searchTerms,andSearch=andSearch,includeMultiple=includeMultiple,ignoreWarnings=ignoreWarnings)
+     except NotUniqueError as detail:
+        msg = "Failed to replace generic taxa.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+     except InvalidSTKData as detail:
+        msg = "Failed to replace generic taxa.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+     except UninformativeTreeError as detail:
+        msg = "Failed to replace generic taxa.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return     
+
+     new_XML = stk.add_historical_event(new_XML, "Subset created with " + ', '.join('{}{}'.format(key, val) for key, val in searchTerms.items())) 
+
+     try:
+        phyml = open(filename, "w")
+        phyml.write(new_XML)
+        phyml.close()    
+     except IOError as detail:
+        msg = "Failed to save phyml file.\n"+detail.message
+        dialogs.error(self.main_window,msg)
+     except:
+        msg = "Failed to save phyml file.\n"
+        dialogs.error(self.main_window,msg)
+        return
 
   def update_data(self,ios, error, skip_warning=False):
 
