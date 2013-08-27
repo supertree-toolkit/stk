@@ -1150,7 +1150,7 @@ def get_characters_used(XML):
         c_.append((name,ctype))
 
     characters = _uniquify(c_) 
-    characters.sort()
+    characters.sort(key=lambda x: x[0].lower())
 
     return characters
 
