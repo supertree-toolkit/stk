@@ -51,7 +51,7 @@ from indent import *
 # GLOBAL VARIABLES
 IDENTICAL = 0
 SUBSET = 1
-
+PLATFORM = sys.platform
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -1689,12 +1689,13 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             ax = fig.add_subplot(111)
             cs = nx.draw_circular(G_relabelled,with_labels=True,ax=ax,node_color=colours,cmap=custom,edge_color='k',node_size=100,font_size=8)
             limits=plt.axis('off')
-            vmin, vmax = plt.gci().get_clim()
-            plt.clim(0,vmax)
             plt.axis('equal')
-            ticks = MaxNLocator(integer=True,nbins=9)
-            pp=plt.colorbar(cs, orientation='horizontal', format='%d', ticks=ticks)
-            pp.set_label("No. connected edges")
+            if not PLATFORM.startswith("win"):
+                vmin, vmax = plt.gci().get_clim()
+                plt.clim(0,vmax)
+                ticks = MaxNLocator(integer=True,nbins=9)
+                pp=plt.colorbar(cs, orientation='horizontal', format='%d', ticks=ticks)
+                pp.set_label("No. connected edges")
             if (show):
                 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
                 canvas = FigureCanvas(fig)  # a gtk.DrawingArea 

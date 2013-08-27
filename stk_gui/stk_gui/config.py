@@ -26,14 +26,22 @@ dirs = []
 dirs.append("../")
 if sys.platform == 'darwin':
     dirs.append("../../../../../../share/")
-if sys.platform != "win32" and sys.platform != "win64":
-  dirs.append("/usr/local/share/stk/")
-  dirs.append("/usr/share/stk/")
+try:
+    __file__
+except NameError:
+    __file__ = "."
 
-dirs.append(os.path.join(os.path.expanduser('~'), ".stk"))
+dirs.append("/usr/local/share/stk/")
+dirs.append("/usr/share/stk/")
 dirs.append(os.path.join(os.path.join(os.path.realpath(os.path.dirname(__file__)), "../../../../share/schemata/stk/phylo_storage.rng")))
 dirs.append("/usr/local/share/stk/schema/phylo_storage.rng")
 dirs.append("/usr/share/stk/schema/phylo_storage.rng")
+
+if sys.platform.startswith("win"):
+    dirs.append("data")
+    dirs.append("data/schema")
+dirs.append(os.path.join(os.path.expanduser('~'), ".stk"))
+
 
 config = ConfigParser.SafeConfigParser()
 config.read([os.path.join(path, "settings") for path in reversed(dirs)]) #reversed to load usr last
