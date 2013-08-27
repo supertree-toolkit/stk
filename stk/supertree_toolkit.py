@@ -2499,72 +2499,34 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     """ Simple swap of taxa
     """
 
-    # check if taxa is in there first
-    if (tree.find(old_taxon) == -1):
-        return tree #raise exception?
-
     # swap spaces for _, as we're dealing with Newick strings here
     new_taxon = new_taxon.replace(" ","_")
-    new_taxon = new_taxon.replace("'","")
-    my_old_taxon = old_taxon.replace("'","")
-
-    # trying to replace the same thing
-    if (new_taxon == my_old_taxon):
-        return tree
 
     # remove duplicates in the new taxa
     taxa = new_taxon.split(",")
-    taxa = _uniquify(taxa) 
-    # now check if any of the new taxa are in the tree already, if so skip
-    correct_taxa = []
-    for t in taxa:
-        if (not _tree_contains(t,tree)):
-            t = re.sub(r"(,|^)(?P<name>\w*[=\+]\w*)",r"\1'\g<name>'", t)
-            correct_taxa.append(t)
-        else:
-            # This one is in the tree, but we don't want to 
-            # oversimplify the tree, i.e. non-monophyletic taxa
-            # of the same name should be kept, so...
-            t1 = _parse_tree(tree)
-            siblings = _get_all_siblings(t1.node(my_old_taxon))
-            in_sibs = False
-            if (len(siblings) > 0):
-                for tt in siblings:
-                    m = re.match('('+t+')([0-9]?$)', tt)
-                    if not m == None:
-                        in_sibs = True
-            if (not in_sibs):
-                # get the next number...
-                tree_taxa = t1.getAllLeafNames(t1.root)
-                digit = 1
-                for tt in tree_taxa:
-                    m = re.match('('+t+')([0-9]+$)', tt)
-                    if (not m == None):
-                        # matching taxa
-                        if (not m == None):
-                            d = int(m.group(2))
-                            if d >= digit:
-                                digit = d+1
-                t = re.sub(r"(,|^)(?P<name>\w*[=\+]\w*)",r"\1'\g<name>'", t)
-                correct_taxa.append(t+str(digit))
-            # so the above get the old taxon siblings, and if the new taxon is not
-            # in that list, it means it occurs in a different clade to the old_taxon
-            # and hence we can't just delete this - we'd be removing structure otherwise
-            # BUT we append a 1 (or 2, etc)
+    taxa = _uniquify(taxa)
 
-
-    new_taxon = ",".join(correct_taxa)
+    # Here's the plan - strip the duplicated taxa marker, _\d from the
+    # taxa. We can then just swap taxa in plan text.
+    # When done, p4 can fix duplicated taxa by adding back on _\d
+    # Then we collapse the nodes, taking into account duplicated taxa
+    # This will need several iterations.
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_]*)%[0-9]?",'\g<taxon>',tree)
+    new_taxon = ",".join(taxa)
 
     if (len(new_taxon) == 0):
         # we need to delete instead
         return _delete_taxon(old_taxon,tree)
 
     # simple text swap
-    new_tree = tree.replace(old_taxon,new_taxon)
-
+    new_tree = modified_tree.replace(old_taxon,new_taxon)
+    
     # we might now need a final collapse - e.g. we might get ...(taxon1,taxon2),... due
     # to replacements, but they didn't collapse, so let's do this
-    new_tree = _collapse_nodes(new_tree)
+    for i in range(10): # do at most 10 iterations
+        new_tree = _collapse_nodes(new_tree)
+        if (_trees_equal):
+            break # they match - no need to keep collapsing
 
     return new_tree
 
@@ -2573,8 +2535,11 @@ def _collapse_nodes(in_tree):
         taxon, denoted by taxon1, taxon2, etc
     """
 
-    taxa = _getTaxaFromNewick(in_tree)
-    tree = _parse_tree(in_tree)
+    #print in_tree
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z_]*)%[0-9]*",'\g<taxon>',in_tree)    
+    tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
+    taxa = tree.getAllLeafNames(0)
+    #print tree.writeNewick(fName=None,toString=True).strip()
     
     for t in taxa:
         # we might have removed the current taxon in a previous loop
@@ -2582,14 +2547,17 @@ def _collapse_nodes(in_tree):
             siblings = _get_all_siblings(tree.node(t))
         except p4.Glitch:
             continue
-        m = re.match('(.*[a-zA-Z])([0-9]+$)', t)
+        m = re.match('([a-zA-Z0-9_]*)%[0-9]', t)
         if (not m == None):
             t = m.group(1)
         for s in siblings:
-            m = re.match('('+t+')([0-9]?$)', s)
-            if not m == None:
+            orig_s = s
+            m = re.match('([a-zA-Z0-9_]*)%[0-9]', s)
+            if (not m == None):
+                s = m.group(1)
+            if t == s:
                 # remove this
-                tree.removeNode(tree.node(s),alsoRemoveSingleChildParentNode=True,alsoRemoveBiRoot=False)
+                tree.removeNode(tree.node(orig_s),alsoRemoveSingleChildParentNode=True,alsoRemoveBiRoot=False)
 
     # We also need to clean tree up
     tree.getPreAndPostOrderAboveRoot()
@@ -3043,25 +3011,29 @@ def _parse_trees(tree_block):
         p4.read(tree_block)
         p4.var.nexus_warnSkipUnknownBlock = True
         p4.var.warnReadNoFile = True
-    except:
-        raise TreeParseError("Error parsing " + filename)
+    except p4.Glitch as detail:
+        raise TreeParseError("Error parsing tree\n"+detail.msg )
     trees = p4.var.trees
     p4.var.trees = []
     return trees
 
-def _parse_tree(tree):
+def _parse_tree(tree,fixDuplicateTaxa=False):
     """ Parse a newick string to p4 tree object
     """
 
     try:
+        if (fixDuplicateTaxa):
+            p4.var.doRepairDupedTaxonNames = 2
         p4.var.warnReadNoFile = False
         p4.var.nexus_warnSkipUnknownBlock = False
         p4.var.trees = []
         p4.read(tree)
         p4.var.nexus_warnSkipUnknownBlock = True
         p4.var.warnReadNoFile = True
-    except:
-        raise TreeParseError("Error parsing " + str(tree))
+        if (fixDuplicateTaxa):
+            p4.var.doRepairDupedTaxonNames = 0
+    except p4.Glitch as detail:
+        raise TreeParseError("Error parsing tree\n"+detail.msg )
 
     t = p4.var.trees[0]
     p4.var.trees = []

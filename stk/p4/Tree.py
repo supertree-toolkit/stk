@@ -1082,7 +1082,7 @@ class Tree(object):
                         for n in self.nodes:
                             if n.isLeaf:
                                 if n.name and n.name.lower() == loName:
-                                    newName = '%s_%i' % (n.name, repairCounter)
+                                    newName = '%s%%%i' % (n.name, repairCounter)
                                     if var.doRepairDupedTaxonNames == 1:
                                         if self.name:
                                             print "        Tree %s. Changing '%s' to '%s'" % (
@@ -1096,7 +1096,7 @@ class Tree(object):
                             for tNameNum in range(len(self.taxNames)):
                                 tName = self.taxNames[tNameNum]
                                 if tName.lower() == loName:
-                                    newName = '%s_%i' % (tName, repairCounter2)
+                                    newName = '%s%%%i' % (tName, repairCounter2)
                                     self.taxNames[tNameNum] = newName
                                     repairCounter2 += 1
                             assert repairCounter == repairCounter2, "Got a problem with re-naming duped taxa."

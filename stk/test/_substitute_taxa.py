@@ -317,7 +317,7 @@ class TestSubs(unittest.TestCase):
 
     def test_sub_bug_fixes(self):
         tree4 = "(Apsaravis,Hesperornis,Ichthyornis,(Vegavis_iaai,(('Cathartidae=Ciconiidae',Modern_birds),('Recurvirostridae=Charadriidae',Protopteryx_fengningensis))));";
-        tree4_result = "(Apsaravis,Hesperornis,Ichthyornis,(Vegavis_iaai,(('Cathartidae=Ciconiidae',Modern_birds),(Modern_birds1,Protopteryx_fengningensis))));"
+        tree4_result = "(Apsaravis,Hesperornis,Ichthyornis,(Vegavis_iaai,(('Cathartidae=Ciconiidae',Modern_birds%1),(Modern_birds%2,Protopteryx_fengningensis))));"
         original_trees = "((((Catharacta_maccormicki,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);"
 
         # This is a different result to the old STK, but is actualy correct - you're replacing
@@ -335,7 +335,7 @@ class TestSubs(unittest.TestCase):
         original_trees = "((((Catharacta_maccormicki,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);"
 
         ## Trying out new function to collapse clades when going from specific to generic
-        tree1 = "(((Catharacta,(Catharacta1,Stercorarius)),Stercorarius1),Larus);"
+        tree1 = "(((Catharacta%1,(Catharacta%2,Stercorarius%1)),Stercorarius%2),Larus);"
         new_tree = _sub_taxa_in_tree(original_trees,"Catharacta_maccormicki",'Catharacta');
         new_tree = _sub_taxa_in_tree(new_tree, "Catharacta_chilensis",'Catharacta');
         new_tree = _sub_taxa_in_tree(new_tree, "Catharacta_antarctica",'Catharacta');
@@ -348,7 +348,7 @@ class TestSubs(unittest.TestCase):
 
 
         hard_tree = "(Daphnia,Drosophila,Euphausia,Exopheticus,Petrolisthes,Pinnotherelia,Tritodynamia,(Ligia,(Armadillidium,Eocarcinus,Metapenaeus,((((((Himalayapotamon,Jasus,Polycheles,(Enoplometopus,((Pemphix,(((Thaumastocheles,(Acanthacaris,Enoplometopus1,Eryma,Homarus,Metanephrops,Nephropides,Nephrops,Nephropsis,Thaumastocheles1,Thaumastochelopsis,((Euastacus,(Astacoides,Geocharax,(Paranephrops,(Astacopsis,(Ombrastacoides,(Gramastacus,Cherax))))),(Parastacus,(Samastacus,Virilastacus))))))))))))))))))));";
-        answer = "(Daphnia,Drosophila,Euphausia,Exopheticus,Petrolisthes,Pinnotherelia,Tritodynamia,(Ligia,(Armadillidium,Eocarcinus,Metapenaeus,(Himalayapotamon,Jasus,Polycheles,(Enoplometopus,(Pemphix,(Thaumastocheles,(Acanthacaris,Enoplometopus1,Eryma,Homarus,Metanephrops,Nephropides,Nephrops,Nephropsis,Thaumastocheles1,Thaumastochelopsis,(Euastacus,(Parastacidae,Geocharax,(Parastacidae2,(Astacopsis,Parastacidae1))),Parastacidae3)))))))));";
+        answer = "(Daphnia,Drosophila,Euphausia,Exopheticus,Petrolisthes,Pinnotherelia,Tritodynamia,(Ligia,(Armadillidium,Eocarcinus,Metapenaeus,(Himalayapotamon,Jasus,Polycheles,(Enoplometopus,(Pemphix,(Thaumastocheles,(Acanthacaris,Enoplometopus1,Eryma,Homarus,Metanephrops,Nephropides,Nephrops,Nephropsis,Thaumastocheles1,Thaumastochelopsis,(Euastacus,(Parastacidae%1,Geocharax,(Parastacidae%2,(Astacopsis,Parastacidae%3))),Parastacidae%4)))))))));";
         new_tree = _sub_taxa_in_tree(hard_tree,"Astacoides",'Parastacidae');
         new_tree = _sub_taxa_in_tree(new_tree,"Astacoides1",'Parastacidae');
         new_tree = _sub_taxa_in_tree(new_tree,"Cherax",'Parastacidae');
@@ -362,8 +362,8 @@ class TestSubs(unittest.TestCase):
         self.assert_(_trees_equal(new_tree, answer), "Correctly collapse tree")
 
     def test_collapse_nodes(self):
-        in_tree = "(taxa_a, (taxa_b, taxa_c), taxa_d, (taxa_e, taxa_h, (taxa_f, (taxa_g, taxa_h1, taxa_h2))));"
-        answer = "(taxa_a, (taxa_b, taxa_c), taxa_d, (taxa_e, taxa_h, (taxa_f, (taxa_g, taxa_h1))));"
+        in_tree = "(taxa_a, (taxa_b, taxa_c), taxa_d, (taxa_e, taxa_h%3, (taxa_f, (taxa_g, taxa_h%1, taxa_h%2))));"
+        answer = "(taxa_a, (taxa_b, taxa_c), taxa_d, (taxa_e, taxa_h%1, (taxa_f, (taxa_g, taxa_h%2))));"
         new_tree = _collapse_nodes(in_tree);
         self.assert_(_trees_equal(new_tree, answer), "Correctly collapse nodes")
         
