@@ -762,6 +762,7 @@ def sub_taxa(args):
     except lxml.etree.XMLSyntaxError:
         try:
             trees = supertree_toolkit.import_trees(input_file) 
+            print trees
             treefile = True
         except:
             print "Error loading file as PHYML or a tree file. Check your input, please"
@@ -790,7 +791,8 @@ def sub_taxa(args):
 
 
     if (treefile):
-        output = supertree_toolkit._amalgamate_trees(new_trees,format='Nexus')
+        output = supertree_toolkit._amalgamate_trees(new_trees,format='nexus')
+        print output
         f = open(output_file,'w')
         f.write(output)
         f.close()
