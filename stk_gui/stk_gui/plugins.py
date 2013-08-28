@@ -4,7 +4,10 @@ import sys
 import traceback
 
 import gtk.gdk
-
+try:
+    __file__
+except NameError:
+    __file__ = "."
 import debug
 # do this right at the start
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir )
