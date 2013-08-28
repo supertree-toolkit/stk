@@ -28,13 +28,13 @@ try:
     __file__
 except NameError:
     __file__ = "."
-if (sys.platform.startswith("win")):
+if (not sys.platform.startswith("win")):
     stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir )
     sys.path.insert(0, stk_path)
     stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir ,os.pardir)
     sys.path.insert(0, stk_path)
 else:
-  stk_path = os.getcw
+  stk_path = os.getcwd()
 import stk.supertree_toolkit as supertree_toolkit
 import stk.stk_import_export as supertree_import_export
 from stk.stk_exceptions import *
