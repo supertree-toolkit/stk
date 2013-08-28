@@ -790,7 +790,7 @@ def sub_taxa(args):
 
 
     if (treefile):
-        output = supertree_toolkit._amalgamate_trees(new_trees,format='Nexus')
+        output = supertree_toolkit._amalgamate_trees(new_trees,format='nexus')
         f = open(output_file,'w')
         f.write(output)
         f.close()
