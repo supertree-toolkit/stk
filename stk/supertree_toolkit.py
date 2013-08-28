@@ -1653,7 +1653,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             key_list = tree_keys
             # we want a detailed graphic instead
             # Turn tree names into integers
-            G_relabelled = nx.convert_node_labels_to_integers(G,discard_old_labels=False)
+            G_relabelled = nx.convert_node_labels_to_integers(G)
             # The integer labelling will match the order in which we set
             # up the nodes, which matches tree_keys
             degrees = G.degree() # we colour nodes by number of edges
