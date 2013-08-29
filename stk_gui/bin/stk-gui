@@ -135,7 +135,6 @@ def main():
       except OSError:
           pass   
 
-  print logofile
   # Let's find a schema.
   suffix = "phyml"
 
