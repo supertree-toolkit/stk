@@ -35,6 +35,7 @@ from stk_exceptions import *
 from stk_internals import *
 import stk.p4
 import unicodedata
+import string as python_string
 
 def export_to_old(xml, output_dir, verbose=False, ignoreWarnings=False):
 
@@ -202,29 +203,30 @@ def convert_to_phyml_source(xml_root):
     a = input_author.lower()
     if isinstance(a, unicode):
         a = unicodedata.normalize('NFKD', a).encode('ascii','ignore')
-    authors_t = a.split(',')
-    authors_temp = []
-    if (len(authors_t) > 1):
-        for a in authors_t:
-            authors_temp.extend(a.split(' and '))
-
-    if (len(authors_temp) > 1):
-        i = 0
-        while i<len(authors_temp):
-            if (i+1 < len(authors_temp)):
-                m = re.search('\.', authors_temp[i+1])
-                if (m != None):
-                    # next token contains a full stop so is probably an initial
-                    author_list.append(str.strip(authors_temp[i+1]) + " " + str.strip(authors_temp[i]))
-                    i += 2
-                else:
-                    author_list.append(authors_temp[i])
-                    i += 1
-            else:
-                author_list.append(authors_temp[i])
-                i += 1
-    else:
-        author_list = a.split('and')
+    author_list = a.split(' and ')
+#    authors_t = a.split(',')
+#    authors_temp = []
+#    if (len(authors_t) > 1):
+#        for a in authors_t:
+#            authors_temp.extend(a.split(' and '))
+#
+#    if (len(authors_temp) > 1):
+#        i = 0
+#       while i<len(authors_temp):
+#            if (i+1 < len(authors_temp)):
+#                m = re.search('\.', authors_temp[i+1])
+#                if (m != None):
+#                    # next token contains a full stop so is probably an initial
+#                    author_list.append(str.strip(authors_temp[i+1]) + " " + str.strip(authors_temp[i]))
+#                    i += 2
+#                else:
+#                    author_list.append(authors_temp[i])
+#                    i += 1
+#            else:
+#                author_list.append(authors_temp[i])
+#                i += 1
+#    else:
+#        author_list = a.split('and')
 
     if (len(author_list) == 0):
 	    author_list.append(input_author)
@@ -243,18 +245,23 @@ def convert_to_phyml_source(xml_root):
     # now parse authors into something sensible
     # authors - parse into full author names, then use nameparse to extract first and last
     for a in author_list:
+        # further munging of name
+        a = a.strip()
+        bits = a.split(',')
+        if (len(bits) > 1):
+            a = bits[1].strip()+" "+bits[0].strip()
         o = np.HumanName(a)
         ae = etree.SubElement(authors,'author')
         surname = etree.SubElement(ae,'surname')
         string = etree.SubElement(surname,'string_value')
         string.attrib['lines'] = "1"
-        string.text = o.last.capitalize()
+        string.text = python_string.capwords(o.last)
         if (o.last.capitalize() == ''):
 	        string.text = a
         first = etree.SubElement(ae,'other_names')
         string = etree.SubElement(first,'string_value')
         string.attrib['lines'] = "1"
-        other = o.first.capitalize()
+        other = python_string.capwords(o.first)
         string.text = other
         # reset to empty if needed
         if (o.first == None):

@@ -95,7 +95,7 @@ class TestImportExport(unittest.TestCase):
                 'Aliabadian_etal_2007',
                 'Baker_Strauch_1988',
                 'Barhoum_Burns_2002',
-                'Barber_Peterson_2004',
+                'Barber_etal_2004',
                 'Baker_etal_2005',
                 'Andersson_1999a',
                 'Baptista_etal_1999'

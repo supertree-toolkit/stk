@@ -3,7 +3,7 @@
 <SourceTree>
     <Source>
         <!-- If it's a journal, it has a journal name. Book has booktitle -->
-        <Author>Allende, L. M., Rubio, I., Ruiz-del-Valle, V., Guillen, J., Martinez-Laso, J., Lowy, E., Varela, P., Zamora, J. and Arnaiz-Villena, A.</Author>
+        <Author>Allende, L. M. and Rubio, I. and Ruiz-del-Valle, V. and Guillen, J. and Martinez-Laso, J. and Lowy, E. and Varela, P. and Zamora, J. and Arnaiz-Villena, A.</Author>
         <Year>2001</Year>
         <Title>The Old World sparrows (genus Passer) phylogeography and their relative abundance of nuclear mtDNA pseudogenes.</Title>
         <Journal>Journal of Molecular Evolution</Journal>

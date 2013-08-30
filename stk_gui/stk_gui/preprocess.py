@@ -22,6 +22,10 @@ import debug
 import sys
 import copy
 import urllib2
+try:
+    __file__
+except NameError:
+    __file__ = "."
 
 def preprocess(schemafile):
   p = etree.XMLParser(remove_comments=True)

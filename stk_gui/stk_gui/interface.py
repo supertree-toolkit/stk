@@ -24,6 +24,10 @@ import sys
 import tempfile
 import cStringIO as StringIO
 import Queue
+try:
+    __file__
+except NameError:
+    __file__ = "."
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
 import stk.supertree_toolkit as stk

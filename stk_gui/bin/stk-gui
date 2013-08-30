@@ -22,7 +22,10 @@ import sys
 import traceback
 import string
 import platform
-
+try:
+    __file__
+except NameError:
+    __file__ = "."
 import gtk
 import gtk.gdk
 gtk.gdk.threads_init()
@@ -30,17 +33,20 @@ import gobject
 gobject.threads_init()
 
 # do this right at the start, so we can find the stk_gui modules when developing
-stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir)
-sys.path.insert(0, stk_path)
+if not sys.platform.startswith("win"):
+  stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir)
+  sys.path.insert(0, stk_path)
+else:
+  stk_path = os.getcwd()
 
-import stk_gui.debug as debug
+import stk_gui.debug
 
 def Help():
   """
   Prints usage information to standard output.
   """
 
-  debug.dprint("Usage: stk [OPTIONS] ... [FILE]\n" + \
+  stk_gui.debug.dprint("Usage: stk [OPTIONS] ... [FILE]\n" + \
                "\n" + \
                "Supertree source manager. [FILE] is the XML file to be opened (a new file is\n" + \
                "created if this is not supplied).\n" + \
@@ -74,7 +80,7 @@ def main():
     sys.exit(1)
 
   if not ("-v", "") in opts:
-    debug.SetDebugLevel(0)
+    stk_gui.debug.SetDebugLevel(0)
   if ("-h", "") in opts:
     Help()
     return
@@ -107,13 +113,18 @@ def main():
     input_filename = None
 
   logofile = None
-  for possible_logofile in [os.path.join(stk_path, "gui/stk.svg"),
+  if sys.platform.startswith("win"):
+    pos_logo_places = [os.path.join(stk_path, "gui/stk.png")]
+
+  else:
+    pos_logo_places = [os.path.join(stk_path, "gui/stk.svg"),
                             os.path.join(stk_path, "gui/stk.png"),
                             "/usr/share/stk/stk.png",
                             "/usr/share/stk/stk.svg",
                             "/usr/local/share/stk/stk.png",
                             "/usr/local/share/stk/stk.svg",
-                            ]:
+                            ]
+  for possible_logofile in pos_logo_places:
       try:
         os.stat(possible_logofile)
       
@@ -124,7 +135,6 @@ def main():
       except OSError:
           pass   
 
-  print logofile
   # Let's find a schema.
   suffix = "phyml"
 
@@ -139,6 +149,7 @@ def main():
   if (input_schemafile == None):
       #schemafile is not given so look up actual path  
       for possible_schemafile in [
+            os.path.join(stk_path, "schema/phylo_storage.rng"),
             os.path.join(stk_path, "../../../../share/schemata/stk/phylo_storage.rng"),
             "/usr/local/share/stk/schemata/schema/phylo_storage.rng",
             "/usr/share/stk/schemata/schema/phylo_storage.rng",
@@ -156,7 +167,7 @@ def main():
     error_dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, message)
     error_dialog.run()
     error_dialog.destroy()
-    debug.deprint(message,0)
+    stk_gui.debug.deprint(message,0)
     sys.exit(1)
       
   if input_filename is not None:
@@ -168,8 +179,8 @@ def main():
   # Import the GUI Glade file.
   gladefile = None
   for possible_gladefile in [os.path.join(stk_path, "gui", "gui.glade"),
-  							 os.path.join(stk_path, "gui.glade"),
-  							 os.path.join(stk_path, os.pardir, "gui", "gui.glade"),
+  			     os.path.join(stk_path, "gui.glade"),
+  			     os.path.join(stk_path, os.pardir, "gui", "gui.glade"),
                              os.path.join(stk_path, "share", "stk", "gui", "gui.glade"),
                              "../gui/gui.glade",
                              "/usr/local/share/stk/gui.glade",
@@ -186,10 +197,10 @@ def main():
     error_dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, message)
     error_dialog.run()
     error_dialog.destroy()
-    debug.deprint(message,0)
+    stk_gui.debug.deprint(message,0)
     sys.exit(1)
 
-  debug.dprint("\n" + \
+  stk_gui.debug.dprint("\n" + \
                "Glade file:  " + str(gladefile) + "\n" + \
                "Schema file: " + str(input_schemafile) + "\n" + \
                "Logo file:   " + str(logofile) + "\n" + \
@@ -241,7 +252,7 @@ def main():
       if input_filename:
         i.on_diff(None, input_difffile)
       else:
-        debug.dprint("Cannot diff if against nothing.", 0)
+        stk_gui.debug.dprint("Cannot diff if against nothing.", 0)
   #endif
 
   gtk.main()
