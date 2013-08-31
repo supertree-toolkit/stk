@@ -7,7 +7,7 @@ import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tree, _trees_equal, substitute_taxa_in_trees
-from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree, _collapse_nodes
+from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree, _collapse_nodes, import_tree
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -380,6 +380,34 @@ class TestSubs(unittest.TestCase):
         self.assert_(_trees_equal(new_tree, answer), "Correctly collapse nodes")
         
 
+    def test_specific_to_generic(self):
+        """Checks the correct change of taxonomic level from specific to generic"""
+        in_tree=import_tree("data/input/large_tree_snippet.tre")
+        subs_old_taxa = ["Phylloscopus_trochilus", "Phylloscopus_brehmi", "Phylloscopus_canariensis", "Phylloscopus_collybita",
+                         "Phylloscopus_sindianus", "Phylloscopus_fuligiventer", "Phylloscopus_fuscatus", "Phylloscopus_orientalis",
+                         "Phylloscopus_bonelli", "Phylloscopus_sibilatrix", "Phylloscopus_yunnanensis", "Phylloscopus_subviridis", 
+                         "Phylloscopus_chloronotus", "Phylloscopus_proregulus", "Phylloscopus_humei", "Phylloscopus_inornatus", 
+                         "Phylloscopus_maculipennis", "Phylloscopus_pulcher", "Phylloscopus_trivirgatus", "Phylloscopus_sarasinorum", 
+                         "Phylloscopus_amoenus", "Phylloscopus_poliocephalus", "Phylloscopus_presbytes","Phylloscopus_borealis",
+                         "Phylloscopus_magnirostris","Phylloscopus_borealoides","Phylloscopus_tenellipes","Phylloscopus_emeiensis", 
+                         "Phylloscopus_nitidus","Phylloscopus_plumbeitarsus","Phylloscopus_trochiloides","Phylloscopus_cebuensis", 
+                         "Phylloscopus_coronatus","Phylloscopus_ijimae","Phylloscopus_ruficapillus","Phylloscopus_umbrovirens"]
+        subs_new_taxa = ["Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus"]
+        new_tree = _sub_taxa_in_tree(in_tree,subs_old_taxa,subs_new_taxa);
+        # Fixes a random bug where Phylloscopus0 would appear, followed by Phylloscopus00 in subsequent subs
+        self.assert_(new_tree.find("Phylloscopus0") == -1)
+
+    def test_large_tree_higher_taxa(self):
+        """Checks a large tree using subs that generate a family level tree from generic level"""
+        pass
 
 if __name__ == '__main__':
     unittest.main()

@@ -2400,10 +2400,11 @@ def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None):
                 p4tree = _parse_tree(tree) 
                 terminals = p4tree.getAllLeafNames(p4tree.root) 
                 count = 0
+                taxon_temp = taxon.replace("'","")
                 for t in terminals:
-                    if (t == taxon):
+                    if (t == taxon_temp):
                         count += 1
-                    if (t.startswith(taxon+"%")):
+                    if (t.startswith(taxon_temp+"%")):
                         count += 1 
                 # we are deleting taxa - we might need multiple iterations
                 for t in range(0,count):
@@ -2502,7 +2503,8 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     # When done, p4 can fix duplicated taxa by adding back on _\d
     # Then we collapse the nodes, taking into account duplicated taxa
     # This will need several iterations.
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_]*)%[0-9]?",'\g<taxon>',tree)
+
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_]*)%[0-9]+",'\g<taxon>',tree)
     new_taxon = ",".join(taxa)
 
     if (len(new_taxon) == 0):
@@ -2511,7 +2513,6 @@ def _sub_taxon(old_taxon, new_taxon, tree):
 
     # simple text swap
     new_tree = modified_tree.replace(old_taxon,new_taxon)
-    
     # we might now need a final collapse - e.g. we might get ...(taxon1,taxon2),... due
     # to replacements, but they didn't collapse, so let's do this
     for i in range(10): # do at most 10 iterations
@@ -2527,7 +2528,7 @@ def _collapse_nodes(in_tree):
     """
 
     #print in_tree
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z_]*)%[0-9]*",'\g<taxon>',in_tree)    
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z_]*)%[0-9]+",'\g<taxon>',in_tree)    
     tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
     taxa = tree.getAllLeafNames(0)
     #print tree.writeNewick(fName=None,toString=True).strip()
@@ -2538,12 +2539,12 @@ def _collapse_nodes(in_tree):
             siblings = _get_all_siblings(tree.node(t))
         except p4.Glitch:
             continue
-        m = re.match('([a-zA-Z0-9_]*)%[0-9]', t)
+        m = re.match('([a-zA-Z0-9_]*)%[0-9]+', t)
         if (not m == None):
             t = m.group(1)
         for s in siblings:
             orig_s = s
-            m = re.match('([a-zA-Z0-9_]*)%[0-9]', s)
+            m = re.match('([a-zA-Z0-9_]*)%[0-9]+', s)
             if (not m == None):
                 s = m.group(1)
             if t == s:
