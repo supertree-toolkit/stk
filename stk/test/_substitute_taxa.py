@@ -231,6 +231,18 @@ class TestSubs(unittest.TestCase):
         self.assertListEqual(expected_trees,new_trees)
 
 
+    def test_delete_percent_taxa(self):
+        tree = "(A%3, B, (C, D), E, F, G, (A%1, A%2));"
+        new_tree = _sub_taxa_in_tree(tree,"A")
+        expected_tree = "(B, (C, D), E, F, G);"
+        self.assert_(_trees_equal(expected_tree,new_tree))
+
+    def test_delete_and_collapse(self):
+        tree = "(A%3, B, (C, D), E, F, G, (A%1, A%2));"
+        new_tree = _sub_taxa_in_tree(tree,"B")
+        expected_tree = "(A%1, (C, D), E, F, G, A%2);"
+        self.assert_(_trees_equal(expected_tree,new_tree))
+
 
     def old_stk_replace_taxa_tests(self):
         original_trees = "((((Catharacta_maccormicki,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);";

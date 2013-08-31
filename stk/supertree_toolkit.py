@@ -2397,8 +2397,18 @@ def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None):
         taxon = taxon.replace(" ","_")
         if (_tree_contains(taxon,tree)):
             if (new_taxa == None or new_taxa[i] == None):
-                # we are deleting taxa
-                tree = _delete_taxon(taxon, tree)
+                p4tree = _parse_tree(tree) 
+                terminals = p4tree.getAllLeafNames(p4tree.root) 
+                count = 0
+                for t in terminals:
+                    if (t == taxon):
+                        count += 1
+                    if (t.startswith(taxon+"%")):
+                        count += 1 
+                # we are deleting taxa - we might need multiple iterations
+                for t in range(0,count):
+                    tree = _delete_taxon(taxon, tree)
+
             else:
                 # we are substituting
                 tree = _sub_taxon(taxon, new_taxa[i], tree)
@@ -2420,6 +2430,8 @@ def _tree_contains(taxon,tree):
     for t in terminals:
         if (t == taxon):
             return True
+        if (t.startswith(taxon+"%")):
+            return True # match potential non-monophyletic taxa
 
     return False
 
@@ -2431,12 +2443,12 @@ def _delete_taxon(taxon, tree):
     taxon = taxon.replace(" ","_")
     taxon = taxon.replace("'","")
     # check if taxa is in there first
-    if (tree.find(taxon) == -1):
+    if (tree.find(taxon) == -1): # should find, even if non-monophyletic
         return tree #raise exception?
 
     tree_obj = _parse_tree(tree)
     for node in tree_obj.iterNodes():
-        if node.name == taxon:
+        if node.name == taxon or (not node.name == None and node.name.startswith(taxon+"%")):
             tree_obj.removeNode(node.nodeNum,alsoRemoveBiRoot=False)
             break
 
