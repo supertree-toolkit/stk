@@ -21,7 +21,6 @@ analysis =
     element optimality_criterion {
         attribute name {string}
     }
-
 )
 
 
