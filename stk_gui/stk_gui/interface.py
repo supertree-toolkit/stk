@@ -967,19 +967,19 @@ class Diamond:
     self.tree.write(f)
     XML = f.getvalue()
     try:
-        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=False)
+        data_summary = stk.data_summary(XML,detailed=True)
     except NotUniqueError as detail:
         msg = "Failed to summarise data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=True)
+        data_summary = stk.data_summary(XML,detailed=True)
     except InvalidSTKData as detail:
         msg = "Failed to summarise data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=True)        
+        data_summary = stk.data_summary(XML,detailed=True)        
     except UninformativeTreeError as detail:
         msg = "Failed to summarise data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=True)        
+        data_summary = stk.data_summary(XML,detailed=True)        
 
 
     textbox.get_buffer().set_text(data_summary)

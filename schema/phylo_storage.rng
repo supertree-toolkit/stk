@@ -638,4 +638,141 @@ source tree(s).</a:documentation>
     </element>
     <ref name="comment"/>
   </define>
+  <define name="consensus">
+    <choice>
+      <element name="consensus_type">
+        <attribute name="name">
+          <data type="string" datatypeLibrary=""/>
+        </attribute>
+      </element>
+      <element name="consensus_type">
+        <attribute name="name">
+          <value>Strict</value>
+        </attribute>
+      </element>
+      <element name="consensus_type">
+        <attribute name="name">
+          <value>Majority Rules 50%</value>
+        </attribute>
+      </element>
+      <element name="consensus_type">
+        <attribute name="name">
+          <value>Adams</value>
+        </attribute>
+      </element>
+    </choice>
+  </define>
+  <define name="support">
+    <choice>
+      <element name="type_of_support">
+        <attribute name="name">
+          <data type="string" datatypeLibrary=""/>
+        </attribute>
+      </element>
+      <element name="type_of_support">
+        <attribute name="name">
+          <value>Jacknifing</value>
+        </attribute>
+      </element>
+      <element name="type_of_support">
+        <attribute name="name">
+          <value>Bootstrapping</value>
+        </attribute>
+      </element>
+      <element name="type_of_support">
+        <attribute name="name">
+          <value>Bremer Support</value>
+        </attribute>
+      </element>
+    </choice>
+  </define>
+  <define name="evolution_models">
+    <zeroOrMore>
+      <element name="model_of_evolution">
+        <attribute name="name">
+          <data type="string" datatypeLibrary=""/>
+        </attribute>
+        <attribute name="character">
+          <data type="string" datatypeLibrary=""/>
+        </attribute>
+        <empty/>
+      </element>
+    </zeroOrMore>
+  </define>
+  <define name="conservation">
+    <optional>
+      <element name="conservation_status">
+        <optional>
+          <element name="iucn_red_list">
+            <optional>
+              <element name="category">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="criteria">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="url">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+          </element>
+        </optional>
+        <optional>
+          <element name="uk_bap">
+            <optional>
+              <element name="category">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="criteria">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="url">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+          </element>
+        </optional>
+      </element>
+    </optional>
+  </define>
+  <define name="char_info">
+    <optional>
+      <element name="link_to_online_data">
+        <a:documentation>Is the data online anywhere, e.g. as a NEXUS file?</a:documentation>
+        <ref name="anystring"/>
+      </element>
+    </optional>
+    <optional>
+      <element name="alignment_method">
+        <optional>
+          <element name="algorithm_or_method">
+            <data type="string" datatypeLibrary=""/>
+          </element>
+        </optional>
+        <optional>
+          <ref name="software"/>
+        </optional>
+        <optional>
+          <element name="parameters_used">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="corrected">
+            <a:documentation>was the alignment corrected in any way?</a:documentation>
+            <empty/>
+          </element>
+        </optional>
+      </element>
+    </optional>
+    <ref name="comment"/>
+  </define>
 </grammar>
