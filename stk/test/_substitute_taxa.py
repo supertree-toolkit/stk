@@ -405,9 +405,13 @@ class TestSubs(unittest.TestCase):
         # Fixes a random bug where Phylloscopus0 would appear, followed by Phylloscopus00 in subsequent subs
         self.assert_(new_tree.find("Phylloscopus0") == -1)
 
-    def test_large_tree_higher_taxa(self):
-        """Checks a large tree using subs that generate a family level tree from generic level"""
-        pass
+
+    def test_not_replace_partial(self):
+        quote_taxa_tree = "(taxa_1, taxa_n_taxa_2, taxa_3, taxa_4);";
+        new_tree = _sub_taxa_in_tree(quote_taxa_tree,"taxa_2",'taxa_8');
+        answer = "(taxa_1, taxa_n_taxa_2, taxa_3, taxa_4);"
+        self.assert_(_trees_equal(new_tree, answer), "Didn't substitute part of taxa")
+
 
 if __name__ == '__main__':
     unittest.main()
