@@ -82,7 +82,7 @@ class TestSubs(unittest.TestCase):
                 contains_Fred = True
             if (t == "A"):
                 contains_A = True
-
+        
         self.assert_(contains_Fred)
         self.assert_(not contains_A) # we should not have A in a tree
 

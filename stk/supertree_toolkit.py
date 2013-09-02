@@ -2504,7 +2504,7 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     # Then we collapse the nodes, taking into account duplicated taxa
     # This will need several iterations.
 
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_]*)%[0-9]+",'\g<taxon>',tree)
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\=]*)%[0-9]+",'\g<taxon>',tree)
     new_taxon = ",".join(taxa)
 
     if (len(new_taxon) == 0):
@@ -2512,7 +2512,8 @@ def _sub_taxon(old_taxon, new_taxon, tree):
         return _delete_taxon(old_taxon,tree)
 
     # simple text swap
-    new_tree = modified_tree.replace(old_taxon,new_taxon)
+    old_taxon = re.escape(old_taxon)
+    new_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new_taxon+'\g<posttaxon>', modified_tree)
     # we might now need a final collapse - e.g. we might get ...(taxon1,taxon2),... due
     # to replacements, but they didn't collapse, so let's do this
     for i in range(10): # do at most 10 iterations
