@@ -461,7 +461,6 @@ def safe_taxonomic_reduction(args):
         print "Exiting"
         sys.exit(-1)
 
-    print args
     if not matrix_file:
         matrix = None
         taxa = None
@@ -729,6 +728,8 @@ def sub_taxa(args):
         old_taxa.append(old_taxon)
         if (new_taxon != None):
             new_taxa.append(new_taxon)
+        else:
+            new_taxa.append(None)
 
     if (subs_file):
         try:
