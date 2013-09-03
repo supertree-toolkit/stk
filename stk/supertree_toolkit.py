@@ -1270,7 +1270,7 @@ def load_phyml(filename):
     return etree.tostring(etree.parse(filename,parser),pretty_print=True)
 
 
-def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False):
+def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False, verbose=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
@@ -1341,7 +1341,7 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False):
     return etree.tostring(xml_root,pretty_print=True)
 
 
-def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, ignoreWarnings=False):
+def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, ignoreWarnings=False, verbose=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
@@ -1953,7 +1953,10 @@ def parse_subs_file(filename):
     new_taxa = []
     i = 0
     n_t = ""
-    for line in f.readlines(): 
+    for line in f.readlines():
+        if (re.search('\w+=\s+', line) != None or re.search('\s+=\w+', line) != None):
+            # probable error
+            raise UnableToParseSubsFile("You sub file contains '=' without spaces either side. If it's within a taxa, remove the spaces. If this is a sub, add spaces")
         if (re.search('\s+=\s+', line) != None): # new taxa description
             data = re.split('\s+=\s+', line) # note the spaces!
             old_taxa.append(data[0].strip())
@@ -2998,12 +3001,14 @@ def _parse_trees(tree_block):
     """
     
     try:
+        p4.var.doRepairDupedTaxonNames = 2
         p4.var.warnReadNoFile = False
         p4.var.nexus_warnSkipUnknownBlock = False
         p4.var.trees = []
         p4.read(tree_block)
         p4.var.nexus_warnSkipUnknownBlock = True
         p4.var.warnReadNoFile = True
+        p4.var.doRepairDupedTaxonNames = 0
     except p4.Glitch as detail:
         raise TreeParseError("Error parsing tree\n"+detail.msg )
     trees = p4.var.trees

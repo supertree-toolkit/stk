@@ -71,6 +71,19 @@ class TestSubs(unittest.TestCase):
             return
         self.assert_(False)
 
+    def test_bad_subs_file2(self):
+        """ Tests what happens when an incorrectly formatted subs file is passed in
+        """
+
+        #this test should die, so wrap it up...
+        try:
+            old_taxa, new_taxa = parse_subs_file('data/input/sub_files/bad_subs.txt'); 
+        except UnableToParseSubsFile:
+            self.assert_(True)
+            return
+        self.assert_(False)
+
+
     def test_substitute_taxa_single(self):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
         XML2 = substitute_taxa(XML, "A", "Fred")

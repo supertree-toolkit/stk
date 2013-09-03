@@ -51,7 +51,7 @@ def main():
     subs = []
     for t in taxa:
         genus = t.split("_")[0]
-        if (len(t.split("_")) > 0):
+        if (len(t.split("_")) > 1):
             subs.append(t+" = "+genus)
 
     # write file
