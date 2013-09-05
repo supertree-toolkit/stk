@@ -69,6 +69,11 @@ class TestImportExportTree(unittest.TestCase):
         expected_tree = "(Mimodes_graysoni, (Mimus_gilvus, Mimus_polyglottos), ((Mimus_gundlachii, (Nesomimus_macdonaldi, Nesomimus_melanotis, Nesomimus_parvulus, Nesomimus_trifasciatus)), ((Mimus_longicaudatus, ((Mimus_patagonicus, Mimus_thenca), (Mimus_saturninus, Mimus_triurus))), (Oreoscoptes_montanus, (Toxostoma_curvirostre, Toxostoma_rufum)))));" 
         self.assert_(expected_tree == tree)
 
+    def test_utf_tree(self):
+        test_file = "data/input/utf_tree.tre"
+        trees = import_trees(test_file)
+        print trees
+
     def test_import_tb_tree(self):
         test_file = "data/input/tree_with_taxa_block.tre"
         tree = import_tree(test_file)
@@ -409,6 +414,7 @@ class TestTreeMetaData(unittest.TestCase):
         self.assert_(len(output_trees)==len(expected_trees))
         for i in range(0,len(output_trees)):
             self.assert_(_trees_equal(output_trees[i],expected_trees[i]))
+
 
 if __name__ == '__main__':
     unittest.main()
