@@ -794,9 +794,7 @@ def import_trees(filename):
     """
     f = open(filename)
     content = f.read()                 # read entire file into memory
-    print content
-    f.close()   
-    content = _removeNonAscii(content)
+    f.close()    
     # Need to add checks on the file. Problems include:
 # TNT: outputs Phyllip format or something - basically a Newick
 # string without commas, so add 'em back in
@@ -1010,10 +1008,7 @@ def get_all_characters(XML):
     # grab all character types first
     types = []
     for c in characters:
-        try:
-            types.append(c.attrib['type'])
-        except KeyError:
-            pass
+        types.append(c.attrib['type'])
 
     u_types = _uniquify(types)
     u_types.sort()
@@ -1022,12 +1017,9 @@ def get_all_characters(XML):
     for t in u_types:
         char = []
         for c in characters:
-            try:
-                if (c.attrib['type'] == t):
-                    if (not c.attrib['name'] in char):
-                        char.append(c.attrib['name'])
-            except KeyError:
-                pass
+            if (c.attrib['type'] == t):
+                if (not c.attrib['name'] in char):
+                    char.append(c.attrib['name'])
         char_dict[t] = char       
 
     return char_dict
@@ -1078,10 +1070,7 @@ def get_character_numbers(XML):
     char_numbers = defaultdict(int)
 
     for c in characters:
-        try:
-            char_numbers[c.attrib['name']] += 1
-        except KeyError:
-            pass
+        char_numbers[c.attrib['name']] += 1
 
     return char_numbers
 
@@ -1117,11 +1106,8 @@ def get_fossil_taxa(XML):
     fossils = find(xml_root)
 
     for f in fossils:
-        try:
-            name = f.getparent().attrib['name']
-            f_.append(name)
-        except KeyError:
-            pass
+        name = f.getparent().attrib['name']
+        f_.append(name)
 
     fossil_taxa = _uniquify(f_) 
     
@@ -1139,37 +1125,13 @@ def get_analyses_used(XML):
     analyses = find(xml_root)
 
     for a in analyses:
-        try:
-            name = a.attrib['name']
-            a_.append(name)
-        except KeyError:
-            pass
+        name = a.attrib['name']
+        a_.append(name)
 
     analyses = _uniquify(a_) 
     analyses.sort()
 
     return analyses
-
-def get_characters_used(XML):
-    """ Return a sorted, unique array of all character names used
-    in this dataset
-    """
-
-    c_ = []
-
-    xml_root = _parse_xml(XML)
-    find = etree.XPath("//character")
-    chars = find(xml_root)
-
-    for c in chars:
-        name = c.attrib['name']
-        ctype = c.attrib['type']
-        c_.append((name,ctype))
-
-    characters = _uniquify(c_) 
-    characters.sort(key=lambda x: x[0].lower())
-
-    return characters
 
 def get_publication_years(XML):
     """Return a dictionary of years and the number of publications
@@ -1252,10 +1214,7 @@ def get_all_taxa(XML, pretty=False):
 
     for tname in trees.keys():
         t = trees[tname]
-        try:
-            taxa_list.extend(_getTaxaFromNewick(t))
-        except:
-            pass
+        taxa_list.extend(_getTaxaFromNewick(t))
 
     # now uniquify the list of taxa
     taxa_list = _uniquify(taxa_list)
@@ -1311,7 +1270,7 @@ def load_phyml(filename):
     return etree.tostring(etree.parse(filename,parser),pretty_print=True)
 
 
-def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False):
+def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False, verbose=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
@@ -1382,7 +1341,7 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False):
     return etree.tostring(xml_root,pretty_print=True)
 
 
-def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, ignoreWarnings=False):
+def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, ignoreWarnings=False, verbose=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
@@ -1527,7 +1486,7 @@ def permute_tree(tree,matrix="hennig",treefile=None):
     return output_string
 
 
-def data_summary(XML,detailed=False,ignoreWarnings=True):
+def data_summary(XML,detailed=False,ignoreWarnings=False):
     """Creates a text string that summarises the current data set via a number of 
     statistics such as the number of character types, distribution of years of publication,
     etc.
@@ -1540,8 +1499,6 @@ def data_summary(XML,detailed=False,ignoreWarnings=True):
 
     xml_root = _parse_xml(XML)
     proj_name = xml_root.xpath('/phylo_storage/project_name/string_value')[0].text
-    if proj_name == None:
-        proj_name = "Unamed_Project"
 
     output_string  = "======================\n"
     output_string += " Data summary of: " + proj_name + "\n" 
@@ -1997,7 +1954,10 @@ def parse_subs_file(filename):
     new_taxa = []
     i = 0
     n_t = ""
-    for line in f.readlines(): 
+    for line in f.readlines():
+        if (re.search('\w+=\s+', line) != None or re.search('\s+=\w+', line) != None):
+            # probable error
+            raise UnableToParseSubsFile("You sub file contains '=' without spaces either side. If it's within a taxa, remove the spaces. If this is a sub, add spaces")
         if (re.search('\s+=\s+', line) != None): # new taxa description
             data = re.split('\s+=\s+', line) # note the spaces!
             old_taxa.append(data[0].strip())
@@ -2441,8 +2401,19 @@ def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None):
         taxon = taxon.replace(" ","_")
         if (_tree_contains(taxon,tree)):
             if (new_taxa == None or new_taxa[i] == None):
-                # we are deleting taxa
-                tree = _delete_taxon(taxon, tree)
+                p4tree = _parse_tree(tree) 
+                terminals = p4tree.getAllLeafNames(p4tree.root) 
+                count = 0
+                taxon_temp = taxon.replace("'","")
+                for t in terminals:
+                    if (t == taxon_temp):
+                        count += 1
+                    if (t.startswith(taxon_temp+"%")):
+                        count += 1 
+                # we are deleting taxa - we might need multiple iterations
+                for t in range(0,count):
+                    tree = _delete_taxon(taxon, tree)
+
             else:
                 # we are substituting
                 tree = _sub_taxon(taxon, new_taxa[i], tree)
@@ -2464,6 +2435,8 @@ def _tree_contains(taxon,tree):
     for t in terminals:
         if (t == taxon):
             return True
+        if (t.startswith(taxon+"%")):
+            return True # match potential non-monophyletic taxa
 
     return False
 
@@ -2475,12 +2448,12 @@ def _delete_taxon(taxon, tree):
     taxon = taxon.replace(" ","_")
     taxon = taxon.replace("'","")
     # check if taxa is in there first
-    if (tree.find(taxon) == -1):
+    if (tree.find(taxon) == -1): # should find, even if non-monophyletic
         return tree #raise exception?
 
     tree_obj = _parse_tree(tree)
     for node in tree_obj.iterNodes():
-        if node.name == taxon:
+        if node.name == taxon or (not node.name == None and node.name.startswith(taxon+"%")):
             tree_obj.removeNode(node.nodeNum,alsoRemoveBiRoot=False)
             break
 
@@ -2534,7 +2507,8 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     # When done, p4 can fix duplicated taxa by adding back on _\d
     # Then we collapse the nodes, taking into account duplicated taxa
     # This will need several iterations.
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_]*)%[0-9]?",'\g<taxon>',tree)
+
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\=]*)%[0-9]+",'\g<taxon>',tree)
     new_taxon = ",".join(taxa)
 
     if (len(new_taxon) == 0):
@@ -2542,8 +2516,8 @@ def _sub_taxon(old_taxon, new_taxon, tree):
         return _delete_taxon(old_taxon,tree)
 
     # simple text swap
-    new_tree = modified_tree.replace(old_taxon,new_taxon)
-    
+    old_taxon = re.escape(old_taxon)
+    new_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new_taxon+'\g<posttaxon>', modified_tree)
     # we might now need a final collapse - e.g. we might get ...(taxon1,taxon2),... due
     # to replacements, but they didn't collapse, so let's do this
     for i in range(10): # do at most 10 iterations
@@ -2559,7 +2533,7 @@ def _collapse_nodes(in_tree):
     """
 
     #print in_tree
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z_]*)%[0-9]*",'\g<taxon>',in_tree)    
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z_]*)%[0-9]+",'\g<taxon>',in_tree)    
     tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
     taxa = tree.getAllLeafNames(0)
     #print tree.writeNewick(fName=None,toString=True).strip()
@@ -2570,12 +2544,12 @@ def _collapse_nodes(in_tree):
             siblings = _get_all_siblings(tree.node(t))
         except p4.Glitch:
             continue
-        m = re.match('([a-zA-Z0-9_]*)%[0-9]', t)
+        m = re.match('([a-zA-Z0-9_]*)%[0-9]+', t)
         if (not m == None):
             t = m.group(1)
         for s in siblings:
             orig_s = s
-            m = re.match('([a-zA-Z0-9_]*)%[0-9]', s)
+            m = re.match('([a-zA-Z0-9_]*)%[0-9]+', s)
             if (not m == None):
                 s = m.group(1)
             if t == s:
@@ -2722,36 +2696,16 @@ def _check_data(XML):
     """
 
     # check all names are unique - this is easy...
-    try:
-        _check_uniqueness(XML) # this will raise an error is the test is not passed
-    except InvalidSTKData as e:
-        raise InvalidSTKData(e.msg)
-    except:
-        raise InvalidSTKData("Error checking uniqueness of sources")
+    _check_uniqueness(XML) # this will raise an error is the test is not passed
 
     # now the taxa
-    try:
-        _check_taxa(XML) # again will raise an error if test fails
-    except InvalidSTKData as e:
-        raise InvalidSTKData(e.msg)
-    except:
-        raise InvalidSTKData("Error checking taxa")
+    _check_taxa(XML) # again will raise an error if test fails
 
     # check trees are informative
-    try:
-        _check_informative_trees(XML)
-    except InvalidSTKData as e:
-        raise InvalidSTKData(e.msg)
-    except:
-        raise InvalidSTKData("Error checking informativeness of trees")
+    _check_informative_trees(XML)
 
     # check sources
-    try:
-        _check_sources(XML)
-    except InvalidSTKData as e:
-        raise InvalidSTKData(e.msg)
-    except:
-        raise InvalidSTKData("Error checking sources")
+    _check_sources(XML)
 
     return
 
@@ -2766,57 +2720,7 @@ def _parse_xml(xml_string):
     XML = etree.fromstring(xml_string)
     return XML
 
-def _removeNonAscii(s): 
-
-    import unicodedata
-    CHAR_REPLACEMENT = {
-        # latin-1 characters that don't have a unicode decomposition
-        0xc6: u"AE", # LATIN CAPITAL LETTER AE
-        0xd0: u"D",  # LATIN CAPITAL LETTER ETH
-        0xd8: u"OE", # LATIN CAPITAL LETTER O WITH STROKE
-        0xde: u"Th", # LATIN CAPITAL LETTER THORN
-        0xdf: u"ss", # LATIN SMALL LETTER SHARP S
-        0xe6: u"ae", # LATIN SMALL LETTER AE
-        0xf0: u"d",  # LATIN SMALL LETTER ETH
-        0xf8: u"oe", # LATIN SMALL LETTER O WITH STROKE
-        0xfe: u"th", # LATIN SMALL LETTER THORN
-        }
-
-    ##
-    # Translation dictionary.  Translation entries are added to this
-    # dictionary as needed.
-
-    class unaccented_map(dict):
-
-        ##
-        # Maps a unicode character code (the key) to a replacement code
-        # (either a character code or a unicode string).
-
-        def mapchar(self, key):
-            ch = self.get(key)
-            if ch is not None:
-                return ch
-            de = unicodedata.decomposition(unichr(key))
-            if de:
-                try:
-                    ch = int(de.split(None, 1)[0], 16)
-                except (IndexError, ValueError):
-                    ch = key
-            else:
-                ch = CHAR_REPLACEMENT.get(key, key)
-            self[key] = ch
-            return ch
-
-        if sys.version >= "2.5":
-            # use __missing__ where available
-            __missing__ = mapchar
-        else:
-            # otherwise, use standard __getitem__ hook (this is slower,
-            # since it's called for each character)
-            __getitem__ = mapchar 
-   
-    s =  s.translate(unaccented_map())    
-    return s
+def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
 
 def _getTaxaFromNewick(tree):
     """ Get the terminal nodes from a Newick string"""
@@ -3098,12 +3002,14 @@ def _parse_trees(tree_block):
     """
     
     try:
+        p4.var.doRepairDupedTaxonNames = 2
         p4.var.warnReadNoFile = False
         p4.var.nexus_warnSkipUnknownBlock = False
         p4.var.trees = []
         p4.read(tree_block)
         p4.var.nexus_warnSkipUnknownBlock = True
         p4.var.warnReadNoFile = True
+        p4.var.doRepairDupedTaxonNames = 0
     except p4.Glitch as detail:
         raise TreeParseError("Error parsing tree\n"+detail.msg )
     trees = p4.var.trees
@@ -3131,5 +3037,4 @@ def _parse_tree(tree,fixDuplicateTaxa=False):
     t = p4.var.trees[0]
     p4.var.trees = []
     return t
-
 

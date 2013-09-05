@@ -7,7 +7,7 @@ import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tree, _trees_equal, substitute_taxa_in_trees
-from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree, _collapse_nodes
+from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree, _collapse_nodes, import_tree
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -71,6 +71,19 @@ class TestSubs(unittest.TestCase):
             return
         self.assert_(False)
 
+    def test_bad_subs_file2(self):
+        """ Tests what happens when an incorrectly formatted subs file is passed in
+        """
+
+        #this test should die, so wrap it up...
+        try:
+            old_taxa, new_taxa = parse_subs_file('data/input/sub_files/bad_subs.txt'); 
+        except UnableToParseSubsFile:
+            self.assert_(True)
+            return
+        self.assert_(False)
+
+
     def test_substitute_taxa_single(self):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
         XML2 = substitute_taxa(XML, "A", "Fred")
@@ -82,7 +95,7 @@ class TestSubs(unittest.TestCase):
                 contains_Fred = True
             if (t == "A"):
                 contains_A = True
-
+        
         self.assert_(contains_Fred)
         self.assert_(not contains_A) # we should not have A in a tree
 
@@ -231,6 +244,18 @@ class TestSubs(unittest.TestCase):
         self.assertListEqual(expected_trees,new_trees)
 
 
+    def test_delete_percent_taxa(self):
+        tree = "(A%3, B, (C, D), E, F, G, (A%1, A%2));"
+        new_tree = _sub_taxa_in_tree(tree,"A")
+        expected_tree = "(B, (C, D), E, F, G);"
+        self.assert_(_trees_equal(expected_tree,new_tree))
+
+    def test_delete_and_collapse(self):
+        tree = "(A%3, B, (C, D), E, F, G, (A%1, A%2));"
+        new_tree = _sub_taxa_in_tree(tree,"B")
+        expected_tree = "(A%1, (C, D), E, F, G, A%2);"
+        self.assert_(_trees_equal(expected_tree,new_tree))
+
 
     def old_stk_replace_taxa_tests(self):
         original_trees = "((((Catharacta_maccormicki,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);";
@@ -367,6 +392,38 @@ class TestSubs(unittest.TestCase):
         new_tree = _collapse_nodes(in_tree);
         self.assert_(_trees_equal(new_tree, answer), "Correctly collapse nodes")
         
+
+    def test_specific_to_generic(self):
+        """Checks the correct change of taxonomic level from specific to generic"""
+        in_tree=import_tree("data/input/large_tree_snippet.tre")
+        subs_old_taxa = ["Phylloscopus_trochilus", "Phylloscopus_brehmi", "Phylloscopus_canariensis", "Phylloscopus_collybita",
+                         "Phylloscopus_sindianus", "Phylloscopus_fuligiventer", "Phylloscopus_fuscatus", "Phylloscopus_orientalis",
+                         "Phylloscopus_bonelli", "Phylloscopus_sibilatrix", "Phylloscopus_yunnanensis", "Phylloscopus_subviridis", 
+                         "Phylloscopus_chloronotus", "Phylloscopus_proregulus", "Phylloscopus_humei", "Phylloscopus_inornatus", 
+                         "Phylloscopus_maculipennis", "Phylloscopus_pulcher", "Phylloscopus_trivirgatus", "Phylloscopus_sarasinorum", 
+                         "Phylloscopus_amoenus", "Phylloscopus_poliocephalus", "Phylloscopus_presbytes","Phylloscopus_borealis",
+                         "Phylloscopus_magnirostris","Phylloscopus_borealoides","Phylloscopus_tenellipes","Phylloscopus_emeiensis", 
+                         "Phylloscopus_nitidus","Phylloscopus_plumbeitarsus","Phylloscopus_trochiloides","Phylloscopus_cebuensis", 
+                         "Phylloscopus_coronatus","Phylloscopus_ijimae","Phylloscopus_ruficapillus","Phylloscopus_umbrovirens"]
+        subs_new_taxa = ["Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus"]
+        new_tree = _sub_taxa_in_tree(in_tree,subs_old_taxa,subs_new_taxa);
+        # Fixes a random bug where Phylloscopus0 would appear, followed by Phylloscopus00 in subsequent subs
+        self.assert_(new_tree.find("Phylloscopus0") == -1)
+
+
+    def test_not_replace_partial(self):
+        quote_taxa_tree = "(taxa_1, taxa_n_taxa_2, taxa_3, taxa_4);";
+        new_tree = _sub_taxa_in_tree(quote_taxa_tree,"taxa_2",'taxa_8');
+        answer = "(taxa_1, taxa_n_taxa_2, taxa_3, taxa_4);"
+        self.assert_(_trees_equal(new_tree, answer), "Didn't substitute part of taxa")
 
 
 if __name__ == '__main__':
