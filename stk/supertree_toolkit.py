@@ -361,8 +361,9 @@ def export_bibliography(XML,filename,format="bibtex"):
             volume  = a.xpath("volume/string_value")[0].text
             bib_dict['volume']=volume
         if (a.xpath("pages/string_value")):
-            pages   = a.xpath("pages/string_value")[0].text
-            bib_dict['pages']=pages 
+            firstpage, lastpage = bibparse.process_pages(a.xpath("pages/string_value")[0].text)
+            bib_dict['firstpage']=firstpage
+            bib_dict['lastpage']=lastpage
         if (a.xpath("issue/string_value")):
             issue   = a.xpath("issue/string_value")[0].text
             bib_dict['issue']=issue
@@ -459,8 +460,9 @@ def export_bibliography(XML,filename,format="bibtex"):
             publisher  = i.xpath("publisher/string_value")[0].text
             bib_dict['publisher']=publisher
         if (i.xpath("pages/string_value")):
-            pages   = i.xpath("pages/string_value")[0].text
-            bib_dict['pages']=pages 
+            firstpage, lastpage = bibparse.process_pages(i.xpath("pages/string_value")[0].text)
+            bib_dict['firstpage']=firstpage
+            bib_dict['lastpage']=lastpage
         if (i.xpath("doi/string_value")):
             doi     = i.xpath("doi/string_value")[0].text
             bib_dict['doi']=doi
@@ -508,8 +510,9 @@ def export_bibliography(XML,filename,format="bibtex"):
             publisher  = i.xpath("publisher/string_value")[0].text
             bib_dict['publisher']=publisher
         if (i.xpath("pages/string_value")):
-            pages   = i.xpath("pages/string_value")[0].text
-            bib_dict['pages']=pages 
+            firstpage, lastpage = bibparse.process_pages(i.xpath("pages/string_value")[0].text)
+            bib_dict['firstpage']=firstpage
+            bib_dict['lastpage']=lastpage
         if (i.xpath("doi/string_value")):
             doi     = i.xpath("doi/string_value")[0].text
             bib_dict['doi']=doi
@@ -519,7 +522,7 @@ def export_bibliography(XML,filename,format="bibtex"):
 
         bib_it = bibitem.BibItem(bib_dict)
         bibliography.add_item(bib_it)
-
+    
     bibliography.output(fout=filename,formato=format,verbose=False)
     
     return

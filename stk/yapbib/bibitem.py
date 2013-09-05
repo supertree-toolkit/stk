@@ -353,6 +353,9 @@ class BibItem(dict):
     """
     Converts the item to xml format. The prefix is added to each entry
     """
+    from xml.sax.saxutils import escape
+    from string import capwords
+
     sp= indent*3
     spc=indent*' '
     entry_type = self.get('_type','')
@@ -382,12 +385,12 @@ class BibItem(dict):
         other_names, fam_name = x.rsplit(' ',1)
         v += '%s<surname>\n'%(sp*spc)
         sp+=1
-        v += '%s<string_value lines="1">%s</string_value>\n'%(sp*spc,fam_name)
+        v += '%s<string_value lines="1">%s</string_value>\n'%(sp*spc,capwords(fam_name))
         sp-=1
         v += '%s</surname>\n'%(sp*spc)
         v += '%s<other_names>\n'%(sp*spc)
         sp+=1
-        v += '%s<string_value lines="1">%s</string_value>\n'%(sp*spc,other_names)
+        v += '%s<string_value lines="1">%s</string_value>\n'%(sp*spc,capwords(other_names))
         sp-=1
         v += '%s</other_names>\n'%(sp*spc)
         sp-=1
@@ -503,6 +506,8 @@ class BibItem(dict):
                 pages = firstpage
             else:
                 pages = firstpage + "-" + lastpage
+            # escape
+            pages = escape(pages)
             sp+=1
             v = '\n%s<string_value lines="1">%s</string_value>\n%s'%(sp*spc,pages,(sp-1)*spc)
             sp-=1
