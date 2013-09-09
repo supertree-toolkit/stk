@@ -1388,6 +1388,7 @@ def permute_tree(tree,matrix="hennig",treefile=None):
 
     # first thing is to get hold of the unique taxa names
     # i.e. without % on them
+    tree = re.sub("'","",tree)
     all_taxa = _getTaxaFromNewick(tree)
 
     names_d = [] # our duplicated list of names

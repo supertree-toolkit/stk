@@ -28,7 +28,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">((E%1,G%1),A,(G%2,(E%2,F,D,H,E%3)));</string_value>
+            <string_value lines="1">((E%1,'G%1'),A,(G%2,(E%2,F,D,H,E%3)));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">1</string_value>
