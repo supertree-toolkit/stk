@@ -774,11 +774,6 @@ def sub_taxa(args):
         except:
             import traceback
             print "Error loading file as PHYML or a tree file. Check your input, please"
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            print "*** print_tb:"
-            traceback.print_tb(exc_traceback, file=sys.stdout)
-            print "*** print_exception:"
-            traceback.print_exception(exc_type, exc_value, exc_traceback, file=sys.stdout)
             sys.exit(-1)
     try:
         if (treefile):
