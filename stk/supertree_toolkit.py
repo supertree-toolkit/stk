@@ -1386,9 +1386,10 @@ def permute_tree(tree,matrix="hennig",treefile=None):
     permuted_trees = {} # The output of the recursive permute algorithm
     output_string = "" # what we pass back
 
-    # first thing is to get hold of the unique taxa names
+    # first thing is to get hole of the unique taxa names
     # i.e. without % on them
-    tree = re.sub("'","",tree)
+    tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\=]*) (?P<taxon2>[a-zA-Z0-9_\+\=%]*)'","\g<taxon>_\g<taxon2>",tree)
+
     all_taxa = _getTaxaFromNewick(tree)
 
     names_d = [] # our duplicated list of names
@@ -2533,11 +2534,9 @@ def _collapse_nodes(in_tree):
         taxon, denoted by taxon1, taxon2, etc
     """
 
-    #print in_tree
     modified_tree = re.sub(r"(?P<taxon>[a-zA-Z_]*)%[0-9]+",'\g<taxon>',in_tree)    
     tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
     taxa = tree.getAllLeafNames(0)
-    #print tree.writeNewick(fName=None,toString=True).strip()
     
     for t in taxa:
         # we might have removed the current taxon in a previous loop
@@ -2896,27 +2895,27 @@ def _amalgamate_trees(trees,format,anonymous=False):
     # Nexus: Add header, write one tree per line, prepending tree info, taking into acount annonymous flag
     # TNT: strip commas, write one tree per line
     output_string = ""
-    if format == "nexus":
+    if format.lower() == "nexus":
         output_string += "#NEXUS\n\nBEGIN TREES;\n\n"
     tree_count = 0
     for tree in trees:
-        if format == "nexus":
+        if format.lower() == "nexus":
             if anonymous:
                 output_string += "\tTREE tree_"+str(tree_count)+" = "+trees[tree]+"\n"
             else:
                 output_string += "\tTREE "+tree+" = "+trees[tree]+"\n"
-        elif format == "newick":
+        elif format.lower() == "newick":
             output_string += trees[tree]+"\n"
-        elif format == "tnt":
+        elif format.lower() == "tnt":
             t = trees[tree];
             t = t.replace(",","");
             t = t.replace(";","");
             output_string += t+"\n"
         tree_count += 1
     # Footer
-    if format == "nexus":
+    if format.lower() == "nexus":
         output_string += "\n\nEND;"
-    elif format == "tnt":
+    elif format.lower() == "tnt":
         output_string += "\n\nproc-;"
 
     return output_string
