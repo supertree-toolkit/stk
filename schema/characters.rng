@@ -139,36 +139,4 @@
       </oneOrMore>
     </choice>
   </define>
-  <define name="char_info">
-    <optional>
-      <element name="link_to_online_data">
-        <a:documentation>Is the data online anywhere, e.g. as a NEXUS file?</a:documentation>
-        <ref name="anystring"/>
-      </element>
-    </optional>
-    <optional>
-      <element name="alignment_method">
-        <optional>
-          <element name="algorithm_or_method">
-            <data type="string"/>
-          </element>
-        </optional>
-        <optional>
-          <ref name="software"/>
-        </optional>
-        <optional>
-          <element name="parameters_used">
-            <ref name="anystring"/>
-          </element>
-        </optional>
-        <optional>
-          <element name="corrected">
-            <a:documentation>was the alignment corrected in any way?</a:documentation>
-            <empty/>
-          </element>
-        </optional>
-      </element>
-    </optional>
-    <ref name="comment"/>
-  </define>
 </grammar>
