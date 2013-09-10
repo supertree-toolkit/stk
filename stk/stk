@@ -634,7 +634,11 @@ def data_summary(args):
         msg = "***Error: Failed to create data summary.\n"+detail.msg
         print msg
         return
-    
+    except TreeParseError as detail:
+        msg = "***Error: Failed to summarise data - can't parse tree.\n"+detail.msg
+        print msg
+        return 
+
     if (output_file == False or
         output_file == None):
         print data_summary

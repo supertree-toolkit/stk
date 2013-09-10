@@ -2628,13 +2628,20 @@ def _check_taxa(XML,delete=False):
     for s in sources:
         # get a list of taxa in the XML
         this_source = _parse_xml(etree.tostring(s))
-        find = etree.XPath("//taxon")
-        taxa = find(this_source)
         trees = obtain_trees(etree.tostring(this_source))
+        s_name = s.attrib['name']
         for name in trees.iterkeys():
+            tree_no = 1
+            for t in s.xpath("source_tree/tree/tree_string"):
+                t_name = s_name+"_"+str(tree_no)
+                tree_no += 1
+                if (t_name == name):
+                    find = etree.XPath(".//taxon")
+                    taxa_ele = find(t.getparent().getparent())
+
             tree = trees[name]
             # are the XML taxa in the tree?
-            for t in taxa:
+            for t in taxa_ele:
                 xml_taxon = t.attrib['name']
                 if (tree.find(xml_taxon) == -1):
                     if (delete):

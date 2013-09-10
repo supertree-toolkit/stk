@@ -115,7 +115,6 @@ class TestSetSourceNames(unittest.TestCase):
         """Tests the _check_taxa function
         """
 
-        #this test should pass, but wrap it up anyway
         try:
             _check_taxa(etree.tostring(etree.parse('data/input/check_taxa.phyml',parser),pretty_print=True)); 
         except InvalidSTKData:
