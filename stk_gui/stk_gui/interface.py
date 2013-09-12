@@ -695,10 +695,16 @@ class Diamond:
     Tell the user how great we are.
     """
 
+    import stk.bzr_version
+    d = stk.bzr_version.version_info
+    build = d.get('revno','<unknown revno>')
+    date  = d.get('build_date','<unknown build date>')
+
+
     about = gtk.AboutDialog()
-    about.set_name("Supertree Toolkit")
+    about.set_name("Supertree Toolkit v2."+build)
     about.set_copyright("GPLv3")
-    about.set_comments("Software to manage supertree source files. Based on Diamond from AMCG.")
+    about.set_comments("Software to manage supertree source files. Based on Diamond from AMCG. Compiled on "+date)
     about.set_authors(["Jon Hill", "Katie Davis"])
     about.set_license("Supertree Tookit is free software: you can redistribute it and/or modify\n"+
                       "it under the terms of the GNU General Public License as published by\n"+

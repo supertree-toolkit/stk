@@ -42,6 +42,11 @@ import stk.Getch as Getch
 import string
 import stk.p4 as p4
 import lxml
+import bzr_version
+d = bzr_version.version_info
+build = d.get('revno','<unknown revno>')
+date  = d.get('build_date','<unknown build date>')
+
 
 # Set up a global Getch class for all functions to use
 inkey = Getch._Getch()
@@ -71,8 +76,14 @@ def main():
             help="Ignore warnings about data quality",
             default=False
             )
-    subparsers = parser.add_subparsers(help='sub-command help')
+    parser.add_argument(
+            '--version', 
+            action='store_true', 
+            help="Print version number and exit",
+            default=False
+            )
 
+    subparsers = parser.add_subparsers(help='sub-command help')
     # Here's how we add a new sub-command
     #
     # Add a subparser, with some help and a command
@@ -442,9 +453,19 @@ def main():
             )
     parser_cm.set_defaults(func=create_subset)
 
+    # before we let argparse work its magic, check for --version
+    if "--version" in sys.argv:
+        print "STK version 2."+build
+        print "Built "+date
+        print "Copyright (C) 2011-2013, Jon Hill, Katie Davis"
+        print "Released under GNU General Public License"
+        sys.exit(1)
+    
     # parse the arguments, and strip out the common options
     args = parser.parse_args()
     verbose = args.verbose
+    version = args.version
+
     # All of the rest may or may not apply to the command chosen
     # The rest of this function is effectively checking all of the arguments
     # against the command specified
