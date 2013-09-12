@@ -2733,7 +2733,7 @@ class Diamond:
     """
 
     if isinstance(choice_or_tree, choice.Choice):
-      for opt in choice_or_tree.choices():
+      for opt in choice_or_tree.choices:
         self.expand_choice_or_tree(opt)
     else:
       l = self.s.valid_children(choice_or_tree.schemaname)
@@ -3447,7 +3447,7 @@ class Diamond:
       if self.choice_or_tree_matches(text, choice_or_tree.get_current_tree(), False):
         return True
       elif recurse and self.find.search_gui.get_widget("searchInactiveChoiceSubtreesCheckButton").get_active():
-        for opt in choice_or_tree.choices():
+        for opt in choice_or_tree.choices:
           if not search_active_subtrees and opt is choice_or_tree.get_current_tree():
             continue
           if opt.children == []:
