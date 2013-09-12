@@ -634,7 +634,11 @@ def data_summary(args):
         msg = "***Error: Failed to create data summary.\n"+detail.msg
         print msg
         return
-    
+    except TreeParseError as detail:
+        msg = "***Error: Failed to summarise data - can't parse tree.\n"+detail.msg
+        print msg
+        return 
+
     if (output_file == False or
         output_file == None):
         print data_summary
@@ -772,6 +776,7 @@ def sub_taxa(args):
             trees = supertree_toolkit.import_trees(input_file) 
             treefile = True
         except:
+            import traceback
             print "Error loading file as PHYML or a tree file. Check your input, please"
             sys.exit(-1)
     try:

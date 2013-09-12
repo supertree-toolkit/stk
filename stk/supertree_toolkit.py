@@ -1067,6 +1067,26 @@ def get_characters_from_tree(XML,name,sort=False):
     # should raise exception here
     return characters
 
+def get_characters_used(XML):
+    """ Return a sorted, unique array of all character names used
+    in this dataset
+    """
+ 
+    c_ = []
+ 
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//character")
+    chars = find(xml_root)
+
+    for c in chars:
+        name = c.attrib['name']
+        ctype = c.attrib['type']
+        c_.append((name,ctype))
+ 
+    characters = _uniquify(c_) 
+    characters.sort(key=lambda x: x[0].lower())
+ 
+    return characters
 
 def get_character_numbers(XML):
     """ Return the number of trees that use each character
@@ -1395,8 +1415,10 @@ def permute_tree(tree,matrix="hennig",treefile=None):
     permuted_trees = {} # The output of the recursive permute algorithm
     output_string = "" # what we pass back
 
-    # first thing is to get hold of the unique taxa names
+    # first thing is to get hole of the unique taxa names
     # i.e. without % on them
+    tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\=]*) (?P<taxon2>[a-zA-Z0-9_\+\=%]*)'","\g<taxon>_\g<taxon2>",tree)
+
     all_taxa = _getTaxaFromNewick(tree)
 
     names_d = [] # our duplicated list of names
@@ -2541,11 +2563,9 @@ def _collapse_nodes(in_tree):
         taxon, denoted by taxon1, taxon2, etc
     """
 
-    #print in_tree
     modified_tree = re.sub(r"(?P<taxon>[a-zA-Z_]*)%[0-9]+",'\g<taxon>',in_tree)    
     tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
     taxa = tree.getAllLeafNames(0)
-    #print tree.writeNewick(fName=None,toString=True).strip()
     
     for t in taxa:
         # we might have removed the current taxon in a previous loop
@@ -2637,13 +2657,20 @@ def _check_taxa(XML,delete=False):
     for s in sources:
         # get a list of taxa in the XML
         this_source = _parse_xml(etree.tostring(s))
-        find = etree.XPath("//taxon")
-        taxa = find(this_source)
         trees = obtain_trees(etree.tostring(this_source))
+        s_name = s.attrib['name']
         for name in trees.iterkeys():
+            tree_no = 1
+            for t in s.xpath("source_tree/tree/tree_string"):
+                t_name = s_name+"_"+str(tree_no)
+                tree_no += 1
+                if (t_name == name):
+                    find = etree.XPath(".//taxon")
+                    taxa_ele = find(t.getparent().getparent())
+
             tree = trees[name]
             # are the XML taxa in the tree?
-            for t in taxa:
+            for t in taxa_ele:
                 xml_taxon = t.attrib['name']
                 if (tree.find(xml_taxon) == -1):
                     if (delete):
@@ -2904,27 +2931,27 @@ def _amalgamate_trees(trees,format,anonymous=False):
     # Nexus: Add header, write one tree per line, prepending tree info, taking into acount annonymous flag
     # TNT: strip commas, write one tree per line
     output_string = ""
-    if format == "nexus":
+    if format.lower() == "nexus":
         output_string += "#NEXUS\n\nBEGIN TREES;\n\n"
     tree_count = 0
     for tree in trees:
-        if format == "nexus":
+        if format.lower() == "nexus":
             if anonymous:
                 output_string += "\tTREE tree_"+str(tree_count)+" = "+trees[tree]+"\n"
             else:
                 output_string += "\tTREE "+tree+" = "+trees[tree]+"\n"
-        elif format == "newick":
+        elif format.lower() == "newick":
             output_string += trees[tree]+"\n"
-        elif format == "tnt":
+        elif format.lower() == "tnt":
             t = trees[tree];
             t = t.replace(",","");
             t = t.replace(";","");
             output_string += t+"\n"
         tree_count += 1
     # Footer
-    if format == "nexus":
+    if format.lower() == "nexus":
         output_string += "\n\nEND;"
-    elif format == "tnt":
+    elif format.lower() == "tnt":
         output_string += "\n\nproc-;"
 
     return output_string

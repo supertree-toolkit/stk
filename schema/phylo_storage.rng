@@ -119,9 +119,6 @@ create the tree?</a:documentation>
               <ref name="evolution_models"/>
               <zeroOrMore>
                 <element name="character_weights">
-                  <attribute name="character">
-                    <data type="string" datatypeLibrary=""/>
-                  </attribute>
                   <ref name="anystring"/>
                 </element>
               </zeroOrMore>

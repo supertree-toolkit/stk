@@ -382,13 +382,14 @@ class TestTreeMetaData(unittest.TestCase):
         XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
         permute_trees = _find_trees_for_permuting(XML)
         self.assert_(len(permute_trees) == 3)
-        self.assert_(permute_trees['Hill_2011_1'] == '((E%1,G%1),A,(G%2,(E%2,F,D,H,E%3)));')
+        self.assert_(permute_trees['Hill_2011_1'] == "((E%1,'G%1'),A,(G%2,(E%2,F,D,H,E%3)));")
         self.assert_(permute_trees['Davis_2011_1'] == '(Outgroup,(((((Leopardus_geoffroyi,Leopardus_pardalis),(Otocolobus_manul,Felis_magrita)),(Prionailurus_bengalensis,Leptailurus_serval)),(Catopuma_temmincki,(Caracal_caracal,Lynx_rufus))),((Acinonyx_jubatus,(Puma_concolor,(Panthera_tigris%1,Panthera_uncia))),(Panthera_onca,(Panthera_leo,Panthera_tigris%2)))));')
         self.assert_(permute_trees['Hill_Davis_2011_1'] == '(A, (B, (C, D, E%1, F, G, E%2, E%3)));')
 
     def test_permute_trees(self):
         XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
         trees = obtain_trees(XML)
+        # contains quoted taxa too
         output = permute_tree(trees['Hill_2011_1'],treefile="newick")
         temp_file_handle, temp_file = tempfile.mkstemp(suffix=".new")
         f = open(temp_file,"w")
