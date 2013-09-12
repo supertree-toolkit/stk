@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Supertree Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import generators
-
+import shutil
 import os
 import os.path
 import re
@@ -24,6 +24,8 @@ import sys
 import tempfile
 import cStringIO as StringIO
 import Queue
+import tempfile
+
 try:
     __file__
 except NameError:
@@ -543,12 +545,25 @@ class Diamond:
       self.statusbar.set_statusbar("Saving ...")
       self.main_window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
       try:
-        self.tree.write(self.filename)
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tmp") 
+        self.tree.write(temp_file)
       except:
         dialogs.error_tb(self.main_window, "Saving to \"" + self.filename + "\" failed")
         self.statusbar.clear_statusbar()
         self.main_window.window.set_cursor(None)
         return False
+      # now move the tempfile to the correct filename, after making a .bak
+      try:
+        # rename original to backup...
+        shutil.move(self.filename, self.filename+".bak")
+        # ...and temporary to original
+        shutil.move(temp_file, self.filename)
+      except:
+        dialogs.error_tb(self.main_window, "Saving to \"" + self.filename + "\" failed")
+        self.statusbar.clear_statusbar()
+        self.main_window.window.set_cursor(None)
+        return False
+      
 
       self.set_saved(True)
 

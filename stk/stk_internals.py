@@ -30,10 +30,49 @@ import parser
 import re
 import supertree_toolkit
 from copy import deepcopy
+import unicodedata
 
 
 """ This file contains the internal functionality of the STK
 """
+
+
+
+
+replacements =     {
+    u"\u00C6": u"AE", # LATIN CAPITAL LETTER AE
+    u"\u00D0": u"D",  # LATIN CAPITAL LETTER ETH
+    u"\u00D8": u"OE", # LATIN CAPITAL LETTER O WITH STROKE
+    u"\u00DE": u"Th", # LATIN CAPITAL LETTER THORN
+    u"\u00DF": u"ss", # LATIN SMALL LETTER SHARP S
+    u"\u00E6": u"ae", # LATIN SMALL LETTER AE
+    u"\u00F0": u"d",  # LATIN SMALL LETTER ETH
+    u"\u00F8": u"oe", # LATIN SMALL LETTER O WITH STROKE
+    u"\u00FE": u"th", # LATIN SMALL LETTER THORN
+    u"\u2010": "-",
+    u"\u2011": "-",
+    u"\u2012": "-",
+    u"\u2013": "-",
+    u"\u2014": "-",
+    u"\u2015": "-",
+    u"\u2212": "-",
+    u"\u2018": "'", # single quotes
+    u"\u2019": "'",
+    u"\u201A": "'",
+    u"\u201B": "'",
+    u"\u201C": '"', # double quotes
+    u"\u201D": '"',
+    u"\u201E": '"',
+    u"\u201F": '"',
+    }
+
+def replace_utf(content):
+
+    for c in replacements:
+        content = content.replace(c,replacements[c])
+
+    return content
+
 
 def already_in_data(new_source,sources):
     """

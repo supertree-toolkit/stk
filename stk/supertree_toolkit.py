@@ -45,6 +45,8 @@ from matplotlib import backends
 import datetime
 import gtk
 from indent import *
+import unicodedata
+from stk_internals import *
 
 #plt.ion()
 
@@ -796,8 +798,12 @@ def import_trees(filename):
         parsed.
     """
     f = open(filename)
-    content = f.read()                 # read entire file into memory
+    content = f.read() # read entire file into memory
     f.close()    
+
+    # translate to ascii
+    content = str(replace_utf(content))
+    
     # Need to add checks on the file. Problems include:
 # TNT: outputs Phyllip format or something - basically a Newick
 # string without commas, so add 'em back in
@@ -3003,7 +3009,7 @@ def _parse_trees(tree_block):
     """ Parse a string containing multiple trees 
         to a list of p4 tree objects
     """
-    
+   
     try:
         p4.var.doRepairDupedTaxonNames = 2
         p4.var.warnReadNoFile = False
