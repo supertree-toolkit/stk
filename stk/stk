@@ -46,7 +46,7 @@ import bzr_version
 d = bzr_version.version_info
 build = d.get('revno','<unknown revno>')
 date  = d.get('build_date','<unknown build date>')
-
+branch = d.get("branch_nick","<unknown branch>")
 
 # Set up a global Getch class for all functions to use
 inkey = Getch._Getch()
@@ -455,7 +455,12 @@ def main():
 
     # before we let argparse work its magic, check for --version
     if "--version" in sys.argv:
-        print "STK version 2."+build
+        branch = d.get("branch_nick","<unknown branch>")
+        if (branch == "release"):
+            branch = ""
+        else:
+            branch = ": ("+branch+")"
+        print "STK version 2."+build+branch
         print "Built "+date
         print "Copyright (C) 2011-2013, Jon Hill, Katie Davis"
         print "Released under GNU General Public License"

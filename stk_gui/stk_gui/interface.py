@@ -699,10 +699,14 @@ class Diamond:
     d = stk.bzr_version.version_info
     build = d.get('revno','<unknown revno>')
     date  = d.get('build_date','<unknown build date>')
-
+    branch = d.get("branch_nick","<unknown branch>")
+    if (branch == "release"):
+        branch = ""
+    else:
+        branch = ": ("+branch+")"
 
     about = gtk.AboutDialog()
-    about.set_name("Supertree Toolkit v2."+build)
+    about.set_name("Supertree Toolkit v2."+build+branch)
     about.set_copyright("GPLv3")
     about.set_comments("Software to manage supertree source files. Based on Diamond from AMCG. Compiled on "+date)
     about.set_authors(["Jon Hill", "Katie Davis"])
