@@ -99,10 +99,12 @@ paste a string.</a:documentation>
             </element>
             <element name="tree_inference">
               <a:documentation>Information on how the tree was created, software, etc</a:documentation>
-              <ref name="analysis">
-                <a:documentation>Which analytical methods were used to create
+              <oneOrMore>
+                <ref name="analysis">
+                  <a:documentation>Which analytical methods were used to create
 the source tree?</a:documentation>
-              </ref>
+                </ref>
+              </oneOrMore>
               <optional>
                 <ref name="software"/>
               </optional>
