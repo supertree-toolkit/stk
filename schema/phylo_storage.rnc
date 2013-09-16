@@ -101,13 +101,13 @@ source=
                 consensus?
             },
             element topology {
-                element rooting {
-                    attribute type { "Rooted" | "Unrooted" }
-                }?,
                 element outgroup {
                     anystring
-                }?  
-            }?,
+                },
+                element rooting {
+                    attribute type { "Rooted" | "Unrooted" }
+                }?
+            },
             element tree_support {
                 anystring
             }?,

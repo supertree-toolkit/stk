@@ -125,25 +125,21 @@ create the tree?</a:documentation>
                 <ref name="consensus"/>
               </optional>
             </element>
-            <optional>
-              <element name="topology">
-                <optional>
-                  <element name="rooting">
-                    <attribute name="type">
-                      <choice>
-                        <value>Rooted</value>
-                        <value>Unrooted</value>
-                      </choice>
-                    </attribute>
-                  </element>
-                </optional>
-                <optional>
-                  <element name="outgroup">
-                    <ref name="anystring"/>
-                  </element>
-                </optional>
+            <element name="topology">
+              <element name="outgroup">
+                <ref name="anystring"/>
               </element>
-            </optional>
+              <optional>
+                <element name="rooting">
+                  <attribute name="type">
+                    <choice>
+                      <value>Rooted</value>
+                      <value>Unrooted</value>
+                    </choice>
+                  </attribute>
+                </element>
+              </optional>
+            </element>
             <optional>
               <element name="tree_support">
                 <ref name="anystring"/>
