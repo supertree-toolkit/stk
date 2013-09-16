@@ -688,13 +688,7 @@ source tree(s).</a:documentation>
   <define name="evolution_models">
     <zeroOrMore>
       <element name="model_of_evolution">
-        <attribute name="name">
-          <data type="string" datatypeLibrary=""/>
-        </attribute>
-        <attribute name="character">
-          <data type="string" datatypeLibrary=""/>
-        </attribute>
-        <empty/>
+        <ref name="anystring"/>
       </element>
     </zeroOrMore>
   </define>
