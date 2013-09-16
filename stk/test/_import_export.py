@@ -67,6 +67,9 @@ class TestImportExport(unittest.TestCase):
                 if (err == "/phylo_storage/sources/source/source_tree/taxa_data/mixed_fossil_and_extant/taxon" and
                         len(optionErrors[phyml_file][0])+len(optionErrors[phyml_file][2])+len(optionErrors[phyml_file][3]) == 0):
                     continue
+                if (err == "/phylo_storage/sources/source/source_tree/tree/topology" and
+                        len(optionErrors[phyml_file][0])+len(optionErrors[phyml_file][2])+len(optionErrors[phyml_file][3]) == 0):
+                    continue
                 failures.append(phyml_file)
         self.assert_(len(failures) == 0)
         os.remove(temp_file)

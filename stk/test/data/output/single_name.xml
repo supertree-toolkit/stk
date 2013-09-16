@@ -36,7 +36,12 @@
       </page_number>
       <tree_inference>
         <optimality_criterion name=""/>
-      </tree_inference>
+    </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">NA</string_value>
+          </outgroup>
+      </topology>
     </tree>
     <taxa_data>
       <all_extant>
