@@ -42,6 +42,11 @@
           <tree_inference>
             <optimality_criterion name="Bayesian"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -67,6 +72,11 @@
           <tree_inference>
             <optimality_criterion name="Bayesian"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -115,6 +125,11 @@
           <tree_inference>
             <optimality_criterion name="Bayesian"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <mixed_fossil_and_extant>
@@ -177,6 +192,11 @@
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <mixed_fossil_and_extant>
@@ -209,6 +229,11 @@
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <mixed_fossil_and_extant>

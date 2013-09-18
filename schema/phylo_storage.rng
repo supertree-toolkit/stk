@@ -101,10 +101,12 @@ paste a string.</a:documentation>
             <ref name="comment"/>
             <element name="tree_inference">
               <a:documentation>Information on how the tree was created, software, etc</a:documentation>
-              <ref name="analysis">
-                <a:documentation>Which analytical methods were used to create
+              <oneOrMore>
+                <ref name="analysis">
+                  <a:documentation>Which analytical methods were used to create
 the source tree?</a:documentation>
-              </ref>
+                </ref>
+              </oneOrMore>
               <ref name="comment"/>
               <optional>
                 <ref name="software"/>
@@ -127,25 +129,21 @@ create the tree?</a:documentation>
               </optional>
               <ref name="comment"/>
             </element>
-            <optional>
-              <element name="topology">
-                <optional>
-                  <element name="rooting">
-                    <attribute name="type">
-                      <choice>
-                        <value>Rooted</value>
-                        <value>Unrooted</value>
-                      </choice>
-                    </attribute>
-                  </element>
-                </optional>
-                <optional>
-                  <element name="outgroup">
-                    <ref name="anystring"/>
-                  </element>
-                </optional>
+            <element name="topology">
+              <element name="outgroup">
+                <ref name="anystring"/>
               </element>
-            </optional>
+              <optional>
+                <element name="rooting">
+                  <attribute name="type">
+                    <choice>
+                      <value>Rooted</value>
+                      <value>Unrooted</value>
+                    </choice>
+                  </attribute>
+                </element>
+              </optional>
+            </element>
             <optional>
               <element name="tree_support">
                 <ref name="anystring"/>
@@ -697,13 +695,7 @@ source tree(s).</a:documentation>
   <define name="evolution_models">
     <zeroOrMore>
       <element name="model_of_evolution">
-        <attribute name="name">
-          <data type="string" datatypeLibrary=""/>
-        </attribute>
-        <attribute name="character">
-          <data type="string" datatypeLibrary=""/>
-        </attribute>
-        <empty/>
+        <ref name="anystring"/>
       </element>
     </zeroOrMore>
   </define>

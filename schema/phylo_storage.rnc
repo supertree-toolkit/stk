@@ -89,7 +89,7 @@ source=
             element tree_inference {
                 ## Which analytical methods were used to create
                 ## the source tree?
-                analysis,
+                analysis+,
                 comment,
                 software?,
                 ## Did the authors give the command or parameters used to 
@@ -105,13 +105,13 @@ source=
                 comment
             },
             element topology {
-                element rooting {
-                    attribute type { "Rooted" | "Unrooted" }
-                }?,
                 element outgroup {
                     anystring
-                }?  
-            }?,
+                },
+                element rooting {
+                    attribute type { "Rooted" | "Unrooted" }
+                }?
+            },
             element tree_support {
                 anystring
             }?,
@@ -509,11 +509,7 @@ support =
 evolution_models =
 (
     element model_of_evolution {
-        attribute name {string},
-        attribute character {string},
-        (
-        empty
-        )
+        anystring
     }*
 )
 

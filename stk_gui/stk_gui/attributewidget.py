@@ -330,7 +330,7 @@ class AttributeWidget(gtk.Frame):
     Check to see if the supplied data is a valid tree name.
     """
 
-    valid_chars = "_:[]1234567890qwertyuioplkjhgfdsazxcvbnmMNBVCXZASDFGHJKLPOIUYTREWQ"
+    valid_chars = "._:[]1234567890qwertyuioplkjhgfdsazxcvbnmMNBVCXZASDFGHJKLPOIUYTREWQ"
     for char in value:
       if char not in valid_chars:
         dialogs.error(None, "Invalid value entered")

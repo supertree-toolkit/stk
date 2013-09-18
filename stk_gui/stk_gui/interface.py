@@ -698,10 +698,20 @@ class Diamond:
     Tell the user how great we are.
     """
 
+    import stk.bzr_version
+    d = stk.bzr_version.version_info
+    build = d.get('revno','<unknown revno>')
+    date  = d.get('build_date','<unknown build date>')
+    branch = d.get("branch_nick","<unknown branch>")
+    if (branch == "release"):
+        branch = ""
+    else:
+        branch = ": ("+branch+")"
+
     about = gtk.AboutDialog()
-    about.set_name("Supertree Toolkit")
+    about.set_name("Supertree Toolkit v2."+build+branch)
     about.set_copyright("GPLv3")
-    about.set_comments("Software to manage supertree source files. Based on Diamond from AMCG.")
+    about.set_comments("Software to manage supertree source files. Based on Diamond from AMCG. Compiled on "+date)
     about.set_authors(["Jon Hill", "Katie Davis"])
     about.set_license("Supertree Tookit is free software: you can redistribute it and/or modify\n"+
                       "it under the terms of the GNU General Public License as published by\n"+
@@ -2754,7 +2764,7 @@ class Diamond:
     """
 
     if isinstance(choice_or_tree, choice.Choice):
-      for opt in choice_or_tree.choices():
+      for opt in choice_or_tree.choices:
         self.expand_choice_or_tree(opt)
     else:
       l = self.s.valid_children(choice_or_tree.schemaname)
@@ -3468,7 +3478,7 @@ class Diamond:
       if self.choice_or_tree_matches(text, choice_or_tree.get_current_tree(), False):
         return True
       elif recurse and self.find.search_gui.get_widget("searchInactiveChoiceSubtreesCheckButton").get_active():
-        for opt in choice_or_tree.choices():
+        for opt in choice_or_tree.choices:
           if not search_active_subtrees and opt is choice_or_tree.get_current_tree():
             continue
           if opt.children == []:
