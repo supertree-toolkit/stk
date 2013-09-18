@@ -42,7 +42,7 @@ import stk.Getch as Getch
 import string
 import stk.p4 as p4
 import lxml
-import bzr_version
+import stk.bzr_version as bzr_version
 d = bzr_version.version_info
 build = d.get('revno','<unknown revno>')
 date  = d.get('build_date','<unknown build date>')
