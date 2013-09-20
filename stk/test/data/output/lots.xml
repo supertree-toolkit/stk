@@ -1,71 +1,72 @@
+<?xml version='1.0' encoding='utf-8'?>
 <sources>
-<source name="Hill_etal_1996">
-  <bibliographic_information>
-    <article>
-      <authors>
-        <author>
-          <surname>
-            <string_value lines="1">Hill</string_value>
-          </surname>
-          <other_names>
-            <string_value lines="1">Jon</string_value>
-          </other_names>
-        </author>
-        <author>
-          <surname>
-            <string_value lines="1">Davis</string_value>
-          </surname>
-          <other_names>
-            <string_value lines="1">Katie</string_value>
-          </other_names>
-        </author>        
+  <source name="Hill_etal_1996">
+    <bibliographic_information>
+      <article>
+        <authors>
           <author>
-          <surname>
-            <string_value lines="1">Smith</string_value>
-          </surname>
-          <other_names>
-            <string_value lines="1">John</string_value>
-          </other_names>
-        </author>
-      </authors>
-      <title>
-        <string_value lines="1">A great paper</string_value>
-      </title>
-      <year>
-        <integer_value rank="0">1996</integer_value>
-      </year>
-    </article>  
-  </bibliographic_information>
-  <source_tree>
-    <tree>
-      <tree_string>
-        <string_value lines="1">Add your tree here</string_value>
-      </tree_string>
-      <figure_legend>
-        <string_value lines="1"></string_value>
-      </figure_legend>
-      <figure_number>
-        <string_value lines="1"></string_value>
-      </figure_number>
-      <page_number>
-        <integer_value rank="0"></integer_value>
-      </page_number>
-      <tree_inference>
-        <optimality_criterion name=""/>
-    </tree_inference>
-          <topology>
-            <outgroup>
-              <string_value lines="1">NA</string_value>
+            <surname>
+              <string_value lines="1">Hill</string_value>
+            </surname>
+            <other_names>
+              <string_value lines="1">Jon</string_value>
+            </other_names>
+          </author>
+          <author>
+            <surname>
+              <string_value lines="1">Davis</string_value>
+            </surname>
+            <other_names>
+              <string_value lines="1">Katie</string_value>
+            </other_names>
+          </author>
+          <author>
+            <surname>
+              <string_value lines="1">Smith</string_value>
+            </surname>
+            <other_names>
+              <string_value lines="1">John</string_value>
+            </other_names>
+          </author>
+        </authors>
+        <title>
+          <string_value lines="1">A great paper</string_value>
+        </title>
+        <year>
+          <integer_value rank="0">1996</integer_value>
+        </year>
+      </article>
+    </bibliographic_information>
+    <source_tree>
+      <tree>
+        <tree_string>
+          <string_value lines="1">Add your tree here</string_value>
+        </tree_string>
+        <figure_legend>
+          <string_value lines="1"/>
+        </figure_legend>
+        <figure_number>
+          <string_value lines="1"/>
+        </figure_number>
+        <page_number>
+          <string_value lines="1"/>
+			</page_number>
+        <tree_inference>
+          <optimality_criterion name=""/>
+        </tree_inference>
+        <topology>
+          <outgroup>
+            <string_value lines="1">NA</string_value>
           </outgroup>
-      </topology>
-    </tree>
-    <taxa_data>
-      <all_extant>
+        </topology>
+      </tree>
+      <taxa_data>
+        <all_extant>
       </all_extant>
-    </taxa_data>
-    <character_data>
-      <character type="" name=""/>
-    </character_data>
-  </source_tree>
-</source>
+      </taxa_data>
+      <character_data>
+        <character type="" name=""/>
+      </character_data>
+    </source_tree>
+  </source>
 </sources>

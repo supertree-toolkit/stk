@@ -31,6 +31,7 @@ def main():
     args = parser.parse_args()
     verbose = args.verbose
     input_files = args.input_files
+    print input_files
 
     for phyml in input_files:
         xml_root = stk._parse_xml(stk.load_phyml(phyml))
@@ -39,7 +40,7 @@ def main():
         for page in pages:
             string = etree.Element("string_value")
             string.text = page[0].text
-            string.tail = "\n\t\t\t"
+            string.tail = "\n      "
             page.replace(page[0], string)
             string.attrib['lines'] = "1"
 

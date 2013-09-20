@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <phylo_storage>
   <project_name>
     <string_value lines="1"/>
@@ -75,11 +76,11 @@
             <string_value lines="1"/>
           </figure_number>
           <page_number>
-            <integer_value rank="0"/>
-        </page_number>
-        <tree_inference/>
-    </tree>
-    <taxa_data/>
+            <string_value lines="1"/>
+			</page_number>
+          <tree_inference/>
+        </tree>
+        <taxa_data/>
       </source_tree>
     </source>
     <source name="Ascione_etal_2012">
@@ -150,7 +151,7 @@
           </doi>
           <url>
             <string_value lines="1">http://doi.wiley.com/10.1111/j.1365-2117.2011.00534.x</string_value>
-          </url> 
+          </url>
         </article>
       </bibliographic_information>
       <source_tree>
@@ -165,11 +166,11 @@
             <string_value lines="1"/>
           </figure_number>
           <page_number>
-            <integer_value rank="0"/>
-        </page_number>
-        <tree_inference/>
-    </tree>
-    <taxa_data/>
+            <string_value lines="1"/>
+			</page_number>
+          <tree_inference/>
+        </tree>
+        <taxa_data/>
       </source_tree>
     </source>
   </sources>
