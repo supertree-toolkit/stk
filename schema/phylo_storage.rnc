@@ -81,7 +81,7 @@ source=
                 anystring
             },
             element page_number {
-                integer
+                anystring
             },
             ## Information on how the tree was created, software, etc
             element tree_inference {
