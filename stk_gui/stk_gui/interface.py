@@ -15,7 +15,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Supertree Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import generators
-
 import shutil
 import os
 import os.path
@@ -563,6 +562,10 @@ class Diamond:
         self.statusbar.clear_statusbar()
         self.main_window.window.set_cursor(None)
         return False
+<<<<<<< TREE
+      
+=======
+>>>>>>> MERGE-SOURCE
 
       self.set_saved(True)
 
@@ -992,15 +995,32 @@ class Diamond:
     XML = f.getvalue()
     data_summary_ok = False
     try:
+<<<<<<< TREE
+        data_summary = stk.data_summary(XML,detailed=True)
+=======
         data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=False)
         data_summary_ok = True
+>>>>>>> MERGE-SOURCE
     except NotUniqueError as detail:
         msg = "Failed to summarise data - non-unique data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
+<<<<<<< TREE
+        data_summary = stk.data_summary(XML,detailed=True)
+=======
+>>>>>>> MERGE-SOURCE
     except InvalidSTKData as detail:
         msg = "Failed to summarise data - invalid STK data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
+<<<<<<< TREE
+        data_summary = stk.data_summary(XML,detailed=True)        
+=======
+>>>>>>> MERGE-SOURCE
     except UninformativeTreeError as detail:
+<<<<<<< TREE
+        msg = "Failed to summarise data.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        data_summary = stk.data_summary(XML,detailed=True)        
+=======
         msg = "Failed to summarise data - uninformative tree.\n"+detail.msg
         dialogs.error(self.main_window,msg)
     except TreeParseError as detail:
@@ -1011,6 +1031,7 @@ class Diamond:
         msg = "Failed to summarise data\n"
         dialogs.error(self.main_window,msg)
         return
+>>>>>>> MERGE-SOURCE
 
     if (not data_summary_ok):
         # try again

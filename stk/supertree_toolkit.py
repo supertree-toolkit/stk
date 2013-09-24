@@ -45,6 +45,8 @@ from matplotlib import backends
 import datetime
 import gtk
 from indent import *
+import unicodedata
+from stk_internals import *
 
 #plt.ion()
 
@@ -361,8 +363,9 @@ def export_bibliography(XML,filename,format="bibtex"):
             volume  = a.xpath("volume/string_value")[0].text
             bib_dict['volume']=volume
         if (a.xpath("pages/string_value")):
-            pages   = a.xpath("pages/string_value")[0].text
-            bib_dict['pages']=pages 
+            firstpage, lastpage = bibparse.process_pages(a.xpath("pages/string_value")[0].text)
+            bib_dict['firstpage']=firstpage
+            bib_dict['lastpage']=lastpage
         if (a.xpath("issue/string_value")):
             issue   = a.xpath("issue/string_value")[0].text
             bib_dict['issue']=issue
@@ -459,8 +462,9 @@ def export_bibliography(XML,filename,format="bibtex"):
             publisher  = i.xpath("publisher/string_value")[0].text
             bib_dict['publisher']=publisher
         if (i.xpath("pages/string_value")):
-            pages   = i.xpath("pages/string_value")[0].text
-            bib_dict['pages']=pages 
+            firstpage, lastpage = bibparse.process_pages(i.xpath("pages/string_value")[0].text)
+            bib_dict['firstpage']=firstpage
+            bib_dict['lastpage']=lastpage
         if (i.xpath("doi/string_value")):
             doi     = i.xpath("doi/string_value")[0].text
             bib_dict['doi']=doi
@@ -508,8 +512,9 @@ def export_bibliography(XML,filename,format="bibtex"):
             publisher  = i.xpath("publisher/string_value")[0].text
             bib_dict['publisher']=publisher
         if (i.xpath("pages/string_value")):
-            pages   = i.xpath("pages/string_value")[0].text
-            bib_dict['pages']=pages 
+            firstpage, lastpage = bibparse.process_pages(i.xpath("pages/string_value")[0].text)
+            bib_dict['firstpage']=firstpage
+            bib_dict['lastpage']=lastpage
         if (i.xpath("doi/string_value")):
             doi     = i.xpath("doi/string_value")[0].text
             bib_dict['doi']=doi
@@ -519,7 +524,7 @@ def export_bibliography(XML,filename,format="bibtex"):
 
         bib_it = bibitem.BibItem(bib_dict)
         bibliography.add_item(bib_it)
-
+    
     bibliography.output(fout=filename,formato=format,verbose=False)
     
     return
@@ -793,8 +798,12 @@ def import_trees(filename):
         parsed.
     """
     f = open(filename)
-    content = f.read()                 # read entire file into memory
+    content = f.read() # read entire file into memory
     f.close()    
+
+    # translate to ascii
+    content = str(replace_utf(content))
+    
     # Need to add checks on the file. Problems include:
 # TNT: outputs Phyllip format or something - basically a Newick
 # string without commas, so add 'em back in
@@ -1058,6 +1067,26 @@ def get_characters_from_tree(XML,name,sort=False):
     # should raise exception here
     return characters
 
+def get_characters_used(XML):
+    """ Return a sorted, unique array of all character names used
+    in this dataset
+    """
+ 
+    c_ = []
+ 
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//character")
+    chars = find(xml_root)
+
+    for c in chars:
+        name = c.attrib['name']
+        ctype = c.attrib['type']
+        c_.append((name,ctype))
+ 
+    characters = _uniquify(c_) 
+    characters.sort(key=lambda x: x[0].lower())
+ 
+    return characters
 
 def get_character_numbers(XML):
     """ Return the number of trees that use each character
@@ -3007,7 +3036,7 @@ def _parse_trees(tree_block):
     """ Parse a string containing multiple trees 
         to a list of p4 tree objects
     """
-    
+   
     try:
         p4.var.doRepairDupedTaxonNames = 2
         p4.var.warnReadNoFile = False

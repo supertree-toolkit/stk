@@ -1,9 +1,9 @@
 analysis =
 (
-    element optimality_criterion {
+   element optimality_criterion {
         attribute name {string}
     }|
-    element optimality_criterion {
+     element optimality_criterion {
         attribute name {"Maximum Parsimony"}
     }|
     element optimality_criterion {
@@ -17,6 +17,9 @@ analysis =
     }|
     element optimality_criterion {
         attribute name {"UPGMA"}
+    }|
+    element optimality_criterion {
+        attribute name {string}
     }
 )
 

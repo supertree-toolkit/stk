@@ -16,7 +16,8 @@ start =
             ## reference (paper, book, etc) and one or more trees
             element sources {
                 element source {
-                    source
+                    source,
+                    comment
                 }+,
                 comment
             },
@@ -83,11 +84,13 @@ source=
             element page_number {
                 integer
             },
+            comment,
             ## Information on how the tree was created, software, etc
             element tree_inference {
                 ## Which analytical methods were used to create
                 ## the source tree?
                 analysis+,
+                comment,
                 software?,
                 ## Did the authors give the command or parameters used to 
                 ## create the tree?
@@ -98,7 +101,8 @@ source=
                 element character_weights {
                     anystring
                 }*,
-                consensus?
+                consensus?,
+                comment
             },
             element topology {
                 element outgroup {
@@ -116,7 +120,8 @@ source=
                 element tree_string {
                     anystring
                 },
-                support 
+                support,
+                comment
             }?,
             element branch_lengths {
                 ## a tree string with branch lengths
@@ -126,7 +131,8 @@ source=
                 element units {
                     anystring
                 }?,
-                evolution_models
+                evolution_models,
+                comment
             }?
         },
         ## You can store information about taxa in the tree
@@ -141,6 +147,7 @@ source=
                 taxon*
             } 
         },
+        comment,
         ## This stores the character data used to construct the 
         ## source tree(s).
         element character_data {
@@ -325,7 +332,8 @@ taxon=
             anystring
             # data repository need adding here - move to atributes
         }?,
-        taxon_type
+        taxon_type,
+        comment
     }
 )
 
@@ -343,7 +351,8 @@ taxon_type =
         }?,
         element last_occurrance {
             anystring
-        }?
+        }?,
+        comment
     }|
     element extant {
         element locality {
@@ -353,7 +362,8 @@ taxon_type =
         element precise_georeference {
             anystring
         }?,
-        conservation
+        conservation,
+        comment
     }
 
 
@@ -365,7 +375,8 @@ software=
     element software {
         attribute name {string},
         attribute version {string}
-    }
+    },
+    comment
 )
 
 # Any value in the xml file can be accompanied by a comment

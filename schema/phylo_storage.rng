@@ -18,6 +18,7 @@ reference (paper, book, etc) and one or more trees</a:documentation>
         <oneOrMore>
           <element name="source">
             <ref name="source"/>
+            <ref name="comment"/>
           </element>
         </oneOrMore>
         <ref name="comment"/>
@@ -97,6 +98,7 @@ paste a string.</a:documentation>
             <element name="page_number">
               <ref name="integer"/>
             </element>
+            <ref name="comment"/>
             <element name="tree_inference">
               <a:documentation>Information on how the tree was created, software, etc</a:documentation>
               <oneOrMore>
@@ -105,6 +107,7 @@ paste a string.</a:documentation>
 the source tree?</a:documentation>
                 </ref>
               </oneOrMore>
+              <ref name="comment"/>
               <optional>
                 <ref name="software"/>
               </optional>
@@ -124,6 +127,7 @@ create the tree?</a:documentation>
               <optional>
                 <ref name="consensus"/>
               </optional>
+              <ref name="comment"/>
             </element>
             <element name="topology">
               <element name="outgroup">
@@ -152,6 +156,7 @@ create the tree?</a:documentation>
                   <ref name="anystring"/>
                 </element>
                 <ref name="support"/>
+                <ref name="comment"/>
               </element>
             </optional>
             <optional>
@@ -166,6 +171,7 @@ create the tree?</a:documentation>
                   </element>
                 </optional>
                 <ref name="evolution_models"/>
+                <ref name="comment"/>
               </element>
             </optional>
           </element>
@@ -190,6 +196,7 @@ in this section. </a:documentation>
               </element>
             </choice>
           </element>
+          <ref name="comment"/>
           <element name="character_data">
             <a:documentation>This stores the character data used to construct the 
 source tree(s).</a:documentation>
@@ -442,6 +449,7 @@ source tree(s).</a:documentation>
         </element>
       </optional>
       <ref name="taxon_type"/>
+      <ref name="comment"/>
     </element>
   </define>
   <define name="taxon_type">
@@ -467,6 +475,7 @@ source tree(s).</a:documentation>
             <ref name="anystring"/>
           </element>
         </optional>
+        <ref name="comment"/>
       </element>
       <element name="extant">
         <optional>
@@ -481,6 +490,7 @@ source tree(s).</a:documentation>
           </element>
         </optional>
         <ref name="conservation"/>
+        <ref name="comment"/>
       </element>
     </choice>
   </define>
@@ -494,6 +504,7 @@ source tree(s).</a:documentation>
         <data type="string" datatypeLibrary=""/>
       </attribute>
     </element>
+    <ref name="comment"/>
   </define>
   <!--
     Any value in the xml file can be accompanied by a comment

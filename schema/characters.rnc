@@ -71,6 +71,10 @@ characters =
              attribute name { "General morphology" },
              attribute type { "morphological" },
              char_info
+          }|element character {
+             attribute name { string },
+             attribute type { "morphological"|"molecular"|"behavioural"|"other" },
+             char_info 
           }+
     )
 
