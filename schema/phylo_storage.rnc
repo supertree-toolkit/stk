@@ -82,7 +82,7 @@ source=
                 anystring
             },
             element page_number {
-                integer
+                anystring
             },
             comment,
             ## Information on how the tree was created, software, etc

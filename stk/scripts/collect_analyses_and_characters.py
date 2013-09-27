@@ -26,7 +26,7 @@ def main():
     parser.add_argument(
             'input_files', 
             metavar='input_files',
-            nargs='*',
+            nargs='+',
             help="""List of phyml files. Output will be analyses.rnc and characters.rnc"""
             )
 

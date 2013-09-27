@@ -369,10 +369,9 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
     figure_number_string.text = "0"
     page_number = etree.SubElement(tree_ele,"page_number")
     page_number.tail="\n      "
-    page_number_string = etree.SubElement(page_number,"integer_value")
+    page_number_string = etree.SubElement(page_number,"string_value")
     page_number_string.tail="\n      "
-    page_number_string.attrib['rank'] = "0"
-    page_number_string.text = "0"
+    page_number_string.attrib['lines'] = "1"
     tree_inference = etree.SubElement(tree_ele,"tree_inference")
     optimality_criterion = etree.SubElement(tree_inference,"optimality_criterion")
     # analysis

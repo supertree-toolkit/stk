@@ -276,9 +276,9 @@ def import_bibliography(XML, bibfile):
             figure_number_string.attrib['lines'] = "1"
             page_number = etree.SubElement(tree,"page_number")
             page_number.tail="\n      "
-            page_number_string = etree.SubElement(page_number,"integer_value")
+            page_number_string = etree.SubElement(page_number,"string_value")
             page_number_string.tail="\n      "
-            page_number_string.attrib['rank'] = "0"
+            page_number_string.attrib['lines'] = "1"
             tree_inference = etree.SubElement(tree,"tree_inference")
             # taxa data
             taxa = etree.SubElement(s_tree,"taxa_data")
