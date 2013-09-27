@@ -258,6 +258,12 @@ class TestTreeManipulation(unittest.TestCase):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         matrix = create_matrix(XML)
 
+    def test_create_nexus_matrix_quote(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML,format="nexus",quote=False)
+        self.assert_(not matrix.find("'") == -1)
+
+
     def test_delete_taxa(self):
         t = "((A_1,B_1),F_1,E_1,(G_1,H_1));"
         new_tree = _delete_taxon("H_1", t)

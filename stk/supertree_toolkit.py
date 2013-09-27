@@ -1258,7 +1258,7 @@ def get_all_taxa(XML, pretty=False):
     return taxa_list
 
 
-def create_matrix(XML,format="hennig",ignoreWarnings=False):
+def create_matrix(XML,format="hennig",quote=False,ignoreWarnings=False):
     """ From all trees in the XML, create a matrix
     """
 
@@ -1273,7 +1273,7 @@ def create_matrix(XML,format="hennig",ignoreWarnings=False):
     taxa.append("MRPOutgroup")
     taxa.extend(get_all_taxa(XML))
 
-    return _create_matrix(trees, taxa, format=format)
+    return _create_matrix(trees, taxa, format=format, quote=quote)
 
 
 def create_matrix_from_trees(trees,format="hennig"):
@@ -2825,7 +2825,7 @@ def _find_trees_for_permuting(XML):
 
     return permute_trees
 
-def _create_matrix(trees, taxa, format="hennig"):
+def _create_matrix(trees, taxa, quote=False, format="hennig"):
 
     # our matrix, we'll then append the submatrix
     # to this to make a 2D matrix
@@ -2863,10 +2863,10 @@ def _create_matrix(trees, taxa, format="hennig"):
     matrix = numpy.array(matrix)
     matrix = matrix.transpose()
 
-    return _create_matrix_string(matrix,taxa,charsets=charsets,names=names,format=format)
+    return _create_matrix_string(matrix,taxa,quote=quote,charsets=charsets,names=names,format=format)
 
 
-def _create_matrix_string(matrix,taxa,charsets=None,names=None,format='hennig'):
+def _create_matrix_string(matrix,taxa,quote=False,charsets=None,names=None,format='hennig'):
 
     last_char = len(matrix[0])    
     if (format == 'hennig'):
@@ -2896,7 +2896,10 @@ def _create_matrix_string(matrix,taxa,charsets=None,names=None,format='hennig'):
 
         i = 0
         for taxon in taxa:
-            matrix_string += taxon + "\t"
+            if (quote):
+                matrix_string += "'" + taxon + "'\t"
+            else:
+                matrix_string += taxon + "\t"
             string = ""
             for t in matrix[i][:]:
                 string += t

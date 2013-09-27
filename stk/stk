@@ -101,6 +101,11 @@ def main():
             '--format', 
             choices=['hennig', 'nexus'],
             help='The format of the matrix. hennig or nexus. Default is hennig')
+    parser_cm.add_argument('-q',
+            '--quote', 
+            action='store_true',
+            default=False,
+            help='Quote taxa names in the matrix')    
     parser_cm.add_argument('--overwrite',
             action='store_true',
             default=False,
@@ -683,6 +688,7 @@ def create_matrix(args):
     input_file = args.input
     f_format = args.format
     overwrite = args.overwrite
+    quote = args.quote
     ignoreWarnings = args.ignoreWarnings
     
     # check all the options
@@ -713,7 +719,7 @@ def create_matrix(args):
 
     XML = supertree_toolkit.load_phyml(input_file)
     try:
-        matrix = supertree_toolkit.create_matrix(XML,format=f_format,ignoreWarnings=ignoreWarnings)
+        matrix = supertree_toolkit.create_matrix(XML,format=f_format,quote=quote,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
         msg = "***Error: Failed to create matrix.\n"+detail.msg
         print msg
