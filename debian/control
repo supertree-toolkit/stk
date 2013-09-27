@@ -1,0 +1,19 @@
+Source: supertree-toolkit
+Maintainer: The SupertreeToolkit team <jon.hill@imperial.ac.uk>
+Uploaders: Jon Hill <jon.hill@imperial.ac.uk>
+Section: science
+Priority: extra
+Build-Depends:  python-numpy, python-setuptools, python-all-dev, debhelper, python-central, python-support
+Standards-Version: 3.8.0
+XS-Python-Version: >= 2.5
+
+Package: supertree-toolkit
+Architecture: all
+Depends: python-tk, python-dxdiff, python-pygraphviz, python-lxml-dbg, python-lxml, python-gtk2, python-numpy, python-matplotlib, python-lxml, libxml2-utils, python, python-gtksourceview2, python-glade2, python-networkx
+Recommends: python-psyco
+Suggests: 
+Conflicts: 
+Replaces:
+Provides: ${python:Provides}
+XB-Python-Version: ${python:Versions}
+Description: A package to maintain, curate and process data ready for inclusion in supertree analysis. This package includes a GUI and CLI tools.

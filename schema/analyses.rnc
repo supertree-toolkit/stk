@@ -1,0 +1,26 @@
+analysis =
+(
+   element optimality_criterion {
+        attribute name {string}
+    }|
+     element optimality_criterion {
+        attribute name {"Maximum Parsimony"}
+    }|
+    element optimality_criterion {
+        attribute name {"Maximum Likelihood"}
+    }|
+    element optimality_criterion {
+        attribute name {"Bayesian"}
+    }|
+    element optimality_criterion {
+        attribute name {"Neighbour Joining"}
+    }|
+    element optimality_criterion {
+        attribute name {"UPGMA"}
+    }|
+    element optimality_criterion {
+        attribute name {string}
+    }
+)
+
+

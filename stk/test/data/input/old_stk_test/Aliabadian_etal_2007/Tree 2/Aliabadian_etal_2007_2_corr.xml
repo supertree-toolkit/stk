@@ -1,0 +1,42 @@
+<?xml version="1.0" standalone="yes"?>
+<SourceTree>
+  <Source>
+    <Author>ALIABADIAN, M. and M. KABOLI and R. PRODON and V. NIJMAN and M. VENCES</Author>
+    <Year>2007</Year>
+    <Title>Phylogeny of Palaearctic wheatears (genus Oenanthe) - Congruence between morphometric and molecular data.</Title>
+    <Journal>Molecular Phylogenetics and Evolution</Journal>
+    <Volume>42</Volume>
+    <Pages>665-675</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="14" fossil="none">
+    <List>Luscinia luscinia</List>
+    <List>Luscinia megarhynchos</List>
+    <List>Oenanthe moesta</List>
+    <List>Oenanthe leucopyga</List>
+    <List>Oenanthe alboniger</List>
+    <List>Oenanthe picata</List>
+    <List>Oenanthe xanthoprymna</List>
+    <List>Oenanthe lugens</List>
+    <List>Oenanthe finschii</List>
+    <List>Oenanthe deserti</List>
+    <List>Oenanthe hispanica</List>
+    <List>Oenanthe pleschanka</List>
+    <List>Oenanthe isabellina</List>
+    <List>Oenanthe oenanthe</List>
+  </Taxa>
+  <Characters>
+    <Molecular/>
+    <Morphological number="1">
+      <Type>Morphometrics</Type>
+    </Morphological>
+    <Behavioural/>
+    <Other/></Characters>
+  <Analysis>
+    <Type>UPGMA</Type>
+  </Analysis>
+  <Notes></Notes>
+  <TreeFile>Aliabadian_etal_2007_2_corr.tre</TreeFile>
+</SourceTree>
+

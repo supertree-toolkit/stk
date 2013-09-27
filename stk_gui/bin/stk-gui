@@ -1,0 +1,263 @@
+#!/usr/bin/env python
+
+#    This file is part of the STK.
+#
+#    STK is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    STK is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with STK.  If not, see <http://www.gnu.org/licenses/>.
+
+import getopt
+import os
+import os.path
+import sys
+import traceback
+import string
+import platform
+try:
+    __file__
+except NameError:
+    __file__ = "."
+import gtk
+import gtk.gdk
+gtk.gdk.threads_init()
+import gobject
+gobject.threads_init()
+
+# do this right at the start, so we can find the stk_gui modules when developing
+if not sys.platform.startswith("win"):
+  stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir)
+  sys.path.insert(0, stk_path)
+else:
+  stk_path = os.getcwd()
+
+import stk_gui.debug
+
+def Help():
+  """
+  Prints usage information to standard output.
+  """
+
+  stk_gui.debug.dprint("Usage: stk [OPTIONS] ... [FILE]\n" + \
+               "\n" + \
+               "Supertree source manager. [FILE] is the XML file to be opened (a new file is\n" + \
+               "created if this is not supplied).\n" + \
+               "\n" + \
+               "Options:\n" + \
+               "\n" + \
+               "-h               Display this message\n" + \
+               "-f               Forks at startup\n" + \
+               "-s [SCHEMAFILE]  Use the supplied schema file *\n" + \
+               "-d [FILE]        Diff against the supplied file. (FILE must be specified)\n" + \
+               "-u [DIRECTORY]   Find unused schema entries in the given directory\n" + \
+               "--ub [DIRECTORY] Find unused schema entries, batch mode\n" + \
+               "-v               Verbosity switch - if supplied STK prints additional\n" + \
+               "                 debugging information to standard output and standard error\n" + \
+               "\n" + \
+               "* Note: The locations of Spud schemas can also be defined in ~/.stk_gui/schemata/,\n" + \
+               "  see the Spud manual for further details.", 0)
+
+  return
+
+def main():
+
+  try:
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvfs:d:u:", ["ub="])
+  except:
+    Help()
+    sys.exit(1)
+
+  if len(args) > 1:
+    Help()
+    sys.exit(1)
+
+  if not ("-v", "") in opts:
+    stk_gui.debug.SetDebugLevel(0)
+  if ("-h", "") in opts:
+    Help()
+    return
+  if ("-f", "") in opts:
+    # Detach from controlling terminal
+    try:
+      pid = os.fork()
+      if pid == 0:
+        os.setsid()
+        pid = os.fork()
+        if pid != 0:
+          os._exit(0)
+      else:
+        os._exit(0)
+    except:
+      pass
+
+  import stk_gui.config as config
+  import stk_gui.dialogs as dialogs
+  import stk_gui.interface as interface
+  import stk_gui.schemausage as schemausage
+  import stk_gui.schema as schema
+  import stk_gui.tree as tree
+  import stk_gui.plugins as plugins
+  import stk_gui.useview as useview
+
+  try:
+    input_filename = args[0]
+  except IndexError:
+    input_filename = None
+
+  logofile = None
+  if sys.platform.startswith("win"):
+    pos_logo_places = [os.path.join(stk_path, "gui/stk.png")]
+
+  else:
+    pos_logo_places = [os.path.join(stk_path, "gui/stk.svg"),
+                            os.path.join(stk_path, "gui/stk.png"),
+                            "/usr/share/stk/stk.png",
+                            "/usr/share/stk/stk.svg",
+                            "/usr/local/share/stk/stk.png",
+                            "/usr/local/share/stk/stk.svg",
+                            ]
+  for possible_logofile in pos_logo_places:
+      try:
+        os.stat(possible_logofile)
+      
+        if logofile == None:
+          logofile = []
+        logofile.append(possible_logofile)
+      
+      except OSError:
+          pass   
+
+  # Let's find a schema.
+  suffix = "phyml"
+
+  # if the user specifies a schema on the command line, use that.
+  input_schemafile = None
+  input_alias = None
+  input_schematron_file = None
+  for opt in opts:
+    if opt[0] == "-s":
+      input_schemafile = opt[1]
+
+  if (input_schemafile == None):
+      #schemafile is not given so look up actual path  
+      for possible_schemafile in [
+            os.path.join(stk_path, "schema/phylo_storage.rng"),
+            os.path.join(stk_path, "../../../../share/schemata/stk/phylo_storage.rng"),
+            "/usr/local/share/stk/schemata/schema/phylo_storage.rng",
+            "/usr/share/stk/schemata/schema/phylo_storage.rng",
+            os.path.join(os.path.realpath(os.path.dirname(__file__)),"../../schema/phylo_storage.rng")]:
+        try:
+          os.stat(possible_schemafile)
+          input_schemafile = possible_schemafile
+          break
+        except OSError:
+          pass   
+
+  if input_schemafile is None:
+    message = "Could not find schema files in the usual places"
+    message += "\nPlease report this bug on bugs.launchpad.net/supertree-toolkit"
+    error_dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, message)
+    error_dialog.run()
+    error_dialog.destroy()
+    stk_gui.debug.deprint(message,0)
+    sys.exit(1)
+      
+  if input_filename is not None:
+    try:
+      os.stat(input_filename)
+    except OSError:
+       pass
+
+  # Import the GUI Glade file.
+  gladefile = None
+  for possible_gladefile in [os.path.join(stk_path, "gui", "gui.glade"),
+  			     os.path.join(stk_path, "gui.glade"),
+  			     os.path.join(stk_path, os.pardir, "gui", "gui.glade"),
+                             os.path.join(stk_path, "share", "stk", "gui", "gui.glade"),
+                             "../gui/gui.glade",
+                             "/usr/local/share/stk/gui.glade",
+                             "/usr/share/stk/gui.glade"]:
+    try:
+      os.stat(possible_gladefile)
+      gladefile = possible_gladefile
+      break
+    except OSError:
+      pass
+  if gladefile is None:
+    message = "Could not find GUI Glade file in the usual places"
+    message += "\nPlease report this bug on bugs.launchpad.net/supertree-toolkit"
+    error_dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, message)
+    error_dialog.run()
+    error_dialog.destroy()
+    stk_gui.debug.deprint(message,0)
+    sys.exit(1)
+
+  stk_gui.debug.dprint("\n" + \
+               "Glade file:  " + str(gladefile) + "\n" + \
+               "Schema file: " + str(input_schemafile) + "\n" + \
+               "Logo file:   " + str(logofile) + "\n" + \
+               "Input file:  " + str(input_filename) + "\n")
+
+  # see if the user wants to find usage
+  input_usage = None
+  input_usagebatch = None
+  for opt in opts:
+    if opt[0] == "-u":
+      input_usage = opt[1]
+    if opt[0] == "--ub":
+      input_usagebatch = opt[1]
+
+  if input_usagebatch:
+    paths = []
+    for dirpath, dirnames, filenames in os.walk(input_usagebatch):
+      paths.extend([os.path.join(dirpath, filename) for filename in filenames if filename.endswith(suffix)])
+
+    unused = schemausage.find_unusedset(schema.Schema(input_schemafile), paths)
+
+    for xpath in unused:
+      print xpath
+
+    if unused:
+      return 1
+    else:
+      return 0
+
+  elif input_usage:
+    view = useview.UseView(schema.Schema(input_schemafile), suffix, input_usage)
+    view.connect("delete_event", lambda widget, event: gtk.main_quit())
+  else:
+    plugins.configure_plugins(suffix)
+
+    i = interface.Diamond(gladefile = gladefile, logofile = logofile, suffix = suffix)
+
+    i.main_window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+    i.open_file(schemafile = input_schemafile, filename = input_filename)
+    i.main_window.window.set_cursor(None)
+
+    # see if the user wants to diff against a file
+    input_difffile = None
+    for opt in opts:
+      if opt[0] == "-d":
+        input_difffile = opt[1]
+
+    if input_difffile:
+      if input_filename:
+        i.on_diff(None, input_difffile)
+      else:
+        stk_gui.debug.dprint("Cannot diff if against nothing.", 0)
+  #endif
+
+  gtk.main()
+
+  return
+
+if __name__ == "__main__":
+  sys.exit(main())

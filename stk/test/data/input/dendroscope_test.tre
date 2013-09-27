@@ -1,0 +1,34 @@
+#DENDROSCOPE
+{TREE 'tree_1'
+((Taxon_c:1.0,(Taxon_a:1.0,Taxon_b:1.0):1.0):0.5,(Taxon_d:1.0,Taxon_e:1.0):0.5);
+}
+{GRAPHVIEW
+nnodes=9 nedges=8
+nodes
+1: nh=2 nw=2 fg=0 0 0 bg=0 0 0 w=1 sh=0 x=-3.0 y=3.125 fx=1 lc=0 0 0 lk=null lx=0 ly=0 ll=3 lv=1;
+2: x=-2.0 y=1.75 ll=7;
+3: x=0.0 y=1.0 lb='Taxon_c';
+4: x=-1.0 y=2.5;
+5: x=0.0 y=2.0 lb='Taxon_a';
+6: x=0.0 y=3.0 lb='Taxon_b';
+7: x=-1.0 y=4.5;
+8: x=0.0 y=4.0 lb='Taxon_d';
+9: x=0.0 y=5.0 lb='Taxon_e';
+edges
+2: fg=0 0 0 w=1 sh=1 ip= < -2.0 1.0> dr=1 lc=0 0 0 lk=null lx=0 ly=0 ll=11 lv=1;
+4: ip= < -1.0 2.0>;
+5: ip= < -1.0 3.0>;
+3: ip= < -2.0 2.5>;
+1: ip= < -3.0 1.75>;
+7: ip= < -1.0 4.0>;
+8: ip= < -1.0 5.0>;
+6: ip= < -3.0 4.5>;
+}
+{DENDRO
+root=1
+drawer=RectangularCladogram
+toscale=false
+radiallabels=false
+collapsed=0
+trans=angle:0.0 scaleX:346.66666 scaleY:101.0 flipH:0 flipV:0 leftMargin:670 rightMargin:670 topMargin:302 bottomMargin:302;
+}

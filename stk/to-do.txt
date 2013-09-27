@@ -1,0 +1,24 @@
+To finish
+===========
+
+ - tests for create_matrix
+ - trees from all known tree creation software
+
+
+New features
+==============
+ - Create check function which should:
+    - check the tree format
+    - check that taxa in a source ibranch are in the tree of that source
+ - add error dialogue for the above, *but* add check box on all functions to skip the check
+ - add the check to each top-level function (i.e. in stk and stk_gui)
+ - add verbose flag to most functions
+ - create subs file interface
+
+Random tasks
+==============
+ - seperate out some gui elements into seperate files
+ - update documentation etc in interface
+ - write latex document/user manual
+ - get test data for create_matrix
+

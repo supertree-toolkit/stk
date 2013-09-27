@@ -1,0 +1,36 @@
+=================================================
+               SUPERTREE TOOLKIT v2
+=================================================
+
+The supertree toolkit is a Python module and GUI to edit, 
+create, curate and process data ready for inclusion in 
+supertree analyses. It also contains tools for post-processing
+and analysing supertrees.
+
+Currently the software in in alpha and is meant to replace all
+the functionality of v1 (http://sourceforge.net/projects/stck/)
+which was published in BMC Research Notes
+(http://www.biomedcentral.com/1756-0500/3/95).
+
+=================================================
+Installation
+=================================================
+
+You need to add the Supertree Toolkit PPA 
+(https://launchpad.net/~stk-developers/+archive/release) to your system, 
+along with an additional one which contains some dependencies. 
+You can then install the package. Run the commands below to do all this.
+
+sudo apt-add-repository ppa:fluidity-core/ppa
+sudo apt-add-repository ppa:stk-developers/release
+sudo apt-get update
+sudo apt-get -y install supertree-toolkit
+
+
+--------------------------------------------------
+References:
+
+Davis and Hill, 2010. The Supertree Tool Kit
+BMC Research Notes 3:95. doi:10.1186/1756-0500-3-95
+
+

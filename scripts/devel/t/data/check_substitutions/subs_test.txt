@@ -1,2 +1,0 @@
-Enantiornithes = Avisaurus archibaldi,Avisaurus gloriae,Cathayornis,Concornis lacustris,Enantiornis leali,Eoalulavis,Gobipteryx minuta,Iberomesornis,Lectavis bretincola,Neuquenornis volans,Noguerornis,Sinornis santensis,Soroavisaurus australis,Two medicine form,Yungavolucris brevipedalis
-Dinornithidae = Anomalopteryx didiformis,Megalapteryx benhami,Megalapteryx didinus,Pachyornis australis,Pachyornis elephantopus,Pachyornis mappini,Euryapteryx curtus,Euryapteryx geranoides,Emeus crassus,Dinornis giganteus,Dinornis novaezealandiae

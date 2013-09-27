@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="">
+  <define name="analysis">
+    <choice>
+      <element name="optimality_criterion">
+        <attribute name="name">
+          <data type="string"/>
+        </attribute>
+      </element>
+      <element name="optimality_criterion">
+        <attribute name="name">
+          <value>Maximum Parsimony</value>
+        </attribute>
+      </element>
+      <element name="optimality_criterion">
+        <attribute name="name">
+          <value>Maximum Likelihood</value>
+        </attribute>
+      </element>
+      <element name="optimality_criterion">
+        <attribute name="name">
+          <value>Bayesian</value>
+        </attribute>
+      </element>
+      <element name="optimality_criterion">
+        <attribute name="name">
+          <value>Neighbour Joining</value>
+        </attribute>
+      </element>
+      <element name="optimality_criterion">
+        <attribute name="name">
+          <value>UPGMA</value>
+        </attribute>
+      </element>
+      <element name="optimality_criterion">
+        <attribute name="name">
+          <data type="string"/>
+        </attribute>
+      </element>
+    </choice>
+  </define>
+</grammar>

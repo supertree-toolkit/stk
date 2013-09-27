@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='utf-8'?>
+<phylo_storage>
+  <project_name>
+    <string_value lines="1"/>
+  </project_name>
+  <sources>
+    <source name="Hill_Davis_2011">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Hill</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">J.</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Davis</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">K.</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">A great and important paper</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2011</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Nature</string_value>
+          </journal>
+          <volume>
+            <string_value lines="1">200</string_value>
+          </volume>
+          <pages>
+            <string_value lines="1">1-4</string_value>
+          </pages>
+          <issue>
+            <string_value lines="1">5</string_value>
+          </issue>
+          <url>
+            <string_value lines="1">http://journals.ametsoc.org/doi/abs/10.1175/1520-0442%281996%29009%3C2424%3AVIAMLO%3E2.0.CO%3B2</string_value>
+          </url>
+        </article>
+      </bibliographic_information>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1"/>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1"/>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1"/>
+          </figure_number>
+          <page_number>
+            <string_value lines="1"/>
+			</page_number>
+          <tree_inference/>
+        </tree>
+        <taxa_data/>
+      </source_tree>
+    </source>
+  </sources>
+  <history/>
+</phylo_storage>

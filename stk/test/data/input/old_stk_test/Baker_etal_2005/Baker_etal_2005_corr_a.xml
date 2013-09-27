@@ -1,0 +1,47 @@
+<?xml version="1.0" standalone="yes"?>
+<SourceTree>
+  <Source>
+    <Author>A. J Baker and L. Huynen and O. Haddrath and C. D. Millar and Lambert, D. M.</Author>
+    <Year>2005</Year>
+    <Title>Reconstructing the tempo and mode of evolution in an extinct clade of birds with ancient DNA: the giant moas of New Zealand.</Title>
+    <Journal>Proceedings of the National Acadamy of Sciences USA</Journal>
+    <Volume>102</Volume>
+    <Pages>8257-8262</Pages>
+    <Booktitle/>
+    <Publisher/>
+    <Editor/></Source>
+  <Taxa number="10" fossil="all">
+    <List>Pachyornis mappini</List>
+    <List>Pachyornis australis</List>
+    <List>Pachyornis elephantopus</List>
+    <List>Euryapteryx geranoides</List>
+    <List>Emeus crassus</List>
+    <List>Anomalopteryx didiformis</List>
+    <List>Dinornis giganteus</List>
+    <List>Dinornis novaezealandiae</List>
+    <List>Megalapteryx didinus</List>
+    <List>Megalapteryx benhami</List>
+  </Taxa>
+  <Characters>
+    <Molecular number="10">
+      <Type>mt control region</Type>
+      <Type>ATPase 6</Type>
+      <Type>ATPase 8</Type>
+      <Type>cytb</Type>
+      <Type>ND3</Type>
+      <Type>ND4</Type>
+      <Type>ND5</Type>
+      <Type>COIII</Type>
+      <Type>12S</Type>
+      <Type>tRNA-Lys</Type>
+    </Molecular>
+    <Morphological/>
+    <Behavioural/>
+    <Other/></Characters>
+  <Analysis>
+    <Type>Bayesian</Type>
+  </Analysis>
+  <Notes></Notes>
+  <TreeFile>Baker_etal_2005com.tre</TreeFile>
+</SourceTree>
+
