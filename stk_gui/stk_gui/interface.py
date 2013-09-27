@@ -2863,6 +2863,15 @@ class Diamond:
       text = text.replace("Url","URL")
       text = text.replace("Iucn","IUCN")
       text = text.replace("Uk Bap","UK BAP")
+      # Characters
+      text = text.replace("Rna","RNA")
+      text = text.replace("Trna","tRNA")
+      text = text.replace("Dna","DNA")
+      text = text.replace("Atp","ATP")
+      text = text.replace("Aflp","AFLP")
+      text = text.replace("Aldob","ALDOB")
+      text = text.replace("Chdz","CHDZ")
+      text = text.replace("Tank","TANK")
 
       return text
 
