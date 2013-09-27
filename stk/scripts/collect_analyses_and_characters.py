@@ -78,7 +78,7 @@ analysis =
     }|"""
     i = 0
     for a in analyses:
-        new_analysis = '\n    element character {\n\tattribute name { "'+a+'" },'
+        new_analysis = '\n    element character {\n\tattribute name { "'+a+'" }'
         if (i < len(analyses)-1):
             new_analysis += '\n    }|'
         else:
