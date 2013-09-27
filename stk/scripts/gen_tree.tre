@@ -1,0 +1,8 @@
+#NEXUS
+
+BEGIN TREES;
+
+	TREE tree_1 = (((((Xiphocolaptes, Hylexetastes), ((Nasica, Dendrexetastes), Dendrocolaptes)), ((Xiphorhynchus%1, (Xiphorhynchus%2, Lepidocolaptes%1)), (Xiphorhynchus%3, (Lepidocolaptes%2, Campylorhamphus)))), Sittasomus), Glyphorynchus);
+
+
+END;

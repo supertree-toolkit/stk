@@ -45,6 +45,8 @@ from matplotlib import backends
 import datetime
 import gtk
 from indent import *
+import unicodedata
+from stk_internals import *
 
 #plt.ion()
 
@@ -274,9 +276,9 @@ def import_bibliography(XML, bibfile):
             figure_number_string.attrib['lines'] = "1"
             page_number = etree.SubElement(tree,"page_number")
             page_number.tail="\n      "
-            page_number_string = etree.SubElement(page_number,"integer_value")
+            page_number_string = etree.SubElement(page_number,"string_value")
             page_number_string.tail="\n      "
-            page_number_string.attrib['rank'] = "0"
+            page_number_string.attrib['lines'] = "1"
             tree_inference = etree.SubElement(tree,"tree_inference")
             # taxa data
             taxa = etree.SubElement(s_tree,"taxa_data")
@@ -361,8 +363,9 @@ def export_bibliography(XML,filename,format="bibtex"):
             volume  = a.xpath("volume/string_value")[0].text
             bib_dict['volume']=volume
         if (a.xpath("pages/string_value")):
-            pages   = a.xpath("pages/string_value")[0].text
-            bib_dict['pages']=pages 
+            firstpage, lastpage = bibparse.process_pages(a.xpath("pages/string_value")[0].text)
+            bib_dict['firstpage']=firstpage
+            bib_dict['lastpage']=lastpage
         if (a.xpath("issue/string_value")):
             issue   = a.xpath("issue/string_value")[0].text
             bib_dict['issue']=issue
@@ -459,8 +462,9 @@ def export_bibliography(XML,filename,format="bibtex"):
             publisher  = i.xpath("publisher/string_value")[0].text
             bib_dict['publisher']=publisher
         if (i.xpath("pages/string_value")):
-            pages   = i.xpath("pages/string_value")[0].text
-            bib_dict['pages']=pages 
+            firstpage, lastpage = bibparse.process_pages(i.xpath("pages/string_value")[0].text)
+            bib_dict['firstpage']=firstpage
+            bib_dict['lastpage']=lastpage
         if (i.xpath("doi/string_value")):
             doi     = i.xpath("doi/string_value")[0].text
             bib_dict['doi']=doi
@@ -508,8 +512,9 @@ def export_bibliography(XML,filename,format="bibtex"):
             publisher  = i.xpath("publisher/string_value")[0].text
             bib_dict['publisher']=publisher
         if (i.xpath("pages/string_value")):
-            pages   = i.xpath("pages/string_value")[0].text
-            bib_dict['pages']=pages 
+            firstpage, lastpage = bibparse.process_pages(i.xpath("pages/string_value")[0].text)
+            bib_dict['firstpage']=firstpage
+            bib_dict['lastpage']=lastpage
         if (i.xpath("doi/string_value")):
             doi     = i.xpath("doi/string_value")[0].text
             bib_dict['doi']=doi
@@ -519,7 +524,7 @@ def export_bibliography(XML,filename,format="bibtex"):
 
         bib_it = bibitem.BibItem(bib_dict)
         bibliography.add_item(bib_it)
-
+    
     bibliography.output(fout=filename,formato=format,verbose=False)
     
     return
@@ -793,8 +798,12 @@ def import_trees(filename):
         parsed.
     """
     f = open(filename)
-    content = f.read()                 # read entire file into memory
+    content = f.read() # read entire file into memory
     f.close()    
+
+    # translate to ascii
+    content = str(replace_utf(content))
+    
     # Need to add checks on the file. Problems include:
 # TNT: outputs Phyllip format or something - basically a Newick
 # string without commas, so add 'em back in
@@ -1058,6 +1067,26 @@ def get_characters_from_tree(XML,name,sort=False):
     # should raise exception here
     return characters
 
+def get_characters_used(XML):
+    """ Return a sorted, unique array of all character names used
+    in this dataset
+    """
+ 
+    c_ = []
+ 
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//character")
+    chars = find(xml_root)
+
+    for c in chars:
+        name = c.attrib['name']
+        ctype = c.attrib['type']
+        c_.append((name,ctype))
+ 
+    characters = _uniquify(c_) 
+    characters.sort(key=lambda x: x[0].lower())
+ 
+    return characters
 
 def get_character_numbers(XML):
     """ Return the number of trees that use each character
@@ -1270,7 +1299,7 @@ def load_phyml(filename):
     return etree.tostring(etree.parse(filename,parser),pretty_print=True)
 
 
-def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False):
+def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False, verbose=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
@@ -1341,7 +1370,7 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False):
     return etree.tostring(xml_root,pretty_print=True)
 
 
-def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, ignoreWarnings=False):
+def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, ignoreWarnings=False, verbose=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
@@ -1386,8 +1415,10 @@ def permute_tree(tree,matrix="hennig",treefile=None):
     permuted_trees = {} # The output of the recursive permute algorithm
     output_string = "" # what we pass back
 
-    # first thing is to get hold of the unique taxa names
+    # first thing is to get hole of the unique taxa names
     # i.e. without % on them
+    tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\=]*) (?P<taxon2>[a-zA-Z0-9_\+\=%]*)'","\g<taxon>_\g<taxon2>",tree)
+
     all_taxa = _getTaxaFromNewick(tree)
 
     names_d = [] # our duplicated list of names
@@ -1954,7 +1985,10 @@ def parse_subs_file(filename):
     new_taxa = []
     i = 0
     n_t = ""
-    for line in f.readlines(): 
+    for line in f.readlines():
+        if (re.search('\w+=\s+', line) != None or re.search('\s+=\w+', line) != None):
+            # probable error
+            raise UnableToParseSubsFile("You sub file contains '=' without spaces either side. If it's within a taxa, remove the spaces. If this is a sub, add spaces")
         if (re.search('\s+=\s+', line) != None): # new taxa description
             data = re.split('\s+=\s+', line) # note the spaces!
             old_taxa.append(data[0].strip())
@@ -2398,8 +2432,19 @@ def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None):
         taxon = taxon.replace(" ","_")
         if (_tree_contains(taxon,tree)):
             if (new_taxa == None or new_taxa[i] == None):
-                # we are deleting taxa
-                tree = _delete_taxon(taxon, tree)
+                p4tree = _parse_tree(tree) 
+                terminals = p4tree.getAllLeafNames(p4tree.root) 
+                count = 0
+                taxon_temp = taxon.replace("'","")
+                for t in terminals:
+                    if (t == taxon_temp):
+                        count += 1
+                    if (t.startswith(taxon_temp+"%")):
+                        count += 1 
+                # we are deleting taxa - we might need multiple iterations
+                for t in range(0,count):
+                    tree = _delete_taxon(taxon, tree)
+
             else:
                 # we are substituting
                 tree = _sub_taxon(taxon, new_taxa[i], tree)
@@ -2421,6 +2466,8 @@ def _tree_contains(taxon,tree):
     for t in terminals:
         if (t == taxon):
             return True
+        if (t.startswith(taxon+"%")):
+            return True # match potential non-monophyletic taxa
 
     return False
 
@@ -2432,12 +2479,12 @@ def _delete_taxon(taxon, tree):
     taxon = taxon.replace(" ","_")
     taxon = taxon.replace("'","")
     # check if taxa is in there first
-    if (tree.find(taxon) == -1):
+    if (tree.find(taxon) == -1): # should find, even if non-monophyletic
         return tree #raise exception?
 
     tree_obj = _parse_tree(tree)
     for node in tree_obj.iterNodes():
-        if node.name == taxon:
+        if node.name == taxon or (not node.name == None and node.name.startswith(taxon+"%")):
             tree_obj.removeNode(node.nodeNum,alsoRemoveBiRoot=False)
             break
 
@@ -2479,72 +2526,35 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     """ Simple swap of taxa
     """
 
-    # check if taxa is in there first
-    if (tree.find(old_taxon) == -1):
-        return tree #raise exception?
-
     # swap spaces for _, as we're dealing with Newick strings here
     new_taxon = new_taxon.replace(" ","_")
-    new_taxon = new_taxon.replace("'","")
-    my_old_taxon = old_taxon.replace("'","")
-
-    # trying to replace the same thing
-    if (new_taxon == my_old_taxon):
-        return tree
 
     # remove duplicates in the new taxa
     taxa = new_taxon.split(",")
-    taxa = _uniquify(taxa) 
-    # now check if any of the new taxa are in the tree already, if so skip
-    correct_taxa = []
-    for t in taxa:
-        if (not _tree_contains(t,tree)):
-            t = re.sub(r"(,|^)(?P<name>\w*[=\+]\w*)",r"\1'\g<name>'", t)
-            correct_taxa.append(t)
-        else:
-            # This one is in the tree, but we don't want to 
-            # oversimplify the tree, i.e. non-monophyletic taxa
-            # of the same name should be kept, so...
-            t1 = _parse_tree(tree)
-            siblings = _get_all_siblings(t1.node(my_old_taxon))
-            in_sibs = False
-            if (len(siblings) > 0):
-                for tt in siblings:
-                    m = re.match('('+t+')([0-9]?$)', tt)
-                    if not m == None:
-                        in_sibs = True
-            if (not in_sibs):
-                # get the next number...
-                tree_taxa = t1.getAllLeafNames(t1.root)
-                digit = 1
-                for tt in tree_taxa:
-                    m = re.match('('+t+')([0-9]+$)', tt)
-                    if (not m == None):
-                        # matching taxa
-                        if (not m == None):
-                            d = int(m.group(2))
-                            if d >= digit:
-                                digit = d+1
-                t = re.sub(r"(,|^)(?P<name>\w*[=\+]\w*)",r"\1'\g<name>'", t)
-                correct_taxa.append(t+str(digit))
-            # so the above get the old taxon siblings, and if the new taxon is not
-            # in that list, it means it occurs in a different clade to the old_taxon
-            # and hence we can't just delete this - we'd be removing structure otherwise
-            # BUT we append a 1 (or 2, etc)
+    taxa = _uniquify(taxa)
 
+    # Here's the plan - strip the duplicated taxa marker, _\d from the
+    # taxa. We can then just swap taxa in plan text.
+    # When done, p4 can fix duplicated taxa by adding back on _\d
+    # Then we collapse the nodes, taking into account duplicated taxa
+    # This will need several iterations.
 
-    new_taxon = ",".join(correct_taxa)
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\=]*)%[0-9]+",'\g<taxon>',tree)
+    new_taxon = ",".join(taxa)
 
     if (len(new_taxon) == 0):
         # we need to delete instead
         return _delete_taxon(old_taxon,tree)
 
     # simple text swap
-    new_tree = tree.replace(old_taxon,new_taxon)
-
+    old_taxon = re.escape(old_taxon)
+    new_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new_taxon+'\g<posttaxon>', modified_tree)
     # we might now need a final collapse - e.g. we might get ...(taxon1,taxon2),... due
     # to replacements, but they didn't collapse, so let's do this
-    new_tree = _collapse_nodes(new_tree)
+    for i in range(10): # do at most 10 iterations
+        new_tree = _collapse_nodes(new_tree)
+        if (_trees_equal):
+            break # they match - no need to keep collapsing
 
     return new_tree
 
@@ -2553,8 +2563,9 @@ def _collapse_nodes(in_tree):
         taxon, denoted by taxon1, taxon2, etc
     """
 
-    taxa = _getTaxaFromNewick(in_tree)
-    tree = _parse_tree(in_tree)
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z_]*)%[0-9]+",'\g<taxon>',in_tree)    
+    tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
+    taxa = tree.getAllLeafNames(0)
     
     for t in taxa:
         # we might have removed the current taxon in a previous loop
@@ -2562,14 +2573,17 @@ def _collapse_nodes(in_tree):
             siblings = _get_all_siblings(tree.node(t))
         except p4.Glitch:
             continue
-        m = re.match('(.*[a-zA-Z])([0-9]+$)', t)
+        m = re.match('([a-zA-Z0-9_]*)%[0-9]+', t)
         if (not m == None):
             t = m.group(1)
         for s in siblings:
-            m = re.match('('+t+')([0-9]?$)', s)
-            if not m == None:
+            orig_s = s
+            m = re.match('([a-zA-Z0-9_]*)%[0-9]+', s)
+            if (not m == None):
+                s = m.group(1)
+            if t == s:
                 # remove this
-                tree.removeNode(tree.node(s),alsoRemoveSingleChildParentNode=True,alsoRemoveBiRoot=False)
+                tree.removeNode(tree.node(orig_s),alsoRemoveSingleChildParentNode=True,alsoRemoveBiRoot=False)
 
     # We also need to clean tree up
     tree.getPreAndPostOrderAboveRoot()
@@ -2643,13 +2657,20 @@ def _check_taxa(XML,delete=False):
     for s in sources:
         # get a list of taxa in the XML
         this_source = _parse_xml(etree.tostring(s))
-        find = etree.XPath("//taxon")
-        taxa = find(this_source)
         trees = obtain_trees(etree.tostring(this_source))
+        s_name = s.attrib['name']
         for name in trees.iterkeys():
+            tree_no = 1
+            for t in s.xpath("source_tree/tree/tree_string"):
+                t_name = s_name+"_"+str(tree_no)
+                tree_no += 1
+                if (t_name == name):
+                    find = etree.XPath(".//taxon")
+                    taxa_ele = find(t.getparent().getparent())
+
             tree = trees[name]
             # are the XML taxa in the tree?
-            for t in taxa:
+            for t in taxa_ele:
                 xml_taxon = t.attrib['name']
                 if (tree.find(xml_taxon) == -1):
                     if (delete):
@@ -2910,27 +2931,27 @@ def _amalgamate_trees(trees,format,anonymous=False):
     # Nexus: Add header, write one tree per line, prepending tree info, taking into acount annonymous flag
     # TNT: strip commas, write one tree per line
     output_string = ""
-    if format == "nexus":
+    if format.lower() == "nexus":
         output_string += "#NEXUS\n\nBEGIN TREES;\n\n"
     tree_count = 0
     for tree in trees:
-        if format == "nexus":
+        if format.lower() == "nexus":
             if anonymous:
                 output_string += "\tTREE tree_"+str(tree_count)+" = "+trees[tree]+"\n"
             else:
                 output_string += "\tTREE "+tree+" = "+trees[tree]+"\n"
-        elif format == "newick":
+        elif format.lower() == "newick":
             output_string += trees[tree]+"\n"
-        elif format == "tnt":
+        elif format.lower() == "tnt":
             t = trees[tree];
             t = t.replace(",","");
             t = t.replace(";","");
             output_string += t+"\n"
         tree_count += 1
     # Footer
-    if format == "nexus":
+    if format.lower() == "nexus":
         output_string += "\n\nEND;"
-    elif format == "tnt":
+    elif format.lower() == "tnt":
         output_string += "\n\nproc-;"
 
     return output_string
@@ -3015,33 +3036,39 @@ def _parse_trees(tree_block):
     """ Parse a string containing multiple trees 
         to a list of p4 tree objects
     """
-    
+   
     try:
+        p4.var.doRepairDupedTaxonNames = 2
         p4.var.warnReadNoFile = False
         p4.var.nexus_warnSkipUnknownBlock = False
         p4.var.trees = []
         p4.read(tree_block)
         p4.var.nexus_warnSkipUnknownBlock = True
         p4.var.warnReadNoFile = True
-    except:
-        raise TreeParseError("Error parsing " + filename)
+        p4.var.doRepairDupedTaxonNames = 0
+    except p4.Glitch as detail:
+        raise TreeParseError("Error parsing tree\n"+detail.msg )
     trees = p4.var.trees
     p4.var.trees = []
     return trees
 
-def _parse_tree(tree):
+def _parse_tree(tree,fixDuplicateTaxa=False):
     """ Parse a newick string to p4 tree object
     """
 
     try:
+        if (fixDuplicateTaxa):
+            p4.var.doRepairDupedTaxonNames = 2
         p4.var.warnReadNoFile = False
         p4.var.nexus_warnSkipUnknownBlock = False
         p4.var.trees = []
         p4.read(tree)
         p4.var.nexus_warnSkipUnknownBlock = True
         p4.var.warnReadNoFile = True
-    except:
-        raise TreeParseError("Error parsing " + str(tree))
+        if (fixDuplicateTaxa):
+            p4.var.doRepairDupedTaxonNames = 0
+    except p4.Glitch as detail:
+        raise TreeParseError("Error parsing tree\n"+detail.msg )
 
     t = p4.var.trees[0]
     p4.var.trees = []

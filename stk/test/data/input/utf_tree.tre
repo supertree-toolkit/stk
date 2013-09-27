@@ -1,0 +1,151 @@
+#NEXUS
+
+[File saved Fri Aug 16 20:23:39 2013]
+
+BEGIN TAXA;
+ DIMENSIONS NTAX = 68;
+ TAXLABELS
+  Colletes_skinneri
+  Melitta_eickworti
+  Hesperapis_larreae
+  'Andrena (Callandrena) sp.'
+  Panurgus_calcaratus
+  Calliopsis_fracta
+  Calliopsis_pugionis
+  Svastra_machaerantherae
+  Svastra_obliqua
+  Tetraloniella_sp.
+  Melissodes_rustica
+  Melissodes_desponsa
+  Melissodes_sp.
+  Dieunomia_heteropoda
+  Dieunomia_nevadensis
+  Chelostoma_fuliginosum
+  Hoplitis_albifrons
+  Hoplitis_biscutellae
+  Hoplitis_pilosifrons
+  Megachile_pugnata
+  Coelioxys_alternata
+  Paranthidium_jugatorium
+  Anthidiellum_notatum
+  Anthidium_oblongatum
+  Anthidium_porterae
+  Oreopasites_barbarae
+  Holcopasites_calliopsidis
+  Holcopasites_ruthae
+  Nomada_maculata
+  Nomada_imbricata
+  Nomada_obliterta
+  Leiopodus_singularis
+  Xeromelecta_californica
+  Zacosmia_maculata
+  Paranomada_velutina
+  Triopasites_penniger
+  Epeolus_scutellaris
+  'Triepeolus “rozeni”'
+  Triepeolus_verbesinae
+  Anthophora_furcata
+  Anthophora_montana
+  Anthophora_urbana
+  Exomalopsis_completa
+  Exomalopsis_rufiventris
+  Ptilothrix_sp.
+  Diadasia_bituberculata
+  Diadasia_diminuta
+  Diadasia_martialis
+  Diadasia_nigrifrons
+  Xylocopa_tabaniformis
+  Xylocopa_virginica
+  Centris_hoffmanseggiae
+  Apis_dorsata
+  Apis_mellifera
+  Apis_nigrocincta
+  Euglossa_imperialis
+  Eulaema_meriana
+  Eufriesea_caerulescens
+  Exaerete_frontalis
+  Bombus_avinoviellus
+  Bombus_pensylvanicus
+  Bombus_terrestris
+  Melipona_sp.
+  Scaptotrigona_depilis
+  Lestrimelitta_limao
+  Trigona_dorsalis
+  Trigona_necrophaga
+  Ceratina_calcarata
+  ;
+ENDBLOCK;
+
+BEGIN TREES;
+ TRANSLATE
+  1	Colletes_skinneri,
+  2	Melitta_eickworti,
+  3	Hesperapis_larreae,
+  4	'Andrena (Callandrena) sp.',
+  5	Panurgus_calcaratus,
+  6	Calliopsis_fracta,
+  7	Calliopsis_pugionis,
+  8	Svastra_machaerantherae,
+  9	Svastra_obliqua,
+  10	Tetraloniella_sp.,
+  11	Melissodes_rustica,
+  12	Melissodes_desponsa,
+  13	Melissodes_sp.,
+  14	Dieunomia_heteropoda,
+  15	Dieunomia_nevadensis,
+  16	Chelostoma_fuliginosum,
+  17	Hoplitis_albifrons,
+  18	Hoplitis_biscutellae,
+  19	Hoplitis_pilosifrons,
+  20	Megachile_pugnata,
+  21	Coelioxys_alternata,
+  22	Paranthidium_jugatorium,
+  23	Anthidiellum_notatum,
+  24	Anthidium_oblongatum,
+  25	Anthidium_porterae,
+  26	Oreopasites_barbarae,
+  27	Holcopasites_calliopsidis,
+  28	Holcopasites_ruthae,
+  29	Nomada_maculata,
+  30	Nomada_imbricata,
+  31	Nomada_obliterta,
+  32	Leiopodus_singularis,
+  33	Xeromelecta_californica,
+  34	Zacosmia_maculata,
+  35	Paranomada_velutina,
+  36	Triopasites_penniger,
+  37	Epeolus_scutellaris,
+  38	'Triepeolus “rozeni”',
+  39	Triepeolus_verbesinae,
+  40	Anthophora_furcata,
+  41	Anthophora_montana,
+  42	Anthophora_urbana,
+  43	Exomalopsis_completa,
+  44	Exomalopsis_rufiventris,
+  45	Ptilothrix_sp.,
+  46	Diadasia_bituberculata,
+  47	Diadasia_diminuta,
+  48	Diadasia_martialis,
+  49	Diadasia_nigrifrons,
+  50	Xylocopa_tabaniformis,
+  51	Xylocopa_virginica,
+  52	Centris_hoffmanseggiae,
+  53	Apis_dorsata,
+  54	Apis_mellifera,
+  55	Apis_nigrocincta,
+  56	Euglossa_imperialis,
+  57	Eulaema_meriana,
+  58	Eufriesea_caerulescens,
+  59	Exaerete_frontalis,
+  60	Bombus_avinoviellus,
+  61	Bombus_pensylvanicus,
+  62	Bombus_terrestris,
+  63	Melipona_sp.,
+  64	Scaptotrigona_depilis,
+  65	Lestrimelitta_limao,
+  66	Trigona_dorsalis,
+  67	Trigona_necrophaga,
+  68	Ceratina_calcarata
+  ;
+ UTREE * tree_1= (1,((((2,3),(4,(5,(6,7)))),((8,9),(10,(11,(12,13))))),((((14,15),((68,((16,(18,(17,19))),(20,21))),((22,23),(24,25)))),((26,((27,28),(29,(30,31)))),((32,(33,34)),((35,36),(37,(38,39)))))),((40,(41,42)),(((43,44),(45,(46,49,(47,48)))),((50,51),(52,(53,(54,55)),((56,(57,(58,59))),((60,(61,62)),(63,64,65,(66,67)))))))))));
+ENDBLOCK;

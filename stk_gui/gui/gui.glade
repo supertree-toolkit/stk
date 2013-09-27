@@ -1385,7 +1385,7 @@
         </child>
         <child>
           <widget class="GtkCheckButton" id="caseSensitiveCheckButton">
-            <property name="label" translatable="yes">Case Sensitive</property>
+            <property name="label" translatable="yes">Case sensitive</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
@@ -1401,7 +1401,7 @@
         </child>
         <child>
           <widget class="GtkCheckButton" id="searchInactiveChoiceSubtreesCheckButton">
-            <property name="label" translatable="yes">Search Inactive Choice Subtrees</property>
+            <property name="label" translatable="yes">Search inactive parts of file</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>

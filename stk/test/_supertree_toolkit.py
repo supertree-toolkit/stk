@@ -11,7 +11,7 @@ from stk.supertree_toolkit import _check_uniqueness, _check_taxa, _check_data, g
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
 from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
-from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree
+from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -115,7 +115,6 @@ class TestSetSourceNames(unittest.TestCase):
         """Tests the _check_taxa function
         """
 
-        #this test should pass, but wrap it up anyway
         try:
             _check_taxa(etree.tostring(etree.parse('data/input/check_taxa.phyml',parser),pretty_print=True)); 
         except InvalidSTKData:
@@ -494,7 +493,41 @@ class TestSetSourceNames(unittest.TestCase):
         self.assertListEqual(siblings,expected)
 
 
-
+    def test_get_characters_used(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        characters = get_characters_used(XML)
+        expected_characters = [('12S','molecular'),
+         ('16S','molecular'), 
+         ('ATPase 6','molecular'),
+         ('ATPase 8','molecular'),
+         ('Alleles','molecular'),
+         ('Body size','morphological'),
+         ('Breeding','behavioural'),
+         ('COI','molecular'),
+         ('COIII','molecular'),
+         ('Calls','behavioural'),
+         ('Displays','behavioural'),
+         ('Molecular','molecular'),
+         ('Morphometrics','morphological'),
+         ('ND2','molecular'),
+         ('ND3','molecular'),
+         ('ND4','molecular'),
+         ('ND5','molecular'),
+         ('Osteology','morphological'),
+         ('Parasites','morphological'),
+         ('Plumage','morphological'),
+         ('RAG1','molecular'),
+         ('behaviour','behavioural'), # NOTE the repetition here :)
+         ('behaviour','morphological'),
+         ('cytb','molecular'),
+         ('mt control region','molecular'),
+         ('oology','morphological'),
+         ('soft tissue','morphological'),
+         ('tRNA-Lys','molecular')
+             ]
+        for c in characters:
+            self.assert_(c in expected_characters)
+        self.assert_(len(characters) == len(expected_characters))
 
 
 

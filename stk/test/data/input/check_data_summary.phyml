@@ -31,13 +31,13 @@
             <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
           </tree_string>
           <figure_legend>
-            <string_value lines="1">1</string_value>
+            <string_value lines="1">NA</string_value>
           </figure_legend>
           <figure_number>
             <string_value lines="1">0</string_value>
           </figure_number>
           <page_number>
-            <string_value lines="1">1</string_value>
+            <string_value lines="1">0</string_value>
 			</page_number>
           <tree_inference>
             <optimality_criterion name="Bayesian"/>
@@ -49,14 +49,10 @@
           </topology>
         </tree>
         <taxa_data>
-          <mixed_fossil_and_extant>
-            <taxon name="NOT">
-              <fossil/>
-            </taxon>
-          </mixed_fossil_and_extant>
+          <all_extant/>
         </taxa_data>
         <character_data>
-          <character type="molecular" name="12S"/>
+          <character type="morphological" name="feathers"/>
         </character_data>
       </source_tree>
     </source>
@@ -85,16 +81,16 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">((A:1.00000,B_b:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
           </tree_string>
           <figure_legend>
-            <string_value lines="1">1</string_value>
+            <string_value lines="1">NA</string_value>
           </figure_legend>
           <figure_number>
             <string_value lines="1">0</string_value>
           </figure_number>
           <page_number>
-            <string_value lines="1">1</string_value>
+            <string_value lines="1">0</string_value>
 			</page_number>
           <tree_inference>
             <optimality_criterion name="Bayesian"/>
@@ -106,16 +102,7 @@
           </topology>
         </tree>
         <taxa_data>
-          <mixed_fossil_and_extant>
-            <taxon name="B_b">
-              <known_synonyms>
-                <synonym>
-                  <string_value lines="1">B</string_value>
-                </synonym>
-              </known_synonyms>
-              <fossil/>
-            </taxon>
-          </mixed_fossil_and_extant>
+          <all_extant/>
         </taxa_data>
         <character_data>
           <character type="molecular" name="12S"/>
@@ -154,16 +141,16 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">((A:1.00000,B_b:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">((I:1.00000,J:1.00000)0.00000:0.00000,F:1.00000,E:1.00000,(G:1.00000,H:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
           </tree_string>
           <figure_legend>
-            <string_value lines="1">1</string_value>
+            <string_value lines="1">NA</string_value>
           </figure_legend>
           <figure_number>
             <string_value lines="1">0</string_value>
           </figure_number>
           <page_number>
-            <string_value lines="1">1</string_value>
+            <string_value lines="1">0</string_value>
 			</page_number>
           <tree_inference>
             <optimality_criterion name="Bayesian"/>
@@ -175,7 +162,11 @@
           </topology>
         </tree>
         <taxa_data>
-          <all_extant/>
+          <all_extant>
+            <taxon name="H">
+              <extant/>
+            </taxon>
+          </all_extant>
         </taxa_data>
         <character_data>
           <character type="molecular" name="12S"/>

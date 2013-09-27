@@ -18,6 +18,7 @@ reference (paper, book, etc) and one or more trees</a:documentation>
         <oneOrMore>
           <element name="source">
             <ref name="source"/>
+            <ref name="comment"/>
           </element>
         </oneOrMore>
         <ref name="comment"/>
@@ -95,14 +96,18 @@ paste a string.</a:documentation>
               <ref name="anystring"/>
             </element>
             <element name="page_number">
-              <ref name="integer"/>
+              <ref name="anystring"/>
             </element>
+            <ref name="comment"/>
             <element name="tree_inference">
               <a:documentation>Information on how the tree was created, software, etc</a:documentation>
-              <ref name="analysis">
-                <a:documentation>Which analytical methods were used to create
+              <oneOrMore>
+                <ref name="analysis">
+                  <a:documentation>Which analytical methods were used to create
 the source tree?</a:documentation>
-              </ref>
+                </ref>
+              </oneOrMore>
+              <ref name="comment"/>
               <optional>
                 <ref name="software"/>
               </optional>
@@ -116,35 +121,29 @@ create the tree?</a:documentation>
               <ref name="evolution_models"/>
               <zeroOrMore>
                 <element name="character_weights">
-                  <attribute name="character">
-                    <data type="string" datatypeLibrary=""/>
-                  </attribute>
                   <ref name="anystring"/>
                 </element>
               </zeroOrMore>
               <optional>
                 <ref name="consensus"/>
               </optional>
+              <ref name="comment"/>
             </element>
-            <optional>
-              <element name="topology">
-                <optional>
-                  <element name="rooting">
-                    <attribute name="type">
-                      <choice>
-                        <value>Rooted</value>
-                        <value>Unrooted</value>
-                      </choice>
-                    </attribute>
-                  </element>
-                </optional>
-                <optional>
-                  <element name="outgroup">
-                    <ref name="anystring"/>
-                  </element>
-                </optional>
+            <element name="topology">
+              <element name="outgroup">
+                <ref name="anystring"/>
               </element>
-            </optional>
+              <optional>
+                <element name="rooting">
+                  <attribute name="type">
+                    <choice>
+                      <value>Rooted</value>
+                      <value>Unrooted</value>
+                    </choice>
+                  </attribute>
+                </element>
+              </optional>
+            </element>
             <optional>
               <element name="tree_support">
                 <ref name="anystring"/>
@@ -157,6 +156,7 @@ create the tree?</a:documentation>
                   <ref name="anystring"/>
                 </element>
                 <ref name="support"/>
+                <ref name="comment"/>
               </element>
             </optional>
             <optional>
@@ -171,6 +171,7 @@ create the tree?</a:documentation>
                   </element>
                 </optional>
                 <ref name="evolution_models"/>
+                <ref name="comment"/>
               </element>
             </optional>
           </element>
@@ -195,6 +196,7 @@ in this section. </a:documentation>
               </element>
             </choice>
           </element>
+          <ref name="comment"/>
           <element name="character_data">
             <a:documentation>This stores the character data used to construct the 
 source tree(s).</a:documentation>
@@ -447,6 +449,7 @@ source tree(s).</a:documentation>
         </element>
       </optional>
       <ref name="taxon_type"/>
+      <ref name="comment"/>
     </element>
   </define>
   <define name="taxon_type">
@@ -472,6 +475,7 @@ source tree(s).</a:documentation>
             <ref name="anystring"/>
           </element>
         </optional>
+        <ref name="comment"/>
       </element>
       <element name="extant">
         <optional>
@@ -486,6 +490,7 @@ source tree(s).</a:documentation>
           </element>
         </optional>
         <ref name="conservation"/>
+        <ref name="comment"/>
       </element>
     </choice>
   </define>
@@ -499,6 +504,7 @@ source tree(s).</a:documentation>
         <data type="string" datatypeLibrary=""/>
       </attribute>
     </element>
+    <ref name="comment"/>
   </define>
   <!--
     Any value in the xml file can be accompanied by a comment
@@ -636,6 +642,137 @@ source tree(s).</a:documentation>
         </oneOrMore>
       </list>
     </element>
+    <ref name="comment"/>
+  </define>
+  <define name="consensus">
+    <choice>
+      <element name="consensus_type">
+        <attribute name="name">
+          <data type="string" datatypeLibrary=""/>
+        </attribute>
+      </element>
+      <element name="consensus_type">
+        <attribute name="name">
+          <value>Strict</value>
+        </attribute>
+      </element>
+      <element name="consensus_type">
+        <attribute name="name">
+          <value>Majority Rules 50%</value>
+        </attribute>
+      </element>
+      <element name="consensus_type">
+        <attribute name="name">
+          <value>Adams</value>
+        </attribute>
+      </element>
+    </choice>
+  </define>
+  <define name="support">
+    <choice>
+      <element name="type_of_support">
+        <attribute name="name">
+          <data type="string" datatypeLibrary=""/>
+        </attribute>
+      </element>
+      <element name="type_of_support">
+        <attribute name="name">
+          <value>Jacknifing</value>
+        </attribute>
+      </element>
+      <element name="type_of_support">
+        <attribute name="name">
+          <value>Bootstrapping</value>
+        </attribute>
+      </element>
+      <element name="type_of_support">
+        <attribute name="name">
+          <value>Bremer Support</value>
+        </attribute>
+      </element>
+    </choice>
+  </define>
+  <define name="evolution_models">
+    <zeroOrMore>
+      <element name="model_of_evolution">
+        <ref name="anystring"/>
+      </element>
+    </zeroOrMore>
+  </define>
+  <define name="conservation">
+    <optional>
+      <element name="conservation_status">
+        <optional>
+          <element name="iucn_red_list">
+            <optional>
+              <element name="category">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="criteria">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="url">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+          </element>
+        </optional>
+        <optional>
+          <element name="uk_bap">
+            <optional>
+              <element name="category">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="criteria">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="url">
+                <ref name="anystring"/>
+              </element>
+            </optional>
+          </element>
+        </optional>
+      </element>
+    </optional>
+  </define>
+  <define name="char_info">
+    <optional>
+      <element name="link_to_online_data">
+        <a:documentation>Is the data online anywhere, e.g. as a NEXUS file?</a:documentation>
+        <ref name="anystring"/>
+      </element>
+    </optional>
+    <optional>
+      <element name="alignment_method">
+        <optional>
+          <element name="algorithm_or_method">
+            <data type="string" datatypeLibrary=""/>
+          </element>
+        </optional>
+        <optional>
+          <ref name="software"/>
+        </optional>
+        <optional>
+          <element name="parameters_used">
+            <ref name="anystring"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="corrected">
+            <a:documentation>was the alignment corrected in any way?</a:documentation>
+            <empty/>
+          </element>
+        </optional>
+      </element>
+    </optional>
     <ref name="comment"/>
   </define>
 </grammar>

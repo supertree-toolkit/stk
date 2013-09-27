@@ -46,11 +46,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -125,11 +130,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="UPGMA"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -150,11 +160,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Bayesian"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -269,11 +284,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="UPGMA"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -322,11 +342,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -347,11 +372,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -402,11 +432,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -480,11 +515,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -506,11 +546,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="FITCH"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -567,11 +612,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="UPGMA"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -636,11 +686,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Bayesian"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_fossil/>
@@ -714,11 +769,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Bayesian"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -787,11 +847,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Bayesian"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -867,11 +932,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Bayesian"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -934,11 +1004,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -998,11 +1073,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Likelihood"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -1059,11 +1139,16 @@
             <string_value lines="1">1</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Likelihood"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -1128,11 +1213,16 @@
             <string_value lines="1">0</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <mixed_fossil_and_extant>
@@ -1160,11 +1250,16 @@
             <string_value lines="1">0</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <mixed_fossil_and_extant>
@@ -1193,11 +1288,16 @@
             <string_value lines="1">0</string_value>
           </figure_number>
           <page_number>
-            <integer_value rank="0">0</integer_value>
-          </page_number>
+            <string_value lines="1">0</string_value>
+			</page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
         </tree>
         <taxa_data>
           <mixed_fossil_and_extant>

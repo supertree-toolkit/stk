@@ -6,6 +6,8 @@ import sys
 from setuptools.command.install import install as _install
 from subprocess import call
 
+call(["bzr version-info --python > stk/bzr_version.py"], shell=True)
+
 class install(_install):
     def run(self):
         _install.run(self)

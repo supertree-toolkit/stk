@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Supertree Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import generators
-
+import shutil
 import os
 import os.path
 import re
@@ -24,6 +24,7 @@ import sys
 import tempfile
 import cStringIO as StringIO
 import Queue
+import tempfile
 try:
     __file__
 except NameError:
@@ -543,12 +544,28 @@ class Diamond:
       self.statusbar.set_statusbar("Saving ...")
       self.main_window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
       try:
-        self.tree.write(self.filename)
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tmp") 
+        self.tree.write(temp_file)
       except:
         dialogs.error_tb(self.main_window, "Saving to \"" + self.filename + "\" failed")
         self.statusbar.clear_statusbar()
         self.main_window.window.set_cursor(None)
         return False
+      # now move the tempfile to the correct filename, after making a .bak
+      try:
+        # rename original to backup...
+        shutil.move(self.filename, self.filename+".bak")
+        # ...and temporary to original
+        shutil.move(temp_file, self.filename)
+      except:
+        dialogs.error_tb(self.main_window, "Saving to \"" + self.filename + "\" failed")
+        self.statusbar.clear_statusbar()
+        self.main_window.window.set_cursor(None)
+        return False
+<<<<<<< TREE
+      
+=======
+>>>>>>> MERGE-SOURCE
 
       self.set_saved(True)
 
@@ -681,10 +698,20 @@ class Diamond:
     Tell the user how great we are.
     """
 
+    import stk.bzr_version
+    d = stk.bzr_version.version_info
+    build = d.get('revno','<unknown revno>')
+    date  = d.get('build_date','<unknown build date>')
+    branch = d.get("branch_nick","<unknown branch>")
+    if (branch == "release"):
+        branch = ""
+    else:
+        branch = ": ("+branch+")"
+
     about = gtk.AboutDialog()
-    about.set_name("Supertree Toolkit")
+    about.set_name("Supertree Toolkit v2."+build+branch)
     about.set_copyright("GPLv3")
-    about.set_comments("Software to manage supertree source files. Based on Diamond from AMCG.")
+    about.set_comments("Software to manage supertree source files. Based on Diamond from AMCG. Compiled on "+date)
     about.set_authors(["Jon Hill", "Katie Davis"])
     about.set_license("Supertree Tookit is free software: you can redistribute it and/or modify\n"+
                       "it under the terms of the GNU General Public License as published by\n"+
@@ -966,21 +993,70 @@ class Diamond:
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
+    data_summary_ok = False
     try:
+<<<<<<< TREE
+        data_summary = stk.data_summary(XML,detailed=True)
+=======
         data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=False)
+        data_summary_ok = True
+>>>>>>> MERGE-SOURCE
     except NotUniqueError as detail:
-        msg = "Failed to summarise data.\n"+detail.msg
+        msg = "Failed to summarise data - non-unique data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=True)
+<<<<<<< TREE
+        data_summary = stk.data_summary(XML,detailed=True)
+=======
+>>>>>>> MERGE-SOURCE
     except InvalidSTKData as detail:
-        msg = "Failed to summarise data.\n"+detail.msg
+        msg = "Failed to summarise data - invalid STK data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=True)        
+<<<<<<< TREE
+        data_summary = stk.data_summary(XML,detailed=True)        
+=======
+>>>>>>> MERGE-SOURCE
     except UninformativeTreeError as detail:
+<<<<<<< TREE
         msg = "Failed to summarise data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=True)        
+        data_summary = stk.data_summary(XML,detailed=True)        
+=======
+        msg = "Failed to summarise data - uninformative tree.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+    except TreeParseError as detail:
+        msg = "Failed to summarise data - can't parse tree.\n"+detail.msg
+        dialogs.error(self.main_window,msg)
+        return
+    except:
+        msg = "Failed to summarise data\n"
+        dialogs.error(self.main_window,msg)
+        return
+>>>>>>> MERGE-SOURCE
 
+    if (not data_summary_ok):
+        # try again
+        try:
+            data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=True)
+        except NotUniqueError as detail:
+            msg = "Failed to summarise data - non-unique data.\n"+detail.msg
+            dialogs.error(self.main_window,msg)
+            return
+        except InvalidSTKData as detail:
+            msg = "Failed to summarise data - invalid STK data.\n"+detail.msg
+            dialogs.error(self.main_window,msg)
+            return
+        except UninformativeTreeError as detail:
+            msg = "Failed to summarise data - uninformative tree.\n"+detail.msg
+            dialogs.error(self.main_window,msg)
+            return
+        except TreeParseError as detail:
+            msg = "Failed to summarise data - can't parse tree.\n"+detail.msg
+            dialogs.error(self.main_window,msg)
+            return
+        except:
+            msg = "Failed to summarise data\n"
+            dialogs.error(self.main_window,msg)
+            return
 
     textbox.get_buffer().set_text(data_summary)
     textbox.set_editable(False)
@@ -2688,7 +2764,7 @@ class Diamond:
     """
 
     if isinstance(choice_or_tree, choice.Choice):
-      for opt in choice_or_tree.choices():
+      for opt in choice_or_tree.choices:
         self.expand_choice_or_tree(opt)
     else:
       l = self.s.valid_children(choice_or_tree.schemaname)
@@ -3402,7 +3478,7 @@ class Diamond:
       if self.choice_or_tree_matches(text, choice_or_tree.get_current_tree(), False):
         return True
       elif recurse and self.find.search_gui.get_widget("searchInactiveChoiceSubtreesCheckButton").get_active():
-        for opt in choice_or_tree.choices():
+        for opt in choice_or_tree.choices:
           if not search_active_subtrees and opt is choice_or_tree.get_current_tree():
             continue
           if opt.children == []:
