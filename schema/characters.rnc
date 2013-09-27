@@ -641,5 +641,10 @@ characters =
     attribute name { "early growth response 1" },
     attribute type { "molecular" },
     char_info
+    }|
+    element character {
+    attribute name { string },
+    attribute type { "morphological"|"molecular"|"behavioural"|"other" },
+    char_info 
     }+
 )

@@ -996,16 +996,30 @@ URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7553</a:documentation>
         </attribute>
         <ref name="char_info"/>
       </element>
-      <oneOrMore>
-        <element name="character">
-          <a:documentation>Common abbreviations/alternative nomenclature: ZENK; EGR1; AT225; early growth response protein 1; G0S30; KROX-24; nerve growth factor-induced protein A; NGFI-A, TIS8; transcription factor ETR103; ZIF-268; zinc finger protein 225; ZNF225
+      <element name="character">
+        <a:documentation>Common abbreviations/alternative nomenclature: ZENK; EGR1; AT225; early growth response protein 1; G0S30; KROX-24; nerve growth factor-induced protein A; NGFI-A, TIS8; transcription factor ETR103; ZIF-268; zinc finger protein 225; ZNF225
 
 URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=3238</a:documentation>
+        <attribute name="name">
+          <value>early growth response 1</value>
+        </attribute>
+        <attribute name="type">
+          <value>molecular</value>
+        </attribute>
+        <ref name="char_info"/>
+      </element>
+      <oneOrMore>
+        <element name="character">
           <attribute name="name">
-            <value>early growth response 1</value>
+            <data type="string"/>
           </attribute>
           <attribute name="type">
-            <value>molecular</value>
+            <choice>
+              <value>morphological</value>
+              <value>molecular</value>
+              <value>behavioural</value>
+              <value>other</value>
+            </choice>
           </attribute>
           <ref name="char_info"/>
         </element>
