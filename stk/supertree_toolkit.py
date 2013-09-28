@@ -62,11 +62,13 @@ PLATFORM = sys.platform
 # it back to the user interface handler to save it somewhere
 
 def create_name(authors, year, append=''):
-    """ From a list of authors and a year construct a sensible
+    """ 
+    From a list of authors and a year construct a sensible
     source name.
     Input: authors - list of last (family, sur) names (string)
            year - the year (string)
-    Output: source_name - (string)"""
+    Output: source_name - (string)
+    """
 
     source_name = None
     if (authors[0] == None):

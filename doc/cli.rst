@@ -1,3 +1,4 @@
+.. index:: CLI
 The STK Command Line Interface
 ==============================
 
