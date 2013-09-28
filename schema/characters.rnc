@@ -1,80 +1,650 @@
+
 characters =
     (
-          element character {
-             attribute name { string },
-             attribute type { "morphological"|"molecular"|"behavioural"|"other" },
-             char_info 
-          }|
-          element character {
-             attribute name { "12S" },
-             attribute type { "molecular" },
-             char_info
-          }|              
-          element character {
-             attribute name { "16S" },
-             attribute type { "molecular" },
-             char_info
-          }|
-          element character {
-             attribute name { "18S" },
-             attribute type { "molecular" },
-             char_info
-          }|              
-          element character {
-             attribute name { "28S" },
-             attribute type { "molecular" },
-             char_info
-          }|              
-          element character {
-             ## Also covers aA-crystallin
-             attribute name { "a-crystallin" },
-             attribute type { "molecular" },
-             char_info
-          }|
-          element character {
-             attribute name { "a-globin" },
-             attribute type { "molecular" },
-             char_info
-          }|
-          element character {
-             attribute name { "cytb" },
-             attribute type { "molecular" },
-             char_info
-          }|
-          element character {
-             attribute name { "COI" },
-             attribute type { "molecular" },
-             char_info
-          }|
-          element character {
-             attribute name { "COII" },
-             attribute type { "molecular" },
-             char_info
-          }|
-          element character {
-             attribute name { "feathers" },
-             attribute type { "morphological" },
-             char_info
-          }|
-          element character {
-             attribute name { "osteology" },
-             attribute type { "morphological" },
-             char_info
-          }|
-          element character {
-             attribute name { "morphometrics" },
-             attribute type { "morphological" },
-             char_info
-          }|
-          ##Mixed morphological characters in crustaceans.
-          element character {
-             attribute name { "General morphology" },
-             attribute type { "morphological" },
-             char_info
-          }|element character {
-             attribute name { string },
-             attribute type { "morphological"|"molecular"|"behavioural"|"other" },
-             char_info 
-          }+
-    )
-
+    element character {
+    attribute name { string },
+    attribute type { "morphological"|"molecular"|"behavioural"|"other" },
+    char_info 
+    }|
+    ##Common abbreviations/alternative nomenclature: 12S; large subunit rRNA; LSU rRNA; MT-RNR1
+    ##
+    ##URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7470
+    element character {
+    attribute name { "mitochondrially encoded 12S RNA" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: 16S; small subunit rRNA; SSU rRNA; MT-RNR2
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7471
+    element character {
+    attribute name { "mitochondrially encoded 16S RNA" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: 18S; RNA18S; small subunit rRNA; SSU rRNA
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=44278
+    element character {
+    attribute name { "RNA, 18S ribosomal" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: RNA28S; 28S; large subunit rRNA; LSU rRNA
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=44286
+    element character {
+    attribute name { "RNA, 28S ribosomal" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: 5.8S; RNA5-8S1; large subunit rRNA; LSU rRNA
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=44282
+    element character {
+    attribute name { "RNA, 5.8S ribosomal 1" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: alpha-crystallin; a-crystallin; CRYAA; CRYA1; HSPB4
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=2388
+    element character {
+    attribute name { "crystallin, alpha A" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: ATP6; A6; mitochondrially encoded ATP synthase 6; MT-ATP6; MTATP6; RP; ATPase6; ATPase-6; Su6m; ATP synthase F0 subunit 6; ATP synthase F0 subunit/chain A
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7414
+    element character {
+    attribute name { "ATP synthase 6" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: ATP8; A8; mitochondrially encoded ATP synthase 8; MT-ATP8;	MTATP8; A6L
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7415
+    element character {
+    attribute name { "ATP synthase 8" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "Adult morphology" },
+    attribute type { "morphological" },
+    char_info
+    }|
+    ##DNA Amplified Fragment Length Polymorphism
+    element character {
+    attribute name { "DNA-AFLP" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: ADK; AK; adenosine 5'-phosphotransferase
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=257
+    element character {
+    attribute name { "adenosine kinase" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: ALDOB; aldolase B, fructose-bisphosphate
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=417
+    element character {
+    attribute name { "ALDOB" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "Alleles" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "Allozymes" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: ANT2; SLC25A5; solute carrier family 25, member 5; 2F1; T2; T3
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=10991
+    element character {
+    attribute name { "mitochondrial carrier; adenine nucleotide translocator" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: B-fibrinogen; FGB; fibrinogen, B beta polypeptide
+    ##
+    ## URL: ww.genenames.org/data/hgnc_data.php?hgnc_id=3662
+    element character {
+    attribute name { "fibrinogen beta chain" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: BDNF; neurotrophin
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=1033
+    element character {
+    attribute name { "brain-derived neurotrophic factor" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "Breeding" },
+    attribute type { "behavioural" },
+    char_info
+    }|
+    ##Avian sex chromosome
+    element character {
+    attribute name { "CHDZ" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: RMRP; CHH; cartilage-hair hypoplasia; NME1; RMRPR; RRP2
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=10031
+    element character {
+    attribute name { "RNA component of mitochondrial RNA processing endoribonuclease" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: CLTC; clathrin, heavy chain; clathrin, heavy polypeptide (Hc); clathrin, heavy polypeptide-like 2; CLTCL2; Hc
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=2092
+    element character {
+    attribute name { "clathrin, heavy chain (Hc)" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: COI; COXI; MT-CO1; mitochondrially encoded cytochrome c oxidase I; cytochrome c oxidase I; MTCO1; CO1; COX1
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7419
+    element character {
+    attribute name { "mitochondrially encoded cytochrome c oxidase I" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: COII; COXII; MT-CO2; cytochrome c oxidase II; MTCO2; CO2; COX2
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7421
+    element character {
+    attribute name { "mitochondrially encoded cytochrome c oxidase II" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "complete mitochondrial genome" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: cytb; cyt-b; MT-CYB; mitochondrially encoded cytochrome b; MTCYB; COB; CYTB; UQCR3
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7427
+    element character {
+    attribute name { "cytochrome b" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: PCBD1; DCoH; pterin-4 alpha-carbinolamine dehydratase/dimerization cofactor of hepatocyte nuclear factor 1 alpha; 6-pyruvoyl-tetrahydropterin synthase/dimerization cofactor of hepatocyte nuclear factor 1 alpha (TCF1); DCOH; PCBD; pterin-4 alpha-carbinolamine dehydratase/dimerization cofactor of hepatocyte nuclear factor 1 alpha (TCF1) dimerizing cofactor for HNF1; PCD; pterin-4-alpha carbinolamine dehydratase; Pterin-4a-carbinolamine dehydratase (dimerization cofactor of hepatic nuclear factor 1-alpha)
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=8646
+    element character {
+    attribute name { "pterin-4 alpha-carbinolamine dehydratase/" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: DIB; TXNL4A; thioredoxin-like 4; TXNL4; DIB1; DIM1; HsT161; "similar to S. pombe dim1+"; SNRNP15; U5-15kD
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=30551
+    element character {
+    attribute name { "thioredoxin-like 4A" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "DNA-hybridisation" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "Ecology" },
+    attribute type { "other" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: EF1-alpha; EEF1A1; EEF1A; EF1A; LENG7; leukocyte receptor cluster (LRC) member 7; EE1A1
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=3189
+    element character {
+    attribute name { "eukaryotic translation elongation factor 1 alpha 1" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: EF2; EEF2; EEF-2; polypeptidyl-tRNA translocase
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=3214
+    element character {
+    attribute name { "eukaryotic translation elongation factor 2" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "DNA Electrophoresis" },
+    attribute type { "other" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: EN1
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=3342
+    element character {
+    attribute name { "engrailed homeobox 1" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: EN2
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=3343
+    element character {
+    attribute name { "engrailed homeobox 2" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "enzymes" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: EPRS; QARS; QPRS; EARS; GLUPRORS; glutamate tRNA ligase; PARS; proline tRNA ligase
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=3418
+    element character {
+    attribute name { "glutamyl-prolyl-tRNA synthetase" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: FGA; fibrinogen, A alpha polypeptide
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=3661
+    element character {
+    attribute name { "fibrinogen alpha chain" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: FGB; fibrinogen, B beta polypeptide
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=3662
+    element character {
+    attribute name { "fibrinogen beta chain" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: FGG; fibrinogen, gamma polypeptide
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=3694
+    element character {
+    attribute name { "fibrinogen gamma chain" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: GAPDH; GAPD
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=4141
+    element character {
+    attribute name { "glyceraldehyde-3-phosphate dehydrogenase" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: GH1; GH; GH-N; GHN; hGH-N; pituitary growth hormone; somatotropin
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=4261
+    element character {
+    attribute name { "Growth Hormone 1" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: GH2; GH-V; GHL; GHV; hGH-V; placenta-specific growth hormone
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=4262
+    element character {
+    attribute name { "Growth Hormone 2" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "habitat" },
+    attribute type { "behavioural" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: H3F3
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=4764
+    element character {
+    attribute name { "H3 Histone" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: HMG; high-mobility group (nonhistone chromosomal); HMG1; Amphoterin; DKFZp686A04236; SBP-1; Sulfoglucuronyl carbohydrate binding protein
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=4983
+    element character {
+    attribute name { "High Mobility Group" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: HSPA1A; HSPA1; HSP70-1; Hsp70
+    ##
+    ## URL:  http://www.genenames.org/data/hgnc_data.php?hgnc_id=5232
+    element character {
+    attribute name { "heat shock 70kDa protein 1A" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: HSPA1B; HSP70-2; Hsp70
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=5233
+    element character {
+    attribute name { "heat shock 70kDa protein 1B" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: IGS; IGCD1; IGDC1; INHBP; KIAA0364; MGC75490; PGSF2
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=5948
+    element character {
+    attribute name { "Immunoglobin Superfamily" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "Immunology" },
+    attribute type { "other" },
+    char_info
+    }|
+    element character {
+    attribute name { "Integument" },
+    attribute type { "morphological" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: IRF2
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=6117
+    element character {
+    attribute name { "interferon regulatory factor 2" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: ITS1
+    element character {
+    attribute name { "Internal Transcribed Spacer 1" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: ITS2
+    element character {
+    attribute name { "Internal Transcribed Spacer 2" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "larval morphology" },
+    attribute type { "morphological" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: LDHB
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=6541
+    element character {
+    attribute name { "lactate dehydrogenase B" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "Morphometrics" },
+    attribute type { "morphological" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: MPP; DXS552E
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7219
+    element character {
+    attribute name { "Membrane protein" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "mitochondrial control region" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: MUSK
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7525
+    element character {
+    attribute name { "muscle, skeletal, receptor tyrosine kinase" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: MB
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=6915
+    element character {
+    attribute name { "Myoglobin" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "Myology" },
+    attribute type { "morphological" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: NaK; TBK1
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=11584
+    element character {
+    attribute name { "TANK-binding kinase 1" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: ND1; MT-ND1; MTND1; NADH dehydrogenase 1; complex I ND1 subunit; NAD1; NADH-ubiquinone oxidoreductase chain 1
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7455
+    element character {
+    attribute name { "mitochondrially encoded NADH dehydrogenase 1" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: ND2; MT-ND2; MTND2; NADH dehydrogenase 2; complex I ND2 subunit; NAD2; NADH-ubiquinone oxidoreductase chain 2
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7456
+    element character {
+    attribute name { "mitochondrially encoded NADH dehydrogenase 2" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: ND5; MT-ND5; MTND5; NADH dehydrogenase 5; complex I ND5 subunit; NAD5; NADH-ubiquinone oxidoreductase chain 5
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7461
+    element character {
+    attribute name { "mitochondrially encoded NADH dehydrogenase 5" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: NGFB; NGF
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7808
+    element character {
+    attribute name { "nerve growth factor (beta polypeptide)" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: NTF3; NGF2
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=8023
+    element character {
+    attribute name { "neurotrophin 3" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "Osteology" },
+    attribute type { "morphological" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: OVOG
+    element character {
+    attribute name { "Avian ovomucoid intron G" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: PEPCK; PCK2; PEPCK2
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=8725
+    element character {
+    attribute name { "phosphoenolpyruvate carboxykinase 2 (mitochondrial)" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "Plumage" },
+    attribute type { "morphological" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: POLII; POLR2A; POLR2; polymerase (RNA) II (DNA directed) polypeptide A (220kD); DNA-directed RNA polymerase II largest subunit, RNA polymerase II 220 kd subunit; POLRA; RNA polymerase II subunit B1; RPB1
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=9187
+    element character {
+    attribute name { "polymerase (RNA) II (DNA directed) polypeptide A" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "Preproinsulin" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "proteins" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: RAG1; MGC43321; recombination activating protein 1; RING finger protein 74; RNF74; V(D)J recombination-activating protein 1
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=9831
+    element character {
+    attribute name { "recombination activating gene 1" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: RHO; retinitis pigmentosa 4, autosomal dominant; RP4;  OPN2; opsin 2, rod pigment
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=10012
+    element character {
+    attribute name { "Rhodopsin" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "spermatozoal morphology" },
+    attribute type { "morphological" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: TGFB2
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=11768
+    element character {
+    attribute name { "transforming growth factor, beta 2" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: TM9SF4; dJ836N17.2; KIAA0255
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=30797
+    element character {
+    attribute name { "transmembrane 9 superfamily protein member 4" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { "Tracheal" },
+    attribute type { "morphological" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: tRNA-Glu; MT-TE; MTTE; tRNA glutamic acid; trnE
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7479
+    element character {
+    attribute name { "mitochondrially encoded tRNA glutamic acid" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: tRNA-Lys; MT-TK; MERRF, MTTK, tRNA lysine; trnK
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7489
+    element character {
+    attribute name { "mitochondrially encoded tRNA lysine" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: tRNA-Phe; MT-TF; MTTF; tRNA phenylalanine; trnF
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7481
+    element character {
+    attribute name { "mitochondrially encoded tRNA phenylalanine" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: tRNA-Thr; MT-TT; MTTT; tRNA threonine; trnT
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7499
+    element character {
+    attribute name { "mitochondrially encoded tRNA threonine" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: tRNA-Leu; MT-TL; MTTL1; tRNA leucine; TRNL
+    ##
+    ## URL http://www.genenames.org/data/hgnc_data.php?hgnc_id=7490
+    element character {
+    attribute name { "mitochondrially encoded tRNA leucine" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: tRNA-Val; MT-TV; MTTV; tRNA valine; trnV
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7500
+    element character {
+    attribute name { "mitochondrially encoded tRNA valine" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: U2; RNU2
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=10142
+    element character {
+    attribute name { "RNA, U2 small nuclear" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: v-myc; MYC; bHLHe39; c-Myc; MYCC
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=7553
+    element character {
+    attribute name { "v-myc avian myelocytomatosis viral oncogene homolog" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    ## Common abbreviations/alternative nomenclature: ZENK; EGR1; AT225; early growth response protein 1; G0S30; KROX-24; nerve growth factor-induced protein A; NGFI-A, TIS8; transcription factor ETR103; ZIF-268; zinc finger protein 225; ZNF225
+    ##
+    ## URL: http://www.genenames.org/data/hgnc_data.php?hgnc_id=3238
+    element character {
+    attribute name { "early growth response 1" },
+    attribute type { "molecular" },
+    char_info
+    }|
+    element character {
+    attribute name { string },
+    attribute type { "morphological"|"molecular"|"behavioural"|"other" },
+    char_info 
+    }+
+)

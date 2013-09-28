@@ -1,26 +1,40 @@
+
 analysis =
 (
-   element optimality_criterion {
-        attribute name {string}
-    }|
-     element optimality_criterion {
-        attribute name {"Maximum Parsimony"}
-    }|
-    element optimality_criterion {
-        attribute name {"Maximum Likelihood"}
-    }|
-    element optimality_criterion {
-        attribute name {"Bayesian"}
-    }|
-    element optimality_criterion {
-        attribute name {"Neighbour Joining"}
-    }|
-    element optimality_criterion {
-        attribute name {"UPGMA"}
-    }|
     element optimality_criterion {
         attribute name {string}
+    }|
+    element character {
+	    attribute name { "Bayesian" }
+    }|
+    element character {
+	    attribute name { "Direct_Optimisation_Parsimony" }
+    }|
+    element character {
+	    attribute name { "Distance-Wagner" }
+    }|
+    element character {
+	    attribute name { "LogDet" }
+    }|
+    element character {
+	    attribute name { "Manhattan distance" }
+    }|
+    element character {
+	    attribute name { "Maximum Likelihood" }
+    }|
+    element character {
+	    attribute name { "Maximum Parsimony" }
+    }|
+    element character {
+	    attribute name { "Minimum evolution" }
+    }|
+    element character {
+	    attribute name { "Neighbour Joining" }
+    }|
+    element character {
+	    attribute name { "Squared_Euclidean_distance" }
+    }|
+    element character {
+	    attribute name { "UPGMA" }
     }
 )
-
-
