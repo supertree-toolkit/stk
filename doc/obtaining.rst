@@ -11,12 +11,12 @@ Linux
 
 The STK is distributed via Launchpad PPA. You need to add the Supertree Toolkit PPA (https://launchpad.net/~stk-developers/+archive/release) to your system, along with an additional one which contains some dependencies. You can then install the package. Run the commands below to do all this.
  
-    .. code-block:: bash   
+.. code-block:: bash   
 
-        sudo apt-add-repository ppa:fluidity-core/ppa
-        sudo apt-add-repository ppa:stk-developers/release
-        sudo apt-get update
-        sudo apt-get -y install supertree-toolkit
+    sudo apt-add-repository ppa:fluidity-core/ppa
+    sudo apt-add-repository ppa:stk-developers/release
+    sudo apt-get update
+    sudo apt-get -y install supertree-toolkit
 
 
 Windows
@@ -34,31 +34,31 @@ Source
 
 The source is available as either a compressed tarball or via bzr. To obtain the tarball, simply download from Launchpad (URL), then:
     
-    .. code-block:: bash
-        
-        tar zxvf supertree-toolkit-version.tgz
+.. code-block:: bash
+    
+    tar zxvf supertree-toolkit-version.tgz
 
 replacing version with the version number downloaded. 
 
 Using bzr, you can either obtain the bleeding-edge development version or the current release (recommended) using:
 
-    .. code-block:: bash
-        
-        bzr branch lp:supertree-toolkit/trunk
+.. code-block:: bash
+    
+    bzr branch lp:supertree-toolkit/trunk
 
 or
 
-    .. code-block:: bash
-        
-        bzr branch lp:supertree-toolkit/release
+.. code-block:: bash
+    
+    bzr branch lp:supertree-toolkit/release
 
 respectively.
 
 Regardless of how the source was obtained, you can now either use the STK in-place or install it using:
 
-    .. code-block:: bash
-        
-        sudo python setup.py install
+.. code-block:: bash
+    
+    sudo python setup.py install
 
 (for Windows users, the sudo is not required).
 
@@ -82,24 +82,24 @@ There are two ways to run the STK: via the GUI (Graphical User Interface) or the
 
 The GUI is run from the command line using:
 
-    .. code-block:: bash
-        
-        stk-gui
+.. code-block:: bash
+    
+    stk-gui
 
 The CLI version is run using:
 
-    .. code-block:: bash
-        
-        stk
+.. code-block:: bash
+    
+    stk
 
 which will produce the following help.
 
-    .. code-block:: bash
+.. code-block:: bash
 
-        usage: stk [-h] [-v] [-i]
-               
-                {create_matrix,sub_taxa,import_data,export_data,export_trees,export_bib,data_summary,safe_taxonomic_reduction,data_ind,data_overlap,permute_trees,clean_data,replace_genera,convert_files,create_subset}
-                ...
-        stk: error: too few arguments
+    usage: stk [-h] [-v] [-i]
+           
+            {create_matrix,sub_taxa,import_data,export_data,export_trees,export_bib,data_summary,safe_taxonomic_reduction,data_ind,data_overlap,permute_trees,clean_data,replace_genera,convert_files,create_subset}
+            ...
+    stk: error: too few arguments
 
 The STK GUI can also be accessed via the Start Menu (Windows), the Applications folder (Mac OS X) or in the Applications menu (most Linux varients)
