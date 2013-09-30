@@ -1,4 +1,5 @@
 .. index:: CLI
+
 The STK Command Line Interface
 ==============================
 
@@ -31,6 +32,7 @@ Data input/export
 -----------------
 
 .. index:: export_bib
+
 export_bib
 **********
 
@@ -38,6 +40,7 @@ Exports a bibliographic file containing the references for all your sources. Thi
 
 
 .. index:: export_data
+
 export_data
 ***********
 
@@ -46,13 +49,15 @@ sources are split into two files per tree: an XML data file containing the meta-
 
 
 .. index:: export_trees
+
 export_trees
-***********
+************
 
 Export all the trees in the dataset into a single tree file.
 
 
 .. index:: import_data
+
 import_data
 ***********
 
@@ -64,24 +69,28 @@ Data processing
 ---------------
 
 .. index:: clean_data
+
 clean_data
 **********
 
 
 .. index:: create_subset
+
 create_subset
 *************
 
 
 .. index:: create_matrix
+
 create_matrix
 *************
 
 Create a Hennig or Nexus matrix using Baum and Ragen coding of all trees in the dataset.
 
-.. code:: bash
-  
-  usage: stk create_matrix [-h] [-f {hennig,nexus}] [--overwrite] input output
+.. code-block:: bash
+
+    usage: stk create_matrix [-h] [-f {hennig,nexus}] [--overwrite] input output
+
 
 -h --help
   Display the help message
@@ -98,49 +107,89 @@ input
 output
   The output filename
 
+
 .. index:: create_subset
+
 create_subset
 *************
 
 
 .. index:: data_ind
+
 data_ind
 ********
 
 
 .. index:: data_overlap
+
 data_overlap
 ************
 
 
 .. index:: data_summary
+
 data_summary
 ************
 
 
 .. index:: permute_trees
+
 permute_trees
 *************
 
 
 .. index:: replace_genera
+
 replace_genera
 **************
 
 
 .. index:: safe_taxonomic_reduction
+
 safe_taxonomic_reduction
 ************************
 
 
 .. index:: sub_taxa
+
 sub_taxa
 ********
+
+Substitute or delete taxa from the dataset. 
+
+.. code-block:: bash
+
+    usage: stk sub_taxa [-h] [-s SUBS] [-n NEWTAXON] [-o OLDTAXON] [--overwrite]
+                    input output
+
+
+
+-h --help
+  show this help message and exit
+  
+-s SUBS --subs SUBS
+  A substitution file. See manual for format.
+  
+-n NEWTAXON --newtaxon NEWTAXON
+  The new taxon. If you want to delete, leave blank.
+  
+-o OLDTAXON --oldtaxon OLDTAXON
+  The old taxon. Must be in the dataset.
+  
+\-\-overwrite
+  Overwrite the existing file without asking for confirmation
+
+input
+  The input phyml file
+  
+output
+  The output phyml file
 
 
 Miscellaneous functions
 -----------------------
 
 .. index:: convert_files
+
 convert_files
 *************
