@@ -344,4 +344,26 @@ These trees or matrices can then be combined into a single tree using PAUP, TNT
 or similar. The consensus of these trees then become the source tree for this
 source. 
 
+Replace genera
+**************
+
+Generic taxa can be replaced with a polytomy of all species that belong in that
+genera and exist in the dataset. Replace genera automates this process. It can
+either create a new Phyml file or a subs file. The latter can be imported into
+the Sub taxa function.
+
+STR
+***
+
+Safe Taxonomic Reduction identifies possible problem taxa in the dataset. These
+may cause instabilities in the supertree analysis. 
+
+.. note:: This can take a long time for even small datasets. For anything over 100 taxa use the command line interface.
+
+For further details on STR see 
+
+.. todo:: Add references and citations
+
+
+
 
