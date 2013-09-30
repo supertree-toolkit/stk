@@ -17,6 +17,7 @@ import sys, os
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../'))
+sys.path.append(os.path.abspath('ext'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -25,7 +26,7 @@ sys.path.insert(0, os.path.abspath('../'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.pngmath', 'sphinx.ext.ifconfig']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.pngmath', 'sphinx.ext.ifconfig', 'numfig']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -177,7 +178,8 @@ latex_elements = {
 'pointsize': '11pt',
 
 # Additional stuff for the LaTeX preamble.
-#'preamble': '',
+#'preamble': '\pdfpxdimen=1in % 1 DPI
+'preamble': '\pdfpxdimen=1in % 1 DPI\n\divide\pdfpxdimen by 96 % 96 DPI',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
@@ -199,7 +201,7 @@ latex_logo = 'stk.pdf'
 #latex_show_pagerefs = False
 
 # If true, show URL addresses after external links.
-latex_show_urls = True
+latex_show_urls = False
 
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []
