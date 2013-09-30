@@ -98,7 +98,9 @@ which will produce the following help.
 
     usage: stk [-h] [-v] [-i]
            
-            {create_matrix,sub_taxa,import_data,export_data,export_trees,export_bib,data_summary,safe_taxonomic_reduction,data_ind,data_overlap,permute_trees,clean_data,replace_genera,convert_files,create_subset}
+            {create_matrix,sub_taxa,import_data,export_data,export_trees,export_bib,
+             data_summary,safe_taxonomic_reduction,data_ind,data_overlap,permute_trees,
+             clean_data,replace_genera,convert_files,create_subset}
             ...
     stk: error: too few arguments
 
