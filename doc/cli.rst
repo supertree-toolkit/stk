@@ -26,7 +26,67 @@ This will produce:
             ...
     stk: error: too few arguments
 
-The STK has a number of commands relating to data input and export, or processing, along with a some miscellaneous functions. These are detailed below.
+The STK has a number of commands relating to data input and export, or
+processing, along with a some miscellaneous functions. These are detailed below.
+
+To run a command, e.g. the create matrix function, the command is:
+
+.. code-block:: bash
+
+    stk create_matrix
+
+This will produce the help for the create matrix function:
+
+.. code-block:: bash 
+
+    usage: stk create_matrix [-h] [-f {hennig,nexus}] [--overwrite] input output
+    stk create_matrix: error: too few arguments
+
+More detailed help can be obtained using the '''-h''' flag.
+
+.. code-block:: bash
+
+    >$ stk create_matrix -h
+    usage: stk create_matrix [-h] [-f {hennig,nexus}] [--overwrite] input output
+
+    positional arguments:
+        input                 The input phyml file
+        output                The output matrix file
+
+    optional arguments:
+        -h, --help          show this help message and exit
+        -f {hennig,nexus},  --format {hennig,nexus}
+                            The format of the matrix. hennig or nexus. Default is
+                            hennig
+        --overwrite         Overwrite the existing file without asking for
+                            confirmation
+
+The options can be given with either the long format (--help) or (-h). Not all
+arguments have both (e.g. --overwrite).
+
+Note the stk itself has three options:
+ 
+ * -h -- help
+ * -v -- verbose
+ * -i -- ignore warnings
+
+Note that these *must* come before the function you want to use. For example
+this is valid:
+
+.. code-block:: bash
+
+    stk -v create_matrix
+
+This is not.
+
+.. code-block:: bash
+
+    stk create_matrix -v
+
+The funcitons are divided into input/output and processing, with one additional
+miscellaneous function used for converting data files. Below is a brief
+description of each function. Use the '''-h''' flag for information on options
+and further details of input/output for the function.
 
 Data input/export
 -----------------
@@ -73,12 +133,8 @@ Data processing
 clean_data
 **********
 
-
-.. index:: create_subset
-
-create_subset
-*************
-
+Remove all non-informative trees and sources from the dataset. These are trees
+that contain only three or less taxa.
 
 .. index:: create_matrix
 
@@ -87,103 +143,70 @@ create_matrix
 
 Create a Hennig or Nexus matrix using Baum and Ragen coding of all trees in the dataset.
 
-.. code-block:: bash
-
-    usage: stk create_matrix [-h] [-f {hennig,nexus}] [--overwrite] input output
-
-
--h --help
-  Display the help message
-
--f --format
-  Select format for the output matrix. Either hennig or nexus. Default is hennig
-
-\-\-overwrite
-  Overwrite the output file is it already exists. Otherwise you will be asked if you want to overwrite.
-
-input
-  The input Phyml
-
-output
-  The output filename
-
-
 .. index:: create_subset
 
 create_subset
 *************
 
+Create a subset from your data, specifying various criteria, including year
+published, characters contained and taxa included.
 
 .. index:: data_ind
 
 data_ind
 ********
 
+Check your data for adequate data independence. The output is a CSV file that
+can be opened in a standard spreadsheet package and contains identical and
+subset categories. It can also give you a new Phyml with non-independent data
+removed.
 
 .. index:: data_overlap
 
 data_overlap
 ************
 
+Check your data for adequate taxonomic overlap. Optional extras are graphical
+outputs.
 
 .. index:: data_summary
 
 data_summary
 ************
 
+Produce a text summary of the data, contianing a taxa list, character list and
+other useful things.
 
 .. index:: permute_trees
 
 permute_trees
 *************
 
+Permute individual trees or all trees contining polyphyletic taxa (indicated by
+a '%' symbol). Output is tree file or matrix for analysis.
 
 .. index:: replace_genera
 
 replace_genera
 **************
 
+Replace all generic level taxa with a polytomy of all species of that genus
+already in the dataset.
 
 .. index:: safe_taxonomic_reduction
 
 safe_taxonomic_reduction
 ************************
 
+Perform safe taxonomic reduciton on the dataset. Output is the quivalency
+matrix, plus the option to give subs files to safely delete and re-insert taxa
 
 .. index:: sub_taxa
 
 sub_taxa
 ********
 
-Substitute or delete taxa from the dataset. 
-
-.. code-block:: bash
-
-    usage: stk sub_taxa [-h] [-s SUBS] [-n NEWTAXON] [-o OLDTAXON] [--overwrite]
-                    input output
-
-
-
--h --help
-  show this help message and exit
-  
--s SUBS --subs SUBS
-  A substitution file. See manual for format.
-  
--n NEWTAXON --newtaxon NEWTAXON
-  The new taxon. If you want to delete, leave blank.
-  
--o OLDTAXON --oldtaxon OLDTAXON
-  The old taxon. Must be in the dataset.
-  
-\-\-overwrite
-  Overwrite the existing file without asking for confirmation
-
-input
-  The input phyml file
-  
-output
-  The output phyml file
+Substitute or delete taxa from the dataset. Returns a new Phyml.
 
 
 Miscellaneous functions
@@ -193,3 +216,8 @@ Miscellaneous functions
 
 convert_files
 *************
+
+Convert a tree file or matrix into Nexus, Newick (tree only) or Hennig (matrix
+only) formats.
+
+

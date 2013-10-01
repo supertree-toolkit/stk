@@ -4,99 +4,83 @@ A STK Tutorial
 Introduction
 ------------
 
-Entering data
--------------
-
-Processing example
-------------------
-
-Examining the data
-------------------
-
-
-.. note:: old_data
+.. note:: old_tutorial
 
 The following is an example of how the scripts were used in creating a species-level supertree of birds.
 
 The whole procedure can be divided into 5 stages:
-# Collect data
-# Standardise taxa
-# Remove unnecessary data and taxa
-# Check data
-# Create matrix
+ # Collect data
+ # Standardise taxa
+ # Remove unnecessary data and taxa
+ # Check data
+ # Create matrix
 
 Collecting Data
 ---------------
 
-*STK tools used*
-.. code:: bash
- stk_fix_treeview
- stk_check_data
- STK_XML
+Data is collected from literature as Nexus tree files and bibliographic (bibtex)
+files. The easiest way to start is to create a bibtex file of your source data.
+You can then import this to create your sources.
 
-Data is collected as NEXUS tree files, with an accompanying XML file. TreeView is good for creating the NEXUS files. STK_XML can be used to create the accompanying XML file. Data is transcribed *exactly* as it is in the original source paper.
+For each source you then create each tree you want to include in the analysis.
+For each tree, you should also record the page and figure number, the characters
+used, the analysis used and any other relavant information .Data is transcribed
+*exactly* as it is in the original source paper. We deal with incorrect taxa
+later. 
 
-We stored data in directories named after the author, e.g. SmithAndJones_1990, JonesEtAl_1989, Smith_2007, etc, etc. Each author directory contains the tree and XML files as necessary.
+.. note:: Once done, this is your original file before any processing. Keep this safe. When you extend the data later, you should begin with this file.
+ 
 
-If you are using TreeView, run the stk_fix_treeview script to ensure the NEXUS files are actually NEXUS compatible.
-<code>
- stk_fix_treeview.pl --dir /home/jon/data/
-</code>
+One of the time consuming tasks is to digitise trees from the papers. Authors
+rarely give digital trees, so you must use programs such as TreeView or Mequite
+to turn the graphic in the paper into a digital tree file. This is normally a
+Nexus file, though the STK can parse the trees from most of the popular tree
+creation software packages. Note that paraphyletic taxa are encoded differently.
+For example consider a tree as in figure .
 
-Once data are collected (and indeed during collection), run the stk_check_data script, which will pick up missing XML files and malformed data files.
-<code>
- stk_check_data.pl --dir /home/jon/data
-</code>
 
-Note that if errors occur, it is often helpful to run the check data script on the subdirectory that gave errors in verbose mode.
-<code>
- stk_check_data.pl --dir /home/jon/data/bad_data --verbose
-</code>
+Rather than include subspecies (we assume you want a species level tree), which
+would then involve adding subspecies everywhere, you can tell the STK that these
+taxa should be considered as one. We then remove these in the next step. We
+would therefore encode this tree as shown in figure .
 
-== Standardising Taxa ==
+.. todo:: Video of entering data (link to this) and screenshots of the process (from video?)
 
-'''STK tools used'''
-<code>
- stk_replace_taxa
- stk_check_data
- stk_tree_permutation
- stk_create_matrix
-</code>
+Standardising Taxa
+------------------
 
-The next stage is to standardise the taxa - removing synonyms, polyphyletic taxa and sub-species.
+The next stage is to standardise the taxa - removing synonyms, polyphyletic taxa
+and sub-species.
 
-Removing synonyms requires that a "standard" taxonomy is used. It does not matter what this is, but it does matter that two taxa that are actually the same taxa have the same name. The [http://darwin.zoology.gla.ac.uk/~rpage/MyToL/www/index.php Glasgow Taxonomic Name Server], [http://www.itis.gov/ ITIS] and other online databases are useful. In future this functionality is planned to be included in STK. Once a standardised taxa has been decided, the names can be replaced. For example:
-<code>
- stk_replace_taxa.pl --dir /home/jon/data --old Incorrect_taxa --new Correct_taxa
-</code>
-will replace Incorrect_taxa with Correct_taxa throughout the dataset. In addition, this can be automated somewhat using a taxa substitution file:
-<code>
- Incorrect_taxa = Correct_taxa
- Other_taxa = new_taxa
-</code>
-which allows you to do the '''all''' substitutions in one command and allows a record to be kept of what changes were made. In addition, this can then be used when the tree is updated.
+To remove polyphyletic taxa and sub-species, the tree permutation function is
+used. This creates a number of trees per source tree, each with a different
+combination of the paraphyletic taxa (which sub-species can be). Note that this
+produces unique trees only. These can then be used to create a matrix or
+output in a single tree file. You take this and create a 'mini-supertree' which
+becomes your single source tree. For example load into PAUP and get the tree
+required with a branch-and-bound search or heuristic search for larger trees.
 
-To remove polyphyletic taxa and sub-species, the stk_tree_permutation script is used. This creates a number of trees per source tree, each with a different combination of the paraphyletic taxa (which sub-species can be). Note that this produces unique trees only.
-<code>
- stk_tree_permutation.pl --file /home/jon/data/para_tree/para_tree.tre
-</code>
+.. note:: This is the "standard" data - *keep this* as this is what gets updated when new trees are added to the dataset.
 
-These trees can then be combined into a single tree using PAUP or similar. First generate the matrix:
-<code>
- stk_create_matrix.pl --dir /home/jon/data/para_tree
-</code>
-then load in PAUP and get the tree required with a branch-and-bound search or heuristic search for larger trees.
 
-As always, run stk_check_data regularly:
-<code>
- stk_check_data.pl --dir /home/jon/data
-</code>
+Removing synonyms requires that a "standard" taxonomy is used. It does not
+matter what this is, but it does matter that two taxa that are actually the same
+taxa have the same name. Services such as `ITIS <http://www.itis.gov/>`_ and
+other online databases are useful. In future this functionality is planned to
+be included in STK. Once a standardised taxa has been decided, the names can be
+replaced. 
 
-This is the "standard" data - '''''keep this''''' as this is what gets updated when new trees are added to the dataset.
+Use your taxonomy to create a *subs file*. This can be done manually in a
+standard text editor or using the STK GUI.
+
+Once you have a *subs file* you can replace the taxa. Using either the GUI or
+the command line, run the sub taxa function on your Phyml. This replaces and
+deletes the taxa defined in your *subs file* in all trees in your dataset.
 
 '''The next few steps need doing each time you need to generate a tree.'''
 
-== Remove unnecessary data and taxa ==
+Remove unnecessary data and taxa
+--------------------------------
 
 '''STK tools used'''
 <code>
@@ -150,7 +134,8 @@ As with the stk_replace_taxa script, memory may be an issue, so use the stk_repl
  perl replace_genera_wrapper.pl --dir /home/jon/data/ --taxa /home/jon/data/generic_subs.txt
 </code>
 
-== Check data ==
+Check data
+----------
 
 '''STK tools used'''
 <code>
@@ -179,7 +164,8 @@ This produces a tree2.dot file, which can be run through [http://www.graphviz.or
 This produces something like the following image.
 [[File:Tree2.dot.png]]
 
-== Create matrix ==
+Create matrix
+-------------
 
 '''STK tools used'''
 <code>

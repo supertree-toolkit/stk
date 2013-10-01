@@ -356,7 +356,12 @@ STR
 ***
 
 Safe Taxonomic Reduction identifies possible problem taxa in the dataset. These
-may cause instabilities in the supertree analysis. 
+may cause instabilities in the supertree analysis. The output files from STR
+are (Fig. :num:`#img-stk-str`):
+ * Subs files for deletion and replacement of appropriate taxa (optional)
+ * A text file containing the STR output. This contains lists of taxa in the A,
+   B, C, D, and E categories. Note that this file can be very large for datasets
+   containing hundreds of taxa.
 
 .. note:: This can take a long time for even small datasets. For anything over 100 taxa use the command line interface.
 
@@ -364,6 +369,76 @@ For further details on STR see
 
 .. todo:: Add references and citations
 
+.. _img-stk-str:
+
+.. figure:: images/stk_gui_str.png   
+    :align: center
+    :scale: 50 %
+    :alt: STR interface
+    :figclass: align-center
+
+    STR interface. The file requested contains the equivanlency matrix. The two
+    optional sub files will automatically allow deletion and reinsertion of taxa
+    where this is safe to do so.
+
+Create subset
+*************
+
+You may want to create a subset of your entire dataset, based on, say, year of
+publication, characters used or taxa included. The create subset allows you to
+define criteria on which this subset can be created. The GUI (Fig.
+:num:`#img-stk-subset1`) allows you to create this search by clicking "Add".
+Then select the criterion from the drop-down list on the left hand side. Then in
+the right hand column, enter your terms. For years you can enter a range, like
+2000-2010. For all terms, a comma seperated list can be used to enter multiple
+terms (Fig.  :num:`#img-stk-subset2`).
+
+.. _img-stk-subset1:
+
+.. figure:: images/stk_gui_create_subset.png  
+    :align: center
+    :scale: 50 %
+    :alt: Creat subset interface
+    :figclass: align-center
+
+    The initial create subset interface. The two buttons on the right allow you
+    to add and delete terms. Terms appear in the main part of the window. The
+    left side of this contains a drop down list to select the criterion. The
+    right hand side is where you enter terms.
 
 
+.. _img-stk-subset2:
+
+.. figure:: images/stk_gui_create_subset2.png  
+    :align: center
+    :scale: 50 %
+    :alt: Creat subset interface
+    :figclass: align-center
+
+    A search for data published between 2009 and 2013 has been set up.
+
+Once complete, a search will ask you to save the output to a new Phyml file.
+
+.. warning:: This new file does still need to be saved with a new file name, if you use the same filename as the existing file you will over-write your previous hard work so be aware!
+
+Create matrix
+*************
+
+After all your processing, the final step is to create a matrix of your data.
+This function will create a matrix suitable for reading into Paup, TNT and most
+other supertree software. Note that some software require a set of "input
+trees". In this case, use the "Export trees" function unther the "File" menu.
+Matrices can be output in Nexus or Hennig (TNT) format. Simply select "Create
+matrix", choose your options, including a filename, and click create matrix.
+This might take a few minutes for large datsets.
+
+.. _img-stk-matrix:
+
+.. figure:: images/stk_gui_create_matrix.png  
+    :align: center
+    :scale: 50 %
+    :alt: Creat matrix interface
+    :figclass: align-center
+
+    The create matrix format. Select your options and click "Create matrix".
 
