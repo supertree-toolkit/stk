@@ -3150,6 +3150,13 @@
                 <property name="use_action_appearance">False</property>
                 <property name="draw_indicator">True</property>
              </widget>
+             <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
               <widget class="GtkCheckButton" id="onlyexisting_checkbutton">
                 <property name="label" translatable="yes">Only sub existing taxa</property>
                 <property name="visible">True</property>
