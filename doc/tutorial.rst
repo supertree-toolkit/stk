@@ -38,11 +38,22 @@ Nexus file, though the STK can parse the trees from most of the popular tree
 creation software packages. Note that paraphyletic taxa are encoded differently.
 For example consider a tree as in figure .
 
-
 Rather than include subspecies (we assume you want a species level tree), which
 would then involve adding subspecies everywhere, you can tell the STK that these
 taxa should be considered as one. We then remove these in the next step. We
 would therefore encode this tree as shown in figure .
+
+
+At this point it's worth creating a data summary -- this will allow to to spot
+data input errors: typos, copy and paste errors, etc. Execute the data summary
+command and *carefully* check for errors. However, it is important not to
+correct "errors" that exist in the original paper -- these are dealt with later.
+However, the data summary will allow to spot where you might have mistyped a
+character (CYtb instead of Cytb, for example) or didn't quite copy and paste the
+taxa correctly (missing the last few characters for example). All lists are
+sorted alphabetically, which makes spotting these kinds of errors relatively
+straightforward.
+
 
 .. todo:: Video of entering data (link to this) and screenshots of the process (from video?)
 
@@ -77,105 +88,130 @@ Once you have a *subs file* you can replace the taxa. Using either the GUI or
 the command line, run the sub taxa function on your Phyml. This replaces and
 deletes the taxa defined in your *subs file* in all trees in your dataset.
 
-'''The next few steps need doing each time you need to generate a tree.'''
+*The next few steps need doing each time you need to generate a supertree after adding data*
 
 Remove unnecessary data and taxa
 --------------------------------
 
-'''STK tools used'''
-<code>
- stk_replace_taxa
- stk_check_data
- stk_check_substitutions
- stk_replace_genera
-</code>
+This is the first step that is needed each time a tree is generated. We need to
+check for data dependence, remove vernacular and higher names and finally, make
+all taxa specific.
 
-This is the first step that is needed each time a tree is generated. We need to check for data dependence, remove vernacular and higher names and finally, make all taxa specific.
+Data independence check is done via the data indepenedence function. The
+function checks if any source meets the following conditions:
+ * Uses the same characters
+ * *and* is either a subset of, or contains the same taxa as, another source.
 
-To check for data dependence you '''must''' have created XML files to store the meta-data. Simply run the stk_data_dependence script on your data:
-<code>
- stk_data_dependence.pl --dir /home/jon/data
-</code>
-This will produce a tab-delimited file in your data directory called duplication.dat. Load this into Excel or Open Office and it will list any other tree files that potentially overlap with that study.
+If these two conditions are met, the two sources are not independent. If the two
+sources are identical (same taxa and same characters) it is up to you which one
+is included, or you can create a mini-supertree of them to create a single
+source. When one source uses the same characters but is a taxonomic subset of
+another, you should include the larger source tree. The data independence
+function places source trees into these two categories and informs you of the
+equivalent source. You can then simply delete sources as required using the GUI.
 
-Any data sources that overlap should be removed by combining the trees into a single tree, or removing the study with fewest taxa, as per the protocol of Davis (2008).
 
-As it stands, the dataset still contains vernacular names and higher-order (e.g. family) names. This have to be removed by hand and replaced with polytomies of taxa that are part of that name. As this must happen each time a tree is produced, it is best done with a taxa substitution file. For example:
+Our dataset currently contains vernacular names and higher-order (e.g. family)
+names. This have to be removed by hand and replaced with polytomies of taxa that
+are part of that name. As this must happen each time a supertree is produced, it
+is best done with via a taxa substitution file. You can create this file once,
+amend as appropriate and run each time you alter the data before supertree
+analysis is done. For example:
 
-<code>
- Aegialornithidae = Aegialornis gallicus,Aegialornis leenhardti
- Ciconiidae = Mycteria,Anastomus,Ciconia,Ephippiorhynchus,Jabiru,Leptoptilos 
-</code>
+.. code-block:: bash
 
-Note we can replace using generic or specific names. This file should be made to cover as many taxa as possible (even if you know they are not currently in your tree). We can then modify it to ensure that only taxa that are part of your dataset are included in the substitutions using the stk_check_subs script
-<code>
- stk_check_subs.pl --file subs.txt --dir /home/jon/data
-</code>
+    Aegialornithidae = Aegialornis gallicus,Aegialornis leenhardti 
+    Ciconiidae = Mycteria,Anastomus,Ciconia,Ephippiorhynchus,Jabiru,Leptoptilos
 
-This will tell you about any taxa that are to be subbed into the dataset, but aren't currently part of the dataset. These should be removed from the substitution file (after a copy of the original has been saved of course!).
+replaces any source tree containing the higher order taxa *Aegialornithidae* or
+*Ciconiidae* with polytomies of species within the group. Note that the species
+listed do *not* need to be in the dataset already, though you will need to
+ensure you use the "replace existing taxa only" option in the replacement. You
+can use the data summary output to check this.
 
-You can then carry out the substitutions using the stk_replace_taxa script.
-<code>
- stk_repalce_taxa.pl --dir /home/jon/data --taxa subs.txt
-</code>
+Note we can replace using generic or specific names. In the former, the genera
+will be replaced with specific names in a later step. Therefore, it is
+recommended you make your substitution file as comprehensive as possible. You
+can then keep it for later, when you extend the dataset.
 
-For very large datasets it is probably best to split up your subs files into stages. In addition, due to memory considerations large datasets may cause a typical desktop to run out of memory. There is a [[Hints and Tips#Memory usage|wrapper script]] which carries out the substitutions one file-at-a-time which reduces memory consumption, but takes a lot longer to complete.
+Once your substitution file is ready, you can use either the GUI or CLI to
+replace taxa in a Phyml. The output of this is a new Phyml with the taxa replace
+or deleted as dictated in your subs file.
 
-Finally, to guard against errors and bugs, back-up your data '''before''' carrying out substitutions. If you come across something that went wrong, report a bug here.
+For very large datasets it is probably best to split up your subs files into
+stages. For example, replace Orders with Families; then another file for
+Families to Groups; and a final file to go from Groups to genera.
 
-The final part of this process is to replace all generic taxa with specific taxa, e.g. ''Gallus'' is replace with a polytomy of all species belonging to ''Gallus''. This is done with the stk_replace_genera script.
-<code>
- stk_replace_genera.pl --dir /home/jon/data
-</code>
+Finally, to guard against errors and bugs, back-up your data '''before'''
+carrying out substitutions. If you come across something that went wrong, report
+a bug on our Launchpad.
 
-As with the stk_replace_taxa script, memory may be an issue, so use the stk_replace_genera script to produce a taxa substitution file for you, and use that with the [[Hints and Tips#Memory usage|wrapper script]].
-<code>
- stk_replace_genera.pl --dir /home/jon/data --higher /home/jon/data/generic_subs.txt
- perl replace_genera_wrapper.pl --dir /home/jon/data/ --taxa /home/jon/data/generic_subs.txt
-</code>
+The final part of this process is to replace all generic taxa with specific
+taxa, e.g. *Gallus* is replace with a polytomy of all species belonging to
+*Gallus*. This is done with the replace genera function. Only species already in
+the dataset are substituted in.
 
 Check data
 ----------
 
-'''STK tools used'''
-<code>
- stk_check_data
- stk_check_overlap
- stk_data_summary
-</code>
+This stage makes sure that the data is suitable for inclusion in the final 
+supertree analysis. The first step is to create a data summary. This creates a
+list of useful information, such as taxa and characters. The information is
+printed alphabetically, which makes it easy to check for final errors.
 
-This stage makes sure that the data is ready for inclusion in the final tree. First step is to run stk_check_data (you have been running it all the time, right?). Then produce a data summary. Although this is not necessary, it allows manual checking of the data: were all the generic names removed where specific taxa are also in the data? are there any odd names that I forgot to substitute?
-<code>
- stk_data_summary.pl --dir /home/jon/data --output /home/jon/data/Data_Summary.txt
-</code>
+First step is to run stk_check_data (you have been running it all the time,
+right?). Then produce a data summary. Although this is not necessary, it allows
+manual checking of the data: were all the generic names removed where specific
+taxa are also in the data? are there any odd names that I forgot to substitute?
 
-Have a look in the file output and check everything is OK. If not, go back and fix things. Note that some of the statistics in the file might be useful when writing up your papers - how many trees, over what years the data is from, etc, etc.
+Have a look in the file output and check everything is OK. If not, go back and
+fix things. Note that some of the statistics in the file might be useful when
+writing up your papers - how many trees, over what years the data is from, etc,
+etc.
 
-Next, we need to check that all the trees are connected by at least two taxa with another tree. Use stk_check_overlap.
-<code>
- stk_check_overlap.pl --dir /home/jon/data
-</code>
+Next, we need to check that all the trees are connected by at least two taxa
+with another tree. You may also want to experiment with using higher numbers.
+Use the data overlap function to determine this. The output can ither be a
+simple yes/no or graphical output. Graphical output can either be a detailed
+view where a graph is produced whereby each source is a vertex and edges are
+drawn between sources that share the required number of taxa (Fig
+:num:`#img-stk-data-overlap-detailed2`) . In this view *all* nodes should be
+blue, with no red (unconnected). However, for large datasets, this consume a lot
+of memory and can take a long time to calcualte. Instead use the normal view
+where connected trees compose a node in the graph (Fig
+:num:`#img-stk-data-overlap-simple2`). In this view there should be a single
+node only.
 
-This produces a tree2.dot file, which can be run through [http://www.graphviz.org/ GraphViz] to produce an image.
-<code>
- neato -Tpng -O tree2.dot
-</code>
+.. _img-stk-data-overlap-detailed2:
 
-This produces something like the following image.
-[[File:Tree2.dot.png]]
+.. figure:: images/stk_gui_check_overlap_detailed_result.png   
+    :align: center
+    :scale: 50 %
+    :alt: Data overlap detailed graphic
+    :figclass: align-center
+
+    Detailed graphical view of data overlap. For a correctly connected dataset
+    there should be no red nodes (circles) in the graph. These data is not sufficiently well
+    connected.
+
+
+.. _img-stk-data-overlap-simple2:
+
+.. figure:: images/stk_gui_check_overlap_simple_graphic.png   
+    :align: center
+    :scale: 50 %
+    :alt: Data overlap simple graphic
+    :figclass: align-center
+
+    Normal graphical view of data overlap. For a correctly connected datset
+    there should be a single node (circle). These data is not sufficiently well
+    connected.
 
 Create matrix
 -------------
 
-'''STK tools used'''
-<code>
- stk_check_data
- stk_create_matrix
-</code>
+Well done -- you have a dataset ready for supertree analysis. The final step is
+to create a matrix. This is very simple and the create matrix funciton is used.
+Simple tell the STK where to save and the format (Nexus fot PAUP, Hennig for
+TNT) and your matric will be create.
 
-Finally, create your matrix ready for use in PAUP, etc.
-<code>
- stk_create_matrix.pl --dir /home/jon/data
-</code>
-
-Your matrix will be in /home/jon/data/MRPmatrix.nex

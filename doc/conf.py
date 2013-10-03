@@ -29,6 +29,7 @@ sys.path.append(os.path.abspath('ext'))
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.pngmath', 'sphinx.ext.ifconfig', 'numfig']
 
 todo_include_todos = True
+number_figures = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
