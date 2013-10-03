@@ -2144,6 +2144,7 @@ class Diamond:
     filename = dialogs.get_filename(title = "Choose output PHYML fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 
     ignoreWarnings = self.sub_taxa_gui.get_widget("ignoreWarnings_checkbutton").get_active()
+    only_existing = self.sub_taxa_gui.get_widget("onlyexisting_checkbutton").get_active()
     old_taxa, new_taxa = self.construct_subs_from_treeview()
     
     f = StringIO.StringIO()
@@ -2151,7 +2152,7 @@ class Diamond:
     XML = f.getvalue()
    
     try:
-        XML2 = stk.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings)
+        XML2 = stk.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings,only_existing=only_existing)
     except NotUniqueError as detail:
         msg = "Failed to substitute taxa.\n"+detail.msg
         dialogs.error(self.main_window,msg)

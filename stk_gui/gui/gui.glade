@@ -3149,7 +3149,17 @@
                 <property name="tooltip" translatable="yes">Ignore warnings regarding data quality</property>
                 <property name="use_action_appearance">False</property>
                 <property name="draw_indicator">True</property>
-              </widget>
+             </widget>
+              <widget class="GtkCheckButton" id="onlyexisting_checkbutton">
+                <property name="label" translatable="yes">Only sub existing taxa</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="has_tooltip">True</property>
+                <property name="tooltip" translatable="yes">Only insert taxa that already occur in the dataset</property>
+                <property name="use_action_appearance">False</property>
+                <property name="draw_indicator">True</property>
+             </widget>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>

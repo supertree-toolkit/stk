@@ -1299,12 +1299,14 @@ def load_phyml(filename):
     return etree.tostring(etree.parse(filename,parser),pretty_print=True)
 
 
-def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False, verbose=False):
+def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWarnings=False, verbose=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
     
     If the new_taxa array is missing, simply delete the old_taxa
+
+    only_existing will ensure that the new_taxa are already in the dataset
 
     Returns a new XML with the taxa swapped from each tree and any taxon
     elements for those taxa removed. It's up to the calling function to
@@ -1326,6 +1328,25 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False, verbose=
         if (len(old_taxa) != len(new_taxa)):
             print "Substitution failed. Old and new are different lengths"
             return # need to raise exception here
+
+    # Sort incoming taxa
+    if (only_existing):
+        existing_taxa = get_all_taxa(XML)
+        corrected_taxa = []
+        for t in new_taxa:
+            if (not t == None):
+                current_new_taxa = t.split(",")
+                current_corrected_taxa = []
+                for cnt in current_new_taxa:
+                    if (cnt in existing_taxa):
+                        current_corrected_taxa.append(t)
+                if (len(current_corrected_taxa) == 0):
+                    corrected_taxa.append(None)
+                else:
+                    corrected_taxa.append(",".join(current_corrected_taxa))
+            else:
+                corrected_taxa.append(None)
+        new_taxa = corrected_taxa
 
     # need to check for uniquessness of souce names - error is not unique
     _check_uniqueness(XML)
@@ -1370,12 +1391,14 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False, verbose=
     return etree.tostring(xml_root,pretty_print=True)
 
 
-def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, ignoreWarnings=False, verbose=False):
+def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, only_existing = False, ignoreWarnings=False, verbose=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
     
     If the new_taxa array is missing, simply delete the old_taxa
+
+    only_existing will ensure only taxa in the dataset are subbed in.
 
     Returns a new list of trees with the taxa swapped from each tree 
     It's up to the calling function to
@@ -1393,7 +1416,30 @@ def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, ignoreWarnings=Fals
         if (len(old_taxa) != len(new_taxa)):
             print "Substitution failed. Old and new are different lengths"
             return # need to raise exception here
+    
 
+    # Sort incoming taxa
+    if (only_existing):
+        existing_taxa = []
+        for tree in trees:
+            existing_taxa.extend(_getTaxaFromNewick(tree))
+        existing_taxa = _uniquify(existing_taxa)
+        corrected_taxa = []
+        for t in new_taxa:
+            if (not t == None):
+                current_new_taxa = t.split(",")
+                current_corrected_taxa = []
+                for cnt in current_new_taxa:
+                    if (cnt in existing_taxa):
+                        current_corrected_taxa.append(t)
+                if (len(current_corrected_taxa) == 0):
+                    corrected_taxa.append(None)
+                else:
+                    corrected_taxa.append(",".join(current_corrected_taxa))
+            else:
+                corrected_taxa.append(None)
+        new_taxa = corrected_taxa
+    
     new_trees = []
     for tree in trees:
         new_trees.append(_sub_taxa_in_tree(tree,old_taxa,new_taxa))
