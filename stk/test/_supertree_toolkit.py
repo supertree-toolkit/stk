@@ -245,6 +245,13 @@ class TestSetSourceNames(unittest.TestCase):
         self.assertRegexpMatches(full_summary,'     molecular')
         self.assertRegexpMatches(full_summary,'Taxa List')
 
+    def test_data_summary_incomplete(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        simple_summary = data_summary(XML)
+        XML = etree.tostring(etree.parse('data/input/old_stk_input_data_summary_test.phyml',parser),pretty_print=True)
+        simple_summary2 = data_summary(XML,ignoreWarnings=True)
+        self.assert_(simple_summary == simple_summary2)
+
     def test_character_numbers(self):
         XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
         characters = get_character_numbers(XML)

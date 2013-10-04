@@ -1006,7 +1006,7 @@ def import_tree(filename, gui=None, tree_no = -1):
     tree = trees[tree_no]
     return tree
 
-def get_all_characters(XML):
+def get_all_characters(XML,ignoreErrors=False):
     """Returns a dictionary containing a list of characters within each 
     character type"""
 
@@ -1017,7 +1017,13 @@ def get_all_characters(XML):
     # grab all character types first
     types = []
     for c in characters:
-        types.append(c.attrib['type'])
+        try:
+            types.append(c.attrib['type'])
+        except KeyError:
+            if (ignoreErrors):
+                pass
+            else:
+                raise KeyError("Error getting character type. Incomplete data")
 
     u_types = _uniquify(types)
     u_types.sort()
@@ -1026,9 +1032,16 @@ def get_all_characters(XML):
     for t in u_types:
         char = []
         for c in characters:
-            if (c.attrib['type'] == t):
-                if (not c.attrib['name'] in char):
-                    char.append(c.attrib['name'])
+            try:
+                if (c.attrib['type'] == t):
+                    if (not c.attrib['name'] in char):
+                        char.append(c.attrib['name'])
+            except KeyError:
+                if (ignoreErrors):
+                    pass
+                else:
+                    raise KeyError("Error getting character type. Incomplete data")
+
         char_dict[t] = char       
 
     return char_dict
@@ -1088,7 +1101,7 @@ def get_characters_used(XML):
  
     return characters
 
-def get_character_numbers(XML):
+def get_character_numbers(XML,ignoreErrors=False):
     """ Return the number of trees that use each character
     """
 
@@ -1099,7 +1112,13 @@ def get_character_numbers(XML):
     char_numbers = defaultdict(int)
 
     for c in characters:
-        char_numbers[c.attrib['name']] += 1
+        try:
+            char_numbers[c.attrib['name']] += 1
+        except KeyError:
+            if (ignoreErrors):
+                pass
+            else:
+                raise KeyError("Error getting character type. Incomplete data")
 
     return char_numbers
 
@@ -1135,14 +1154,17 @@ def get_fossil_taxa(XML):
     fossils = find(xml_root)
 
     for f in fossils:
-        name = f.getparent().attrib['name']
-        f_.append(name)
+        try:
+            name = f.getparent().attrib['name']
+            f_.append(name)
+        except KeyError:
+            pass
 
     fossil_taxa = _uniquify(f_) 
     
     return fossil_taxa
 
-def get_analyses_used(XML):
+def get_analyses_used(XML,ignoreErrors=False):
     """ Return a sorted, unique array of all analyses types used
     in this dataset
     """
@@ -1154,8 +1176,14 @@ def get_analyses_used(XML):
     analyses = find(xml_root)
 
     for a in analyses:
-        name = a.attrib['name']
-        a_.append(name)
+        try:
+            name = a.attrib['name']
+            a_.append(name)
+        except KeyError:
+            if (ignoreErrors):
+                pass
+            else:
+                raise KeyError("Error parsing analyses. Incomplete data")
 
     analyses = _uniquify(a_) 
     analyses.sort()
@@ -1173,8 +1201,11 @@ def get_publication_years(XML):
     years = find(xml_root)
 
     for y in years:
-        year = int(y.xpath('integer_value')[0].text)
-        year_dict[year] += 1
+        try:
+            year = int(y.xpath('integer_value')[0].text)
+            year_dict[year] += 1
+        except TypeError:
+            pass
 
     return year_dict
 
@@ -1200,8 +1231,9 @@ def obtain_trees(XML):
         for t in s.xpath("source_tree/tree/tree_string"):
             t_name = name+"_"+str(tree_no)
             # append to dictionary, with source_name_tree_no = tree_string
-            trees[t_name] = t.xpath("string_value")[0].text
-            tree_no += 1
+            if (not t.xpath("string_value")[0].text == None):
+                trees[t_name] = t.xpath("string_value")[0].text
+                tree_no += 1
 
     return trees
 
@@ -1228,7 +1260,7 @@ def amalgamate_trees(XML,format="nexus",anonymous=False,ignoreWarnings=False):
     return _amalgamate_trees(trees,format,anonymous)
         
 
-def get_all_taxa(XML, pretty=False):
+def get_all_taxa(XML, pretty=False, ignoreErrors=False):
     """ Produce a taxa list by scanning all trees within 
     a PHYML file. 
 
@@ -1243,7 +1275,15 @@ def get_all_taxa(XML, pretty=False):
 
     for tname in trees.keys():
         t = trees[tname]
-        taxa_list.extend(_getTaxaFromNewick(t))
+        try:
+            taxa_list.extend(_getTaxaFromNewick(t))
+        except TreeParseError as detail:
+            if (ignoreErrors):
+                pass
+            else:
+                raise TreeParseError( detail.msg )
+
+
 
     # now uniquify the list of taxa
     taxa_list = _uniquify(taxa_list)
@@ -1582,12 +1622,12 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
     output_string += "======================\n\n"
 
     trees = obtain_trees(XML)
-    taxa = get_all_taxa(XML, pretty=True)
-    characters = get_all_characters(XML)
-    char_numbers = get_character_numbers(XML)
+    taxa = get_all_taxa(XML, pretty=True, ignoreErrors=True)
+    characters = get_all_characters(XML,ignoreErrors=True)
+    char_numbers = get_character_numbers(XML,ignoreErrors=True)
     fossils = get_fossil_taxa(XML)
     publication_years = get_publication_years(XML)
-    analyses = get_analyses_used(XML)
+    analyses = get_analyses_used(XML,ignoreErrors=True)
     years = publication_years.keys()
     years.sort()
     chars = char_numbers.keys()
@@ -2787,7 +2827,7 @@ def _check_data(XML):
     _check_informative_trees(XML)
 
     # check sources
-    _check_sources(XML)
+    _check_sources(XML,delete=False)
 
     return
 
