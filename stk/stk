@@ -652,21 +652,26 @@ def data_summary(args):
     try:
         data_summary = supertree_toolkit.data_summary(XML,detailed=detailed,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
-        msg = "***Error: Failed to create data summary.\n"+detail.msg
+        msg = "***Error: Failed to create data summary. Try again with -i flag.\n"+detail.msg
         print msg
         return
     except InvalidSTKData as detail:
-        msg = "***Error: Failed to creae data summary.\n"+detail.msg
+        msg = "***Error: Failed to creae data summary. Try again with -i flag.\n"+detail.msg
         print msg
         return
     except UninformativeTreeError as detail:
-        msg = "***Error: Failed to create data summary.\n"+detail.msg
+        msg = "***Error: Failed to create data summary. Try again with -i flag.\n"+detail.msg
         print msg
         return
     except TreeParseError as detail:
-        msg = "***Error: Failed to summarise data - can't parse tree.\n"+detail.msg
+        msg = "***Error: Failed to summarise data - can't parse tree. Try again with -i flag.\n"+detail.msg
         print msg
         return 
+    except: 
+        msg = "***Error: Failed to summarise data - incomplete data. Try again with -i flag.\n"
+        print msg
+        return 
+
 
     if (output_file == False or
         output_file == None):

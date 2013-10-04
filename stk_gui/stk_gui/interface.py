@@ -994,22 +994,20 @@ class Diamond:
         data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=False)
         data_summary_ok = True
     except NotUniqueError as detail:
-        msg = "Failed to summarise data - non-unique data.\n"+detail.msg
+        msg = "Failed to summarise data correctly - non-unique data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
     except InvalidSTKData as detail:
-        msg = "Failed to summarise data - invalid STK data.\n"+detail.msg
+        msg = "Failed to summarise data correctly - invalid STK data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
     except UninformativeTreeError as detail:
-        msg = "Failed to summarise data - uninformative tree.\n"+detail.msg
+        msg = "Failed to summarise data correctly- uninformative tree.\n"+detail.msg
         dialogs.error(self.main_window,msg)
     except TreeParseError as detail:
-        msg = "Failed to summarise data - can't parse tree.\n"+detail.msg
+        msg = "Failed to summarise data correctly - can't parse tree.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        return
     except:
-        msg = "Failed to summarise data\n"
+        msg = "Failed to summarise data correctly. Incomplete data.\n"
         dialogs.error(self.main_window,msg)
-        return
 
     if (not data_summary_ok):
         # try again
@@ -1032,7 +1030,7 @@ class Diamond:
             dialogs.error(self.main_window,msg)
             return
         except:
-            msg = "Failed to summarise data\n"
+            msg = "Failed to summarise data. Sorry!\n"
             dialogs.error(self.main_window,msg)
             return
 

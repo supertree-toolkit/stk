@@ -2827,7 +2827,7 @@ def _check_data(XML):
     _check_informative_trees(XML)
 
     # check sources
-    _check_sources(XML)
+    _check_sources(XML,delete=False)
 
     return
 
