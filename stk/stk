@@ -811,13 +811,13 @@ def sub_taxa(args):
             sys.exit(-1)
     try:
         if (treefile):
-            new_trees_list = supertree_toolkit.substitute_taxa_in_trees(trees,old_taxa,new_taxa,only_existing)
+            new_trees_list = supertree_toolkit.substitute_taxa_in_trees(trees,old_taxa,new_taxa,only_existing=only_existing)
             new_trees = {}
             i = 1
             for t in new_trees_list:
                 new_trees["tree_"+str(i)] = t
         else:
-            XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings,only_existing)
+            XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings,only_existing=only_existing)
     except NotUniqueError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg

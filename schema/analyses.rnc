@@ -36,5 +36,8 @@ analysis =
     }|
     element optimality_criterion{
 	    attribute name { "UPGMA" }
+    }|
+    element optimality_criterion {
+        attribute name {string}
     }
 )
