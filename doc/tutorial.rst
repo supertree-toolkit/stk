@@ -9,11 +9,11 @@ Introduction
 The following is an example of how the scripts were used in creating a species-level supertree of birds.
 
 The whole procedure can be divided into 5 stages:
- # Collect data
- # Standardise taxa
- # Remove unnecessary data and taxa
- # Check data
- # Create matrix
+    * Collect data
+    * Standardise taxa
+    * Remove unnecessary data and taxa
+    * Check data
+    * Create matrix
 
 Collecting Data
 ---------------
@@ -99,8 +99,8 @@ all taxa specific.
 
 Data independence check is done via the data indepenedence function. The
 function checks if any source meets the following conditions:
- * Uses the same characters
- * *and* is either a subset of, or contains the same taxa as, another source.
+    * Uses the same characters
+    * *and* is either a subset of, or contains the same taxa as, another source.
 
 If these two conditions are met, the two sources are not independent. If the two
 sources are identical (same taxa and same characters) it is up to you which one
