@@ -1812,16 +1812,18 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                 fig = plt.figure(dpi=90)
             else:
                 fig = plt.figure(dpi=270)
+            # make a throw-away plot to get a colourbar info
+            Z = [[0,0],[0,0]]
+            levels = plt.frange(0,max(colours)+0.01,(max(colours)+0.01)/256.)
+            CS3 = plt.contourf(Z,levels,cmap=custom)
+            plt.clf()
             ax = fig.add_subplot(111)
             cs = nx.draw_circular(G_relabelled,with_labels=True,ax=ax,node_color=colours,cmap=custom,edge_color='k',node_size=100,font_size=8)
             limits=plt.axis('off')
             plt.axis('equal')
-            if not PLATFORM.startswith("win"):
-                vmin, vmax = plt.gci().get_clim()
-                plt.clim(0,vmax)
-                ticks = MaxNLocator(integer=True,nbins=9)
-                pp=plt.colorbar(cs, orientation='horizontal', format='%d', ticks=ticks)
-                pp.set_label("No. connected edges")
+            ticks = MaxNLocator(integer=True,nbins=9)
+            pp=plt.colorbar(CS3, orientation='horizontal', format='%d', ticks=ticks)
+            pp.set_label("No. connected edges")
             if (show):
                 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
                 canvas = FigureCanvas(fig)  # a gtk.DrawingArea 
@@ -1852,13 +1854,18 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                 fig = plt.figure(dpi=90)
             else:
                 fig = plt.figure(dpi=270)
+            # make a throw-away plot to get a colourbar info
+            Z = [[0,0],[0,0]]
+            levels = plt.frange(0,max(colours)+0.01,(max(colours)+0.01)/256.)
+            CS3 = plt.contourf(Z,levels,cmap=plt.cm.Blues)
+            plt.clf()
             ax = fig.add_subplot(111)
             limits=plt.axis('off')
             plt.axis('equal')
             if (len(colours) > 1):
                 cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,node_size=sizes,node_color=colours,cmap=plt.cm.Blues,edge_color='k')
                 ticks = MaxNLocator(integer=True,nbins=9)
-                pp=plt.colorbar(cs, orientation='horizontal', format='%d', ticks=ticks)
+                pp=plt.colorbar(CS3, orientation='horizontal', format='%d', ticks=ticks)
                 pp.set_label("No. connected edges")
             else:
                 cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,edge_color='k',node_color='w',node_size=2000)
