@@ -4,12 +4,20 @@ Getting started
 Introduction
 ------------
 
-This first chapter a brief guide to setting-up the STK on Linux, Windows and MacOS X. STK comes as either pre-compiled binaries for each platform or as a source package. Both downloading an archived source package or downloading via bzr are covered. We assume little knowledge of Linux or DOS commands, but some knoweldge on how to install software. Contact your local sys admin if you need further help. 
+This first chapter a brief guide to setting-up the STK on Linux, Windows and
+MacOS X. STK comes as either pre-compiled binaries for each platform or as a
+source package. Both downloading an archived source package or downloading via
+bzr are covered. We assume little knowledge of Linux or DOS commands, but some
+knowledge on how to install software. Contact your local sys admin if you need
+further help. 
 
 Linux
 -----
 
-The STK is distributed via Launchpad PPA. You need to add the Supertree Toolkit PPA (https://launchpad.net/~stk-developers/+archive/release) to your system, along with an additional one which contains some dependencies. You can then install the package. Run the commands below to do all this.
+The STK is distributed via Launchpad PPA. You need to add the Supertree Toolkit
+PPA (https://launchpad.net/~stk-developers/+archive/release) to your system,
+along with an additional one which contains some dependencies. You can then
+install the package. Run the commands below to do all this.
  
 .. code-block:: bash   
 
@@ -65,7 +73,7 @@ Regardless of how the source was obtained, you can now either use the STK in-pla
 Prerequisites and dependencies
 """"""""""""""""""""""""""""""
 
-When running from source you must install the following prequisites and dependencies:
+When running from source you must install the following prerequisites and dependencies:
 
 * Python 2.5 to 2.7
 * Matplotlib
@@ -78,7 +86,10 @@ When running from source you must install the following prequisites and dependen
 Running the STK
 ---------------
 
-There are two ways to run the STK: via the GUI (Graphical User Interface) or the CLI (Command Line Interface). Most data collecting and curation is done via the GUI. However, processing can be done using either. The CLI also contains a few more utility functions that are not available in the GUI.
+There are two ways to run the STK: via the GUI (Graphical User Interface) or the
+CLI (Command Line Interface). Most data collecting and curation is done via the
+GUI. However, processing can be done using either. The CLI also contains a few
+more utility functions that are not available in the GUI.
 
 The GUI is run from the command line using:
 
@@ -104,4 +115,5 @@ which will produce the following help.
             ...
     stk: error: too few arguments
 
-The STK GUI can also be accessed via the Start Menu (Windows), the Applications folder (Mac OS X) or in the Applications menu (most Linux varients)
+The STK GUI can also be accessed via the Start Menu (Windows), the Applications
+folder (Mac OS X) or in the Applications menu (most Linux varients)

@@ -117,6 +117,9 @@ def main():
             help='The input phyml file')
     parser_cm.add_argument('output', 
             help='The output phyml file')
+    parser_cm.add_argument('-e',
+            '--only_existing',
+            help="Only substitute in taxa already in the dataset")
     parser_cm.add_argument('-s',
             '--subs', 
             help='A substitution file. See manual for format.')
@@ -649,21 +652,26 @@ def data_summary(args):
     try:
         data_summary = supertree_toolkit.data_summary(XML,detailed=detailed,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
-        msg = "***Error: Failed to create data summary.\n"+detail.msg
+        msg = "***Error: Failed to create data summary. Try again with -i flag.\n"+detail.msg
         print msg
         return
     except InvalidSTKData as detail:
-        msg = "***Error: Failed to creae data summary.\n"+detail.msg
+        msg = "***Error: Failed to creae data summary. Try again with -i flag.\n"+detail.msg
         print msg
         return
     except UninformativeTreeError as detail:
-        msg = "***Error: Failed to create data summary.\n"+detail.msg
+        msg = "***Error: Failed to create data summary. Try again with -i flag.\n"+detail.msg
         print msg
         return
     except TreeParseError as detail:
-        msg = "***Error: Failed to summarise data - can't parse tree.\n"+detail.msg
+        msg = "***Error: Failed to summarise data - can't parse tree. Try again with -i flag.\n"+detail.msg
         print msg
         return 
+    except: 
+        msg = "***Error: Failed to summarise data - incomplete data. Try again with -i flag.\n"
+        print msg
+        return 
+
 
     if (output_file == False or
         output_file == None):
@@ -745,6 +753,7 @@ def sub_taxa(args):
     input_file = args.input
     overwrite = args.overwrite
     subs_file = args.subs
+    only_existing = args.only_existing
     old_taxa = []
     new_taxa = []
     old_taxon = args.oldtaxon
@@ -807,13 +816,13 @@ def sub_taxa(args):
             sys.exit(-1)
     try:
         if (treefile):
-            new_trees_list = supertree_toolkit.substitute_taxa_in_trees(trees,old_taxa,new_taxa)
+            new_trees_list = supertree_toolkit.substitute_taxa_in_trees(trees,old_taxa,new_taxa,only_existing=only_existing)
             new_trees = {}
             i = 1
             for t in new_trees_list:
                 new_trees["tree_"+str(i)] = t
         else:
-            XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings)
+            XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings,only_existing=only_existing)
     except NotUniqueError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg

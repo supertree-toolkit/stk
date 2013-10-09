@@ -7,59 +7,64 @@
           <data type="string"/>
         </attribute>
       </element>
-      <element name="character">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>Bayesian</value>
         </attribute>
       </element>
-      <element name="character">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>Direct_Optimisation_Parsimony</value>
         </attribute>
       </element>
-      <element name="character">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>Distance-Wagner</value>
         </attribute>
       </element>
-      <element name="character">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>LogDet</value>
         </attribute>
       </element>
-      <element name="character">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>Manhattan distance</value>
         </attribute>
       </element>
-      <element name="character">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>Maximum Likelihood</value>
         </attribute>
       </element>
-      <element name="character">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>Maximum Parsimony</value>
         </attribute>
       </element>
-      <element name="character">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>Minimum evolution</value>
         </attribute>
       </element>
-      <element name="character">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>Neighbour Joining</value>
         </attribute>
       </element>
-      <element name="character">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>Squared_Euclidean_distance</value>
         </attribute>
       </element>
-      <element name="character">
+      <element name="optimality_criterion">
         <attribute name="name">
           <value>UPGMA</value>
+        </attribute>
+      </element>
+      <element name="optimality_criterion">
+        <attribute name="name">
+          <data type="string"/>
         </attribute>
       </element>
     </choice>

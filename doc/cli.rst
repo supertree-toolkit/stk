@@ -8,7 +8,7 @@ The STK CLI contains a number of functions for initialising and processing data.
 The basics
 ----------
 
-The CLI is intialised using:
+The CLI is initialised using:
 
 .. code-block:: bash
 
@@ -83,7 +83,7 @@ This is not.
 
     stk create_matrix -v
 
-The funcitons are divided into input/output and processing, with one additional
+The functions are divided into input/output and processing, with one additional
 miscellaneous function used for converting data files. Below is a brief
 description of each function. Use the '''-h''' flag for information on options
 and further details of input/output for the function.
@@ -104,7 +104,7 @@ Exports a bibliographic file containing the references for all your sources. Thi
 export_data
 ***********
 
-Exports the data to the old STK format. This is directory based, with each source in a seperate directory. The
+Exports the data to the old STK format. This is directory based, with each source in a separate directory. The
 sources are split into two files per tree: an XML data file containing the meta-data and a tree file.
 
 
@@ -174,7 +174,7 @@ outputs.
 data_summary
 ************
 
-Produce a text summary of the data, contianing a taxa list, character list and
+Produce a text summary of the data, containing a taxa list, character list and
 other useful things.
 
 .. index:: permute_trees
@@ -182,7 +182,7 @@ other useful things.
 permute_trees
 *************
 
-Permute individual trees or all trees contining polyphyletic taxa (indicated by
+Permute individual trees or all trees containing polyphyletic taxa (indicated by
 a '%' symbol). Output is tree file or matrix for analysis.
 
 .. index:: replace_genera
@@ -198,7 +198,7 @@ already in the dataset.
 safe_taxonomic_reduction
 ************************
 
-Perform safe taxonomic reduciton on the dataset. Output is the quivalency
+Perform safe taxonomic reduction on the dataset. Output is the equivalency
 matrix, plus the option to give subs files to safely delete and re-insert taxa
 
 .. index:: sub_taxa

@@ -34,7 +34,7 @@ contain trees and meta data. The right-hand side (data panel) contains three
 sub-panels. Each of these divisions is called an element (Fig.
 :num:`#img-stk-gui-lab`). The top gives user context-sensitive documentation on
 the current selection in the left-hand side. The middle is where you add data.
-Depending on what par tof the data you are editing, the middle panel will change
+Depending on what part of the data you are editing, the middle panel will change
 to suit the data to be edited/input.  The lowermost sub-panel is where you can
 add any comments for that part of the dataset. This is not enabled for all
 sections of the data but should be used wherever it is useful. 
@@ -49,7 +49,7 @@ sections of the data but should be used wherever it is useful.
     The STK GUI with each pane and panel labelled.
 
 To navigate the left hand side, click the small arrows on the left. These will
-open and close sub-data within the heirachy. On the right-hand side of the tree,
+open and close sub-data within the hierarchy. On the right-hand side of the tree,
 there are small "+" and "-" signs to allow you add or remove data. Where the
 data is a choice, a dropdown list is activated on the right hand side.
 
@@ -86,7 +86,7 @@ uses `bibtex format <http://www.bibtex.org/>`_, which is a common format and all
 decent reference managers can output, as can most journal websites. We recommend
 using `JabRef <http://jabref.sourceforge.net/>`_, which is free, open source and
 available on most OS. We have tested the STK extensively with output from
-JabRef, but your milage with other reference managers may vary.
+JabRef, but your mileage with other reference managers may vary.
 
 .. index:: bibtex
 
@@ -108,7 +108,7 @@ editing your data.
 
 The next thing you will want to do is import some trees. You can use any
 software you wish to digitise your trees. The STK will read the output of most
-sofware. To import a tree, drill down the tree panel to the correct source, then
+software. To import a tree, drill down the tree panel to the correct source, then
 open the Tree element and click on the Tree string element. The import tree
 button will then appear in the status bar, in the lower left of the GUI (Fig.
 :num:`#img-stk-import-tree`).
@@ -127,14 +127,14 @@ Once done, your tree string will appear in the data panel.
 Using the interface
 -------------------
 
-There are a number of useful functionalities in the STK to aid in data entering
+There are a number of useful functionality in the STK to aid in data entering
 and exploration. They are slicing and grouping data, and copy and pasting
 elements. 
 
 .. index:: grouping
 
 Grouping data allows all elements of a certain type to be displayed
-simultaenously. For example, grouping on, say, "Tree String" will show all trees
+simultaneously. For example, grouping on, say, "Tree String" will show all trees
 in the dataset. To group data, right click on an element you want to group on
 and select *Group*. The tree panel will then show the grouping (Fig
 :num:`#img-stk-grouping`). Right-click and select ungroup to return to the
@@ -201,7 +201,7 @@ user errors.
 
 Two other functions can also be useful to check the data (and prevent errors
 when using other functions). *Clean Data* removes non-informative trees.
-*Standardise source names* ensures all source names are unqiue and will re-sort
+*Standardise source names* ensures all source names are unique and will re-sort
 the sources alphabetically.
 
 Processing data
@@ -222,9 +222,9 @@ detail in the tutorial, but briefly compose of the following functions:
 Data independence check
 ***********************
 
-This allows you to check if any of the data in your dataset replciates or is a
+This allows you to check if any of the data in your dataset replicates or is a
 subset of another data source. The interface shows which sources are identical
-and can be saftely removed in the upper half (Fig.
+and can be safely removed in the upper half (Fig.
 :num:`#img-stk-data-ind-action`). The lower half shows subsets. The
 flagged data should be checked and removed if possible.
 
@@ -271,7 +271,7 @@ a window with the result as a graphic. There are two options; the normal graphic
     :alt: Data overlap simple graphic
     :figclass: align-center
 
-    Normal graphical view of data overlap. For a correctly connected datset
+    Normal graphical view of data overlap. For a correctly connected dataset
     there should be a single node (circle). These data is not sufficiently well
     connected.
 
@@ -294,8 +294,8 @@ Sub Taxa
 Taxa substitutions and deletions are a key part of ensuring a standardised
 taxonomy for supertree analysis. However, it is usually quite cumbersome to
 carry out this operation on a number of tree or matrix files. The STK will
-ensure that taxa substitutions are consistant across the whole dataset and any
-taxonomic infomation is also updated. You can construct taxa deletions and
+ensure that taxa substitutions are consistent across the whole dataset and any
+taxonomic information is also updated. You can construct taxa deletions and
 substitutions using the *Sub taxa* interface (Fig. :num:`#img-stk-sub-taxa`).
 Move taxa from the dataset to the right-hand side and add the replacements or
 leave blank for a deletion. The substitutions created can be saved to a *subs
@@ -377,7 +377,7 @@ For further details on STR see
     :alt: STR interface
     :figclass: align-center
 
-    STR interface. The file requested contains the equivanlency matrix. The two
+    STR interface. The file requested contains the equivalency matrix. The two
     optional sub files will automatically allow deletion and reinsertion of taxa
     where this is safe to do so.
 
@@ -390,7 +390,7 @@ define criteria on which this subset can be created. The GUI (Fig.
 :num:`#img-stk-subset1`) allows you to create this search by clicking "Add".
 Then select the criterion from the drop-down list on the left hand side. Then in
 the right hand column, enter your terms. For years you can enter a range, like
-2000-2010. For all terms, a comma seperated list can be used to enter multiple
+2000-2010. For all terms, a comma separated list can be used to enter multiple
 terms (Fig.  :num:`#img-stk-subset2`).
 
 .. _img-stk-subset1:
@@ -398,7 +398,7 @@ terms (Fig.  :num:`#img-stk-subset2`).
 .. figure:: images/stk_gui_create_subset.png  
     :align: center
     :scale: 50 %
-    :alt: Creat subset interface
+    :alt: Create subset interface
     :figclass: align-center
 
     The initial create subset interface. The two buttons on the right allow you
@@ -412,7 +412,7 @@ terms (Fig.  :num:`#img-stk-subset2`).
 .. figure:: images/stk_gui_create_subset2.png  
     :align: center
     :scale: 50 %
-    :alt: Creat subset interface
+    :alt: Create subset interface
     :figclass: align-center
 
     A search for data published between 2009 and 2013 has been set up.
@@ -427,17 +427,17 @@ Create matrix
 After all your processing, the final step is to create a matrix of your data.
 This function will create a matrix suitable for reading into Paup, TNT and most
 other supertree software. Note that some software require a set of "input
-trees". In this case, use the "Export trees" function unther the "File" menu.
+trees". In this case, use the "Export trees" function under the the "File" menu.
 Matrices can be output in Nexus or Hennig (TNT) format. Simply select "Create
 matrix", choose your options, including a filename, and click create matrix.
-This might take a few minutes for large datsets.
+This might take a few minutes for large datasets.
 
 .. _img-stk-matrix:
 
 .. figure:: images/stk_gui_create_matrix.png  
     :align: center
     :scale: 50 %
-    :alt: Creat matrix interface
+    :alt: Create matrix interface
     :figclass: align-center
 
     The create matrix format. Select your options and click "Create matrix".

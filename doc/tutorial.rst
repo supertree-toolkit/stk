@@ -24,7 +24,7 @@ You can then import this to create your sources.
 
 For each source you then create each tree you want to include in the analysis.
 For each tree, you should also record the page and figure number, the characters
-used, the analysis used and any other relavant information .Data is transcribed
+used, the analysis used and any other relevant information .Data is transcribed
 *exactly* as it is in the original source paper. We deal with incorrect taxa
 later. 
 
@@ -32,7 +32,7 @@ later.
  
 
 One of the time consuming tasks is to digitise trees from the papers. Authors
-rarely give digital trees, so you must use programs such as TreeView or Mequite
+rarely give digital trees, so you must use programs such as TreeView or Mesquite
 to turn the graphic in the paper into a digital tree file. This is normally a
 Nexus file, though the STK can parse the trees from most of the popular tree
 creation software packages. Note that paraphyletic taxa are encoded differently.
@@ -97,7 +97,7 @@ This is the first step that is needed each time a tree is generated. We need to
 check for data dependence, remove vernacular and higher names and finally, make
 all taxa specific.
 
-Data independence check is done via the data indepenedence function. The
+Data independence check is done via the data independence function. The
 function checks if any source meets the following conditions:
     * Uses the same characters
     * *and* is either a subset of, or contains the same taxa as, another source.
@@ -154,15 +154,13 @@ the dataset are substituted in.
 Check data
 ----------
 
-This stage makes sure that the data is suitable for inclusion in the final 
+This stage makes sure that the data is suitable for inclusion in the final
 supertree analysis. The first step is to create a data summary. This creates a
 list of useful information, such as taxa and characters. The information is
-printed alphabetically, which makes it easy to check for final errors.
-
-First step is to run stk_check_data (you have been running it all the time,
-right?). Then produce a data summary. Although this is not necessary, it allows
-manual checking of the data: were all the generic names removed where specific
-taxa are also in the data? are there any odd names that I forgot to substitute?
+printed alphabetically, which makes it easy to check for final errors. Although
+this is not necessary, it allows manual checking of the data: were all the
+generic names removed where specific taxa are also in the data? are there any
+odd names that I forgot to substitute?
 
 Have a look in the file output and check everything is OK. If not, go back and
 fix things. Note that some of the statistics in the file might be useful when
@@ -171,7 +169,7 @@ etc.
 
 Next, we need to check that all the trees are connected by at least two taxa
 with another tree. You may also want to experiment with using higher numbers.
-Use the data overlap function to determine this. The output can ither be a
+Use the data overlap function to determine this. The output can either be a
 simple yes/no or graphical output. Graphical output can either be a detailed
 view where a graph is produced whereby each source is a vertex and edges are
 drawn between sources that share the required number of taxa (Fig
@@ -203,7 +201,7 @@ node only.
     :alt: Data overlap simple graphic
     :figclass: align-center
 
-    Normal graphical view of data overlap. For a correctly connected datset
+    Normal graphical view of data overlap. For a correctly connected dataset
     there should be a single node (circle). These data is not sufficiently well
     connected.
 
@@ -211,7 +209,7 @@ Create matrix
 -------------
 
 Well done -- you have a dataset ready for supertree analysis. The final step is
-to create a matrix. This is very simple and the create matrix funciton is used.
-Simple tell the STK where to save and the format (Nexus fot PAUP, Hennig for
-TNT) and your matric will be create.
+to create a matrix. This is very simple and the create matrix function is used.
+Simple tell the STK where to save and the format (Nexus for PAUP, Hennig for
+TNT) and your matrix will be create.
 
