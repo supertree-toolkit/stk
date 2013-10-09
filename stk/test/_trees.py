@@ -260,7 +260,7 @@ class TestTreeManipulation(unittest.TestCase):
 
     def test_create_nexus_matrix_quote(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
-        matrix = create_matrix(XML,format="nexus",quote=False)
+        matrix = create_matrix(XML,format="nexus",quote=True)
         self.assert_(not matrix.find("'") == -1)
 
 
