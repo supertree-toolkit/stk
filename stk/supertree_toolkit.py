@@ -2,7 +2,7 @@
 #
 #    Supertree Toolkit. Software for managing and manipulating sources
 #    trees ready for supretree construction.
-#    Copyright (C) 2011, Jon Hill, Katie Davis
+#    Copyright (C) 2013, Jon Hill, Katie Davis
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -62,11 +62,14 @@ PLATFORM = sys.platform
 # it back to the user interface handler to save it somewhere
 
 def create_name(authors, year, append=''):
-    """ From a list of authors and a year construct a sensible
+    """ 
+    Construct a sensible from a list of authors and a year for a 
     source name.
-    Input: authors - list of last (family, sur) names (string)
-           year - the year (string)
-    Output: source_name - (string)"""
+    Input: authors - list of last (family, sur) names (string).
+           year - the year (string).
+           append - append something onto the end of the name.
+    Output: source_name - (string)
+    """
 
     source_name = None
     if (authors[0] == None):
@@ -86,8 +89,8 @@ def create_name(authors, year, append=''):
 def single_sourcename(XML,append=''):
     """ Create a sensible source name based on the 
     bibliographic data.
-    xml_root should contain the xml_root for the source that is to be
-    altered only
+    XML should contain the xml_root for the source that is to be
+    altered only.
     NOTE: It is the responsibility of the calling process of this 
           function to check for name uniqueness.
     """
@@ -116,7 +119,7 @@ def single_sourcename(XML,append=''):
 def all_sourcenames(XML):
     """
     Create a sensible sourcename for all sources in the current
-    dataset. 
+    dataset. This includes appending a, b, etc for duplicate names.
     """
 
     xml_root = _parse_xml(XML)
@@ -143,7 +146,7 @@ def all_sourcenames(XML):
     return XML
 
 def get_all_source_names(XML):
-    """ From a full XML-PHYML string, extract all source names
+    """ From a full XML-PHYML string, extract all source names.
     """
 
     xml_root = _parse_xml(XML)
@@ -158,7 +161,7 @@ def get_all_source_names(XML):
     return names
 
 def set_unique_names(XML):
-    """ Ensures all sources have unique names
+    """ Ensures all sources have unique names.
     """
     
     xml_root = _parse_xml(XML)
@@ -209,7 +212,11 @@ def set_unique_names(XML):
     return XML
 
 
-def import_bibliography(XML, bibfile):    
+def import_bibliography(XML, bibfile):
+    """
+    Create a bunch of sources from a bibtex file. This includes setting the sourcenames 
+    for each source.
+    """
     
     # Our bibliography parser
     b = biblist.BibList()
@@ -317,7 +324,8 @@ def import_bibliography(XML, bibfile):
 ## This is becuase yapbib saves the file and rather than re-write, I thought
 ## I'd go with it as in this case I would only ever save the file
 def export_bibliography(XML,filename,format="bibtex"):
-    """ Export all source papers as a bibliography in 
+    """ 
+    Export all source papers as a bibliography in 
     either bibtex, xml, html, short or long formats
     """
 
@@ -531,15 +539,16 @@ def export_bibliography(XML,filename,format="bibtex"):
 
 def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=None, ignoreWarnings=False):
     """ Perform STR on data to remove taxa that 
-    provide no useful additional information
+    provide no useful additional information. Based on PerEQ (Jeffery and Wilkson, unpublished).
     """
 
     if not ignoreWarnings and not XML == None:
         _check_data(XML)
 
-    # Algorithm descibed by ******
-    # modified for *supertrees*, which mainly involves cutting
-    # out stuff to do with multiple state characters
+    # Algorithm descibed by Jeffery and Wilkson, unpublshed. 
+    # Obtained original from http://www.uni-oldenburg.de/en/biology/systematics-and-evolutionary-biology/programs/
+    # and modified for *supertrees*, which mainly involves cutting
+    # out stuff to do with multiple state characters as we only have binary characters.
 
     missing_char = "?"
     TotalInvalid = 0
@@ -741,9 +750,9 @@ def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=N
         return
 
 def subs_file_from_str(str_output):
-    """From the textual output from STR (above), create
+    """From the textual output from STR (safe_taxonomic_reduction), create
     the subs file to put the C category taxa back into
-    the dataset. We work with the text out as it's the same as other software, 
+    the dataset. We work with the text out as it's the same as PerlEQ, 
     which means this might work from them also...
     """
 
@@ -1866,7 +1875,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
 
 def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
     """ Return a list of sources that are not independent.
-    This is decided on the source data and the analysis
+    This is decided on the source data and the characters.
     """
 
     if not ignoreWarnings:
@@ -1930,6 +1939,11 @@ def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
         return non_ind
 
 def add_historical_event(XML, event_description):
+    """
+    Add a historial_event element to the XML. 
+    The element contains a description of the event and the the current
+    date will ba added
+    """
 
     now  = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     xml_root = _parse_xml(XML)
@@ -1951,6 +1965,9 @@ def add_historical_event(XML, event_description):
     return XML
 
 def read_matrix(filename):
+    """
+    Read a Nexus or Hennig formatted matrix file. Returns the matrix and taxa.
+    """
 
     matrix = []
     taxa = []
@@ -2411,6 +2428,9 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
 ################ PRIVATE FUNCTIONS ########################
 
 def _uniquify(l):
+    """
+    Make a list, l, contain only unique data
+    """
     keys = {}
     for e in l:
         keys[e] = 1
@@ -2842,7 +2862,11 @@ def _parse_xml(xml_string):
     XML = etree.fromstring(xml_string)
     return XML
 
-def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
+def _removeNonAscii(s): 
+    """
+    Removes any non-ascii characters from string, s.
+    """
+    return "".join(i for i in s if ord(i)<128)
 
 def _getTaxaFromNewick(tree):
     """ Get the terminal nodes from a Newick string"""
@@ -2901,6 +2925,9 @@ def _trees_equal(t1,t2):
     return same
 
 def _find_trees_for_permuting(XML):
+    """
+    Returns any trees that contain %, i.e. non-monophyly
+    """
 
     trees = obtain_trees(XML)
     permute_trees = {}
@@ -2911,7 +2938,10 @@ def _find_trees_for_permuting(XML):
 
     return permute_trees
 
-def _create_matrix(trees, taxa, quote=False, format="hennig"):
+def _create_matrix(trees, taxa, quote=False,format="hennig"):
+    """
+    Does the hard work on creating a matrix
+    """
 
     # our matrix, we'll then append the submatrix
     # to this to make a 2D matrix
@@ -2949,10 +2979,13 @@ def _create_matrix(trees, taxa, quote=False, format="hennig"):
     matrix = numpy.array(matrix)
     matrix = matrix.transpose()
 
-    return _create_matrix_string(matrix,taxa,quote=quote,charsets=charsets,names=names,format=format)
+    return _create_matrix_string(matrix,taxa,charsets=charsets,names=names,format=format,quote=quote)
 
 
-def _create_matrix_string(matrix,taxa,quote=False,charsets=None,names=None,format='hennig'):
+def _create_matrix_string(matrix,taxa,charsets=None,names=None,format='hennig',quote=False):
+    """
+    Turns a matrix into a string
+    """
 
     last_char = len(matrix[0])    
     if (format == 'hennig'):
@@ -3013,6 +3046,10 @@ def _create_matrix_string(matrix,taxa,quote=False,charsets=None,names=None,forma
 
     
 def _amalgamate_trees(trees,format,anonymous=False):
+    """
+    Does all the hard work of amalgamating trees
+    """
+    
     # all trees are in Newick string format already
     # For each format, Newick, Nexus and TNT this format
     # is adequate. 
