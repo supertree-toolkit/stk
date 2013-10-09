@@ -562,10 +562,6 @@ class Diamond:
         self.statusbar.clear_statusbar()
         self.main_window.window.set_cursor(None)
         return False
-<<<<<<< TREE
-      
-=======
->>>>>>> MERGE-SOURCE
 
       self.set_saved(True)
 
@@ -995,43 +991,23 @@ class Diamond:
     XML = f.getvalue()
     data_summary_ok = False
     try:
-<<<<<<< TREE
-        data_summary = stk.data_summary(XML,detailed=True)
-=======
         data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=False)
         data_summary_ok = True
->>>>>>> MERGE-SOURCE
     except NotUniqueError as detail:
-        msg = "Failed to summarise data - non-unique data.\n"+detail.msg
+        msg = "Failed to summarise data correctly - non-unique data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-<<<<<<< TREE
-        data_summary = stk.data_summary(XML,detailed=True)
-=======
->>>>>>> MERGE-SOURCE
     except InvalidSTKData as detail:
-        msg = "Failed to summarise data - invalid STK data.\n"+detail.msg
+        msg = "Failed to summarise data correctly - invalid STK data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-<<<<<<< TREE
-        data_summary = stk.data_summary(XML,detailed=True)        
-=======
->>>>>>> MERGE-SOURCE
     except UninformativeTreeError as detail:
-<<<<<<< TREE
-        msg = "Failed to summarise data.\n"+detail.msg
-        dialogs.error(self.main_window,msg)
-        data_summary = stk.data_summary(XML,detailed=True)        
-=======
-        msg = "Failed to summarise data - uninformative tree.\n"+detail.msg
+        msg = "Failed to summarise data correctly- uninformative tree.\n"+detail.msg
         dialogs.error(self.main_window,msg)
     except TreeParseError as detail:
-        msg = "Failed to summarise data - can't parse tree.\n"+detail.msg
+        msg = "Failed to summarise data correctly - can't parse tree.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        return
     except:
-        msg = "Failed to summarise data\n"
+        msg = "Failed to summarise data correctly. Incomplete data.\n"
         dialogs.error(self.main_window,msg)
-        return
->>>>>>> MERGE-SOURCE
 
     if (not data_summary_ok):
         # try again
@@ -1054,7 +1030,7 @@ class Diamond:
             dialogs.error(self.main_window,msg)
             return
         except:
-            msg = "Failed to summarise data\n"
+            msg = "Failed to summarise data. Sorry!\n"
             dialogs.error(self.main_window,msg)
             return
 
@@ -2166,6 +2142,7 @@ class Diamond:
     filename = dialogs.get_filename(title = "Choose output PHYML fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 
     ignoreWarnings = self.sub_taxa_gui.get_widget("ignoreWarnings_checkbutton").get_active()
+    only_existing = self.sub_taxa_gui.get_widget("onlyexisting_checkbutton").get_active()
     old_taxa, new_taxa = self.construct_subs_from_treeview()
     
     f = StringIO.StringIO()
@@ -2173,7 +2150,7 @@ class Diamond:
     XML = f.getvalue()
    
     try:
-        XML2 = stk.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings)
+        XML2 = stk.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings,only_existing=only_existing)
     except NotUniqueError as detail:
         msg = "Failed to substitute taxa.\n"+detail.msg
         dialogs.error(self.main_window,msg)
@@ -2885,6 +2862,15 @@ class Diamond:
       text = text.replace("Url","URL")
       text = text.replace("Iucn","IUCN")
       text = text.replace("Uk Bap","UK BAP")
+      # Characters
+      text = text.replace("Rna","RNA")
+      text = text.replace("Trna","tRNA")
+      text = text.replace("Dna","DNA")
+      text = text.replace("Atp","ATP")
+      text = text.replace("Aflp","AFLP")
+      text = text.replace("Aldob","ALDOB")
+      text = text.replace("Chdz","CHDZ")
+      text = text.replace("Tank","TANK")
 
       return text
 

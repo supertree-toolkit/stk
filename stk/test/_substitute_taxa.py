@@ -186,6 +186,62 @@ class TestSubs(unittest.TestCase):
         self.assert_(contains_Bob)
         self.assert_(not contains_B) # we should not have B in a tree
 
+    def test_substitute_taxa_multiple_nonexistingtaxa(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        XML2 = substitute_taxa(XML, ["A","B_b"], ["Fred","Bob,Grenville"], only_existing=True)
+        taxa = get_all_taxa(XML2)
+        contains_Fred = False
+        contains_Bob = False
+        contains_A = False
+        contains_B = False
+        contains_Grenville = False
+        for t in taxa:
+            if (t == 'Fred'):
+                contains_Fred = True
+            if (t == "A"):
+                contains_A = True
+            if (t == 'Bob'):
+                contains_Bob = True
+            if (t == "B_b"):
+                contains_B = True
+            if (t == "Grenville"):
+                contains_Grenville = True
+
+        self.assert_(not contains_Fred) # we should not have ant of these
+        self.assert_(not contains_A)
+        self.assert_(not contains_Bob)
+        self.assert_(not contains_B)
+        self.assert_(not contains_Grenville)
+
+        # now need to check the XML for the taxon block has been altered
+        xml_root = etree.fromstring(XML2)
+        find = etree.XPath("//taxon")
+        taxa = find(xml_root)
+        contains_Fred = False
+        contains_Bob = False
+        contains_A = False
+        contains_B = False
+        contains_Grenville = False
+        for t in taxa:
+            name = t.attrib['name']
+            if name == 'Fred':
+                contains_Fred = True
+            if name == 'A':
+                contains_A = True
+            if name == 'Bob':
+                contains_Bob = True
+            if name == 'B_b':
+                contains_B = True
+            if (t == "Grenville"):
+                contains_Grenville = True
+
+        self.assert_(not contains_Fred) # we should not have any of these
+        self.assert_(not contains_A)
+        self.assert_(not contains_Bob)
+        self.assert_(not contains_B)
+        self.assert_(not contains_Grenville)
+
+
     def test_substitute_taxa_multiple_sub1_del1(self):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
         XML2 = substitute_taxa(XML, ["A","B_b"], ["Fred",None])
@@ -243,6 +299,23 @@ class TestSubs(unittest.TestCase):
 
         self.assertListEqual(expected_trees,new_trees)
 
+    def test_substitute_in_trees_only_existing(self):
+        trees = []
+        trees.append("(A, B, (C, D), E, F, G);")
+        trees.append("(A, B, (C, D), E, F, H);")
+        trees.append("(A, B, (C, D), E, F, K);")
+        trees.append("(A, B, (C, D), E, F, G, H, K, L);")
+
+        new_trees = substitute_taxa_in_trees(trees,["G", "K"],["Boo", None],only_existing=True)
+
+        # we should end up with...
+        expected_trees = []
+        expected_trees.append("(A, B, (C, D), E, F);")
+        expected_trees.append("(A, B, (C, D), E, F, H);")
+        expected_trees.append("(A, B, (C, D), E, F);")
+        expected_trees.append("(A, B, (C, D), E, F, H, L);")
+
+        self.assertListEqual(expected_trees,new_trees)
 
     def test_delete_percent_taxa(self):
         tree = "(A%3, B, (C, D), E, F, G, (A%1, A%2));"

@@ -2,7 +2,7 @@
 #
 #    Supertree Toolkit. Software for managing and manipulating sources
 #    trees ready for supretree construction.
-#    Copyright (C) 2011, Jon Hill, Katie Davis
+#    Copyright (C) 2013, Jon Hill, Katie Davis
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -62,11 +62,14 @@ PLATFORM = sys.platform
 # it back to the user interface handler to save it somewhere
 
 def create_name(authors, year, append=''):
-    """ From a list of authors and a year construct a sensible
+    """ 
+    Construct a sensible from a list of authors and a year for a 
     source name.
-    Input: authors - list of last (family, sur) names (string)
-           year - the year (string)
-    Output: source_name - (string)"""
+    Input: authors - list of last (family, sur) names (string).
+           year - the year (string).
+           append - append something onto the end of the name.
+    Output: source_name - (string)
+    """
 
     source_name = None
     if (authors[0] == None):
@@ -86,8 +89,8 @@ def create_name(authors, year, append=''):
 def single_sourcename(XML,append=''):
     """ Create a sensible source name based on the 
     bibliographic data.
-    xml_root should contain the xml_root for the source that is to be
-    altered only
+    XML should contain the xml_root for the source that is to be
+    altered only.
     NOTE: It is the responsibility of the calling process of this 
           function to check for name uniqueness.
     """
@@ -116,7 +119,7 @@ def single_sourcename(XML,append=''):
 def all_sourcenames(XML):
     """
     Create a sensible sourcename for all sources in the current
-    dataset. 
+    dataset. This includes appending a, b, etc for duplicate names.
     """
 
     xml_root = _parse_xml(XML)
@@ -143,7 +146,7 @@ def all_sourcenames(XML):
     return XML
 
 def get_all_source_names(XML):
-    """ From a full XML-PHYML string, extract all source names
+    """ From a full XML-PHYML string, extract all source names.
     """
 
     xml_root = _parse_xml(XML)
@@ -158,7 +161,7 @@ def get_all_source_names(XML):
     return names
 
 def set_unique_names(XML):
-    """ Ensures all sources have unique names
+    """ Ensures all sources have unique names.
     """
     
     xml_root = _parse_xml(XML)
@@ -209,7 +212,11 @@ def set_unique_names(XML):
     return XML
 
 
-def import_bibliography(XML, bibfile):    
+def import_bibliography(XML, bibfile):
+    """
+    Create a bunch of sources from a bibtex file. This includes setting the sourcenames 
+    for each source.
+    """
     
     # Our bibliography parser
     b = biblist.BibList()
@@ -317,7 +324,8 @@ def import_bibliography(XML, bibfile):
 ## This is becuase yapbib saves the file and rather than re-write, I thought
 ## I'd go with it as in this case I would only ever save the file
 def export_bibliography(XML,filename,format="bibtex"):
-    """ Export all source papers as a bibliography in 
+    """ 
+    Export all source papers as a bibliography in 
     either bibtex, xml, html, short or long formats
     """
 
@@ -531,15 +539,16 @@ def export_bibliography(XML,filename,format="bibtex"):
 
 def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=None, ignoreWarnings=False):
     """ Perform STR on data to remove taxa that 
-    provide no useful additional information
+    provide no useful additional information. Based on PerEQ (Jeffery and Wilkson, unpublished).
     """
 
     if not ignoreWarnings and not XML == None:
         _check_data(XML)
 
-    # Algorithm descibed by ******
-    # modified for *supertrees*, which mainly involves cutting
-    # out stuff to do with multiple state characters
+    # Algorithm descibed by Jeffery and Wilkson, unpublshed. 
+    # Obtained original from http://www.uni-oldenburg.de/en/biology/systematics-and-evolutionary-biology/programs/
+    # and modified for *supertrees*, which mainly involves cutting
+    # out stuff to do with multiple state characters as we only have binary characters.
 
     missing_char = "?"
     TotalInvalid = 0
@@ -741,9 +750,9 @@ def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=N
         return
 
 def subs_file_from_str(str_output):
-    """From the textual output from STR (above), create
+    """From the textual output from STR (safe_taxonomic_reduction), create
     the subs file to put the C category taxa back into
-    the dataset. We work with the text out as it's the same as other software, 
+    the dataset. We work with the text out as it's the same as PerlEQ, 
     which means this might work from them also...
     """
 
@@ -1006,7 +1015,7 @@ def import_tree(filename, gui=None, tree_no = -1):
     tree = trees[tree_no]
     return tree
 
-def get_all_characters(XML):
+def get_all_characters(XML,ignoreErrors=False):
     """Returns a dictionary containing a list of characters within each 
     character type"""
 
@@ -1017,7 +1026,13 @@ def get_all_characters(XML):
     # grab all character types first
     types = []
     for c in characters:
-        types.append(c.attrib['type'])
+        try:
+            types.append(c.attrib['type'])
+        except KeyError:
+            if (ignoreErrors):
+                pass
+            else:
+                raise KeyError("Error getting character type. Incomplete data")
 
     u_types = _uniquify(types)
     u_types.sort()
@@ -1026,9 +1041,16 @@ def get_all_characters(XML):
     for t in u_types:
         char = []
         for c in characters:
-            if (c.attrib['type'] == t):
-                if (not c.attrib['name'] in char):
-                    char.append(c.attrib['name'])
+            try:
+                if (c.attrib['type'] == t):
+                    if (not c.attrib['name'] in char):
+                        char.append(c.attrib['name'])
+            except KeyError:
+                if (ignoreErrors):
+                    pass
+                else:
+                    raise KeyError("Error getting character type. Incomplete data")
+
         char_dict[t] = char       
 
     return char_dict
@@ -1088,7 +1110,7 @@ def get_characters_used(XML):
  
     return characters
 
-def get_character_numbers(XML):
+def get_character_numbers(XML,ignoreErrors=False):
     """ Return the number of trees that use each character
     """
 
@@ -1099,7 +1121,13 @@ def get_character_numbers(XML):
     char_numbers = defaultdict(int)
 
     for c in characters:
-        char_numbers[c.attrib['name']] += 1
+        try:
+            char_numbers[c.attrib['name']] += 1
+        except KeyError:
+            if (ignoreErrors):
+                pass
+            else:
+                raise KeyError("Error getting character type. Incomplete data")
 
     return char_numbers
 
@@ -1135,14 +1163,17 @@ def get_fossil_taxa(XML):
     fossils = find(xml_root)
 
     for f in fossils:
-        name = f.getparent().attrib['name']
-        f_.append(name)
+        try:
+            name = f.getparent().attrib['name']
+            f_.append(name)
+        except KeyError:
+            pass
 
     fossil_taxa = _uniquify(f_) 
     
     return fossil_taxa
 
-def get_analyses_used(XML):
+def get_analyses_used(XML,ignoreErrors=False):
     """ Return a sorted, unique array of all analyses types used
     in this dataset
     """
@@ -1154,8 +1185,14 @@ def get_analyses_used(XML):
     analyses = find(xml_root)
 
     for a in analyses:
-        name = a.attrib['name']
-        a_.append(name)
+        try:
+            name = a.attrib['name']
+            a_.append(name)
+        except KeyError:
+            if (ignoreErrors):
+                pass
+            else:
+                raise KeyError("Error parsing analyses. Incomplete data")
 
     analyses = _uniquify(a_) 
     analyses.sort()
@@ -1173,8 +1210,11 @@ def get_publication_years(XML):
     years = find(xml_root)
 
     for y in years:
-        year = int(y.xpath('integer_value')[0].text)
-        year_dict[year] += 1
+        try:
+            year = int(y.xpath('integer_value')[0].text)
+            year_dict[year] += 1
+        except TypeError:
+            pass
 
     return year_dict
 
@@ -1200,8 +1240,9 @@ def obtain_trees(XML):
         for t in s.xpath("source_tree/tree/tree_string"):
             t_name = name+"_"+str(tree_no)
             # append to dictionary, with source_name_tree_no = tree_string
-            trees[t_name] = t.xpath("string_value")[0].text
-            tree_no += 1
+            if (not t.xpath("string_value")[0].text == None):
+                trees[t_name] = t.xpath("string_value")[0].text
+                tree_no += 1
 
     return trees
 
@@ -1228,7 +1269,7 @@ def amalgamate_trees(XML,format="nexus",anonymous=False,ignoreWarnings=False):
     return _amalgamate_trees(trees,format,anonymous)
         
 
-def get_all_taxa(XML, pretty=False):
+def get_all_taxa(XML, pretty=False, ignoreErrors=False):
     """ Produce a taxa list by scanning all trees within 
     a PHYML file. 
 
@@ -1243,7 +1284,15 @@ def get_all_taxa(XML, pretty=False):
 
     for tname in trees.keys():
         t = trees[tname]
-        taxa_list.extend(_getTaxaFromNewick(t))
+        try:
+            taxa_list.extend(_getTaxaFromNewick(t))
+        except TreeParseError as detail:
+            if (ignoreErrors):
+                pass
+            else:
+                raise TreeParseError( detail.msg )
+
+
 
     # now uniquify the list of taxa
     taxa_list = _uniquify(taxa_list)
@@ -1258,7 +1307,7 @@ def get_all_taxa(XML, pretty=False):
     return taxa_list
 
 
-def create_matrix(XML,format="hennig",ignoreWarnings=False):
+def create_matrix(XML,format="hennig",quote=False,ignoreWarnings=False):
     """ From all trees in the XML, create a matrix
     """
 
@@ -1273,7 +1322,7 @@ def create_matrix(XML,format="hennig",ignoreWarnings=False):
     taxa.append("MRPOutgroup")
     taxa.extend(get_all_taxa(XML))
 
-    return _create_matrix(trees, taxa, format=format)
+    return _create_matrix(trees, taxa, format=format, quote=quote)
 
 
 def create_matrix_from_trees(trees,format="hennig"):
@@ -1299,12 +1348,14 @@ def load_phyml(filename):
     return etree.tostring(etree.parse(filename,parser),pretty_print=True)
 
 
-def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False, verbose=False):
+def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWarnings=False, verbose=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
     
     If the new_taxa array is missing, simply delete the old_taxa
+
+    only_existing will ensure that the new_taxa are already in the dataset
 
     Returns a new XML with the taxa swapped from each tree and any taxon
     elements for those taxa removed. It's up to the calling function to
@@ -1326,6 +1377,25 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False, verbose=
         if (len(old_taxa) != len(new_taxa)):
             print "Substitution failed. Old and new are different lengths"
             return # need to raise exception here
+
+    # Sort incoming taxa
+    if (only_existing):
+        existing_taxa = get_all_taxa(XML)
+        corrected_taxa = []
+        for t in new_taxa:
+            if (not t == None):
+                current_new_taxa = t.split(",")
+                current_corrected_taxa = []
+                for cnt in current_new_taxa:
+                    if (cnt in existing_taxa):
+                        current_corrected_taxa.append(t)
+                if (len(current_corrected_taxa) == 0):
+                    corrected_taxa.append(None)
+                else:
+                    corrected_taxa.append(",".join(current_corrected_taxa))
+            else:
+                corrected_taxa.append(None)
+        new_taxa = corrected_taxa
 
     # need to check for uniquessness of souce names - error is not unique
     _check_uniqueness(XML)
@@ -1370,12 +1440,14 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, ignoreWarnings=False, verbose=
     return etree.tostring(xml_root,pretty_print=True)
 
 
-def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, ignoreWarnings=False, verbose=False):
+def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, only_existing = False, ignoreWarnings=False, verbose=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
     
     If the new_taxa array is missing, simply delete the old_taxa
+
+    only_existing will ensure only taxa in the dataset are subbed in.
 
     Returns a new list of trees with the taxa swapped from each tree 
     It's up to the calling function to
@@ -1393,7 +1465,30 @@ def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, ignoreWarnings=Fals
         if (len(old_taxa) != len(new_taxa)):
             print "Substitution failed. Old and new are different lengths"
             return # need to raise exception here
+    
 
+    # Sort incoming taxa
+    if (only_existing):
+        existing_taxa = []
+        for tree in trees:
+            existing_taxa.extend(_getTaxaFromNewick(tree))
+        existing_taxa = _uniquify(existing_taxa)
+        corrected_taxa = []
+        for t in new_taxa:
+            if (not t == None):
+                current_new_taxa = t.split(",")
+                current_corrected_taxa = []
+                for cnt in current_new_taxa:
+                    if (cnt in existing_taxa):
+                        current_corrected_taxa.append(t)
+                if (len(current_corrected_taxa) == 0):
+                    corrected_taxa.append(None)
+                else:
+                    corrected_taxa.append(",".join(current_corrected_taxa))
+            else:
+                corrected_taxa.append(None)
+        new_taxa = corrected_taxa
+    
     new_trees = []
     for tree in trees:
         new_trees.append(_sub_taxa_in_tree(tree,old_taxa,new_taxa))
@@ -1536,12 +1631,12 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
     output_string += "======================\n\n"
 
     trees = obtain_trees(XML)
-    taxa = get_all_taxa(XML, pretty=True)
-    characters = get_all_characters(XML)
-    char_numbers = get_character_numbers(XML)
+    taxa = get_all_taxa(XML, pretty=True, ignoreErrors=True)
+    characters = get_all_characters(XML,ignoreErrors=True)
+    char_numbers = get_character_numbers(XML,ignoreErrors=True)
     fossils = get_fossil_taxa(XML)
     publication_years = get_publication_years(XML)
-    analyses = get_analyses_used(XML)
+    analyses = get_analyses_used(XML,ignoreErrors=True)
     years = publication_years.keys()
     years.sort()
     chars = char_numbers.keys()
@@ -1717,16 +1812,18 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                 fig = plt.figure(dpi=90)
             else:
                 fig = plt.figure(dpi=270)
+            # make a throw-away plot to get a colourbar info
+            Z = [[0,0],[0,0]]
+            levels = plt.frange(0,max(colours)+0.01,(max(colours)+0.01)/256.)
+            CS3 = plt.contourf(Z,levels,cmap=custom)
+            plt.clf()
             ax = fig.add_subplot(111)
             cs = nx.draw_circular(G_relabelled,with_labels=True,ax=ax,node_color=colours,cmap=custom,edge_color='k',node_size=100,font_size=8)
             limits=plt.axis('off')
             plt.axis('equal')
-            if not PLATFORM.startswith("win"):
-                vmin, vmax = plt.gci().get_clim()
-                plt.clim(0,vmax)
-                ticks = MaxNLocator(integer=True,nbins=9)
-                pp=plt.colorbar(cs, orientation='horizontal', format='%d', ticks=ticks)
-                pp.set_label("No. connected edges")
+            ticks = MaxNLocator(integer=True,nbins=9)
+            pp=plt.colorbar(CS3, orientation='horizontal', format='%d', ticks=ticks)
+            pp.set_label("No. connected edges")
             if (show):
                 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
                 canvas = FigureCanvas(fig)  # a gtk.DrawingArea 
@@ -1757,13 +1854,18 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                 fig = plt.figure(dpi=90)
             else:
                 fig = plt.figure(dpi=270)
+            # make a throw-away plot to get a colourbar info
+            Z = [[0,0],[0,0]]
+            levels = plt.frange(0,max(colours)+0.01,(max(colours)+0.01)/256.)
+            CS3 = plt.contourf(Z,levels,cmap=plt.cm.Blues)
+            plt.clf()
             ax = fig.add_subplot(111)
             limits=plt.axis('off')
             plt.axis('equal')
             if (len(colours) > 1):
                 cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,node_size=sizes,node_color=colours,cmap=plt.cm.Blues,edge_color='k')
                 ticks = MaxNLocator(integer=True,nbins=9)
-                pp=plt.colorbar(cs, orientation='horizontal', format='%d', ticks=ticks)
+                pp=plt.colorbar(CS3, orientation='horizontal', format='%d', ticks=ticks)
                 pp.set_label("No. connected edges")
             else:
                 cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,edge_color='k',node_color='w',node_size=2000)
@@ -1780,7 +1882,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
 
 def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
     """ Return a list of sources that are not independent.
-    This is decided on the source data and the analysis
+    This is decided on the source data and the characters.
     """
 
     if not ignoreWarnings:
@@ -1844,6 +1946,11 @@ def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
         return non_ind
 
 def add_historical_event(XML, event_description):
+    """
+    Add a historial_event element to the XML. 
+    The element contains a description of the event and the the current
+    date will ba added
+    """
 
     now  = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     xml_root = _parse_xml(XML)
@@ -1865,6 +1972,9 @@ def add_historical_event(XML, event_description):
     return XML
 
 def read_matrix(filename):
+    """
+    Read a Nexus or Hennig formatted matrix file. Returns the matrix and taxa.
+    """
 
     matrix = []
     taxa = []
@@ -2325,6 +2435,9 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
 ################ PRIVATE FUNCTIONS ########################
 
 def _uniquify(l):
+    """
+    Make a list, l, contain only unique data
+    """
     keys = {}
     for e in l:
         keys[e] = 1
@@ -2741,7 +2854,7 @@ def _check_data(XML):
     _check_informative_trees(XML)
 
     # check sources
-    _check_sources(XML)
+    _check_sources(XML,delete=False)
 
     return
 
@@ -2756,7 +2869,11 @@ def _parse_xml(xml_string):
     XML = etree.fromstring(xml_string)
     return XML
 
-def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
+def _removeNonAscii(s): 
+    """
+    Removes any non-ascii characters from string, s.
+    """
+    return "".join(i for i in s if ord(i)<128)
 
 def _getTaxaFromNewick(tree):
     """ Get the terminal nodes from a Newick string"""
@@ -2815,6 +2932,9 @@ def _trees_equal(t1,t2):
     return same
 
 def _find_trees_for_permuting(XML):
+    """
+    Returns any trees that contain %, i.e. non-monophyly
+    """
 
     trees = obtain_trees(XML)
     permute_trees = {}
@@ -2825,7 +2945,10 @@ def _find_trees_for_permuting(XML):
 
     return permute_trees
 
-def _create_matrix(trees, taxa, format="hennig"):
+def _create_matrix(trees, taxa, quote=False,format="hennig"):
+    """
+    Does the hard work on creating a matrix
+    """
 
     # our matrix, we'll then append the submatrix
     # to this to make a 2D matrix
@@ -2863,10 +2986,13 @@ def _create_matrix(trees, taxa, format="hennig"):
     matrix = numpy.array(matrix)
     matrix = matrix.transpose()
 
-    return _create_matrix_string(matrix,taxa,charsets=charsets,names=names,format=format)
+    return _create_matrix_string(matrix,taxa,charsets=charsets,names=names,format=format,quote=quote)
 
 
-def _create_matrix_string(matrix,taxa,charsets=None,names=None,format='hennig'):
+def _create_matrix_string(matrix,taxa,charsets=None,names=None,format='hennig',quote=False):
+    """
+    Turns a matrix into a string
+    """
 
     last_char = len(matrix[0])    
     if (format == 'hennig'):
@@ -2896,7 +3022,10 @@ def _create_matrix_string(matrix,taxa,charsets=None,names=None,format='hennig'):
 
         i = 0
         for taxon in taxa:
-            matrix_string += taxon + "\t"
+            if (quote):
+                matrix_string += "'" + taxon + "'\t"
+            else:
+                matrix_string += taxon + "\t"
             string = ""
             for t in matrix[i][:]:
                 string += t
@@ -2924,6 +3053,10 @@ def _create_matrix_string(matrix,taxa,charsets=None,names=None,format='hennig'):
 
     
 def _amalgamate_trees(trees,format,anonymous=False):
+    """
+    Does all the hard work of amalgamating trees
+    """
+    
     # all trees are in Newick string format already
     # For each format, Newick, Nexus and TNT this format
     # is adequate. 
