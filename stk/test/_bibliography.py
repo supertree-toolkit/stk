@@ -64,7 +64,19 @@ class TestBibliography(unittest.TestCase):
         except:
            return False
 
+    # missing key, but has comma
     def test_katie_article2(self):
+        bib_book = "data/input/endnote_online.bib"
+        xml = etree.tostring(xml_start)
+        try:
+            new_xml = import_bibliography(xml, bib_book)
+        except:
+            return False
+        return self.assert_(True)
+
+
+    # completely missing key - no comma
+    def test_missing_key(self):
         bib_book = "data/input/test2.bib"
         xml = etree.tostring(xml_start)
         try:
@@ -73,6 +85,7 @@ class TestBibliography(unittest.TestCase):
            self.assert_(details.msg == "Error importing bib file. Error parsing:  author = {Ahyong, S. T. and O'Meally, D.}, title = {Phylogeny of the Decapoda reptantia: Resolutio...\nMissing Bibtex Key")
         except:
            return False
+
 
     def test_export_bib_article(self):
         xml_article_c = etree.tostring(etree.parse("data/output/bib_import_single_article.phyml",parser),pretty_print=True)

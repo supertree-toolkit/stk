@@ -245,11 +245,17 @@ def parseentry(source):
 
   elif arttype in helper.alltypes:
     # Then it is a publication that we want to keep
-    p = re.match('([^,]+),', s[2] ) # Look for the key followed by a comma
-
+    # if the key is missing, generate one
     entry['_type']= arttype
+
+    p = re.match('([^,]+),', s[2] ) # Look for the key followed by a comma
+    start_entry_char = 0
     try:
-        entry['_code']= p.group()[:-1]
+        if (p.group().find("=") == -1):
+            start_entry_char = p.end()
+            entry['_code']= p.group()[:-1]
+        else:
+            entry['_code'] = None
     except:
         if len(s[2]) < 100:
             err = s[2]
@@ -258,7 +264,7 @@ def parseentry(source):
         raise BibKeyError("Error parsing: "+err+"\nMissing Bibtex Key")
 
  
-    ff= get_fields(s[2][p.end():])
+    ff= get_fields(s[2][start_entry_char:])
     for n,d in ff:
       if n == 'author' or n == 'editor':
         entry[n]= bibtexauthor(d)
@@ -268,6 +274,9 @@ def parseentry(source):
         entry[n]= d.strip('.')
       else:
         entry[n]=d
+
+    if (entry["_code"] == None):
+        entry["_code"] = create_entrycode(entry)
 
     return None,entry
 
