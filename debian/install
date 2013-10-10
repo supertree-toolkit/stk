@@ -1,0 +1,3 @@
+stk.desktop usr/share/applications
+stk_gui/gui/stk.svg /usr/share/icons/hicolor/scalable/apps/
+stk_gui/gui/stk.png /usr/share/icons/hicolor/48x48/apps/
