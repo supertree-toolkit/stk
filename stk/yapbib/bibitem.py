@@ -37,7 +37,7 @@ class BibItem(dict):
     """
     Initialize the object. 
     """
-    self.key=''
+    self.key=None
     self.html_style={}
     self.latex_style={}
     if bib=={}:
@@ -45,7 +45,7 @@ class BibItem(dict):
       self.key=None
       self.set_default_styles()
     else:
-      self.set(bib, key)
+      self.set(bib)
       if normalize: self.normalize()
     self.encoding='utf8'
 
@@ -54,30 +54,26 @@ class BibItem(dict):
     Set the values of the object to those given by the dictionary.
     If b is not a valid dictionary it will return an empty object
     """
-    t= self._verify_entry(b)
-    if t:
-      # Copy the dictionary
-      self.update(b)
+    # Copy the dictionary
+    self.update(b)
 
-      if key != None:
-        self.key= key
-      else:
-        try: 
-          if b.get_key() != None:  self.key= b.get_key()  # b is a BibItem object but has not key
-          else: self.key= self.create_entrycode()
-        except:  # b is a dictionary
-          self.key= self.create_entrycode()
-
-      if self.key == '':
-        self.key=None
-      elif self.get_field('_code','') == '':
-        self.normalize()
-      try:
-        self.set_styles(html=b.html_style, latex= b.latex_style)
-      except:
-        self.set_default_styles()
+    if key != None:
+      self.key= key
     else:
+      try: 
+        if b.get_key() != None:  self.key= b.get_key()  # b is a BibItem object but has not key
+        else: self.key= self.create_entrycode()
+      except:  # b is a dictionary
+        self.key= self.create_entrycode()
+
+    if self.key == '':
       self.key=None
+    elif self.get_field('_code','') == '':
+      self.normalize()
+    try:
+      self.set_styles(html=b.html_style, latex= b.latex_style)
+    except:
+      self.set_default_styles()
 
   def resolve_abbrevs(self, strs={}):
     bibparse.replace_abbrevs(strs,self)
@@ -221,7 +217,6 @@ class BibItem(dict):
     try:
       aa=auth[A_FIRST].split()
     except:
-      print auth
       sys.exit()
     for d in aa:
       if Initial or len(d)==1:
