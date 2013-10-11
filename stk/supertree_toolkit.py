@@ -2880,8 +2880,11 @@ def _getTaxaFromNewick(tree):
 
     t_obj = _parse_tree(tree)
     terminals = t_obj.getAllLeafNames(0)
+    taxa = []
+    for t in terminals:
+        taxa.append(t.replace(" ","_"))
 
-    return terminals
+    return taxa
 
 
 def _sort_data(xml_root):
