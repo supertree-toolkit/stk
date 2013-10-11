@@ -230,15 +230,15 @@ def import_bibliography(XML, bibfile):
         raise BibImportError("Error importing bib file. There was an error with the file")
 
     try: 
-        b.import_bibtex(bibfile)
+        b.import_bibtex(bibfile,True,False)
     except bibparse.BibAuthorError as e:
         # This seems to be raised if the authors aren't formatted correctly
         raise BibImportError("Error importing bib file. Check all your authors for correct format: " + e.msg)
     except bibparse.BibKeyError as e:
         raise BibImportError("Error importing bib file. " + e.msg)
-    except AttributeError:
+    except AttributeError as e:
         # This seems to occur if the keys are not set for the entry
-        raise BibImportError("Error importing bib file. Check all your entry keys")
+        raise BibImportError("Error importing bib file. Check all your entry keys. "+e.msg)
     except: 
         raise BibImportError("Error importing bibliography") 
 
@@ -2880,8 +2880,11 @@ def _getTaxaFromNewick(tree):
 
     t_obj = _parse_tree(tree)
     terminals = t_obj.getAllLeafNames(0)
+    taxa = []
+    for t in terminals:
+        taxa.append(t.replace(" ","_"))
 
-    return terminals
+    return taxa
 
 
 def _sort_data(xml_root):

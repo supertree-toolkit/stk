@@ -1,3 +1,10 @@
+supertree-toolkit (2.4) precise; urgency=low
+
+  * Fixing bug with Endnote bibtex files
+  * Hopefully fixing the bzr_version problem with debian package
+
+ -- Jon Hill <jhill1@cube>  Fri, 11 Oct 2013 20:34:18 +0100
+
 supertree-toolkit (2.0) precise; urgency=low
 
   * Adding manual
