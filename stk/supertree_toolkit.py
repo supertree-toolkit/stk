@@ -1808,6 +1808,13 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                                (1.0, 1.0, 1.0))}
             custom = LinearSegmentedColormap('custom', cdict)
             
+            # we now make a empty figure to generate a colourbar, then throw away
+            Z = [[0,0],[0,0]]
+            print 0, max(colours)
+            levels = range(0,max(colours)+1,1)
+            CS3 = plt.contourf(Z, levels, cmap=custom)
+            plt.clf()
+            
             if show:
                 fig = plt.figure(dpi=90)
             else:
@@ -1825,7 +1832,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             pp=plt.colorbar(CS3, orientation='horizontal', format='%d', ticks=ticks)
             pp.set_label("No. connected edges")
             if (show):
-                from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
+                from matplotlib.backends.backend_tkagg import FigureCanvasGTKAgg as FigureCanvas
                 canvas = FigureCanvas(fig)  # a gtk.DrawingArea 
                 return sufficient_overlap, key_list, canvas
             else:
