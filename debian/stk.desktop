@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=STK
 Type=Application
+Comment=The SupertreeToolkit
 Exec=stk-gui
 Icon=stk
+MimeType=application/stk
