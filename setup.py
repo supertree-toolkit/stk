@@ -64,12 +64,12 @@ else:
                    plugin_data_files + schema_data_files +
                    [(destdir + "stk/schemata", ["schema/phyml"])] +
                    [(destdir+"/usr/share/icons/hicolor/48x48/apps/", ["stk_gui/gui/stk.png"])] +
-                   [(destdir+"/usr/share/applications/",["stk.desktop"])]
+                   [(destdir+"/usr/share/applications/",["debian/stk.desktop"])]
     )
 
 setup(
       name='supertree-toolkit',
-      version='1.5',
+      version='2.0',
       description="Supertree data source management",
       author = "The STK Team",
       author_email = "jon.hill@imperial.ac.uk",

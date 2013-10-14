@@ -2,3 +2,4 @@ debian/stk.desktop usr/share/applications
 stk_gui/gui/stk.svg /usr/share/icons/hicolor/scalable/apps/
 stk_gui/gui/stk.png /usr/share/icons/hicolor/48x48/apps/
 stk_gui/gui/application-stk.svg /usr/share/icons/hicolor/scalable/mimetypes/
+debian/stk.mime /usr/share/mime/packages/

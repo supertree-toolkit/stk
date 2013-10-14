@@ -1,3 +1,20 @@
+supertree-toolkit (2.4) precise; urgency=low
+
+  * Fixing bug with Endnote bibtex files
+  * Hopefully fixing the bzr_version problem with debian package
+
+ -- Jon Hill <jhill1@cube>  Fri, 11 Oct 2013 20:34:18 +0100
+
+supertree-toolkit (2.0) precise; urgency=low
+
+  * Adding manual
+  * All features of old STK replicated
+  * Works on Windows (some issues still on MacOS X)
+  * Safe taxonomic reduction added
+  * Beta tested by Cyrille Delmar (University of Bath)
+
+ -- Jon Hill <jhill1@iapetus>  Wed, 09 Oct 2013 12:51:44 +0100
+
 supertree-toolkit (1.5) precise; urgency=low
 
   * Alpha release
