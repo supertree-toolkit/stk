@@ -1808,6 +1808,12 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                                (1.0, 1.0, 1.0))}
             custom = LinearSegmentedColormap('custom', cdict)
             
+            # we now make a empty figure to generate a colourbar, then throw away
+            Z = [[0,0],[0,0]]
+            levels = range(0,max(colours)+1,1)
+            CS3 = plt.contourf(Z, levels, cmap=custom)
+            plt.clf()
+            
             if show:
                 fig = plt.figure(dpi=90)
             else:

@@ -124,6 +124,7 @@ def main():
                             "/usr/share/stk/stk.svg",
                             "/usr/local/share/stk/stk.png",
                             "/usr/local/share/stk/stk.svg",
+			    "/Applications/STK.app/Contents/Resources/stk.png",
                             ]
   for possible_logofile in pos_logo_places:
       try:
@@ -154,6 +155,7 @@ def main():
             os.path.join(stk_path, "../../../../share/schemata/stk/phylo_storage.rng"),
             "/usr/local/share/stk/schemata/schema/phylo_storage.rng",
             "/usr/share/stk/schemata/schema/phylo_storage.rng",
+            "/Applications/STK.app/Contents/share/schemata/stk/phylo_storage.rng",
             os.path.join(os.path.realpath(os.path.dirname(__file__)),"../../schema/phylo_storage.rng")]:
         try:
           os.stat(possible_schemafile)
@@ -163,6 +165,7 @@ def main():
           pass   
 
   if input_schemafile is None:
+    print stk_path, os.path.join(stk_path, "schema/phylo_storage.rng")
     message = "Could not find schema files in the usual places"
     message += "\nPlease report this bug on bugs.launchpad.net/supertree-toolkit"
     error_dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, message)
@@ -185,7 +188,8 @@ def main():
                              os.path.join(stk_path, "share", "stk", "gui", "gui.glade"),
                              "../gui/gui.glade",
                              "/usr/local/share/stk/gui.glade",
-                             "/usr/share/stk/gui.glade"]:
+                             "/usr/share/stk/gui.glade",
+                              "/Applications/STK.app/Contents/Resources/gui.glade",]:
     try:
       os.stat(possible_gladefile)
       gladefile = possible_gladefile

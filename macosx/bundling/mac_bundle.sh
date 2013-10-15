@@ -18,19 +18,21 @@ virtualenv --python=python$PYVER --no-site-packages $INSTALLDIR
 
 # install stk in it
 sed -i .bak 's/packaging=False/packaging=True/' setup.py
-macosx/$INSTALLDIR/bin/python setup.py install
+$INSTALLDIR/bin/python setup.py install
 
 mkdir $INSTALLDIR/MacOS
 mkdir $INSTALLDIR/Resources
-cd macosx;
 
+cd macosx
 # Sort out the MacResources
-cp PkgInfo $INSTALLDIR/
-cp Info.plist $INSTALLDIR/
-cp pango_rc $INSTALLDIR/
-mkdir $INSTALLDIR/Resources
-cp stk.icns $INSTALLDIR/Resources/
-cp stk $INSTALLDIR/MacOS
+cp PkgInfo ../$INSTALLDIR/
+cp Info.plist ../$INSTALLDIR/
+cp pango_rc ../$INSTALLDIR/
+cp stk.icns ../$INSTALLDIR/Resources/
+cp ../stk_gui/gui/stk.png ../$INSTALLDIR/Resources/
+cp ../stk_gui/gui/gui.glade ../$INSTALLDIR/Resources/
+cp stk ../$INSTALLDIR/MacOS
+cd ../
 
 # Now we have to feed the app some schemas or it's all for nothing
 # Set up the schema folders
@@ -38,16 +40,27 @@ mkdir -p $INSTALLDIR/share/schemata
 # Make the schemata description
 rm -rf $INSTALLDIR/Resources/schemata/stk
 mkdir -p $INSTALLDIR/Resources/schemata/stk
+mkdir -p $INSTALLDIR/share/schemata/stk
 cat > $INSTALLDIR/Resources/schemata/phyml << EOF
 Phylogenetics Markup Language
-/Applications/STK.app/Contents/Resources/schemata/stk/phylo_storage.rng
+/Applications/STK.app/Contents/share/schemata/stk/phylo_storage.phyml
 EOF
 cp schema/*.rng $INSTALLDIR/share/schemata/stk/
 
 # Let's get lxml installed
 $INSTALLDIR/bin/easy_install --allow-hosts=lxml.de,*.python.org lxml
+# dateutil (for matplotlib) 
+$INSTALLDIR/bin/easy_install python-dateutil
 # Numpy
 $INSTALLDIR/bin/easy_install numpy
+# matplotlib
+$INSTALLDIR/bin/easy_install matplotlib
+# networkx
+$INSTALLDIR/bin/easy_install networkx
+# dxdiff - assume a spud check out is above this dir
+cd ../spud/dxdiff/
+../../trunk/$INSTALLDIR/bin/python setup.py install
+cd -
 
 
 # Temp. solution - Just manually copy stuff we know we need
@@ -142,12 +155,13 @@ sed -i .bak 's#/opt/gtk/#'$APPDIR'/#' $INSTALLDIR/Resources/lib/gdk-pixbuf-2.0/2
 
 
 # Package!
-VERSION=0.01
+VERSION=2.4
+chmod u+x $INSTALLDIR/MacOS/stk
 # we now need to fiddle with the Python run path on the diamond script
 # COMMENT THESE OUT IF YOU WANT TO TEST YOUR APP WITHOUT INSTALLING
 # EDIT AS REQUIRED
-sed -i .bak 's|/Users/amcg/Software/stk/mac_port/|/Applications/|' $INSTALLDIR/lib/python2.7/site-packages/supertree_toolkit-0.1.1-py2.7.egg/EGG-INFO/scripts/stk-gui	
-sed -i .bak 's|/Users/amcg/Software/stk/mac_port/|/Applications/|' $INSTALLDIR/MacOS/stk
+sed -i .bak 's|/Users/jhill1/software/trunk/|/Applications/|' $INSTALLDIR/lib/python2.7/site-packages/supertree_toolkit-*-py2.7.egg/EGG-INFO/scripts/stk-gui	
+sed -i .bak 's|/Users/jhill1/software/trunk/|/Applications/|' $INSTALLDIR/MacOS/stk
 
 zip -rq STK-$VERSION-osx.zip $APP
 hdiutil create -srcfolder $APP STK-$VERSION.dmg		
