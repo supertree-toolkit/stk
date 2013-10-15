@@ -11,6 +11,9 @@ bzr are covered. We assume little knowledge of Linux or DOS commands, but some
 knowledge on how to install software. Contact your local sys admin if you need
 further help. 
 
+We store all source code and downloads on Canonical's Launchpad system: 
+http://launchpad.net/supertree-toolkit
+
 Linux
 -----
 
@@ -37,8 +40,8 @@ MacOS X
 -------
 
 An install script is available in the source package that installs the software and dependencies on
-MacOS X. This should work on versions of MacOS 10.6 and greater. To install, download the source tgz
-from Launchapad (http://launchpad.net/supertree-toolkit), then:
+MacOS X. This should work on versions of MacOS 10.6 and greater. To install, download the source .tgz
+from `Launchpad <http://launchpad.net/supertree-toolkit>`_, then:
 
 .. code-block:: bash
     
@@ -54,7 +57,7 @@ Source
 ------
 
 The source is available as either a compressed tarball or via bzr. To obtain the tarball, simply
-download from Launchpad (http://launchpad.net/supertree-toolkit), then:
+download from `Launchpad <http://launchpad.net/supertree-toolkit>`_, then:
     
 .. code-block:: bash
     
