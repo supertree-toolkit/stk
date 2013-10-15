@@ -24,4 +24,19 @@ python setup.py install
 cd ../../
 # Now install the STK
 python setup.py install
+cd macosx
 
+INSTALLDIR=/Applications/STK.app/Contents
+# Create an app that the user can double click to run
+mkdir -p ${INSTALLDIR}/MacOS
+mkdir -p ${INSTALLDIR}/Resources
+cp bundling/PkgInfo $INSTALLDIR/
+cp bundling/Info.plist $INSTALLDIR/
+cp bundling/stk.icns $INSTALLDIR/Resources/
+cat > $INSTALLDIR/MacOS/stk << EOF
+#!/bin/bash
+#
+# Launch script for stk_gui
+stk-gui
+EOF
+chmod a+x $INSTALLDIR/MacOS/stk

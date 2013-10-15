@@ -5,7 +5,7 @@ Introduction
 ------------
 
 This first chapter a brief guide to setting-up the STK on Linux, Windows and
-MacOS X. STK comes as either pre-compiled binaries for each platform or as a
+MacOS X. STK comes as either pre-compiled binaries for some platform or as a
 source package. Both downloading an archived source package or downloading via
 bzr are covered. We assume little knowledge of Linux or DOS commands, but some
 knowledge on how to install software. Contact your local sys admin if you need
@@ -30,23 +30,35 @@ install the package. Run the commands below to do all this.
 Windows
 -------
 
-A pre-built binary package is available. Simply download and run to install. Follow the on-screen instructions.
+A pre-built binary package is available. Simply download and run to install. Follow the on-screen
+instructions.
 
 MacOS X
 -------
 
-A pre-built "Mountain Lion" package is available. Download the dmg file, mount it (double click) and run the install script by double clicking.
+An install script is available in the source package that installs the software and dependencies on
+MacOS X. This should work on versions of MacOS 10.6 and greater. To install, download the source tgz
+from Launchapad (http://launchpad.net/supertree-toolkit), then:
+
+.. code-block:: bash
+    
+    tar zxvf supertree-toolkit.tgz
+    cd supertree-toolkit/macosx
+    sudo ./mac_install.sh
+
+This will first download and install PyGTK, which you can cancel if you have already installed, then
+is will download and install all the Python dependencies, before installng the STK itself. You will
+find the STK app in your Applications folder. The command line version will also be available.
 
 Source
 ------
 
-The source is available as either a compressed tarball or via bzr. To obtain the tarball, simply download from Launchpad (URL), then:
+The source is available as either a compressed tarball or via bzr. To obtain the tarball, simply
+download from Launchpad (http://launchpad.net/supertree-toolkit), then:
     
 .. code-block:: bash
     
-    tar zxvf supertree-toolkit-version.tgz
-
-replacing version with the version number downloaded. 
+    tar zxvf supertree-toolkit.tgz
 
 Using bzr, you can either obtain the bleeding-edge development version or the current release (recommended) using:
 
@@ -81,6 +93,7 @@ When running from source you must install the following prerequisites and depend
 * libspud
 * numpy
 * lxml
+* dxdiff (distributed with STK in macosx or available from http://launchpad.net/spud)
 
 
 Running the STK
