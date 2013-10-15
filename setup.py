@@ -38,16 +38,6 @@ if sys.platform == 'win32':
         setup_requires=['py2exe'],
         app=['stk_gui'],
     )
-elif sys.platform == 'darwin':
-    for plugin in plugin_dirs:
-      plugin_data_files.append((destdir + "plugins/phyml/",
-        glob.glob(plugin + '/*.py')))
-        
-    extra_options = dict(
-   		data_files = [("./",
-    	["stk_gui/gui/gui.glade", "stk_gui/gui/stk.svg", "stk_gui/gui/stk.png"])] +
-    	plugin_data_files
-    )
 else:
     for plugin in plugin_dirs:
       plugin_data_files.append((destdir + "plugins/phyml/",
