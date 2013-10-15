@@ -1,3 +1,13 @@
+supertree-toolkit (2.5) precise; urgency=low
+
+  * Adding Mac compatibilitiy
+  * Adding mac install script
+  * Adding mimetypes for Linux to display custom icons
+  * Adding mimetypes for windows to display custom icons
+
+
+ -- Jon Hill <jhill1@iapetus>  Tue, 15 Oct 2013 10:38:28 +0100
+
 supertree-toolkit (2.4) precise; urgency=low
 
   * Fixing bug with Endnote bibtex files

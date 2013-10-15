@@ -1,6 +1,8 @@
-stk.desktop usr/share/applications
+debian/stk.desktop usr/share/applications
 stk_gui/gui/stk.svg /usr/share/icons/hicolor/scalable/apps/
 stk_gui/gui/stk.png /usr/share/icons/hicolor/48x48/apps/
 stk_gui/gui/stk-16.png /usr/share/icons/hicolor/16x16/apps/stk.png
 stk_gui/gui/stk-192.png /usr/share/icons/hicolor/192x192/apps/stk.png
 stk_gui/gui/stk-64.png /usr/share/icons/hicolor/64x64/apps/stk.png
+stk_gui/gui/application-stk.svg /usr/share/icons/hicolor/scalable/mimetypes/
+debian/stk.xml /usr/share/mime/packages/

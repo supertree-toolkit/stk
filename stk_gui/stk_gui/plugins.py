@@ -79,6 +79,8 @@ def configure_plugins(suffix):
     dirs.append("/etc/stk/plugins/" + suffix)
   if sys.platform == 'darwin':
     dirs.append(os.path.join(stk_path,"plugins",suffix))
+  if sys.platform.startswith("win"):
+    dirs.append("plugins/"+suffix)
 
   for dir in dirs:
     sys.path.insert(0, dir)
