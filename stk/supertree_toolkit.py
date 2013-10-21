@@ -2651,6 +2651,12 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     # remove duplicates in the new taxa
     taxa = new_taxon.split(",")
     taxa = _uniquify(taxa)
+ 
+    # we might have to add quotes back in
+    for i in range(0,len(taxa)):
+        m = re.search('[\(|\)|\.|\?]', taxa[i])
+        if (not m == None):
+            taxa[i] = "'"+taxa[i]+"'" 
 
     # Here's the plan - strip the duplicated taxa marker, _\d from the
     # taxa. We can then just swap taxa in plan text.
@@ -2664,6 +2670,12 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     if (len(new_taxon) == 0):
         # we need to delete instead
         return _delete_taxon(old_taxon,tree)
+
+    # check old taxon isn't quoted
+    m = re.search('[\(|\)|\.|\?]', old_taxon)
+    if (not m == None):
+        old_taxon = "'"+old_taxon+"'" 
+  
 
     # simple text swap
     old_taxon = re.escape(old_taxon)
@@ -3210,6 +3222,7 @@ def _parse_tree(tree,fixDuplicateTaxa=False):
         if (fixDuplicateTaxa):
             p4.var.doRepairDupedTaxonNames = 0
     except p4.Glitch as detail:
+        print detail.msg
         raise TreeParseError("Error parsing tree\n"+detail.msg )
 
     t = p4.var.trees[0]

@@ -498,6 +498,24 @@ class TestSubs(unittest.TestCase):
         answer = "(taxa_1, taxa_n_taxa_2, taxa_3, taxa_4);"
         self.assert_(_trees_equal(new_tree, answer), "Didn't substitute part of taxa")
 
+    def test_replace_with_quotes(self):
+        quote_taxa_tree = "(taxa_1, taxa_2, 'taxa_(blah)_foo', taxa_4);"
+        new_tree = _sub_taxa_in_tree(quote_taxa_tree,"taxa_2",'taxa_8');
+        answer = "(taxa_1, taxa_8, 'taxa_(blah)_foo', taxa_4);"
+        self.assert_(_trees_equal(new_tree, answer), "Did a sub with quoted taxa")
+
+    def test_replace_with_quoted(self):
+        quote_taxa_tree = "(taxa_1, taxa_2, 'taxa_(blah)_foo', taxa_4);"
+        new_tree = _sub_taxa_in_tree(quote_taxa_tree,"taxa_(blah)_foo",'taxa_8');
+        answer = "(taxa_1, taxa_2, taxa_8, taxa_4);"
+        self.assert_(_trees_equal(new_tree, answer), "Did a sub on quoted taxa")
+    
+    def test_replace_with_quoted(self):
+        quote_taxa_tree = "(taxa_1, taxa_2, 'taxa_(blah)_foo', taxa_4);"
+        new_tree = _sub_taxa_in_tree(quote_taxa_tree,"taxa_(blah)_foo");
+        answer = "(taxa_1, taxa_2, taxa_4);"
+        self.assert_(_trees_equal(new_tree, answer), "Deleted quoted taxa")
+
 
 if __name__ == '__main__':
     unittest.main()
