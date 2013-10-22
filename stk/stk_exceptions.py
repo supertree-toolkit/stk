@@ -66,6 +66,14 @@ class UnableToParseSubsFile(Error):
     def __init__(self, msg):
         self.msg = msg
 
+class AddingTaxaWarning(Error):
+    """Exception raised when a sub will add taxa to the 
+       dataset
+    """
+
+    def __init__(self,msg):
+        self.msg = msg
+
 class InvalidSTKData(Error):
     """Exception raised when a the PHYML is inconsistant
 

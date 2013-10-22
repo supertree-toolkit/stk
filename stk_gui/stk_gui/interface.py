@@ -2148,7 +2148,15 @@ class Diamond:
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
-   
+  
+    # First let's check the subs
+    try:
+        stk.check_subs(XML,new_taxa)
+    except AddingTaxaWarning as detail:
+        prompt_response = dialogs.long_prompt(self.main_window,detail.msg)
+        if prompt_response == gtk.RESPONSE_CANCEL:
+            return
+
     try:
         XML2 = stk.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings,only_existing=only_existing)
     except NotUniqueError as detail:

@@ -2152,6 +2152,25 @@ def parse_subs_file(filename):
 
     return old_taxa, new_taxa
 
+def check_subs(XML,new_taxa):
+    """Check a subs file and issue a warning if any of the incoming taxa
+       are not already in the dataset. This is often what is wanted, but sometimes
+       it is not. We run this before we do the subs to alert the user of this
+       but they may continue
+    """
+
+    dataset_taxa = get_all_taxa(XML)
+    unknown_taxa = ""
+    for taxon in new_taxa:
+        if not taxon in dataset_taxa:
+            unknown_taxa += taxon+"\n"
+  
+    if (not unknown_taxa == ""):
+        msg = "This substitution is will add the following taxa:\n"
+        msg += unknown_taxa 
+        raise AddingTaxaWarning(msg) 
+    
+    return
 
 def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWarnings=False):
     """Create a new dataset which is a subset of the incoming one.
