@@ -2164,7 +2164,9 @@ def check_subs(XML,new_taxa):
     for taxon in new_taxa:
         if not taxon in dataset_taxa:
             unknown_taxa.append(taxon)
+    unknown_taxa = _uniquify(unknown_taxa)
     unknown_taxa.sort()
+
     taxa_list = '\n'.join(unknown_taxa)
   
     if (len(unknown_taxa) > 0):
