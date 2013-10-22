@@ -2160,14 +2160,16 @@ def check_subs(XML,new_taxa):
     """
 
     dataset_taxa = get_all_taxa(XML)
-    unknown_taxa = ""
+    unknown_taxa = []
     for taxon in new_taxa:
         if not taxon in dataset_taxa:
-            unknown_taxa += taxon+"\n"
+            unknown_taxa.append(taxon)
+    unknown_taxa.sort()
+    taxa_list = '\n'.join(unknown_taxa)
   
-    if (not unknown_taxa == ""):
+    if (len(unknown_taxa) > 0):
         msg = "This substitution is will add the following taxa:\n"
-        msg += unknown_taxa 
+        msg += taxa_list
         raise AddingTaxaWarning(msg) 
     
     return

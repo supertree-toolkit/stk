@@ -520,8 +520,9 @@ class TestSubs(unittest.TestCase):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
         try:
             check_subs(XML,["Fred","Bob"])
-        except AddingTaxaWarning:
+        except AddingTaxaWarning as detail:
             self.assert_(True,"Correctly identified incoming taxa")
+            self.assertRegexpMatches(detail.msg,"Fred")
             return
         self.assert_(False)
 
