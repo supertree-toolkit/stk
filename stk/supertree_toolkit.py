@@ -407,7 +407,7 @@ def export_bibliography(XML,filename,format="bibtex"):
         year    = b.xpath("year/integer_value")[0].text
         bib_dict = {
                 "_code"  : name,
-                "_type"  : 'article',
+                "_type"  : 'book',
                 "author" : authors,
                 "title"  : title,
                 "year"   : year,
@@ -451,14 +451,13 @@ def export_bibliography(XML,filename,format="bibtex"):
         title   = i.xpath("title/string_value")[0].text
         year    = i.xpath("year/integer_value")[0].text
         editors = []
-        for eds in a.xpath("editors/editor"):
+        for eds in i.xpath("editors/editor"):
             surname = eds.xpath("surname/string_value")[0].text
             first = eds.xpath("other_names/string_value")[0].text
             editors.append(["", surname,first,''])
-        bib_dict["editors"]=editors
         bib_dict = {
                 "_code"  : name,
-                "_type"  : 'article',
+                "_type"  : 'inbook',
                 "author" : authors,
                 "title"  : title,
                 "year"   : year,
@@ -499,7 +498,7 @@ def export_bibliography(XML,filename,format="bibtex"):
         year    = i.xpath("year/integer_value")[0].text
         bib_dict = {
                 "_code"  : name,
-                "_type"  : 'article',
+                "_type"  : 'incollection',
                 "author" : authors,
                 "title"  : title,
                 "year"   : year,

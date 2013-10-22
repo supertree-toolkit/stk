@@ -2226,9 +2226,11 @@ class Diamond:
      except BibImportError as detail:
         dialogs.error(self.main_window,detail.msg)
         return 
-     #except:
-     #    dialogs.error(self.main_window,"Error importing bib file")
-     #    return
+     except:
+         import traceback
+         error = traceback.format_exc()
+         dialogs.error(self.main_window,"Error importing bib file:\n"+error)
+         return
      
      try:
         stk._check_uniqueness(XML)

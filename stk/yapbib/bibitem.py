@@ -361,6 +361,12 @@ class BibItem(dict):
         entry_type != "inbook"):
         return None
 
+    if (entry_type == 'inbook'):
+        entry_type = 'in_book'
+    if (entry_type == 'incollection'):
+        entry_type = 'in_collection'
+
+
     s='%s<bibliographic_information>\n' %(sp*spc)
     sp += 1
     s+='%s<%s%s>\n' %(sp*spc,p,entry_type)
@@ -412,7 +418,7 @@ class BibItem(dict):
     s+= '%s<year>%s</year>\n' %(sp*spc,v)
 
     # book, in book and incollection have editors here
-    if (entry_type == "book" or entry_type == "inbook" or entry_type == "incollection"):
+    if (entry_type == "book" or entry_type == "in_book" or entry_type == "in_collection"):
         v = ""
         for x in self.get_authorsList(who='editor'):
             try:
@@ -449,7 +455,7 @@ class BibItem(dict):
         s+= '%s<journal>%s</journal>\n' %(sp*spc,v)
 
     # booktitle - if incollection
-    if (entry_type == "incollection"):
+    if (entry_type == "in_collection"):
         k = self.get_field('booktitle')
         if (helper.is_string_like(k)):
             k= helper.replace_tags(k,'xml')
@@ -462,7 +468,7 @@ class BibItem(dict):
     ## empty tags, just ignore completely.
 
     # series - everything but article
-    if (entry_type == "book" or entry_type == "inbook" or entry_type == "incollection"):  
+    if (entry_type == "book" or entry_type == "in_book" or entry_type == "in_collection"):  
         k = self.get_field('series')
         if (helper.is_string_like(k)):
             k= helper.replace_tags(k,'xml')
@@ -473,7 +479,7 @@ class BibItem(dict):
             s+= '%s<series>%s</series>\n' %(sp*spc,v)
 
     # publisher - everything but article
-    if (entry_type == "book" or entry_type == "inbook" or entry_type == "incollection"): 
+    if (entry_type == "book" or entry_type == "in_book" or entry_type == "in_collection"): 
         k = self.get_field('publisher')
         if (helper.is_string_like(k)):
             k= helper.replace_tags(k,'xml')
@@ -541,7 +547,7 @@ class BibItem(dict):
         s+= '%s<url>%s</url>\n' %(sp*spc,v)
 
     sp-=1
-    s+= '%s</%s%s>\n' %(sp*spc,p,self.get('_type',''))
+    s+= '%s</%s%s>\n' %(sp*spc,p,entry_type)
     s+= '%s</%sbibliographic_information>\n' %(sp*spc,p)
     return s
 
