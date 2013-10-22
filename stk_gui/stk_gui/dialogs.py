@@ -38,6 +38,42 @@ def prompt(parent, message, type = gtk.MESSAGE_QUESTION, has_cancel = False):
 
   return prompt_response.response
 
+def long_prompt(parent, message,monospace=False,has_cancel=True):
+  """
+  Display a message prompt, with the message contained within a scrolled window.
+  """
+
+  message_dialog = gtk.Dialog(parent = parent, buttons = (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+  message_dialog.set_default_size(400, 300)
+
+  scrolled_window = gtk.ScrolledWindow()
+  message_dialog.vbox.add(scrolled_window)
+  scrolled_window.show()
+
+  scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+
+  text_view = gtk.TextView()
+  scrolled_window.add(text_view)
+  text_view.show()
+
+  if (monospace):
+      import pango
+      font_desc = pango.FontDescription('monospace')
+      text_view.modify_font(font_desc)
+  text_view.get_buffer().set_text(message)
+  text_view.set_cursor_visible(False)
+  text_view.set_property("editable", False)
+  text_view.set_property("height-request", 180)
+  text_view.set_property("width-request", 240)
+
+  if has_cancel:
+    message_dialog.add_buttons(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+  message_dialog.connect("response", prompt_response)
+
+  message_dialog.run()
+
+  return prompt_response.response
+
 def long_message(parent, message,monospace=False):
   """
   Display a message prompt, with the message contained within a scrolled window.
