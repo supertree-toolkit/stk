@@ -415,9 +415,12 @@ class BibItem(dict):
     if (entry_type == "book" or entry_type == "inbook" or entry_type == "incollection"):
         v = ""
         for x in self.get_authorsList(who='editor'):
+            try:
+                 other_names, fam_name = x.rsplit(' ',1)
+            except AttributeError:
+                 continue
             v += '%s<editor>\n'%(sp*spc)
             sp+=1
-            other_names, fam_name = x.rsplit(' ',1)
             v += '%s<surname>\n'%(sp*spc)
             sp+=1
             v += '%s<string_value lines="1">%s</string_value>\n'%(sp*spc,fam_name)
