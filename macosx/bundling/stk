@@ -1,8 +1,0 @@
-#!/bin/bash
-#
-# Launch script for stk_gui
-LOCATION=/Users/jhill1/software/trunk/
-# export the location of a few files
-export GDK_PIXBUF_MODULE_FILE=$LOCATION"STK.app/Contents/Resources/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache"
-export PANGO_RC_FILE=$LOCATION"STK.app/Contents/pango_rc"
-$LOCATION"STK.app/Contents/bin/python" $LOCATION"STK.app/Contents/lib/python2.7/site-packages/supertree_toolkit-1.5-py2.7.egg/EGG-INFO/scripts/stk-gui"
