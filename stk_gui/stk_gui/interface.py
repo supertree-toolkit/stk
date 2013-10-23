@@ -1007,7 +1007,7 @@ class Diamond:
         dialogs.error(self.main_window,msg)
     except:
         msg = "Failed to summarise data correctly. Incomplete data.\n"
-        dialogs.error(self.main_window,msg)
+        dialogs.error_tb(self.main_window,msg)
 
     if (not data_summary_ok):
         # try again
@@ -1031,7 +1031,7 @@ class Diamond:
             return
         except:
             msg = "Failed to summarise data. Sorry!\n"
-            dialogs.error(self.main_window,msg)
+            dialogs.error_tb(self.main_window,msg)
             return
 
     textbox.get_buffer().set_text(data_summary)
@@ -1674,7 +1674,7 @@ class Diamond:
         f.close()    
     except:
         msg = "Failed to create matrix file.\n"
-        dialogs.error(self.main_window,msg)
+        dialogs.error_tb(self.main_window,msg)
         return 
 
     # Add a history event
@@ -1750,7 +1750,7 @@ class Diamond:
         dialogs.error(self.main_window,msg)
         return     
     except:
-        dialogs.error(self.main_window, "Error exporting.")
+        dialogs.error_tb(self.main_window, "Error exporting.")
         return
     
     self.export_dialog.hide()
@@ -2227,9 +2227,7 @@ class Diamond:
         dialogs.error(self.main_window,detail.msg)
         return 
      except:
-         import traceback
-         error = traceback.format_exc()
-         dialogs.error(self.main_window,"Error importing bib file:\n"+error)
+         dialogs.error_tb(self.main_window,"Error importing bib file:\n"+error)
          return
      
      try:
@@ -2347,7 +2345,7 @@ class Diamond:
             dialogs.error(self.main_window,msg)
          except:
             msg = "Failed to save subs file.\n"
-            dialogs.error(self.main_window,msg)
+            dialogs.error_tb(self.main_window,msg)
             return
 
      if (gen_phyml):
@@ -2360,7 +2358,7 @@ class Diamond:
             dialogs.error(self.main_window,msg)
          except:
             msg = "Failed to save phyml file.\n"
-            dialogs.error(self.main_window,msg)
+            dialogs.error_tb(self.main_window,msg)
             return
          
      XML = _removeNonAscii(XML)
@@ -2546,7 +2544,7 @@ class Diamond:
         dialogs.error(self.main_window,msg)
      except:
         msg = "Failed to save phyml file.\n"
-        dialogs.error(self.main_window,msg)
+        dialogs.error_tb(self.main_window,msg)
         return
 
   def update_data(self,ios, error, skip_warning=False):

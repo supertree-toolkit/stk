@@ -239,10 +239,8 @@ def import_bibliography(XML, bibfile):
     except AttributeError as e:
         # This seems to occur if the keys are not set for the entry
         raise BibImportError("Error importing bib file. Check all your entry keys. "+e.msg)
-    #except:
-    #    import traceback
-    #    print traceback.print_exc(file=sys.stdout) 
-    #    raise BibImportError("Error importing bibliography") 
+    except:
+        raise BibImportError("Error importing bibliography") 
 
     items= b.sortedList[:]
 
