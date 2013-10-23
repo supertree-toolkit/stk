@@ -219,12 +219,42 @@ class TestBibliography(unittest.TestCase):
         self.assert_(output.find('Williams') > -1)
         self.assert_(output.find('pages = {239-') > -1)
 
+    def test_difficult_bibtex(self):
+        bib_article = "data/input/difficult_bib.bib"
+        xml = etree.tostring(xml_start)
+        new_xml = import_bibliography(xml, bib_article)
+        # Now export it back and compare the data
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tex")
+        export_bibliography(new_xml,temp_file)        
+        f = open(temp_file,"r")
+        output = f.readlines()
+        output = '\n'.join(output)
+        os.remove(temp_file) 
+        # just asserts something useful has been written out
+        self.assert_(output.find('Silva') > -1)
+        self.assert_(output.find('pages = {1032-') > -1)
 
 
 #    def test_import_single_incollection(self):
 #
-#    def test_import_single_inbook(self):
-#
+    def test_import_single_inbook(self):
+        bib_article = "data/input/inbook.bib"
+        xml = etree.tostring(xml_start)
+        new_xml = import_bibliography(xml, bib_article)
+        self.assert_(new_xml.find('in_book') > -1)
+        # Now export it back and compare the data
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tex")
+        export_bibliography(new_xml,temp_file)        
+        f = open(temp_file,"r")
+        output = f.readlines()
+        output = '\n'.join(output)
+        os.remove(temp_file)
+        # just asserts something useful has been written out
+        self.assert_(output.find('author = { Mallet') > -1)
+        self.assert_(output.find('pages = {177-') > -1)
+        self.assert_(output.find('Speciation and Patterns of Diversity') > -1)
+
+
 #    def test_import_allitems(self):
 #
 #    def test_import_allitems_existing_tree(self):

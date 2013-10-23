@@ -150,7 +150,7 @@ def create_entrycode(b={}):
     elif b.has_key('series'):
       bibid+= helper.create_initials(b['series'])
 
-    if b.has_key('title'):
+  if b.has_key('title'):
       bibid+= '_'+helper.create_initials(b.get('title','').upper())[:3]
 
   if 'thesis' not in b['_type']:
