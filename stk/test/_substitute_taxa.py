@@ -6,7 +6,7 @@ sys.path.insert(0,"../")
 import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tree, _trees_equal, substitute_taxa_in_trees
+from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tree, _trees_equal, substitute_taxa_in_trees, check_subs
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree, _collapse_nodes, import_tree
 from lxml import etree
 from util import *
@@ -498,6 +498,43 @@ class TestSubs(unittest.TestCase):
         answer = "(taxa_1, taxa_n_taxa_2, taxa_3, taxa_4);"
         self.assert_(_trees_equal(new_tree, answer), "Didn't substitute part of taxa")
 
+    def test_replace_with_quotes(self):
+        quote_taxa_tree = "(taxa_1, taxa_2, 'taxa_(blah)_foo', taxa_4);"
+        new_tree = _sub_taxa_in_tree(quote_taxa_tree,"taxa_2",'taxa_8');
+        answer = "(taxa_1, taxa_8, 'taxa_(blah)_foo', taxa_4);"
+        self.assert_(_trees_equal(new_tree, answer), "Did a sub with quoted taxa")
+
+    def test_replace_with_quoted(self):
+        quote_taxa_tree = "(taxa_1, taxa_2, 'taxa_(blah)_foo', taxa_4);"
+        new_tree = _sub_taxa_in_tree(quote_taxa_tree,"taxa_(blah)_foo",'taxa_8');
+        answer = "(taxa_1, taxa_2, taxa_8, taxa_4);"
+        self.assert_(_trees_equal(new_tree, answer), "Did a sub on quoted taxa")
+    
+    def test_replace_with_quoted(self):
+        quote_taxa_tree = "(taxa_1, taxa_2, 'taxa_(blah)_foo', taxa_4);"
+        new_tree = _sub_taxa_in_tree(quote_taxa_tree,"taxa_(blah)_foo");
+        answer = "(taxa_1, taxa_2, taxa_4);"
+        self.assert_(_trees_equal(new_tree, answer), "Deleted quoted taxa")
+
+    def test_check_subs_adding(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        try:
+            check_subs(XML,["Fred","Bob"])
+        except AddingTaxaWarning as detail:
+            self.assert_(True,"Correctly identified incoming taxa")
+            self.assertRegexpMatches(detail.msg,"Fred")
+            return
+        self.assert_(False)
+
+    def test_check_subs_not_adding(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        try:
+            check_subs(XML,["A","B_b"])
+        except AddingTaxaWarning:
+            self.assert_(False)
+            return
+        self.assert_(True,"Correctly let the subs go")
+   
 
 if __name__ == '__main__':
     unittest.main()

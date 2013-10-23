@@ -239,7 +239,7 @@ def import_bibliography(XML, bibfile):
     except AttributeError as e:
         # This seems to occur if the keys are not set for the entry
         raise BibImportError("Error importing bib file. Check all your entry keys. "+e.msg)
-    except: 
+    except:
         raise BibImportError("Error importing bibliography") 
 
     items= b.sortedList[:]
@@ -405,7 +405,7 @@ def export_bibliography(XML,filename,format="bibtex"):
         year    = b.xpath("year/integer_value")[0].text
         bib_dict = {
                 "_code"  : name,
-                "_type"  : 'article',
+                "_type"  : 'book',
                 "author" : authors,
                 "title"  : title,
                 "year"   : year,
@@ -449,14 +449,13 @@ def export_bibliography(XML,filename,format="bibtex"):
         title   = i.xpath("title/string_value")[0].text
         year    = i.xpath("year/integer_value")[0].text
         editors = []
-        for eds in a.xpath("editors/editor"):
+        for eds in i.xpath("editors/editor"):
             surname = eds.xpath("surname/string_value")[0].text
             first = eds.xpath("other_names/string_value")[0].text
             editors.append(["", surname,first,''])
-        bib_dict["editors"]=editors
         bib_dict = {
                 "_code"  : name,
-                "_type"  : 'article',
+                "_type"  : 'inbook',
                 "author" : authors,
                 "title"  : title,
                 "year"   : year,
@@ -497,7 +496,7 @@ def export_bibliography(XML,filename,format="bibtex"):
         year    = i.xpath("year/integer_value")[0].text
         bib_dict = {
                 "_code"  : name,
-                "_type"  : 'article',
+                "_type"  : 'incollection',
                 "author" : authors,
                 "title"  : title,
                 "year"   : year,
@@ -2152,6 +2151,29 @@ def parse_subs_file(filename):
 
     return old_taxa, new_taxa
 
+def check_subs(XML,new_taxa):
+    """Check a subs file and issue a warning if any of the incoming taxa
+       are not already in the dataset. This is often what is wanted, but sometimes
+       it is not. We run this before we do the subs to alert the user of this
+       but they may continue
+    """
+
+    dataset_taxa = get_all_taxa(XML)
+    unknown_taxa = []
+    for taxon in new_taxa:
+        if not taxon in dataset_taxa:
+            unknown_taxa.append(taxon)
+    unknown_taxa = _uniquify(unknown_taxa)
+    unknown_taxa.sort()
+
+    taxa_list = '\n'.join(unknown_taxa)
+  
+    if (len(unknown_taxa) > 0):
+        msg = "This substitution is will add the following taxa:\n"
+        msg += taxa_list
+        raise AddingTaxaWarning(msg) 
+    
+    return
 
 def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWarnings=False):
     """Create a new dataset which is a subset of the incoming one.
@@ -2651,6 +2673,12 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     # remove duplicates in the new taxa
     taxa = new_taxon.split(",")
     taxa = _uniquify(taxa)
+ 
+    # we might have to add quotes back in
+    for i in range(0,len(taxa)):
+        m = re.search('[\(|\)|\.|\?]', taxa[i])
+        if (not m == None):
+            taxa[i] = "'"+taxa[i]+"'" 
 
     # Here's the plan - strip the duplicated taxa marker, _\d from the
     # taxa. We can then just swap taxa in plan text.
@@ -2664,6 +2692,12 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     if (len(new_taxon) == 0):
         # we need to delete instead
         return _delete_taxon(old_taxon,tree)
+
+    # check old taxon isn't quoted
+    m = re.search('[\(|\)|\.|\?]', old_taxon)
+    if (not m == None):
+        old_taxon = "'"+old_taxon+"'" 
+  
 
     # simple text swap
     old_taxon = re.escape(old_taxon)
@@ -3210,6 +3244,7 @@ def _parse_tree(tree,fixDuplicateTaxa=False):
         if (fixDuplicateTaxa):
             p4.var.doRepairDupedTaxonNames = 0
     except p4.Glitch as detail:
+        print detail.msg
         raise TreeParseError("Error parsing tree\n"+detail.msg )
 
     t = p4.var.trees[0]

@@ -4,12 +4,12 @@ It uses the current working tree to determine the revision.
 So don't edit it. :)
 """
 
-version_info = {'branch_nick': u'trunk',
- 'build_date': '2013-10-15 07:59:59 +0100',
+version_info = {'branch_nick': u'release',
+ 'build_date': '2013-10-23 09:55:47 +0100',
  'clean': None,
- 'date': '2013-10-14 16:39:46 +0100',
- 'revision_id': 'jon.hill@imperial.ac.uk-20131014153946-dlqcil991o0f5hkm',
- 'revno': '152'}
+ 'date': '2013-10-15 19:08:40 +0100',
+ 'revision_id': 'jon.hill@imperial.ac.uk-20131015180840-63edol04r3grdm8m',
+ 'revno': '7'}
 
 revisions = {}
 

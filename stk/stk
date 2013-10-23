@@ -461,6 +461,18 @@ def main():
             )
     parser_cm.set_defaults(func=create_subset)
 
+
+    parser_cm = subparsers.add_parser('check_subs',
+            help="""Check a subs file against a dataset and warn the user 
+                 about the addition of taxa not already in the dataset
+                 """)
+    parser_cm.add_argument('input',
+            help='The input Phyml file')
+    parser_cm.add_argument('subs',
+            help='The subs file')
+    parser_cm.set_defaults(func=check_subs)
+    
+
     # before we let argparse work its magic, check for --version
     if "--version" in sys.argv:
         branch = d.get("branch_nick","<unknown branch>")
@@ -1334,6 +1346,37 @@ def create_subset(args):
     f = open(output_file, "w")
     f.write(new_XML)
     f.close()
+
+
+def check_subs(args):
+    """check a subs file"""
+
+    verbose = args.verbose
+    subs_file = args.subs
+    input_file = args.input
+
+    XML = supertree_toolkit.load_phyml(input_file)
+    try:
+        old_taxa, new_taxa = supertree_toolkit.parse_subs_file(subs_file)
+    except UnableToParseSubsFile as e:
+        print e.msg
+        sys.exit(-1)    
+    
+    try:
+        supertree_toolkit.check_subs(XML,new_taxa)
+    except AddingTaxaWarning as detail:
+        print "**************************************************************"
+        print "Warning: This substitution will add taxa to the dataset"
+        print "**************************************************************\n"
+        print detail.msg
+        print "Are you sure this is what you intend?" 
+        return
+
+    print "**************************************************************"
+    print "This subs file looks good. No additional taxa will be added."
+    print "**************************************************************\n"
+
+
 
 if __name__ == "__main__":
     main()

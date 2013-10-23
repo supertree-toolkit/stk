@@ -1,3 +1,11 @@
+supertree-toolkit (2.6) precise; urgency=low
+
+  * Fixing mac compatability
+  * Fixing bugs in bibliography import for inbook and incollection
+  * Adding script for creating a MacOS dmg installer
+
+ -- Jon Hill <jhill1@rheic>  Wed, 23 Oct 2013 09:53:27 +0100
+
 supertree-toolkit (2.5) precise; urgency=low
 
   * Adding Mac compatibilitiy
