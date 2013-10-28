@@ -82,12 +82,9 @@
   </data>    
   <data dest="${bundle}/Contents/Resources/lib/">
     ${prefix}/lib/libglade* 
-  </data>    
-  <data dest="${bundle}/Contents/Resources/lib/">
-    ${prefix}/lib/libxlst* 
   </data>     
   <data dest="${bundle}/Contents/Resources/lib/">
-    ${prefix}/lib/libexlst* 
+    ${prefix}/lib/libexslt* 
   </data>    
   <!-- We need to pack our own Python to avoid compatibility problems. -->
   <binary dest="${bundle}/Contents/MacOS">
