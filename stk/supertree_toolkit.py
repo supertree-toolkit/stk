@@ -2062,7 +2062,7 @@ def replace_genera(XML,dry_run=False,ignoreWarnings=False):
         if t.find("_") == -1:
             # no underscore, so just generic
             generic.append(t)
-    
+
     subs = []
     generic_to_replace = []
     for t in generic:
@@ -2187,6 +2187,18 @@ def parse_subs_file(filename):
 
     return old_taxa, new_taxa
 
+def get_all_genera(XML):
+
+    taxa = get_all_taxa(XML)
+
+    generic = []
+    for t in taxa:
+        t = t.replace('"','')
+        generic.append(t.split("_")[0])
+
+    return generic
+    
+
 def check_subs(XML,new_taxa):
     """Check a subs file and issue a warning if any of the incoming taxa
        are not already in the dataset. This is often what is wanted, but sometimes
@@ -2196,16 +2208,24 @@ def check_subs(XML,new_taxa):
 
     dataset_taxa = get_all_taxa(XML)
     unknown_taxa = []
+    generic = get_all_genera(XML)
     for taxon in new_taxa:
-        if not taxon in dataset_taxa:
-            if not taxon == None:
-                unknown_taxa.append(taxon)
+        if not taxon == None:
+            all_taxa = taxon.split(",")
+            for t in all_taxa:
+                if t.find("_") == -1:
+                    # just generic, so check against that
+                    if not t in generic:
+                        unknown_taxa.append(t)
+                else:
+                    if not t in dataset_taxa:
+                        unknown_taxa.append(t)
     unknown_taxa = _uniquify(unknown_taxa)
     unknown_taxa.sort()
 
     if (len(unknown_taxa) > 0):
         taxa_list = '\n'.join(unknown_taxa)
-        msg = "This substitution is will add the following taxa:\n"
+        msg = "This substitution will add the following taxa as they are not already in the dataset:\n"
         msg += taxa_list
         raise AddingTaxaWarning(msg) 
     
