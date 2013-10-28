@@ -1383,7 +1383,6 @@ def check_subs(args):
         print "Warning: This substitution will add taxa to the dataset"
         print "**************************************************************\n"
         print detail.msg
-        print "Are you sure this is what you intend?" 
         return
 
     print "**************************************************************"

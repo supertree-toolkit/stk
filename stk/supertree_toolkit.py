@@ -2225,7 +2225,7 @@ def check_subs(XML,new_taxa):
 
     if (len(unknown_taxa) > 0):
         taxa_list = '\n'.join(unknown_taxa)
-        msg = "This substitution will add the following taxa as they are not already in the dataset:\n"
+        msg = "These taxa are not already in the dataset, are you sure you want to substitute them in?\n"
         msg += taxa_list
         raise AddingTaxaWarning(msg) 
     
