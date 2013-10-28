@@ -2068,10 +2068,13 @@ class Diamond:
     old_taxa, new_taxa = self.construct_subs_from_treeview()
     # open browse button and get a filename
     filter_names_and_patterns = {}
+    filter_names_and_patterns['CSV files'] = ["*.csv"]
+    filter_names_and_patterns['Sub files'] = ["*.dat","*.txt"]
+    filter_names_and_patterns['All files'] = ["*"]
     # open file dialog
     filename = dialogs.get_filename(title = "Choose input subs fle", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 
-    if (filename.endswith(".csv"):
+    if (filename.endswith(".csv")):
         try:
             old_taxa, new_taxa = stk.subs_from_csv(filename)
         except:
