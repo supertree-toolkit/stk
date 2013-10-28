@@ -2083,6 +2083,42 @@ def replace_genera(XML,dry_run=False,ignoreWarnings=False):
 
     return XML,generic_to_replace,subs
 
+def subs_from_csv(filename):
+    """Create taxonomic subs from a CSV file, where
+       the first column is the old taxon and all other columns are the
+       new taxa to be subbed in-place
+    """
+
+    import csv
+
+    new_taxa = []
+    old_taxa = []
+
+    with open(filename, 'r') as csvfile:
+        subsreader = csv.reader(csvfile, delimiter=',')
+        for row in subsreader:
+            if (len(row) == 0):
+                continue
+            if (len(row) == 1):
+                old_taxa.append(row[0].replace(" ","_"))
+                new_taxa.append(None)
+            else:
+                replacement=""
+                rep_taxa = row[1:]
+                for rep in rep_taxa:
+                    if not rep == "":
+                        if (replacement == ""):
+                            replacement = rep.replace(" ","_")
+                        else:
+                            replacement = replacement+","+rep.replace(" ","_")
+                old_taxa.append(row[0].replace(" ","_"))
+                if (replacement == ""):
+                    new_taxa.append(None)
+                else:
+                    new_taxa.append(replacement)
+
+    return old_taxa, new_taxa
+
 
 def parse_subs_file(filename):
     """ Reads in a subs file and returns two arrays:

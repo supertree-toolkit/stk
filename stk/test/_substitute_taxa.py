@@ -7,7 +7,7 @@ import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tree, _trees_equal, substitute_taxa_in_trees, check_subs
-from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree, _collapse_nodes, import_tree
+from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree,_collapse_nodes, import_tree,subs_from_csv
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -82,6 +82,21 @@ class TestSubs(unittest.TestCase):
             self.assert_(True)
             return
         self.assert_(False)
+
+    def test_csv_subs(self):
+        """Tests the CSV subs parsing
+        """
+        second_sub = "Anomalopteryx_didiformis,Megalapteryx_benhami,Megalapteryx_didinus,Pachyornis_australis,Pachyornis_elephantopus,Pachyornis_mappini,Euryapteryx_curtus,Euryapteryx_geranoides,Emeus_crassus,Dinornis_giganteus,Dinornis_novaezealandiae"
+        third_subs = "Avisaurus_archibaldi,Avisaurus_gloriae,Cathayornis,Concornis_lacustris,Enantiornis_leali,Eoalulavis,Gobipteryx_minuta,Iberomesornis,Lectavis_bretincola,Neuquenornis_volans,Noguerornis,Sinornis_santensis,Soroavisaurus_australis,Two_medicine_form,Yungavolucris_brevipedalis"
+        
+        old_taxa, new_taxa = subs_from_csv('data/input/sub_files/subs.csv')
+        self.assert_(old_taxa[0] == "MRPoutgroup")
+        self.assert_(new_taxa[0] == None)
+        self.assert_(new_taxa[1] == second_sub);
+        self.assert_(old_taxa[1] == "Dinornithidae")
+        self.assert_(old_taxa[2] == "Enantiornithes")
+        self.assert_(new_taxa[2] == third_subs)
+
 
 
     def test_substitute_taxa_single(self):
