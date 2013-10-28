@@ -796,11 +796,18 @@ def sub_taxa(args):
             new_taxa.append(None)
 
     if (subs_file):
-        try:
-            old_taxa, new_taxa = supertree_toolkit.parse_subs_file(subs_file)
-        except UnableToParseSubsFile as e:
-            print e.msg
-            sys.exit(-1)
+        if (subs_file.endswith(".csv")):
+            try:
+                old_taxa, new_taxa = supertree_toolkit.subs_from_csv(subs_file)
+            except UnableToParseSubsFile as e:
+                print e.msg
+                sys.exit(-1)
+        else:
+            try:
+                old_taxa, new_taxa = supertree_toolkit.parse_subs_file(subs_file)
+            except UnableToParseSubsFile as e:
+                print e.msg
+                sys.exit(-1)
     
     
     # Does the input file exist
@@ -1356,11 +1363,18 @@ def check_subs(args):
     input_file = args.input
 
     XML = supertree_toolkit.load_phyml(input_file)
-    try:
-        old_taxa, new_taxa = supertree_toolkit.parse_subs_file(subs_file)
-    except UnableToParseSubsFile as e:
-        print e.msg
-        sys.exit(-1)    
+    if (subs_file.endswith(".csv")):
+        try:
+            old_taxa, new_taxa = supertree_toolkit.subs_from_csv(subs_file)
+        except UnableToParseSubsFile as e:
+            print e.msg
+            sys.exit(-1)
+    else:
+        try:
+            old_taxa, new_taxa = supertree_toolkit.parse_subs_file(subs_file)
+        except UnableToParseSubsFile as e:
+            print e.msg
+            sys.exit(-1) 
     
     try:
         supertree_toolkit.check_subs(XML,new_taxa)
