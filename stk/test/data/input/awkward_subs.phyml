@@ -1,0 +1,268 @@
+<?xml version='1.0' encoding='utf-8'?>
+<phylo_storage>
+  <project_name>
+    <string_value lines="1">Awkward_subs</string_value>
+    <comment>Parentheses, quotes, the lot.</comment>
+  </project_name>
+  <sources>
+    <source name="Butler_etal_2010">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Butler</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Aodhan D</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Edgecombe</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Gregory D</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Ball</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Alexander D</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Giribet</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Gonzalo</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Resolving the phylogenetic position of enigmatic New Guinea and Seychelles Scutigeromorpha (Chilopoda): a molecular and morphological assessment of Ballonemini</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2010</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Invertebrate Systematics</string_value>
+          </journal>
+          <volume>
+            <string_value lines="1">24</string_value>
+          </volume>
+          <pages>
+            <string_value lines="1">1-21</string_value>
+          </pages>
+        </article>
+      </bibliographic_information>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Proteroiulus_fuscus, (((Scolopendra_viridis, Craterostigmus_tasmanianus), (Lithobius_variegatus_rubriceps, (Anopsobius_neozelanicus, Paralamyctes_validus))), (Madagassophora_hova, Scutigerina_malagassa, Scutigerina_cf._weberi, Scutigerina_weberi, ((Dendrothereua_homa, Dendrothereua_nubila), (Parascutigera_nubila, (Ballonema_gracilipes, (((Sphendononema_rugosa, 'Sphendononema guildingii%1', 'Sphendononema guildingii%2'), ('"Scutigera" nossibei', ('Scutigera coleoptrata%1', 'Scutigera coleoptrata%2', 'Scutigera coleoptrata%3'), (Thereuopodina_sp._nov, Tachythereua_sp., (Pilbarascutigera_incola, (Seychellonema_gerlachi, (Thereuopoda_longicornis, Thereuopoda_clunifera)))))), ((Thereuonema_turkestana, Thereuonema_tuberculata), (Parascutigera_cf._sphinx, Parascutigera_latericia, Parascutigera_festiva, Allothereua_serrulata, Allothereua_bidenticulata, Allothereua_linderi, ('Allothereua maculata%1', Allothereua_maculata%2), (Parascutigera_sp._QLD_3, Parascutigera_sp._QLD_2, Parascutigera_sp._QLD_1, Parascutigera_guttata))))))))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">Strict consensus of 36 shortest cladograms (103 steps, consistency index 0.77, retention index 0.92) based on the analysis of morphological data (Morphobank Project P429 Scutigeromorph phylogeny). Numbers on branches indicate jackknife frequencies.</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">4</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">9</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+            <software version="NA" name="TNT"/>
+            <consensus_type name="Strict"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">Proteroiulus fuscus
+Scolopendra viridis
+Craterostigmus tasmanianus
+Lithobius variegatus rubriceps
+Anopsobius neozelanicus
+Paralamyctes validus</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="morphological" name="Adult_morphology"/>
+        </character_data>
+      </source_tree>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Proteroiulus_fuscus, (Craterostigmus_tasmanianus, ((Scolopendra_viridis, (Lithobius_variegatus_rubriceps, (Anopsobius_neozelanicus, Paralamyctes_validus))), (((Scutigerina_weberi, (Scutigerina_cf._weberi, (Madagassophora_hova, Scutigerina_malagassa))), ((Dendrothereua_homa, Dendrothereua_nubila), ((((Pilbarascutigera_incola, ((((Parascutigera_guttata, ((Parascutigera_festiva, (Parascutigera_nubila, Parascutigera_sp._QLD_3)), (Parascutigera_latericia, Parascutigera_sp._QLD_1))), (Allothereua_linderi, Parascutigera_sp._QLD_2)), (Allothereua_serrulata, Allothereua_bidenticulata)), (Parascutigera_cf._sphinx, ('Allothereua maculata%1', Allothereua_maculata%2)))), (Thereuopodina_sp._nov, ((Seychellonema_gerlachi, (Thereuopoda_longicornis, Thereuopoda_clunifera)), (Thereuonema_turkestana, Thereuonema_tuberculata)))), (Ballonema_gracilipes, '"Scutigera" nossibei')), (Tachythereua_sp., ('Scutigera coleoptrata%1', ('Scutigera coleoptrata%2', 'Scutigera coleoptrata%3')))))), (Sphendononema_rugosa, ('Sphendononema guildingii%1', 'Sphendononema guildingii%2'))))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">Total evidence tree for parameter set 3221, the single most parsimonious tree at 17 519 weighted steps obtained after multiple rounds of search and tree fusing. Numbers on branches indicate jackknife frequencies. Navajo rugs for the five explored parameter sets are shown below relevant ingroup nodes; a black square indicates monophyly and a white square non-monophyly. Coloured names of terminals correspond to Pselliodidae (red), Scutigerinidae (blue), and Scutigeridae (green) as in geographic distributions for native species below. Introduced records for Scutigeridae (e.g. Scutigera coleoptrata) are omitted.</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">5</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">11</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+            <software version="4.1.2" name="POY"/>
+            <parameters_used>
+              <string_value lines="1">Direct optimisation - parameter set 3221</string_value>
+            </parameters_used>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">Proteroiulus fuscus
+Scolopendra viridis
+Craterostigmus tasmanianus
+Lithobius variegatus rubriceps
+Anopsobius neozelanicus
+Paralamyctes validus</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="morphological" name="Adult_morphology"/>
+          <character type="molecular" name="18S"/>
+          <character type="molecular" name="28S"/>
+          <character type="molecular" name="16S"/>
+          <character type="molecular" name="12S"/>
+          <character type="molecular" name="COI"/>
+          <character type="molecular" name="Histone H3"/>
+        </character_data>
+      </source_tree>
+    </source>
+    <source name="Vahtera_etal_2014">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Vahtera</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Varpu</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Edgecombe</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Gregory D</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Giribet</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Gonzalo</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Phylogenetics of scolopendromorph centipedes: Can denser taxon sampling improve an artificial classification?</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2014</integer_value>
+          </year>
+        </article>
+      </bibliographic_information>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Scutigera_coleoptrata, (Craterostigmus_tasmanianus, ((Lithobius_forficatus, (Dicellophilus_carniolensis, (Bothriogaster_signata, Plesioschendyla_confossa))), (((Theatops_posticus, (Theatops_erythrocephalus, Plutonium_zwierleini)), ((Cryptops_trisulcatus, ((Cryptops_hortensis, (Cryptops_parisi, (Cryptops_anomalans, Cryptops_punicus))), ((Cryptops_doriae, (Cryptops_niuensis, ('Cryptops (Paracryptops) indicus', 'Cryptops (Paracryptops) weberi'))), ((Cryptops_typhloporus, (Cryptops_australis, Cryptops_lamprethus)), ('Cryptops (Trigonocryptops) galatheae', ('Cryptops (Trigonocryptops) pictus', ('Cryptops (Trigonocryptops) sarasini', 'Cryptops (Trigonocryptops) spinipes'))))))), (Kethops_utahensis, ((('Newportia (Tidops) collaris', ('Newportia (Ectonocryptoides) quadrimeropus', Newportia_oreina)), ((Newportia_longitarsis_stechowi, (Newportia_adisi, Newportia_monticola)), (Newportia_ernsti_ernsti, ('Newportia divergens%1', ('Newportia divergens%2', Newportia_stolli))))), ((Scolopocryptops_sexspinosus, (Scolopocryptops_nigridius, (Scolopocryptops_spinicauda, (Scolopocryptops_nipponicus, Scolopocryptops_rubiginosus)))), ('Scolopocryptops melanostoma%1', ((Scolopocryptops_macrodon, Scolopocryptops_miersii), ('Scolopocryptops melanostoma%2', Scolopocryptops_mexicanus)))))))), ((('Otostigmus multidens%1', ('Otostigmus multidens%2', Otostigmus_rugulosus)), ((Otostigmus_scaber, Otostigmus_ruficeps), (((Otostigmus_politus_politus, (Otostigmus_angusticeps, Otostigmus_astenus)), ((Ethmostigmus_trigonopodus, (Ethmostigmus_curtipes, Ethmostigmus_rubripes_rubripes)), (Rhysida_nuda, (Rhysida_cf_carinulata, Rhysida_polyacantha)))), (((Parotostigmus_caraibicus, Rhysida_longicornis), (Sterropristes_violaceus, Edentistoma_octosulcatus)), ((Digitipes_barnabasi, (Digitipes_coonoorensis, Digitipes_jonesii)), ((Otostigmus_spinicaudus, Rhysida_afra), (Alipes_crotalus, Alipes_grandidieri))))))), ((((Asanada_brevicornis, Asanada_socotrana), (Scolopendra_morsitans, (Scolopendra_laeta, Scolopendra_leki))), (('Scolopendra subspinipes subspinipes%1', (Scolopendra_dehaani, 'Scolopendra subspinipes subspinipes%2')), (Scolopendra_subspinipes_mutilans, (Scolopendra_hardwickei, (Scolopendra_cingulata, Scolopendra_multidens))))), (((Scolopendra_mirabilis, Akymnopellis_chilensis), (Scolopendra_oraniensis, Scolopendra_canidens)), ((Hemiscolopendra_marginata, (Scolopendra_valida, ((Scolopendra_polymorpha, Scolopendra_viridis), (Scolopendra_alternans, (Scolopendra_afer, Arthrorhabdus_formosus))))), ((Cormocephalus_bonaerius, Scolopendropsis_bahiensis), (Cormocephalus_multispinus, (Cormocephalus_monteithi, (Cormocephalus_gervaisianus, (Cormocephalus_pseudopunctatus, (Cormocephalus_westwoodi, ((Cormocephalus_nitidus, (Cormocephalus_anceps, Cormocephalus_elegans)), ((Cormocephalus_calcaratus, (Cormocephalus_hartmeyeri, Notiasemus_glauerti)), (Cormocephalus_neocaledonicus, (Cormocephalus_aurantiipes, (Cormocephalus_longipes, (Campylostigmus_decipiens, Campylostigmus_orientalis))))))))))))))))))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">Single shortest cladogram based on direct optimization parsimony analysis of combined morphological data and molecular data for four loci (36262 steps). Navajo rugs presented below the nodes demonstrate the sensitivity of the data to parameter variation. Black boxes in the rugs stand for monophyly, white for non-monophyly of the group under each parameter sets. Jackknife frequencies &gt;50% are shown above the nodes. Taxa with morphological data alone are marked with an asterisk.</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">4</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+            <software version="4.1.2" name="POY"/>
+            <parameters_used>
+              <string_value lines="1">Direct optimisation</string_value>
+            </parameters_used>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">Scutigera coleoptrata
+Craterostigmus tasmanianus
+Lithobius forficatus
+Dicellophilus carniolensis
+Bothriogaster signata
+Plesioschendyla confossa</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="morphological" name="Adult_morphology"/>
+          <character type="molecular" name="16S"/>
+          <character type="molecular" name="COI"/>
+          <character type="molecular" name="18S"/>
+          <character type="molecular" name="28S"/>
+        </character_data>
+      </source_tree>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">((((Cryptops_trisulcatus, (Cryptops_doriae, (Cryptops_niuensis, ('Cryptops (Paracryptops) weberi', 'Cryptops (Paracryptops) indicus')))), (((Cryptops_anomalans, Cryptops_hortensis), (Cryptops_parisi, Cryptops_punicus)), ((Cryptops_australis, (Cryptops_lamprethus, Cryptops_typhloporus)), ('Cryptops (Trigonocryptops) galatheae', ('Cryptops (Trigonocryptops) sarasini', ('Cryptops (Trigonocryptops) pictus', 'Cryptops (Trigonocryptops) spinipes')))))), ((Theatops_erythrocephalus, Theatops_posticus), ((('Newportia (Ectonocryptoides) quadrimeropus', Newportia_oreina), ((Newportia_ernsti_ernsti, ('Newportia divergens%1', (Newportia_stolli, 'Newportia divergens%2'))), ('Newportia (Tidops) collaris', Newportia_longitarsis_stechowi, (Newportia_adisi, Newportia_monticola)))), ((Scolopocryptops_rubiginosus, (Scolopocryptops_sexspinosus, (Scolopocryptops_spinicauda, (Scolopocryptops_nipponicus, Scolopocryptops_nigridius)))), (Scolopocryptops_mexicanus, (Scolopocryptops_melanostoma, (Scolopocryptops_macrodon, Scolopocryptops_miersii))))))), ((Ethmostigmus_trigonopodus, (((Digitipes_jonesii, Digitipes_coonoorensis), (Rhysida_polyacantha, (Rhysida_cf_carinulata, Rhysida_nuda))), (((Otostigmus_politus_politus, (Otostigmus_astenus, Otostigmus_angusticeps)), ((Otostigmus_ruficeps, Otostigmus_scaber), ('Otostigmus multidens%1', ('Otostigmus multidens%2', Otostigmus_rugulosus)))), ((Sterropristes_violaceus, (Ethmostigmus_curtipes, Ethmostigmus_rubripes_rubripes)), ((Rhysida_afra, (Otostigmus_spinicaudus, Parotostigmus_caraibicus)), (Rhysida_longicornis, (Digitipes_barnabasi, (Alipes_grandidieri, Alipes_crotalus)))))))), (((Scolopendra_mirabilis, Akymnopellis_chilensis), (((Asanada_socotrana, Asanada_brevicornis), (Scolopendra_morsitans, (Scolopendra_laeta, Scolopendra_leki))), (Scolopendra_dehaani, ((Scolopendra_multidens, Scolopendra_cingulata), (Scolopendra_hardwickei, (Scolopendra_subspinipes_subspinipes, Scolopendra_subspinipes_mutilans)))))), (((Scolopendra_oraniensis, Scolopendra_canidens), ((Hemiscolopendra_marginata, (Arthrorhabdus_formosus, Scolopendra_afer)), (Scolopendra_valida, (Scolopendra_alternans, (Scolopendra_polymorpha, Scolopendra_viridis))))), ((Cormocephalus_bonaerius, (Cormocephalus_monteithi, Cormocephalus_multispinus)), ((Cormocephalus_gervaisianus, Cormocephalus_pseudopunctatus), ((Cormocephalus_neocaledonicus, (Cormocephalus_aurantiipes, (Cormocephalus_longipes, (Campylostigmus_orientalis, Campylostigmus_decipiens)))), (Notiasemus_glauerti, ((Cormocephalus_westwoodi, Cormocephalus_hartmeyeri), (Cormocephalus_nitidus, (Cormocephalus_anceps, (Cormocephalus_elegans, Cormocephalus_calcaratus))))))))))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">Optimal maximum likelihood tree (lnL = -22968.240827) with bootstrap support values on nodes</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">5</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Likelihood"/>
+            <software version="NA" name="RaxML"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">Scutigera coleoptrata
+Craterostigmus tasmanianus
+Lithobius forficatus
+Dicellophilus carniolensis
+Bothriogaster signata
+Plesioschendyla confossa</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="morphological" name="Adult_morphology"/>
+          <character type="molecular" name="16S"/>
+          <character type="molecular" name="COI"/>
+          <character type="molecular" name="18S"/>
+          <character type="molecular" name="28S"/>
+        </character_data>
+      </source_tree>
+    </source>
+  </sources>
+  <history/>
+</phylo_storage>
