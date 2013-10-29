@@ -6,7 +6,7 @@ sys.path.insert(0,"../")
 import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tree, _trees_equal, substitute_taxa_in_trees, check_subs
+from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tree, _trees_equal, substitute_taxa_in_trees, check_subs, _tree_contains
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree,_collapse_nodes, import_tree,subs_from_csv
 from lxml import etree
 from util import *
@@ -549,7 +549,41 @@ class TestSubs(unittest.TestCase):
             self.assert_(False)
             return
         self.assert_(True,"Correctly let the subs go")
+
+
+    def test_tree_contains_odd(self):
+        tree = """(Proteroiulus_fuscus, (((Scolopendra_viridis, Craterostigmus_tasmanianus),
+        (Lithobius_variegatus_rubriceps, (Anopsobius_neozelanicus, Paralamyctes_validus))),
+        (Madagassophora_hova, Scutigerina_malagassa, Scutigerina_cf._weberi, Scutigerina_weberi,
+        ((Dendrothereua_homa, Dendrothereua_nubila), (Parascutigera_nubila, (Ballonema_gracilipes,
+        (((Sphendononema_rugosa, 'Sphendononema guildingii%1', 'Sphendononema guildingii%2'),
+        ('"Scutigera" nossibei', ('Scutigera coleoptrata%1', 'Scutigera coleoptrata%2', 'Scutigera coleoptrata%3'), (Thereuopodina_sp._nov, Tachythereua_sp., (Pilbarascutigera_incola,
+        (Seychellonema_gerlachi, (Thereuopoda_longicornis, Thereuopoda_clunifera)))))),
+        ((Thereuonema_turkestana, Thereuonema_tuberculata), (Parascutigera_cf._sphinx,
+            Parascutigera_latericia, Parascutigera_festiva, Allothereua_serrulata,
+            Allothereua_bidenticulata, Allothereua_linderi, ('Allothereua maculata%1',
+                Allothereua_maculata%2), (Parascutigera_sp._QLD_3, Parascutigera_sp._QLD_2,
+                    Parascutigera_sp._QLD_1, Parascutigera_guttata))))))))));"""
+        self.assert_(_tree_contains('"Scutigera"_nossibei',tree))
+
    
+
+    def test_subs_awkward(self):
+        """Try subs with ( and " in them"""
+        XML = etree.tostring(etree.parse('data/input/awkward_subs.phyml',parser),pretty_print=True)
+        old_taxa, new_taxa = parse_subs_file('data/input/sub_files/awkward_subs.dat');
+        self.assert_('"Scutigera"_nossibei' in old_taxa)
+        self.assert_('Cryptops_(Trigonocryptops)_pictus' in old_taxa)
+        XML2 = substitute_taxa(XML, old_taxa, new_taxa)
+        taxa = get_all_taxa(XML2)
+        self.assert_(not '"Scutigera"_nossibei' in taxa)
+        self.assert_(not 'Cryptops_(Trigonocryptops)_pictus' in taxa)
+        self.assert_('Scutigera_nossibei' in taxa)
+        self.assert_('Cryptops_pictus' in taxa)
+
+
+
+
 
 if __name__ == '__main__':
     unittest.main()

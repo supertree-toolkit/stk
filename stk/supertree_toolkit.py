@@ -2634,6 +2634,7 @@ def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None):
                 count = 0
                 taxon_temp = taxon.replace("'","")
                 for t in terminals:
+                    t = t.replace(" ","_")
                     if (t == taxon_temp):
                         count += 1
                     if (t.startswith(taxon_temp+"%")):
@@ -2661,6 +2662,7 @@ def _tree_contains(taxon,tree):
     # p4 strips off ', so we need to do so for the input taxon
     taxon = taxon.replace("'","")
     for t in terminals:
+        t = t.replace(" ","_")
         if (t == taxon):
             return True
         if (t.startswith(taxon+"%")):
@@ -2749,14 +2751,23 @@ def _sub_taxon(old_taxon, new_taxon, tree):
         # we need to delete instead
         return _delete_taxon(old_taxon,tree)
 
+    old_taxon = re.escape(old_taxon)    
     # check old taxon isn't quoted
-    m = re.search('[\(|\)|\.|\?]', old_taxon)
+    m = re.search('[\(|\)|\.|\?|"]', old_taxon)
     if (not m == None):
         old_taxon = "'"+old_taxon+"'" 
+        # given we've just quoted it, the _ might be spaces after all
+        # search for this (it is in the tree, we just don't know the form)
+        match = re.search(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",modified_tree)
+        if (match == None):
+            old_taxon = old_taxon.replace("_"," ")
+            match = re.search(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",modified_tree)
+            if (match == None):
+                raise InvalidSTKData("Tried to find "+old_taxon+" in "+modified_tree+" and failed")
+
   
 
     # simple text swap
-    old_taxon = re.escape(old_taxon)
     new_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new_taxon+'\g<posttaxon>', modified_tree)
     # we might now need a final collapse - e.g. we might get ...(taxon1,taxon2),... due
     # to replacements, but they didn't collapse, so let's do this
