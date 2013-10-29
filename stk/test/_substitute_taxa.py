@@ -574,12 +574,15 @@ class TestSubs(unittest.TestCase):
         old_taxa, new_taxa = parse_subs_file('data/input/sub_files/awkward_subs.dat');
         self.assert_('"Scutigera"_nossibei' in old_taxa)
         self.assert_('Cryptops_(Trigonocryptops)_pictus' in old_taxa)
+        self.assert_('Anopsobius_sp._nov._NSW' in old_taxa)
         XML2 = substitute_taxa(XML, old_taxa, new_taxa)
         taxa = get_all_taxa(XML2)
         self.assert_(not '"Scutigera"_nossibei' in taxa)
         self.assert_(not 'Cryptops_(Trigonocryptops)_pictus' in taxa)
+        self.assert_(not 'Anopsobius_sp._nov._NSW' in taxa)
         self.assert_('Scutigera_nossibei' in taxa)
         self.assert_('Cryptops_pictus' in taxa)
+        self.assert_('Anopsobius_wrighti' in taxa)
 
 
 

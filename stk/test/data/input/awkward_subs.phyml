@@ -263,6 +263,75 @@ Plesioschendyla confossa</string_value>
         </character_data>
       </source_tree>
     </source>
+    <source name="Edgecombe_2003">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Edgecombe</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Gregory D</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">A new genus henicopid centipede (Chilopoda: Lithobiomorpha) from New Caledonia</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2003</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Memoirs of the Queensland Museum</string_value>
+          </journal>
+          <volume>
+            <string_value lines="1">49</string_value>
+          </volume>
+          <pages>
+            <string_value lines="1">269-284</string_value>
+          </pages>
+          <issue>
+            <string_value lines="1">1</string_value>
+          </issue>
+        </article>
+      </bibliographic_information>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Lithobius_obscurus, Lithobius_variegatus_rubriceps, Australobius_scabrior, Bothropolys_multidentatus, ((Shikokuobius_japonicus, (Dichelobius_flavens, (Anopsobius_sp._nov._TAS, (Anopsobius_neozelanicus, Anopsobius_sp._nov._NSW)))), (Zygethobius_pontis, Cermatobius_japonicus), (Lamyctes_emarginatus, Lamyctes_africanus, Lamyctes_coeculus, Analamyctes_tucumanus, Analamyctes_andinus, (Lamyctopristus_validus, 'Lamyctopristus (Eumyctes) sinuatus'), (Easonobius_humilis, Easonobius_tridentatus, (Henicops_dentatus, (Henicops_maculatus, Henicops_sp._nov._QLD)))), ('Paralamyctes (Paralamyctes) spenceri', 'Paralamyctes (Paralamyctes) neverneverensis', ('Paralamyctes (Paralamyctes) asperulus', 'Paralamyctes (Paralamyctes) weberi'), ('Paralamyctes (Paralamyctes) tridens', ('Paralamyctes (Paralamyctes) monteithi', 'Paralamyctes (Paralamyctes) harrisi')), (Paralamyctes_chilensis, ('Paralamyctes (Nothofagobius) cassisi', 'Paralamyctes (Nothofagobius) mesibovi')), ('Paralamyctes (Thingathinga) validus', ('Paralamyctes (Thingathinga) grayi', 'Paralamyctes (Thingathinga) ?grayi', 'Paralamyctes (Thingathinga) hornerae')), ('Paralamyctes (Haasiella) subicolus', ('Paralamyctes (Haasiella) trailli', ('Paralamyctes (Haasiella) cammooensis', 'Paralamyctes (Haasiella) ginini'))))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">Consensus of clades present in more than 50% of jackknife replicates based on morphological data in Table 2, showing jackknife frequencies. Groups with jackknife frequencies in italics are contradicted in some of the 4,233 minimal length cladograms.</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">8</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">284</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+            <software version="4.0b10" name="PAUP"/>
+            <consensus_type name="Majority Rules 50%"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">Lithobius obscurus
+Lithobius variegatus rubriceps
+Australobius scabrior
+Bothropolys multidentatus</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="morphological" name="Adult_morphology"/>
+        </character_data>
+      </source_tree>
+    </source>
   </sources>
   <history/>
 </phylo_storage>
