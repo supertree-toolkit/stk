@@ -2608,7 +2608,8 @@ def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None):
     
     If the new_taxa array is missing, simply delete the old_taxa
     """
-    
+   
+    tree = _correctly_quote_taxa(tree)
     # are the input values lists or simple strings?
     if (isinstance(old_taxa,str)):
         old_taxa = [old_taxa]
@@ -2649,6 +2650,7 @@ def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None):
         i += 1
 
     tree = _collapse_nodes(tree)
+    tree = _remove_single_poly_taxa(tree)
 
     return tree 
 
@@ -2734,7 +2736,7 @@ def _sub_taxon(old_taxon, new_taxon, tree):
  
     # we might have to add quotes back in
     for i in range(0,len(taxa)):
-        m = re.search('[\(|\)|\.|\?|"]', taxa[i])
+        m = re.search('[\(|\)|\.|\?|"|=]', taxa[i])
         if (not m == None):
             taxa[i] = "'"+taxa[i]+"'" 
 
@@ -2753,7 +2755,7 @@ def _sub_taxon(old_taxon, new_taxon, tree):
 
     old_taxon = re.escape(old_taxon)    
     # check old taxon isn't quoted
-    m = re.search('[\(|\)|\.|\?|"]', old_taxon)
+    m = re.search('[\(|\)|\.|\?|"|=]', old_taxon)
     match = re.search(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",modified_tree)
     if (not m == None and match == None):
         old_taxon = "'"+old_taxon+"'" 
@@ -2790,7 +2792,7 @@ def _correctly_quote_taxa(tree):
     new_taxa = {}
     # set the taxon name correctly, including in quotes, if needed...
     for t in taxa:
-       m = re.search('[\(|\)|\?|"]', t)
+       m = re.search('[\(|\)|\?|"|=]', t)
        if (m == None):
           new_taxa[t] = t.replace(" ","_")
        else:
@@ -2845,14 +2847,29 @@ def _collapse_nodes(in_tree):
 
     return tree.writeNewick(fName=None,toString=True).strip()    
 
-def _count_poly_taxa(tree)
+def _remove_single_poly_taxa(tree):
     """ Count the numbers after % in taxa names """
 
     taxa = _getTaxaFromNewick(tree)
+
+    numbers = {}
     for t in taxa:
         m = re.match('([a-zA-Z0-9_\+\= ]*)%([0-9]+)', t)
         if (not m == None):
-            number = m.group(2)
+            if (m.group(1) in numbers):
+                numbers[m.group(1)] = numbers[m.group(1)]+1
+            else:
+                numbers[m.group(1)] = 1
+        else:
+            numbers[t] = 1
+
+    for t in taxa:
+        m = re.match('([a-zA-Z0-9_\+\= ]*)%([0-9]+)', t)
+        if (not m == None):
+            if numbers[m.group(1)] == 1:
+                tree = re.sub(t,m.group(1),tree) 
+    
+    return tree
 
 
 def _swap_tree_in_XML(XML, tree, name, delete=False):
