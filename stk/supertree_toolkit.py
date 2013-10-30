@@ -2744,7 +2744,7 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     # Then we collapse the nodes, taking into account duplicated taxa
     # This will need several iterations.
 
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\=]*)%[0-9]+",'\g<taxon>',tree)
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',tree)
     new_taxon = ",".join(taxa)
 
     if (len(new_taxon) == 0):
@@ -2766,8 +2766,6 @@ def _sub_taxon(old_taxon, new_taxon, tree):
             if (match == None):
                 raise InvalidSTKData("Tried to find "+old_taxon+" in "+modified_tree+" and failed")
 
-  
-
     # simple text swap
     new_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new_taxon+'\g<posttaxon>', modified_tree)
     # we might now need a final collapse - e.g. we might get ...(taxon1,taxon2),... due
@@ -2779,12 +2777,42 @@ def _sub_taxon(old_taxon, new_taxon, tree):
 
     return new_tree
 
+def _correctly_quote_taxa(tree):
+    """ In order for the subs to work, we need to only quote taxa that need it, as otherwise 
+        we might have have the same taxon, e.g. 'Gallus gallus' and Gallus_gallus being
+        considered as different
+    """
+
+    # get taxa from tree
+    t_obj = _parse_tree(tree)
+    taxa = t_obj.getAllLeafNames(0)
+
+    new_taxa = {}
+    # set the taxon name correctly, including in quotes, if needed...
+    for t in taxa:
+       m = re.search('[\(|\)|\?|"]', t)
+       if (m == None):
+          new_taxa[t] = t.replace(" ","_")
+       else:
+          new_taxa[t] = "'" + t + "'"
+
+    # search for the taxa in the tree now, check if quoted already
+    modified_tree = tree
+    for t in taxa:
+        new = new_taxa[t]
+        modified_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+t+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new+'\g<posttaxon>',modified_tree)
+        # new try with quotes on original - they get stripped by p4
+        t = "'" + t + "'"
+        modified_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+t+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new+'\g<posttaxon>',modified_tree)
+
+    return modified_tree
+
 def _collapse_nodes(in_tree):
     """ Collapses nodes where the siblings are actually the same
         taxon, denoted by taxon1, taxon2, etc
     """
 
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z_]*)%[0-9]+",'\g<taxon>',in_tree)    
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)    
     tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
     taxa = tree.getAllLeafNames(0)
     
@@ -2794,12 +2822,12 @@ def _collapse_nodes(in_tree):
             siblings = _get_all_siblings(tree.node(t))
         except p4.Glitch:
             continue
-        m = re.match('([a-zA-Z0-9_]*)%[0-9]+', t)
+        m = re.match('([a-zA-Z0-9_\+\= ]*)%[0-9]+', t)
         if (not m == None):
             t = m.group(1)
         for s in siblings:
             orig_s = s
-            m = re.match('([a-zA-Z0-9_]*)%[0-9]+', s)
+            m = re.match('([a-zA-Z0-9_\+\= ]*)%[0-9]+', s)
             if (not m == None):
                 s = m.group(1)
             if t == s:
@@ -2807,12 +2835,24 @@ def _collapse_nodes(in_tree):
                 tree.removeNode(tree.node(orig_s),alsoRemoveSingleChildParentNode=True,alsoRemoveBiRoot=False)
 
     # We also need to clean tree up
+    # First remove the % signs if not needed
+
+    # Remove all the empty nodes we left laying around
     tree.getPreAndPostOrderAboveRoot()
     for n in tree.iterPostOrder():
         if n.getNChildren() == 1 and n.isLeaf == 0:
             tree.collapseNode(n)
 
     return tree.writeNewick(fName=None,toString=True).strip()    
+
+def _count_poly_taxa(tree)
+    """ Count the numbers after % in taxa names """
+
+    taxa = _getTaxaFromNewick(tree)
+    for t in taxa:
+        m = re.match('([a-zA-Z0-9_\+\= ]*)%([0-9]+)', t)
+        if (not m == None):
+            number = m.group(2)
 
 
 def _swap_tree_in_XML(XML, tree, name, delete=False):
