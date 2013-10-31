@@ -82,6 +82,9 @@
   </data>    
   <data dest="${bundle}/Contents/Resources/lib/">
     ${prefix}/lib/libglade* 
+  </data>    
+  <data dest="${bundle}/Contents/Resources/lib/">
+    ${prefix}/lib/libxslt* 
   </data>     
   <data dest="${bundle}/Contents/Resources/lib/">
     ${prefix}/lib/libexslt* 
