@@ -40,7 +40,8 @@ import operator
 import stk.p4.MRP as MRP
 import networkx as nx
 import matplotlib
-matplotlib.use('GTKAgg')
+if (sys.platform == "darwin"):
+    matplotlib.use('GTKAgg')
 import pylab as plt
 from matplotlib.ticker import MaxNLocator
 from matplotlib import backends
