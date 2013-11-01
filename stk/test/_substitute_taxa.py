@@ -608,7 +608,21 @@ class TestSubs(unittest.TestCase):
         collapsed_tree = _remove_single_poly_taxa(tree)
         self.assert_(_trees_equal(tree2, collapsed_tree))
 
-        
+
+    def test_subspecies_sub(self):
+        """ Checking the sub of sub species """
+
+        tree1 = """(taxa_1, 'taxa 2', 'taxa (blah?) foo', bob);"""
+        tree2 = """(taxa_1, taxa_2, taxa_8, bob);"""
+        new_tree = _sub_taxa_in_tree(tree1,"taxa_(blah?)_foo",'taxa_8');
+        self.assert_(_trees_equal(new_tree, tree2), "Did a sub on quoted odd taxon")
+        tree1 = """(taxa_1, 'taxa 2', 'taxa blah?', bob);"""
+        new_tree = _sub_taxa_in_tree(tree1,"taxa_blah?",'taxa_8');
+        self.assert_(_trees_equal(new_tree, tree2), "Did a sub on quoted odd taxon")
+        tree1 = """(taxa_1, 'taxa 2', 'taxa blah,sp2 nov', bob);"""
+        new_tree = _sub_taxa_in_tree(tree1,"taxa_blah,sp2_nov",'taxa_8');
+        self.assert_(_trees_equal(new_tree, tree2), "Did a sub on quoted odd taxon")
+
 
 if __name__ == '__main__':
     unittest.main()
