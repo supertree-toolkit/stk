@@ -1351,7 +1351,7 @@ def load_phyml(filename):
     return etree.tostring(etree.parse(filename,parser),pretty_print=True)
 
 
-def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWarnings=False, verbose=False):
+def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWarnings=False, verbose=False, skip_existing=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
@@ -1383,11 +1383,15 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
 
     # Sort incoming taxa
     if (only_existing):
+        import csv
+        
         existing_taxa = get_all_taxa(XML)
         corrected_taxa = []
         for t in new_taxa:
-            if (not t == None):
-                current_new_taxa = t.split(",")
+            if (not t == None):    
+                # remove duplicates in the new taxa
+                for row in csv.reader([t],delimiter=',', quotechar="'"):
+                    current_new_taxa = row
                 current_corrected_taxa = []
                 for cnt in current_new_taxa:
                     if (cnt in existing_taxa):
@@ -1408,7 +1412,7 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
 
     for name in trees.iterkeys():
         tree = trees[name]
-        new_tree = _sub_taxa_in_tree(tree,old_taxa,new_taxa)
+        new_tree = _sub_taxa_in_tree(tree,old_taxa,new_taxa,skip_existing=skip_existing)
         XML = _swap_tree_in_XML(XML,new_tree,name)
  
 
@@ -1634,7 +1638,7 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
     output_string += "======================\n\n"
 
     trees = obtain_trees(XML)
-    taxa = get_all_taxa(XML, pretty=True, ignoreErrors=True)
+    taxa = get_all_taxa(XML, pretty=False, ignoreErrors=True)
     characters = get_all_characters(XML,ignoreErrors=True)
     char_numbers = get_character_numbers(XML,ignoreErrors=True)
     fossils = get_fossil_taxa(XML)
@@ -2063,6 +2067,7 @@ def replace_genera(XML,dry_run=False,ignoreWarnings=False):
     generic = []
     # find all the generic and build an internal subs file
     for t in taxa:
+        t = t.replace(" ","_")
         if t.find("_") == -1:
             # no underscore, so just generic
             generic.append(t)
@@ -2073,6 +2078,10 @@ def replace_genera(XML,dry_run=False,ignoreWarnings=False):
         currentSub = []
         for taxon in taxa:
             if (not taxon == t) and taxon.find(t) > -1:
+                m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', taxon)
+                if (not m == None):
+                    if taxon.find("'") == -1:
+                        taxon = "'"+taxon+"'" 
                 currentSub.append(taxon)
         if (len(currentSub) > 0):
             subs.append(",".join(currentSub))
@@ -2081,7 +2090,7 @@ def replace_genera(XML,dry_run=False,ignoreWarnings=False):
     if (dry_run):
         return None,generic_to_replace,subs
 
-    XML = substitute_taxa(XML, generic_to_replace, subs, ignoreWarnings=ignoreWarnings)
+    XML = substitute_taxa(XML, generic_to_replace, subs, ignoreWarnings=ignoreWarnings, skip_existing=True)
 
     XML = clean_data(XML)
 
@@ -2606,7 +2615,7 @@ def _assemble_tree_matrix(tree_string):
 
     return adjmat, names
 
-def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None):
+def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
     """Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
     
@@ -2650,7 +2659,7 @@ def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None):
 
             else:
                 # we are substituting
-                tree = _sub_taxon(taxon, new_taxa[i], tree)
+                tree = _sub_taxon(taxon, new_taxa[i], tree, skip_existing=skip_existing)
         i += 1
 
     tree = _collapse_nodes(tree)
@@ -2727,15 +2736,26 @@ def _get_all_siblings(node):
     return siblings
 
 
-def _sub_taxon(old_taxon, new_taxon, tree):
+def _sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
     """ Simple swap of taxa
     """
 
+    import csv
+
+    taxa_in_tree = _getTaxaFromNewick(tree)
+    # we might have to add quotes back in
+    for i in range(0,len(taxa_in_tree)):
+        m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', taxa_in_tree[i])
+        if (not m == None):
+            if taxa_in_tree[i].find("'") == -1:
+                taxa_in_tree[i] = "'"+taxa_in_tree[i]+"'" 
+    
     # swap spaces for _, as we're dealing with Newick strings here
     new_taxon = new_taxon.replace(" ","_")
 
     # remove duplicates in the new taxa
-    taxa = new_taxon.split(",")
+    for row in csv.reader([new_taxon],delimiter=',', quotechar="'"):
+        taxa = row
     taxa = _uniquify(taxa)
  
     # we might have to add quotes back in
@@ -2745,6 +2765,15 @@ def _sub_taxon(old_taxon, new_taxon, tree):
             if taxa[i].find("'") == -1:
                 taxa[i] = "'"+taxa[i]+"'" 
 
+    new_taxa = []
+    if skip_existing:
+        # now remove new taxa that are already in the tree
+        for t in taxa:
+            if not t in taxa_in_tree:
+                new_taxa.append(t)
+    else:
+        new_taxa = taxa
+
     # Here's the plan - strip the duplicated taxa marker, _\d from the
     # taxa. We can then just swap taxa in plan text.
     # When done, p4 can fix duplicated taxa by adding back on _\d
@@ -2752,7 +2781,7 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     # This will need several iterations.
 
     modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',tree)
-    new_taxon = ",".join(taxa)
+    new_taxon = ",".join(new_taxa)
 
     if (len(new_taxon) == 0):
         # we need to delete instead
