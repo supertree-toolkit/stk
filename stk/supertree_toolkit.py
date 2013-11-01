@@ -2736,7 +2736,7 @@ def _sub_taxon(old_taxon, new_taxon, tree):
  
     # we might have to add quotes back in
     for i in range(0,len(taxa)):
-        m = re.search('[\(|\)|\.|\?|"|=|,]', taxa[i])
+        m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@]', taxa[i])
         if (not m == None):
             taxa[i] = "'"+taxa[i]+"'" 
 
@@ -2755,7 +2755,7 @@ def _sub_taxon(old_taxon, new_taxon, tree):
 
     old_taxon = re.escape(old_taxon)    
     # check old taxon isn't quoted
-    m = re.search('[\(|\)|\.|\?|"|=|,]', old_taxon)
+    m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@]', old_taxon)
     match = re.search(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",modified_tree)
     if (not m == None and match == None):
         old_taxon = "'"+old_taxon+"'" 
@@ -2792,7 +2792,7 @@ def _correctly_quote_taxa(tree):
     new_taxa = {}
     # set the taxon name correctly, including in quotes, if needed...
     for t in taxa:
-       m = re.search('[\(|\)|\?|"|=|,]', t)
+       m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@]', t)
        if (m == None):
           new_taxa[t] = t.replace(" ","_")
        else:
