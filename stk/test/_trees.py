@@ -3,7 +3,7 @@ import math
 import sys
 # so we import local stk before any other
 sys.path.insert(0,"../../")
-from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
+from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon,_tree_contains
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_taxa_from_tree, get_characters_from_tree, amalgamate_trees
 from stk.supertree_toolkit import import_trees, _trees_equal, _find_trees_for_permuting, permute_tree, get_all_source_names, _getTaxaFromNewick
 
@@ -32,6 +32,9 @@ class TestImportExportTree(unittest.TestCase):
         tree = import_tree(test_file)
         self.assert_(e_tree == tree)
 
+    def test_unquoted_taxa_parse(self):
+        tree="""(Lithobius_obscurus, Lithobius_variegatus, Australobius_scabrior, Bothropolys_multidentatus, ((Shikokuobius_japonicus, (Dichelobius_flavens, (Anopsobius_sp._nov._TAS, (Anopsobius_neozelanicus, Anopsobius_sp._nov._NSW)))), (Zygethobius_pontis, Cermatobius_japonicus), (Lamyctes_emarginatus, Lamyctes_africanus, Lamyctes_caeculus, Analamyctes_tucumanus, Analamyctes_andinus, (Lamyctopristus_validus, Lamyctopristus_sinuatus), (Easonobius_humilis, Easonobius_tridentatus, (Henicops_dentatus, (Henicops_maculatus, Henicops_sp._nov._QLD)))), (Paralamyctes_spenceri, Paralamyctes_neverneverensis, (Paralamyctes_asperulus, Paralamyctes_weberi), (Paralamyctes_tridens, (Paralamyctes_monteithi, Paralamyctes_harrisi)), (Paralamyctes_chilensis, (Paralamyctes_cassisi, Paralamyctes_mesibovi)), (Paralamyctes_validus, (Paralamyctes_grayi, 'Paralamyctes ?grayi', Paralamyctes_hornerae)), (Paralamyctes_subicolus, (Paralamyctes_trailli, (Paralamyctes_cammooensis, Paralamyctes_ginini))))));"""
+        print _tree_contains("Paralamyctes_validus",tree)
 
     def test_import_treeview(self):
         test_file = "data/input/treeview_test.tre"

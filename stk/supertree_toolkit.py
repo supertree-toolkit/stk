@@ -2740,9 +2740,10 @@ def _sub_taxon(old_taxon, new_taxon, tree):
  
     # we might have to add quotes back in
     for i in range(0,len(taxa)):
-        m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@]', taxa[i])
+        m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', taxa[i])
         if (not m == None):
-            taxa[i] = "'"+taxa[i]+"'" 
+            if taxa[i].find("'") == -1:
+                taxa[i] = "'"+taxa[i]+"'" 
 
     # Here's the plan - strip the duplicated taxa marker, _\d from the
     # taxa. We can then just swap taxa in plan text.
@@ -2759,7 +2760,7 @@ def _sub_taxon(old_taxon, new_taxon, tree):
 
     old_taxon = re.escape(old_taxon)    
     # check old taxon isn't quoted
-    m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@]', old_taxon)
+    m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', old_taxon)
     match = re.search(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",modified_tree)
     if (not m == None and match == None):
         old_taxon = "'"+old_taxon+"'" 
@@ -2796,7 +2797,7 @@ def _correctly_quote_taxa(tree):
     new_taxa = {}
     # set the taxon name correctly, including in quotes, if needed...
     for t in taxa:
-       m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@]', t)
+       m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', t)
        if (m == None):
           new_taxa[t] = t.replace(" ","_")
        else:
@@ -2806,10 +2807,12 @@ def _correctly_quote_taxa(tree):
     modified_tree = tree
     for t in taxa:
         new = new_taxa[t]
-        modified_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+t+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new+'\g<posttaxon>',modified_tree)
+        look_for = re.escape(t)
+        modified_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+look_for+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new+'\g<posttaxon>',modified_tree)
         # new try with quotes on original - they get stripped by p4
         t = "'" + t + "'"
-        modified_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+t+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new+'\g<posttaxon>',modified_tree)
+        look_for = re.escape(t)
+        modified_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+look_for+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new+'\g<posttaxon>',modified_tree)
 
     return modified_tree
 
@@ -2818,7 +2821,7 @@ def _collapse_nodes(in_tree):
         taxon, denoted by taxon1, taxon2, etc
     """
 
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)    
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)   
     tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
     taxa = tree.getAllLeafNames(0)
     
@@ -2828,12 +2831,12 @@ def _collapse_nodes(in_tree):
             siblings = _get_all_siblings(tree.node(t))
         except p4.Glitch:
             continue
-        m = re.match('([a-zA-Z0-9_\+\= ]*)%[0-9]+', t)
+        m = re.match('([a-zA-Z0-9_\+\=\? ]*)%[0-9]+', t)
         if (not m == None):
             t = m.group(1)
         for s in siblings:
             orig_s = s
-            m = re.match('([a-zA-Z0-9_\+\= ]*)%[0-9]+', s)
+            m = re.match('([a-zA-Z0-9_\+\=\? ]*)%[0-9]+', s)
             if (not m == None):
                 s = m.group(1)
             if t == s:
@@ -3374,6 +3377,7 @@ def _parse_tree(tree,fixDuplicateTaxa=False):
             p4.var.doRepairDupedTaxonNames = 0
     except p4.Glitch as detail:
         print detail.msg
+        print tree
         raise TreeParseError("Error parsing tree\n"+detail.msg )
 
     t = p4.var.trees[0]
