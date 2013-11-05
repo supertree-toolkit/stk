@@ -1516,10 +1516,14 @@ def permute_tree(tree,matrix="hennig",treefile=None):
 
     permuted_trees = {} # The output of the recursive permute algorithm
     output_string = "" # what we pass back
+    tree = _correctly_quote_taxa(tree)
 
     # first thing is to get hold of the unique taxa names
     # i.e. without % on them
-    tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\= ]*) (?P<taxon2>[a-zA-Z0-9_\+\= %]*)'","\g<taxon>_\g<taxon2>",tree)
+    # we need to ensure all spaces are replaced in the % taxa to start with. This might take a few
+    # iterations
+    tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\=\.\? ]*) (?P<taxon2>[a-zA-Z0-9_\+\=\.\? %]*)'","\g<taxon>_\g<taxon2>",tree)
+    #tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\=\.\? ]*) (?P<taxon2>[a-zA-Z0-9_\+\=\.\? ]*) (?P<taxon3>[a-zA-Z0-9_\+\=\.\?%]*)'","\g<taxon>_\g<taxon2>_\g<taxon3>",tree)
 
     all_taxa = _getTaxaFromNewick(tree)
 
@@ -2826,7 +2830,7 @@ def _correctly_quote_taxa(tree):
     new_taxa = {}
     # set the taxon name correctly, including in quotes, if needed...
     for t in taxa:
-       m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', t)
+       m = re.search('[\(|\)|\?|"|=|,|&|^|$|@|+]', t)
        if (m == None):
           new_taxa[t] = t.replace(" ","_")
        else:
