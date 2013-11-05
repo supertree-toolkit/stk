@@ -1517,9 +1517,9 @@ def permute_tree(tree,matrix="hennig",treefile=None):
     permuted_trees = {} # The output of the recursive permute algorithm
     output_string = "" # what we pass back
 
-    # first thing is to get hole of the unique taxa names
+    # first thing is to get hold of the unique taxa names
     # i.e. without % on them
-    tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\=]*) (?P<taxon2>[a-zA-Z0-9_\+\=%]*)'","\g<taxon>_\g<taxon2>",tree)
+    tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\= ]*) (?P<taxon2>[a-zA-Z0-9_\+\= %]*)'","\g<taxon>_\g<taxon2>",tree)
 
     all_taxa = _getTaxaFromNewick(tree)
 

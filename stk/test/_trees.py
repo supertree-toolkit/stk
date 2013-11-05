@@ -380,7 +380,7 @@ class TestTreeMetaData(unittest.TestCase):
         chars = get_characters_from_tree(XML,"Hill_Davis_2011_1",sort=True)
         expected_chars = ['12S','cytb']
         self.assertListEqual(chars,expected_chars)
-    
+
 
     def test_find_trees_for_permuting(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
@@ -390,10 +390,12 @@ class TestTreeMetaData(unittest.TestCase):
     def test_find_trees_for_permuting(self):
         XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
         permute_trees = _find_trees_for_permuting(XML)
-        self.assert_(len(permute_trees) == 3)
+        self.assert_(len(permute_trees) == 4)
         self.assert_(permute_trees['Hill_2011_1'] == "((E%1,'G%1'),A,(G%2,(E%2,F,D,H,E%3)));")
         self.assert_(permute_trees['Davis_2011_1'] == '(Outgroup,(((((Leopardus_geoffroyi,Leopardus_pardalis),(Otocolobus_manul,Felis_magrita)),(Prionailurus_bengalensis,Leptailurus_serval)),(Catopuma_temmincki,(Caracal_caracal,Lynx_rufus))),((Acinonyx_jubatus,(Puma_concolor,(Panthera_tigris%1,Panthera_uncia))),(Panthera_onca,(Panthera_leo,Panthera_tigris%2)))));')
         self.assert_(permute_trees['Hill_Davis_2011_1'] == '(A, (B, (C, D, E%1, F, G, E%2, E%3)));')
+        self.assert_(permute_trees['Hill_Davis_2011_2'] == "(A, (B, (C, D, 'E E%1', F, G, 'E E%2', 'E E%3')));")
+
 
     def test_permute_trees(self):
         XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
@@ -410,6 +412,13 @@ class TestTreeMetaData(unittest.TestCase):
         self.assert_(len(output_trees)==len(expected_trees))
         for i in range(0,len(output_trees)):
             self.assert_(_trees_equal(output_trees[i],expected_trees[i]))
+    
+    def test_permute_trees_3(self):
+        XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
+        trees = obtain_trees(XML)
+        # contains quoted taxa too
+        output = permute_tree(trees['Hill_Davis_2011_2'],treefile="newick")
+        self.assert_(_trees_equal(output,"(A, (B, (C, D, E_E, F, G)));"))
 
     def test_permute_trees_2(self):
         XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
