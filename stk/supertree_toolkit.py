@@ -1523,7 +1523,6 @@ def permute_tree(tree,matrix="hennig",treefile=None):
     # we need to ensure all spaces are replaced in the % taxa to start with. This might take a few
     # iterations
     tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\=\.\? ]*) (?P<taxon2>[a-zA-Z0-9_\+\=\.\? %]*)'","\g<taxon>_\g<taxon2>",tree)
-    #tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\=\.\? ]*) (?P<taxon2>[a-zA-Z0-9_\+\=\.\? ]*) (?P<taxon3>[a-zA-Z0-9_\+\=\.\?%]*)'","\g<taxon>_\g<taxon2>_\g<taxon3>",tree)
 
     all_taxa = _getTaxaFromNewick(tree)
 
@@ -2875,9 +2874,6 @@ def _collapse_nodes(in_tree):
             if t == s:
                 # remove this
                 tree.removeNode(tree.node(orig_s),alsoRemoveSingleChildParentNode=True,alsoRemoveBiRoot=False)
-
-    # We also need to clean tree up
-    # First remove the % signs if not needed
 
     # Remove all the empty nodes we left laying around
     tree.getPreAndPostOrderAboveRoot()
