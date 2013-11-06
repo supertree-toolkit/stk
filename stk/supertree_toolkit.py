@@ -2053,6 +2053,17 @@ def clean_data(XML):
     # check sources
     XML = _check_sources(XML,delete=True)
 
+    # unpermutable trees
+    permutable_trees = _find_trees_for_permuting(XML)
+    all_trees = obtain_trees(XML)
+    for t in permutable_trees:
+        new_tree = permutable_trees[t]
+        for i in range(10): # do at most 10 iterations
+            new_tree = _collapse_nodes(new_tree)
+        
+        if (not _trees_equal(new_tree,permutable_trees[t])):
+           XML = _swap_tree_in_XML(XML,new_tree,t) 
+
     return XML
 
 
@@ -2812,8 +2823,6 @@ def _sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
     # to replacements, but they didn't collapse, so let's do this
     for i in range(10): # do at most 10 iterations
         new_tree = _collapse_nodes(new_tree)
-        if (_trees_equal):
-            break # they match - no need to keep collapsing
 
     return new_tree
 

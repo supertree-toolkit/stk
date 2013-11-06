@@ -11,7 +11,7 @@ from stk.supertree_toolkit import _check_uniqueness, _check_taxa, _check_data, g
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
 from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
-from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used
+from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used, _trees_equal
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -435,7 +435,11 @@ class TestSetSourceNames(unittest.TestCase):
         XML = etree.tostring(etree.parse('data/input/clean_data.phyml',parser),pretty_print=True)
         XML = clean_data(XML)
         trees = obtain_trees(XML)
-        self.assert_(len(trees) == 1)
+        self.assert_(len(trees) == 2)
+        expected_trees = {'Hill_2011_2': '(A,B,(C,D,E));', 'Hill_2011_1': '(A, B, C, (D, E, F));'}
+        for t in trees:
+            self.assert_(_trees_equal(trees[t],expected_trees[t]))
+
         # check only one source remains
         names = get_all_source_names(XML)
         self.assert_(len(names) == 1)
