@@ -3210,7 +3210,7 @@ def _create_matrix_string(matrix,taxa,charsets=None,names=None,format='hennig',q
     last_char = len(matrix[0])    
     if (format == 'hennig'):
         matrix_string = "xread\n"
-        matrix_string += str(len(last_char)) + " "+str(taxa)+"\n"
+        matrix_string += str(last_char) + " "+str(len(taxa))+"\n"
 
         i = 0
         for taxon in taxa:
