@@ -568,7 +568,7 @@ def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=N
         trees = obtain_trees(XML)
         # and the taxa
         taxa = []
-        taxa.append("MRPOutgroup")
+        taxa.append("MRP_Outgroup")
         taxa.extend(get_all_taxa(XML))
         # our matrix, we'll then append the submatrix
         # to this to make a 2D matrix
@@ -595,7 +595,7 @@ def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=N
                         # then get correct matrix entry - note:
                         # submatrix transposed wrt main matrix
                         current_row.append(str(int(submatrix[t_index,i])))
-                    elif (taxon == "MRPOutgroup"):
+                    elif (taxon == "MRP_Outgroup"):
                         current_row.append('0')
                     else:
                         current_row.append('?')
@@ -1322,7 +1322,7 @@ def create_matrix(XML,format="hennig",quote=False,ignoreWarnings=False):
 
     # and the taxa
     taxa = []
-    taxa.append("MRPOutgroup")
+    taxa.append("MRP_Outgroup")
     taxa.extend(get_all_taxa(XML))
 
     return _create_matrix(trees, taxa, format=format, quote=quote)
@@ -1611,7 +1611,7 @@ def permute_tree(tree,matrix="hennig",treefile=None):
         # create matrix
         # taxa are all the same in each tree
         taxa = []
-        taxa.append("MRPOutgroup")
+        taxa.append("MRP_Outgroup")
         taxa.extend(names_unique)
         output_string = _create_matrix(permuted_trees,taxa,format=matrix)
     else:
@@ -3188,7 +3188,7 @@ def _create_matrix(trees, taxa, quote=False,format="hennig"):
                     # then get correct matrix entry - note:
                     # submatrix transposed wrt main matrix
                     current_row.append(str(int(submatrix[t_index,i])))
-                elif (taxon == "MRPOutgroup"):
+                elif (taxon == "MRP_Outgroup"):
                     current_row.append('0')
                 else:
                     current_row.append('?')
@@ -3210,7 +3210,7 @@ def _create_matrix_string(matrix,taxa,charsets=None,names=None,format='hennig',q
     last_char = len(matrix[0])    
     if (format == 'hennig'):
         matrix_string = "xread\n"
-        matrix_string += str(len(taxa)) + " "+str(last_char)+"\n"
+        matrix_string += str(len(last_char)) + " "+str(taxa)+"\n"
 
         i = 0
         for taxon in taxa:
