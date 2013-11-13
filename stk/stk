@@ -309,7 +309,7 @@ def main():
             )
     parser_cm.add_argument('-g',
             '--graphic',
-            default=False,
+            default=None,
             const=True,
             nargs='?',
             help='Save a graphical representation of the connectivity. This is in the form of a graph. '+
@@ -972,9 +972,9 @@ def data_overlap(args):
             output_file = filename+"_"+str(overlap)+".pdf"
         else:
             output_file = args.graphic
-            # check it ends in .png...
+            # check it ends in known graphics type
             extension = os.path.splitext(output_file)[1]
-            if (not extension == '.png' or not extension == '.svg' or not extension == '.pdf'):
+            if (not (extension == '.png' or extension == '.svg' or extension == '.pdf')):
                 print "Warning: unknown output format. Correcting the output file you gave to .pdf"
                 output_file = os.path.splitext(output_file)[0]+".pdf"
 
@@ -996,7 +996,7 @@ def data_overlap(args):
 
     if (graphic):
         # generate key file
-        filename =  os.path.splitext(input_file)[0]
+        filename =  os.path.splitext(output_file)[0]
         csv_file = filename+'_key_list_'+str(overlap)+".csv"
         i = 0
         f = open(csv_file,"w")
@@ -1007,7 +1007,13 @@ def data_overlap(args):
                 f.write(str(i)+","+key+"\n")
             i = i+1
         f.close()
+    
+    if (overlap_ok):
+        print "Your data are sufficently well connected"
+    else:
+        print "Your data are *not* well connected. Run with -g (and perhaps -d) to see which trees need to be removed"
 
+    return
 
 def export_trees(args):
     """ Export source trees to a single tree file

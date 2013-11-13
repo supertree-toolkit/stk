@@ -1768,7 +1768,9 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
     for i in range(0,nTrees):
         for j in range(i+1,nTrees):
             if (connectivity[i][j] >= overlap_amount):
-                G.add_edge(tree_keys[i],tree_keys[j],label=tree_keys[i])
+                if (verbose):
+                    print "Joining "+ tree_keys[i] +" " + tree_keys[j]
+                G.add_edge(tree_keys[i],tree_keys[j],label=str(i))
 
     # That's out graph set up. Dead easy to test all nodes are connected - we can even get the number of seperate connected parts
     connected_components = nx.connected_components(G)
@@ -1788,28 +1790,33 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             # set the key_list to the keys - see below as to why we do this
             key_list = tree_keys
             # we want a detailed graphic instead
-            # Turn tree names into integers
-            G_relabelled = nx.convert_node_labels_to_integers(G)
             # The integer labelling will match the order in which we set
             # up the nodes, which matches tree_keys
-            degrees = G.degree() # we colour nodes by number of edges
+            mapping = {}
+            i = 0
+            for key in tree_keys:
+                mapping[key] = str(i)
+                i += 1
+            G_relabelled = nx.relabel_nodes(G,mapping)
+            degrees = G_relabelled.degree() # we colour nodes by number of edges
             # However, this is a dict and the colour argument of draw need an array of floats
             colours = []
             for key in G_relabelled.nodes_iter():
-                colours.append(len(G_relabelled.neighbors(key)))
+                colours.append(float(len(G_relabelled.neighbors(key))))
             # Define our colourmap, such that unconnected nodes stand out in red, with
             # a smooth white to blue transition above this
             # We need to normalize the colours array from (0,1) and find out where
             # our minimum overlap value sits in there
             if max(colours) == 0:
-                norm_cutoff = 0.999
+                norm_cutoff = 0.5
             else:
-                norm_cutoff = 0.999/max(colours)
+                norm_cutoff = 0.5/(max(colours)+1)
+
             # Our cut off is at 1 - i.e. one connected edge. 
             from matplotlib.colors import LinearSegmentedColormap
             cdict = {'red':   ((0.0, 1.0, 1.0),
                                (norm_cutoff, 1.0, 1.0),
-                               (1.0, 0.1, 0.1)),
+                               (1.0, 0., 0.)),
                      'green': ((0.0, 0.0, 0.0),
                                (norm_cutoff, 0.0, 1.0),
                                (1.0, 0.1, 0.1)),
@@ -1820,26 +1827,25 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             
             # we now make a empty figure to generate a colourbar, then throw away
             Z = [[0,0],[0,0]]
-            levels = range(0,max(colours)+1,1)
+            levels = numpy.arange(0,max(colours)+1,0.5)
             CS3 = plt.contourf(Z, levels, cmap=custom)
             plt.clf()
-            
             if show:
                 fig = plt.figure(dpi=90)
             else:
                 fig = plt.figure(dpi=270)
-            # make a throw-away plot to get a colourbar info
-            Z = [[0,0],[0,0]]
-            levels = plt.frange(0,max(colours)+0.01,(max(colours)+0.01)/256.)
-            CS3 = plt.contourf(Z,levels,cmap=custom)
-            plt.clf()
+            #Z = [[0,0],[0,0]]
+            #levels = plt.frange(0,max(colours)+1,(max(colours)+1)/256.)
+            #print levels
+            #CS3 = plt.contourf(Z,levels,cmap=custom)
+            #plt.clf()
             ax = fig.add_subplot(111)
-            cs = nx.draw_circular(G_relabelled,with_labels=True,ax=ax,node_color=colours,cmap=custom,edge_color='k',node_size=100,font_size=8)
+            cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,node_color=colours,cmap=custom,edge_color='k',node_size=100,font_size=8,vmax=max(colours),vmin=0)
             limits=plt.axis('off')
-            plt.axis('equal')
+            #plt.axis('equal')
             ticks = MaxNLocator(integer=True,nbins=9)
             pp=plt.colorbar(CS3, orientation='horizontal', format='%d', ticks=ticks)
-            pp.set_label("No. connected edges")
+            pp.set_label("No. of connected trees")
             if (show):
                 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
                 canvas = FigureCanvas(fig)  # a gtk.DrawingArea 
@@ -1864,7 +1870,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             sizes = []
             for H in Hs:
                 colours.append(H.number_of_nodes())
-                sizes.append(300*H.number_of_nodes())
+                sizes.append(100*H.number_of_nodes())
             G_relabelled = nx.convert_node_labels_to_integers(G_new)
             if (show):
                 fig = plt.figure(dpi=90)
@@ -1879,7 +1885,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             limits=plt.axis('off')
             plt.axis('equal')
             if (len(colours) > 1):
-                cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,node_size=sizes,node_color=colours,cmap=plt.cm.Blues,edge_color='k')
+                cs = nx.draw_shell(G_relabelled,with_labels=True,ax=ax,node_size=sizes,node_color=colours,cmap=plt.cm.Blues,edge_color='k')
                 ticks = MaxNLocator(integer=True,nbins=9)
                 pp=plt.colorbar(CS3, orientation='horizontal', format='%d', ticks=ticks)
                 pp.set_label("No. connected edges")
