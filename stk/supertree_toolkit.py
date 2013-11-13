@@ -39,6 +39,9 @@ import re
 import operator
 import stk.p4.MRP as MRP
 import networkx as nx
+import matplotlib
+if (sys.platform == "darwin"):
+    matplotlib.use('GTKAgg')
 import pylab as plt
 from matplotlib.ticker import MaxNLocator
 from matplotlib import backends
@@ -565,7 +568,7 @@ def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=N
         trees = obtain_trees(XML)
         # and the taxa
         taxa = []
-        taxa.append("MRPOutgroup")
+        taxa.append("MRP_Outgroup")
         taxa.extend(get_all_taxa(XML))
         # our matrix, we'll then append the submatrix
         # to this to make a 2D matrix
@@ -592,7 +595,7 @@ def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=N
                         # then get correct matrix entry - note:
                         # submatrix transposed wrt main matrix
                         current_row.append(str(int(submatrix[t_index,i])))
-                    elif (taxon == "MRPOutgroup"):
+                    elif (taxon == "MRP_Outgroup"):
                         current_row.append('0')
                     else:
                         current_row.append('?')
@@ -965,7 +968,8 @@ def import_trees(filename):
     trees = _parse_trees(treedata)
     r_trees = []
     for t in trees:
-        r_trees.append(t.writeNewick(fName=None,toString=True).strip())
+        tree = _correctly_quote_taxa(t.writeNewick(fName=None,toString=True).strip())
+        r_trees.append(tree)
 
     return r_trees
 
@@ -1318,7 +1322,7 @@ def create_matrix(XML,format="hennig",quote=False,ignoreWarnings=False):
 
     # and the taxa
     taxa = []
-    taxa.append("MRPOutgroup")
+    taxa.append("MRP_Outgroup")
     taxa.extend(get_all_taxa(XML))
 
     return _create_matrix(trees, taxa, format=format, quote=quote)
@@ -1347,7 +1351,7 @@ def load_phyml(filename):
     return etree.tostring(etree.parse(filename,parser),pretty_print=True)
 
 
-def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWarnings=False, verbose=False):
+def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWarnings=False, verbose=False, skip_existing=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
@@ -1379,11 +1383,15 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
 
     # Sort incoming taxa
     if (only_existing):
+        import csv
+        
         existing_taxa = get_all_taxa(XML)
         corrected_taxa = []
         for t in new_taxa:
-            if (not t == None):
-                current_new_taxa = t.split(",")
+            if (not t == None):    
+                # remove duplicates in the new taxa
+                for row in csv.reader([t],delimiter=',', quotechar="'"):
+                    current_new_taxa = row
                 current_corrected_taxa = []
                 for cnt in current_new_taxa:
                     if (cnt in existing_taxa):
@@ -1404,7 +1412,7 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
 
     for name in trees.iterkeys():
         tree = trees[name]
-        new_tree = _sub_taxa_in_tree(tree,old_taxa,new_taxa)
+        new_tree = _sub_taxa_in_tree(tree,old_taxa,new_taxa,skip_existing=skip_existing)
         XML = _swap_tree_in_XML(XML,new_tree,name)
  
 
@@ -1508,10 +1516,13 @@ def permute_tree(tree,matrix="hennig",treefile=None):
 
     permuted_trees = {} # The output of the recursive permute algorithm
     output_string = "" # what we pass back
+    tree = _correctly_quote_taxa(tree)
 
-    # first thing is to get hole of the unique taxa names
+    # first thing is to get hold of the unique taxa names
     # i.e. without % on them
-    tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\=]*) (?P<taxon2>[a-zA-Z0-9_\+\=%]*)'","\g<taxon>_\g<taxon2>",tree)
+    # we need to ensure all spaces are replaced in the % taxa to start with. This might take a few
+    # iterations
+    tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\=\.\? ]*) (?P<taxon2>[a-zA-Z0-9_\+\=\.\? %]*)'","\g<taxon>_\g<taxon2>",tree)
 
     all_taxa = _getTaxaFromNewick(tree)
 
@@ -1600,7 +1611,7 @@ def permute_tree(tree,matrix="hennig",treefile=None):
         # create matrix
         # taxa are all the same in each tree
         taxa = []
-        taxa.append("MRPOutgroup")
+        taxa.append("MRP_Outgroup")
         taxa.extend(names_unique)
         output_string = _create_matrix(permuted_trees,taxa,format=matrix)
     else:
@@ -1630,7 +1641,7 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
     output_string += "======================\n\n"
 
     trees = obtain_trees(XML)
-    taxa = get_all_taxa(XML, pretty=True, ignoreErrors=True)
+    taxa = get_all_taxa(XML, pretty=False, ignoreErrors=True)
     characters = get_all_characters(XML,ignoreErrors=True)
     char_numbers = get_character_numbers(XML,ignoreErrors=True)
     fossils = get_fossil_taxa(XML)
@@ -2041,6 +2052,17 @@ def clean_data(XML):
     # check sources
     XML = _check_sources(XML,delete=True)
 
+    # unpermutable trees
+    permutable_trees = _find_trees_for_permuting(XML)
+    all_trees = obtain_trees(XML)
+    for t in permutable_trees:
+        new_tree = permutable_trees[t]
+        for i in range(10): # do at most 10 iterations
+            new_tree = _collapse_nodes(new_tree)
+        
+        if (not _trees_equal(new_tree,permutable_trees[t])):
+           XML = _swap_tree_in_XML(XML,new_tree,t) 
+
     return XML
 
 
@@ -2059,6 +2081,7 @@ def replace_genera(XML,dry_run=False,ignoreWarnings=False):
     generic = []
     # find all the generic and build an internal subs file
     for t in taxa:
+        t = t.replace(" ","_")
         if t.find("_") == -1:
             # no underscore, so just generic
             generic.append(t)
@@ -2069,6 +2092,10 @@ def replace_genera(XML,dry_run=False,ignoreWarnings=False):
         currentSub = []
         for taxon in taxa:
             if (not taxon == t) and taxon.find(t) > -1:
+                m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', taxon)
+                if (not m == None):
+                    if taxon.find("'") == -1:
+                        taxon = "'"+taxon+"'" 
                 currentSub.append(taxon)
         if (len(currentSub) > 0):
             subs.append(",".join(currentSub))
@@ -2077,7 +2104,7 @@ def replace_genera(XML,dry_run=False,ignoreWarnings=False):
     if (dry_run):
         return None,generic_to_replace,subs
 
-    XML = substitute_taxa(XML, generic_to_replace, subs, ignoreWarnings=ignoreWarnings)
+    XML = substitute_taxa(XML, generic_to_replace, subs, ignoreWarnings=ignoreWarnings, skip_existing=True)
 
     XML = clean_data(XML)
 
@@ -2602,7 +2629,7 @@ def _assemble_tree_matrix(tree_string):
 
     return adjmat, names
 
-def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None):
+def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
     """Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
     
@@ -2646,7 +2673,7 @@ def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None):
 
             else:
                 # we are substituting
-                tree = _sub_taxon(taxon, new_taxa[i], tree)
+                tree = _sub_taxon(taxon, new_taxa[i], tree, skip_existing=skip_existing)
         i += 1
 
     tree = _collapse_nodes(tree)
@@ -2723,22 +2750,43 @@ def _get_all_siblings(node):
     return siblings
 
 
-def _sub_taxon(old_taxon, new_taxon, tree):
+def _sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
     """ Simple swap of taxa
     """
 
+    import csv
+
+    taxa_in_tree = _getTaxaFromNewick(tree)
+    # we might have to add quotes back in
+    for i in range(0,len(taxa_in_tree)):
+        m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', taxa_in_tree[i])
+        if (not m == None):
+            if taxa_in_tree[i].find("'") == -1:
+                taxa_in_tree[i] = "'"+taxa_in_tree[i]+"'" 
+    
     # swap spaces for _, as we're dealing with Newick strings here
     new_taxon = new_taxon.replace(" ","_")
 
     # remove duplicates in the new taxa
-    taxa = new_taxon.split(",")
+    for row in csv.reader([new_taxon],delimiter=',', quotechar="'"):
+        taxa = row
     taxa = _uniquify(taxa)
  
     # we might have to add quotes back in
     for i in range(0,len(taxa)):
-        m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@]', taxa[i])
+        m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', taxa[i])
         if (not m == None):
-            taxa[i] = "'"+taxa[i]+"'" 
+            if taxa[i].find("'") == -1:
+                taxa[i] = "'"+taxa[i]+"'" 
+
+    new_taxa = []
+    if skip_existing:
+        # now remove new taxa that are already in the tree
+        for t in taxa:
+            if not t in taxa_in_tree:
+                new_taxa.append(t)
+    else:
+        new_taxa = taxa
 
     # Here's the plan - strip the duplicated taxa marker, _\d from the
     # taxa. We can then just swap taxa in plan text.
@@ -2747,7 +2795,7 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     # This will need several iterations.
 
     modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',tree)
-    new_taxon = ",".join(taxa)
+    new_taxon = ",".join(new_taxa)
 
     if (len(new_taxon) == 0):
         # we need to delete instead
@@ -2755,7 +2803,7 @@ def _sub_taxon(old_taxon, new_taxon, tree):
 
     old_taxon = re.escape(old_taxon)    
     # check old taxon isn't quoted
-    m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@]', old_taxon)
+    m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', old_taxon)
     match = re.search(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",modified_tree)
     if (not m == None and match == None):
         old_taxon = "'"+old_taxon+"'" 
@@ -2774,8 +2822,6 @@ def _sub_taxon(old_taxon, new_taxon, tree):
     # to replacements, but they didn't collapse, so let's do this
     for i in range(10): # do at most 10 iterations
         new_tree = _collapse_nodes(new_tree)
-        if (_trees_equal):
-            break # they match - no need to keep collapsing
 
     return new_tree
 
@@ -2792,7 +2838,7 @@ def _correctly_quote_taxa(tree):
     new_taxa = {}
     # set the taxon name correctly, including in quotes, if needed...
     for t in taxa:
-       m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@]', t)
+       m = re.search('[\(|\)|\?|"|=|,|&|^|$|@|+]', t)
        if (m == None):
           new_taxa[t] = t.replace(" ","_")
        else:
@@ -2802,10 +2848,12 @@ def _correctly_quote_taxa(tree):
     modified_tree = tree
     for t in taxa:
         new = new_taxa[t]
-        modified_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+t+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new+'\g<posttaxon>',modified_tree)
+        look_for = re.escape(t)
+        modified_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+look_for+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new+'\g<posttaxon>',modified_tree)
         # new try with quotes on original - they get stripped by p4
         t = "'" + t + "'"
-        modified_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+t+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new+'\g<posttaxon>',modified_tree)
+        look_for = re.escape(t)
+        modified_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+look_for+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new+'\g<posttaxon>',modified_tree)
 
     return modified_tree
 
@@ -2814,7 +2862,7 @@ def _collapse_nodes(in_tree):
         taxon, denoted by taxon1, taxon2, etc
     """
 
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)    
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)   
     tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
     taxa = tree.getAllLeafNames(0)
     
@@ -2824,20 +2872,17 @@ def _collapse_nodes(in_tree):
             siblings = _get_all_siblings(tree.node(t))
         except p4.Glitch:
             continue
-        m = re.match('([a-zA-Z0-9_\+\= ]*)%[0-9]+', t)
+        m = re.match('([a-zA-Z0-9_\+\=\? ]*)%[0-9]+', t)
         if (not m == None):
             t = m.group(1)
         for s in siblings:
             orig_s = s
-            m = re.match('([a-zA-Z0-9_\+\= ]*)%[0-9]+', s)
+            m = re.match('([a-zA-Z0-9_\+\=\? ]*)%[0-9]+', s)
             if (not m == None):
                 s = m.group(1)
             if t == s:
                 # remove this
                 tree.removeNode(tree.node(orig_s),alsoRemoveSingleChildParentNode=True,alsoRemoveBiRoot=False)
-
-    # We also need to clean tree up
-    # First remove the % signs if not needed
 
     # Remove all the empty nodes we left laying around
     tree.getPreAndPostOrderAboveRoot()
@@ -3143,7 +3188,7 @@ def _create_matrix(trees, taxa, quote=False,format="hennig"):
                     # then get correct matrix entry - note:
                     # submatrix transposed wrt main matrix
                     current_row.append(str(int(submatrix[t_index,i])))
-                elif (taxon == "MRPOutgroup"):
+                elif (taxon == "MRP_Outgroup"):
                     current_row.append('0')
                 else:
                     current_row.append('?')
@@ -3165,10 +3210,7 @@ def _create_matrix_string(matrix,taxa,charsets=None,names=None,format='hennig',q
     last_char = len(matrix[0])    
     if (format == 'hennig'):
         matrix_string = "xread\n"
-        matrix_string += str(len(taxa)) + " "+str(last_char)+"\n"
-        matrix_string += "\tformat missing = ?"
-        matrix_string += ";\n"
-        matrix_string += "\n\tmatrix\n\n";
+        matrix_string += str(last_char) + " "+str(len(taxa))+"\n"
 
         i = 0
         for taxon in taxa:
@@ -3370,6 +3412,7 @@ def _parse_tree(tree,fixDuplicateTaxa=False):
             p4.var.doRepairDupedTaxonNames = 0
     except p4.Glitch as detail:
         print detail.msg
+        print tree
         raise TreeParseError("Error parsing tree\n"+detail.msg )
 
     t = p4.var.trees[0]

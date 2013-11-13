@@ -835,9 +835,9 @@ def sub_taxa(args):
         try:
             trees = supertree_toolkit.import_trees(input_file) 
             treefile = True
-        except:
-            import traceback
+        except TreeParseError as detail:
             print "Error loading file as PHYML or a tree file. Check your input, please"
+            print detail.msg
             sys.exit(-1)
     try:
         if (treefile):

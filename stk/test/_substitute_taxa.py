@@ -623,6 +623,20 @@ class TestSubs(unittest.TestCase):
         new_tree = _sub_taxa_in_tree(tree1,"taxa_blah,sp2_nov",'taxa_8');
         self.assert_(_trees_equal(new_tree, tree2), "Did a sub on quoted odd taxon")
 
+    def test_quoted_subin(self):
+        """ sub in taxa that need quoting """
+        tree1 = """(Thereuonema_turkestana, Thereuopodina, 'Thereuopodina, sp. nov.');"""
+        answer1 = """(Thereuonema_turkestana, Thereuopodina_nov._sp., Thereuopodina_n._sp., Thereuopodina_queenslandica, Thereuopodina_sp._nov, 'Thereuopodina, sp. nov.')"""
+        tree2 = """(Thereuonema_turkestana, Thereuopodina, Bob, Fred);"""
+        answer2 = """(Thereuonema_turkestana, Thereuopodina_nov._sp., 'Thereuopodina,_sp._nov.', Thereuopodina_n._sp., Thereuopodina_queenslandica, Thereuopodina_sp._nov, Bob, Fred);"""
+        sub_in = "'Thereuopodina,_sp._nov.','Thereuopodina_n._sp.','Thereuopodina_nov._sp.',Thereuopodina_queenslandica,'Thereuopodina_sp._nov'"
+        new_tree = _sub_taxa_in_tree(tree1,"Thereuopodina",sub_in,skip_existing=True);
+        self.assert_(answer1, new_tree)
+        new_tree = _sub_taxa_in_tree(tree2,"Thereuopodina",sub_in,skip_existing=True);
+        self.assert_(answer2, new_tree)
+
+        
+
 
 if __name__ == '__main__':
     unittest.main()
