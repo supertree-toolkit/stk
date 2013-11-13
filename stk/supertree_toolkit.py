@@ -1840,7 +1840,8 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             #CS3 = plt.contourf(Z,levels,cmap=custom)
             #plt.clf()
             ax = fig.add_subplot(111)
-            cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,node_color=colours,cmap=custom,edge_color='k',node_size=100,font_size=8,vmax=max(colours),vmin=0)
+            cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,node_color=colours,
+                                  cmap=custom,edge_color='k',node_size=100,font_size=8,vmax=max(colours),vmin=0)
             limits=plt.axis('off')
             #plt.axis('equal')
             ticks = MaxNLocator(integer=True,nbins=9)
@@ -1885,12 +1886,13 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             limits=plt.axis('off')
             plt.axis('equal')
             if (len(colours) > 1):
-                cs = nx.draw_shell(G_relabelled,with_labels=True,ax=ax,node_size=sizes,node_color=colours,cmap=plt.cm.Blues,edge_color='k')
+                cs = nx.draw_shell(G_relabelled,with_labels=True,ax=ax,node_size=sizes,node_color=colours,
+                              vmax=max(colours),vmin=0,cmap=plt.cm.Blues,edge_color='k')
                 ticks = MaxNLocator(integer=True,nbins=9)
                 pp=plt.colorbar(CS3, orientation='horizontal', format='%d', ticks=ticks)
                 pp.set_label("No. connected edges")
             else:
-                cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,edge_color='k',node_color='w',node_size=2000)
+                cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,edge_color='k',node_color='w',node_size=500)
             
                 limits=plt.axis('off')
             if (show):
