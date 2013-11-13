@@ -4,58 +4,157 @@ A STK Tutorial
 Introduction
 ------------
 
-.. note:: old_tutorial
+The following is an example of how the scripts were used in creating a species-level supertree of 
+`Anomura <http://en.wikipedia.org/wiki/Anomura>`_, which is an Infraorder of Crutaceans.
 
-The following is an example of how the scripts were used in creating a species-level supertree of birds.
+There are several files included in the tutorial dataset:
+    * A bibliographic bibtex file contianing all the original bibliographic datasets
+    * A semi-complete Phyml with a single tree missing
+    * A tree file to import into the above
+    * The completed original dataset
+    * The complete processed dataset
+    * The final matrix, ready for supertree construction
+    * A supertree, generated using TNT
 
-The whole procedure can be divided into 5 stages:
-    * Collect data
-    * Standardise taxa
-    * Remove unnecessary data and taxa
-    * Check data
-    * Create matrix
+.. note:: This is a test dataset, which has been amended to show all the features and functions of the STK. Do not use in real analysis.
+
+The aim of this tutorial is to guide you through the stages of collecting, storing and curating
+supertree source data. This can be divded into a number of steps:
+    * Collect and import bibliographic data
+    * Collect, digitise and import trees
+    * Remove polyphyletic taxa (e.g. subspecies)
+    * Standardise taxa (remove synonyms, higher-level taxa, etc)
+    * Check data independence
+    * Check taxonomic overlap
+    * Create a subset
+    * Create a matrix
+
+In carrying out this tutorial, you will cover most of the functions of the STK.
+
+Conventions
+-----------
+
+The bulk of the tutorial can be done using either the GUI or the command line. Command line
+instructions are denoted by:
+
+:command:`an example command`
+
+GUI instructions are denoted by:
+
+:menuselection:`Start --> Programs`
+
+
+There are also notes along the way, which are shown like this:
+
+.. note:: These are hints and tips
+
+
+Finally, some warnings are also given:
+
+.. warning:: This is a warning
+
+
 
 Collecting Data
 ---------------
 
-Data is collected from literature as Nexus tree files and bibliographic (bibtex)
-files. The easiest way to start is to create a bibtex file of your source data.
-You can then import this to create your sources.
+Data collection occurs in two stages: literature collection and tree digitisation. 
 
-For each source you then create each tree you want to include in the analysis.
-For each tree, you should also record the page and figure number, the characters
-used, the analysis used and any other relevant information .Data is transcribed
-*exactly* as it is in the original source paper. We deal with incorrect taxa
-later. 
+Literature collection is carried out searching for relavent taxonomic terms in conjuction with terms
+such as "phylog*" in order to obtained literature containing original phylogentic trees.
+Bibliographic data is stored as a `Bibtex format <http://www.bibtex.org/>`_, as the STK
+can import Bibtex files directly. Bibtex is a common format and all
+decent reference managers can output, as can most journal websites. We recommend
+using `JabRef <http://jabref.sourceforge.net/>`_, which is free, open source and
+available on most operating systems. We have tested the STK extensively with output from
+JabRef, but your mileage with other reference managers may vary. 
 
-.. note:: Once done, this is your original file before any processing. Keep this safe. When you extend the data later, you should begin with this file.
- 
+image
 
-One of the time consuming tasks is to digitise trees from the papers. Authors
-rarely give digital trees, so you must use programs such as TreeView or Mesquite
-to turn the graphic in the paper into a digital tree file. This is normally a
-Nexus file, though the STK can parse the trees from most of the popular tree
-creation software packages. Note that paraphyletic taxa are encoded differently.
-For example consider a tree as in figure .
+Once all bibliographic data are collected they can be imported into the STK to provide the basic
+information for your dataset. 
 
-Rather than include subspecies (we assume you want a species level tree), which
-would then involve adding subspecies everywhere, you can tell the STK that these
-taxa should be considered as one. We then remove these in the next step. We
-would therefore encode this tree as shown in figure .
+Open a new instance of the GUI by double clicking the installed icon, or typing stk_gui at a
+terminal. Using the menus, go to :menuselection:`File->Import bibliography`. Use the GUI dialog to
+navigate to your Bibtex file and open it. You will now see a list of sources in the left hand side
+of the GUI. Note that all sources appear blue as there is a lot of missing meta data that needs
+completing. 
 
+image
+
+The next step is to digitise your trees and import them. We've already done this, so open
+:file:`tutorial/starting_data.phyml` which will have the bibliographic data and all but one source
+tree completed. 
+
+To add the remaining source tree, naviate the source to reach Cabezas et al 2009 (this is easy as
+it's the only blue source highlighted). Drill down to reach the tree_string entry (again, the only
+blue one). On the lower left of the GUI, click :menuselection:`Import tree` and navigate to the tree
+file :file:`tutorial/Cebezas_etal_tree1.tre`. This should place the tree file into the GUI.
+
+images
+
+Now save your Phyml using the :menuscelection:`File->Save As` and type in a name (suggest
+:filename:`Anomura.phyml`).
+
+.. note:: Once done, this is your original file before any processing. Keep this safe. When you 
+          extend or alter the data later, you should begin with this file.
+
+It is worth noting at this point that paraphyletic taxa, such as sub-species that aren't sister
+clades in a tree, need some special attention. The STK allows you to *permute* the positions of
+these taxa and generate a tree with all possible combination of places of the taxa. These permuted
+trees can then be dealt with later. However, you must be aware of this when digitising trees. To
+indicate a taxon is paraphyletic append a '%d' on the end of the name where d is an integer. For
+example:
+
+
+image of tree
+
+which can be encoded as:
+
+.. code-block:: bash
+
+        (Artemia_salina, (((Pagurus_pollicaris, Pagurus_longicarpus%1), 
+        ((Labidochirus_splendescens, (Elassochirus_tenuimanus, (Pagurus_bernhardus,
+        Pagurus_acadianus, Pagurus_longicarpus%2))), (Lithodes_aequispinus, 
+        Paralithodes_camtschaticus))), (Clibanarius_vittatus, Coenobita_sp.)));
+
+You can see such a tree in the tutorial datset in Cunningham et al 1992. We will see how to permute
+these trees later in the tutorial
 
 At this point it's worth creating a data summary -- this will allow to to spot
 data input errors: typos, copy and paste errors, etc. Execute the data summary
-command and *carefully* check for errors. However, it is important not to
-correct "errors" that exist in the original paper -- these are dealt with later.
-However, the data summary will allow to spot where you might have mistyped a
-character (CYtb instead of Cytb, for example) or didn't quite copy and paste the
-taxa correctly (missing the last few characters for example). All lists are
-sorted alphabetically, which makes spotting these kinds of errors relatively
-straightforward.
+command using the GUI or command line:
+
+:menuselection:`STK Functions->Data Summary`
+
+:command:`stk data_summary -d summary.txt Anomura.phyml`
+
+*Carefully* check the output for errors. However, it is important not to correct "errors" that exist
+in the original paper -- these are dealt with later.  However, the data summary will allow to spot
+where you might have mistyped a character (CYtb instead of Cytb, for example) or didn't quite copy
+and paste the taxa correctly (missing the last few characters for example). All lists are sorted
+alphabetically, which makes spotting these kinds of errors relatively straightforward.
+
+There are other basic *housekeeping* tasks that can be useful at this point too. First,
+standardising the source names using :menuselection:`STK Functions->Standardise source names` to
+ensure each source has a unique name. Second, cleaning the data using :menuselection:`STK->Clean
+data` to remove all uninformative trees and remove paraphyletic taxa where only one possible
+combination exists.
+
+The above tasks will not alter the tutorial data, so it's safe to save the file again. Normally you
+would use :menuselection:`File->Save As` to be sure of not overwriting data. Note that the file has
+altered though. If you navigate to the *History* section you will see that the data summary and
+clean data commands have been recorded, along with the date and time. This enables you to track what
+commands have been run on this Phyml dataset.
 
 
-.. todo:: Video of entering data (link to this) and screenshots of the process (from video?)
+Removing paraphyletic taxa
+--------------------------
+
+As mentioned above, paraphyletic taxa are dealt with speerately and denoted with a '%n' in the taxon
+name where n is an integer. We deal with these taxa by permuting every possible location of these
+taxa
+
 
 Standardising Taxa
 ------------------
