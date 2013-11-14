@@ -2071,6 +2071,8 @@ def clean_data(XML):
         if (not _trees_equal(new_tree,permutable_trees[t])):
            XML = _swap_tree_in_XML(XML,new_tree,t) 
 
+    XML = _check_informative_trees(XML,delete=True)
+
     return XML
 
 
@@ -2649,7 +2651,7 @@ def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
     if (isinstance(old_taxa,str)):
         old_taxa = [old_taxa]
     if (new_taxa == None):
-        new_taxa = [None]
+        new_taxa = len(old_taxa)*[None]
     elif (new_taxa and isinstance(new_taxa,str)):
         new_taxa = [new_taxa]
 
@@ -2718,7 +2720,13 @@ def _delete_taxon(taxon, tree):
     if (tree.find(taxon) == -1): # should find, even if non-monophyletic
         return tree #raise exception?
 
-    tree_obj = _parse_tree(tree)
+    # Remove all the empty nodes we left laying around
+    tree_obj = _parse_tree(tree)    
+    tree_obj.getPreAndPostOrderAboveRoot()
+    for n in tree_obj.iterPostOrder():
+        if n.getNChildren() == 1 and n.isLeaf == 0:
+            tree_obj.collapseNode(n)
+
     for node in tree_obj.iterNodes():
         if node.name == taxon or (not node.name == None and node.name.startswith(taxon+"%")):
             tree_obj.removeNode(node.nodeNum,alsoRemoveBiRoot=False)

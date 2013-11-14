@@ -8,7 +8,7 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir,
 sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tree, _trees_equal, substitute_taxa_in_trees
 from stk.supertree_toolkit import check_subs, _tree_contains, _correctly_quote_taxa, _remove_single_poly_taxa
-from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree
+from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree, _delete_taxon
 from stk.supertree_toolkit import _collapse_nodes, import_tree, subs_from_csv, _getTaxaFromNewick
 from lxml import etree
 from util import *
@@ -152,9 +152,15 @@ class TestSubs(unittest.TestCase):
             name = t.attrib['name']
             if name == 'A':
                 contains_A = True
-
-
         self.assert_(not contains_A) # we should not have A in a tree
+
+
+    def test_delete_taxa_root(self):
+        tree_1 = "((Artemia_salina),((Kempina_mikado,Lysiosquillina_maculata,Squilla_empusa),Anchistioides_antiguensis,Atyoida_bisulcata));"
+        output = _delete_taxon("Artemia_salina",tree_1)
+        expected_tree = "((Kempina_mikado,Lysiosquillina_maculata,Squilla_empusa),Anchistioides_antiguensis,Atyoida_bisulcata);"
+        self.assert_(_trees_equal(output, expected_tree))
+
 
     def test_substitute_taxa_multiple(self):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
