@@ -1310,7 +1310,7 @@ def get_all_taxa(XML, pretty=False, ignoreErrors=False):
     return taxa_list
 
 
-def create_matrix(XML,format="hennig",quote=False,ignoreWarnings=False):
+def create_matrix(XML,format="hennig",quote=False,taxonomy=None,ignoreWarnings=False):
     """ From all trees in the XML, create a matrix
     """
 
@@ -1319,12 +1319,18 @@ def create_matrix(XML,format="hennig",quote=False,ignoreWarnings=False):
 
     # get all trees
     trees = obtain_trees(XML)
+    if (not taxonomy == None):
+        trees['taxonomy'] = taxonomy
 
     # and the taxa
     taxa = []
-    taxa.append("MRP_Outgroup")
     taxa.extend(get_all_taxa(XML))
-
+    if (not taxonomy == None):
+        taxa.extend(_getTaxaFromNewick(taxonomy))
+        taxa = _uniquify(taxa)
+        taxa.sort()
+    taxa.insert(0,"MRP_Outgroup")
+        
     return _create_matrix(trees, taxa, format=format, quote=quote)
 
 
