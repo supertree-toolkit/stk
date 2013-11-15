@@ -420,6 +420,14 @@ class TestTreeMetaData(unittest.TestCase):
         output = permute_tree(trees['Hill_Davis_2011_2'],treefile="newick")
         self.assert_(_trees_equal(output,"(A, (B, (C, D, E_E, F, G)));"))
 
+    def test_collapse_with_quotes(self):
+        tree = "(Proteroiulus_fuscus, (Craterostigmus_tasmanianus, ((Scolopendra_viridis,(Lithobius_variegatus, (Paralamyctes_validus, Anopsobius_neozelanicus))),(Sphendononema_guildingii, ((Scutigerina_weberi%1, (Scutigerina_weberi%2,(Scutigerina_malagassa, Scutigerina_hova))), (Scutigera_coleoptrata,((Thereuopoda_longicornis, 'Thereuopodina, sp. nov.', (Thereuonema_tuberculata,Thereuonema_turkestana, Thereuopoda_clunifera)), (Allothereua_bidenticulata,Allothereua_serrulata, Parascutigera_festiva, Parascutigera_latericia))))))));"
+        output = permute_tree(tree,treefile="newick")
+        expected_tree = "(Proteroiulus_fuscus, (Craterostigmus_tasmanianus,((Scolopendra_viridis,(Lithobius_variegatus,(Paralamyctes_validus,Anopsobius_neozelanicus))),(Sphendononema_guildingii,((Scutigerina_weberi,(Scutigerina_malagassa, Scutigerina_hova)), (Scutigera_coleoptrata,((Thereuopoda_longicornis, 'Thereuopodina, sp. nov.', (Thereuonema_tuberculata,Thereuonema_turkestana, Thereuopoda_clunifera)), (Allothereua_bidenticulata,Allothereua_serrulata, Parascutigera_festiva, Parascutigera_latericia))))))));"
+        self.assert_(_trees_equal(output,expected_tree))
+
+
+
     def test_permute_trees_2(self):
         XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
         trees = obtain_trees(XML)

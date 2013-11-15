@@ -1253,12 +1253,17 @@ class Diamond:
         self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
     except InvalidSTKData as detail:
         msg = "Failed to check data independence.\n"+detail.msg
-        dialogs.error(self.main_window,msg)
+        dialogs.error_tb(self.main_window,msg)
         self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
     except UninformativeTreeError as detail:
         msg = "Failed to check data independence.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
+    except:
+        msg = "Failed to check data independence. Incomplete Data\n"
+        dialogs.error_tb(self.main_window,msg)
+        return
+
     liststore = gtk.ListStore(str,str)
     treeview = gtk.TreeView(liststore)
     rendererText = gtk.CellRendererText()
