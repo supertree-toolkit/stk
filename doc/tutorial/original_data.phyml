@@ -792,7 +792,9 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Procambarus_clarkii, ((((((Aegla_uruguayana, Lomis_hirta), ((Eumunida_sternomaculata, Munida_quadrispina), (Pachycheles_rudis, Petrolisthes_armatus))), (((Isocheles_pilosus, (Clibanarius_albidigitus, (Calcinus_obscurus, (Birgus_latro, Coenobita_compressa)))), (Paguristes_turgidus, (Pagurus_longicarpus, (Cryptolithodes_typicus, Discorsopagurus_schmitti)))), (Blepharipoda_occidentalis, (Emerita_analoga, Lepidopa_californica)))), (Upogebia_affinis, (Jaxea_nocturna, Panulirus_argus))), (Hepatus_epheliticus, Raninoides_louisianensis)), (Callichirus_major, Neotrypaea_californiensis)));</string_value>
+            <string_value lines="1">(Procambarus_clarkii, ((((((Aegla_uruguayana, Lomis_hirta), ((Eumunida_sternomaculata, Munida_quadrispina), (Pachycheles_rudis, Petrolisthes_armatus))), (((Isocheles_pilosus, (Clibanarius_albidigitus, (Calcinus_obscurus, (Birgus_latro, Coenobita_compressa)))), (Paguristes_turgidus, (Pagurus_longicarpus, (Cryptolithodes_typicus, Discorsopagurus_schmitti)))), (Blepharipoda_occidentalis, (Emerita_analoga, Lepidopa)))), (Upogebia_affinis, (Jaxea_nocturna, Panulirus_argus))), (Hepatus_epheliticus, Raninoides_louisianensis)), (Callichirus_major, Neotrypaea_californiensis)));</string_value>
+            <comment>Has a genus level taxon in: Lepidopa.
+</comment>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -1249,5 +1251,14 @@
       </source_tree>
     </source>
   </sources>
-  <history/>
+  <history>
+    <event>
+      <datetime>
+        <string_value lines="1">2013-11-15 11:24</string_value>
+      </datetime>
+      <action>
+        <string_value lines="1">Data independence checked.</string_value>
+      </action>
+    </event>
+  </history>
 </phylo_storage>

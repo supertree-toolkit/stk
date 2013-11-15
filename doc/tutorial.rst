@@ -175,15 +175,16 @@ Run this matrix in TNT to generate a mini-supertree.
 
 ADD INSTRUCTIONS ON THIS
 
-You can then re-import this tree into your dataset, replacing the original tree.
+You can then re-import this tree into your dataset, replacing the original tree. Navigate to
+Cunningham_et_al_1992 and replace the tree with the % symbols in the taxa name by clicking 
+:menuselection:`Import tree`.
 
 .. note:: This is the "standard" data - *keep this* as this is what gets updated when new trees are added to the dataset.
 
 Removing synonyms requires that a "standard" taxonomy is used. It does not matter what this is, but
 it does matter that two taxa that are actually the same taxa have the same name. Services such as
 `ITIS <http://www.itis.gov/>`_, WORMS, NCID? and other online databases are useful. In future the functionality
-of creating a standardised taxonomy is planned to be included in STK. 
-Once a standardised taxa has been decided, the names can be
+of creating a standardised taxonomy is planned to be included in STK. Once a standardised taxa has been decided, the names can be
 replaced. 
 
 Use your taxonomy to create a *subs file*. This can be done manually in a
@@ -215,7 +216,7 @@ The above can be created using the GUI which ensures you only add taxa already i
 on the left-hand side. Using :menuselection:`STK Functions->Sub taxa`, you will be presented with
 the interface below.
 
-Move taxa from the left to the right using the arrows. Then duoble-click the second column on the
+Move taxa from the left to the right using the arrows. Then double-click the second column on the
 right-hand side and add the taxa to be subbed to this column. Using the subs defined above, the GUI
 will look like this.
 
@@ -235,10 +236,11 @@ using the GUI or command line:
 
 :command:`stk sub_taxa -s anomura_subs Anomura.phyml Anomura_subbed.phyml`
 
-*The next few steps need doing each time you need to generate a supertree after adding data*
+*The next few steps need doing each time you need to generate a supertree after adding more source data
+and have re-standardised the taxa*
 
-Remove unnecessary data and taxa
---------------------------------
+Remove unnecessary data
+------------------------
 
 This is the first step that is needed each time a tree is generated. We need to check for data
 dependence, remove vernacular and higher names and finally, make all taxa specific.
@@ -253,15 +255,53 @@ identical (same taxa and same characters) it is up to you which one is included,
 mini-supertree of them to create a single source. When one source uses the same characters but is a
 taxonomic subset of another, you should include the larger source tree. The data independence
 function places source trees into these two categories and informs you of the equivalent source. You
-can then simply delete sources as required using the GUI. The STK can automate this process (but do
-check the result to make sure you agree). In the GUI, supply a new Phyml and the non-independant
-sources will be removed.
-
+can then simply delete sources as required using the GUI. The STK can automate most of this process (but do
+check the result to make sure you agree). 
 
 Using the command line, use the following command:
 
 :command-line:`stk data_ind  Anomura_subbed.phyml -n  Anomura_ind.phyml`
 
+Will create a new Phyml with all non-independent *subset* data removed, using the above rules.
+Trees that are identical will not be removed. You have to decide which one should be removed or
+combine them using a mini-supertree. The same can
+be acheived in the GUI using the :menuslecetion:`STK Functions->Data Independence Check` and
+clicking :menuselection:`Remove subsets and save`.
+
+To deal with identical data, open a new STK GUI and give it a temporary name. Then copy and paste
+the sources that contain the identical trees from your existing dataset into your new one. You can
+delete any trees that aren't identical but were copied over at this point. You can now make a matrix
+using :menuselection:`Stk Functions->Create Matrix` and create a supertree. For our tutotial dataset
+we have the following non-independent data:
+
+.. code-block:: bash
+    Source trees that are subsets of others
+    Flagged tree, is a subset of:
+    boyko_harvey_2009_1,mclaughlin_etal_2007_1
+
+
+    Source trees that are identical to others
+    Flagged tree, is identical to:
+    Ahyong_etal_2009_2,Ahyong_etal_2009_1
+
+So, running 
+
+:command-line:`stk data_ind  Anomura_subbed.phyml -n  Anomura_ind.phyml`
+
+or via the GUI, you can remove McLaughlin et al 2007, tree 1.
+
+Then open a new STK GUI and copy and paste the Ahyong_etal_2009 across. This source only contains
+those two trees, so simply create the matrix using :menuselection:`STK Functions->Create Matrix`.
+Run this matrix in TNT to create a combined source tree. 
+
+In :file:`Anomura_ind.phyml`, remove one of the Ahyong_etal_2009 source trees and import the output
+from TNT into the other. It is advisable here to edit the figure legend etc to match that this is
+now a combined tree (in this dataset the figure legend etc contain dummy data) and to add a comment
+on this tree with the TNT commands used as a reminder in future of where this tree came from. Save
+this Phyml.
+
+Remove higher taxa
+------------------
 
 Our dataset currently contains vernacular names and higher-order (e.g. family) names. This have to
 be removed by hand and replaced with polytomies of taxa that are part of that name. As this must
