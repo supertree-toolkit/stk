@@ -138,7 +138,7 @@ alphabetically, which makes spotting these kinds of errors relatively straightfo
 There are other basic *housekeeping* tasks that can be useful at this point too. First,
 standardising the source names using :menuselection:`STK Functions->Standardise source names` to
 ensure each source has a unique name. Second, cleaning the data using :menuselection:`STK->Clean
-data` to remove all uninformative trees and remove paraphyletic taxa where only one possible
+data` to remove all uninformative trees and remove polyphyletic taxa where only one possible
 combination exists.
 
 The above tasks will not alter the tutorial data, so it's safe to save the file again. Normally you
@@ -148,73 +148,125 @@ clean data commands have been recorded, along with the date and time. This enabl
 commands have been run on this Phyml dataset.
 
 
-Removing paraphyletic taxa
---------------------------
-
-As mentioned above, paraphyletic taxa are dealt with speerately and denoted with a '%n' in the taxon
-name where n is an integer. We deal with these taxa by permuting every possible location of these
-taxa
-
-
 Standardising Taxa
 ------------------
 
 The next stage is to standardise the taxa - removing synonyms, polyphyletic taxa
 and sub-species.
 
-To remove polyphyletic taxa and sub-species, the tree permutation function is
-used. This creates a number of trees per source tree, each with a different
-combination of the paraphyletic taxa (which sub-species can be). Note that this
-produces unique trees only. These can then be used to create a matrix or
-output in a single tree file. You take this and create a 'mini-supertree' which
-becomes your single source tree. For example load into PAUP and get the tree
-required with a branch-and-bound search or heuristic search for larger trees.
+To remove polyphyletic taxa and sub-species, the tree permutation function is used. As mentioned
+above, polyphyletic taxa are dealt with speerately and denoted with a '%n' in the taxon name where n
+is an integer. We deal with these taxa by permuting every possible location of these taxa. This
+creates a number of trees per source tree, each with a different combination of the polyphyletic
+taxa (which sub-species can be). Note that this produces unique trees only. These can then be used
+to create a matrix or output in a single tree file. You take this and create a 'mini-supertree'
+which becomes your single source tree. For example load into PAUP or TNT and get the tree required with a
+branch-and-bound search or heuristic search for larger trees.
+
+There is one tree in our test dataset that requires removal of polypheltic taxa. Create a matrix
+using either :menuselection:`STK Functions->Permute all trees` or use the command:
+
+:command:`stk permute_trees -c hennig Anomura.phyml anomura_poly.tnt`
+
+The above command will create a matrix for each permutable tree (in this case one matrix) which will
+be called :filename:`anomura_poly_cunningham_etal_1992_1.tnt`. 
+
+Run this matrix in TNT to generate a mini-supertree. 
+
+ADD INSTRUCTIONS ON THIS
+
+You can then re-import this tree into your dataset, replacing the original tree.
 
 .. note:: This is the "standard" data - *keep this* as this is what gets updated when new trees are added to the dataset.
 
-
-Removing synonyms requires that a "standard" taxonomy is used. It does not
-matter what this is, but it does matter that two taxa that are actually the same
-taxa have the same name. Services such as `ITIS <http://www.itis.gov/>`_ and
-other online databases are useful. In future this functionality is planned to
-be included in STK. Once a standardised taxa has been decided, the names can be
+Removing synonyms requires that a "standard" taxonomy is used. It does not matter what this is, but
+it does matter that two taxa that are actually the same taxa have the same name. Services such as
+`ITIS <http://www.itis.gov/>`_, WORMS, NCID? and other online databases are useful. In future the functionality
+of creating a standardised taxonomy is planned to be included in STK. 
+Once a standardised taxa has been decided, the names can be
 replaced. 
 
 Use your taxonomy to create a *subs file*. This can be done manually in a
-standard text editor or using the STK GUI.
+standard text editor or using the STK GUI. A subs file is a simple text file where taxa equivalency
+is denoted. Using a text editor, create a file like this one:
+
+.. code-block:: bash
+
+    "Scutigera"_nossibei = Scutigera_nossibei
+    Cryptops_(Trigonocryptops)_pictus = Cryptops_pictus
+    Anopsobius_sp._nov._NSW = Anopsobius_wrighti
+
+Note that spaces have been replaced with underscores and there are spaces *both* sides of the '='
+sign. 
+
+Alternatively, create a simple CSV (Comma Seperated Value) file in Excel or similar. The above will
+look like this:
+
+.. code-block:: bash
+
+    "Scutigera"_nossibei,Scutigera_nossibei
+    Cryptops_(Trigonocryptops)_pictus,Cryptops_pictus
+    Anopsobius_sp._nov._NSW,Anopsobius_wrighti
+
+The first column contains the taxa already in the dataset and the subsequent columns are the taxa to
+be substituted in.
+
+The above can be created using the GUI which ensures you only add taxa already in the dataset
+on the left-hand side. Using :menuselection:`STK Functions->Sub taxa`, you will be presented with
+the interface below.
+
+Move taxa from the left to the right using the arrows. Then duoble-click the second column on the
+right-hand side and add the taxa to be subbed to this column. Using the subs defined above, the GUI
+will look like this.
+
+Note you should export the substituions at this point into a subs file to save it for later.
 
 Once you have a *subs file* you can replace the taxa. Using either the GUI or
-the command line, run the sub taxa function on your Phyml. This replaces and
-deletes the taxa defined in your *subs file* in all trees in your dataset.
+the command line, run the sub taxa function on your Phyml. In the GUI, import your subs file (or CSV
+file) and, fill in a new filename and click :menuselection:`Sub taxa`. For the CLI, run this
+command:
+
+:command:`stk sub_taxa -s subs_file input.phyml output.phyml`
+
+This replaces and deletes the taxa defined in your *subs file* in all trees in your dataset.
+
+For our tutorial dataset, we have already created the subs file for you. Run this on :filename:`Anomura.phyml`
+using the GUI or command line:
+
+:command:`stk sub_taxa -s anomura_subs Anomura.phyml Anomura_subbed.phyml`
 
 *The next few steps need doing each time you need to generate a supertree after adding data*
 
 Remove unnecessary data and taxa
 --------------------------------
 
-This is the first step that is needed each time a tree is generated. We need to
-check for data dependence, remove vernacular and higher names and finally, make
-all taxa specific.
+This is the first step that is needed each time a tree is generated. We need to check for data
+dependence, remove vernacular and higher names and finally, make all taxa specific.
 
-Data independence check is done via the data independence function. The
-function checks if any source meets the following conditions:
-    * Uses the same characters
+Data independence check is done via the data independence function. The function checks if any
+source meets the following conditions: 
+    * Uses the same characters 
     * *and* is either a subset of, or contains the same taxa as, another source.
 
-If these two conditions are met, the two sources are not independent. If the two
-sources are identical (same taxa and same characters) it is up to you which one
-is included, or you can create a mini-supertree of them to create a single
-source. When one source uses the same characters but is a taxonomic subset of
-another, you should include the larger source tree. The data independence
-function places source trees into these two categories and informs you of the
-equivalent source. You can then simply delete sources as required using the GUI.
+If these two conditions are met, the two sources are not independent. If the two sources are
+identical (same taxa and same characters) it is up to you which one is included, or you can create a
+mini-supertree of them to create a single source. When one source uses the same characters but is a
+taxonomic subset of another, you should include the larger source tree. The data independence
+function places source trees into these two categories and informs you of the equivalent source. You
+can then simply delete sources as required using the GUI. The STK can automate this process (but do
+check the result to make sure you agree). In the GUI, supply a new Phyml and the non-independant
+sources will be removed.
 
 
-Our dataset currently contains vernacular names and higher-order (e.g. family)
-names. This have to be removed by hand and replaced with polytomies of taxa that
-are part of that name. As this must happen each time a supertree is produced, it
-is best done with via a taxa substitution file. You can create this file once,
-amend as appropriate and run each time you alter the data before supertree
+Using the command line, use the following command:
+
+:command-line:`stk data_ind  Anomura_subbed.phyml -n  Anomura_ind.phyml`
+
+
+Our dataset currently contains vernacular names and higher-order (e.g. family) names. This have to
+be removed by hand and replaced with polytomies of taxa that are part of that name. As this must
+happen each time a supertree is produced, it is best done with via a taxa substitution file. You can
+create this file once, amend as appropriate and run each time you alter the data before supertree
 analysis is done. For example:
 
 .. code-block:: bash

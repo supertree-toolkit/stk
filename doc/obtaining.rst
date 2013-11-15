@@ -39,19 +39,11 @@ instructions.
 MacOS X
 -------
 
-An install script is available in the source package that installs the software and dependencies on
-MacOS X. This should work on versions of MacOS 10.6 and greater. To install, download the source .tgz
-from `Launchpad <http://launchpad.net/supertree-toolkit>`_, then:
+A DMG is available on Launchpad. Drag the STK icon into the Applications folder. This will install
+the STK GUI on your Mac.
 
-.. code-block:: bash
-    
-    tar zxvf supertree-toolkit.tgz
-    cd supertree-toolkit/macosx
-    sudo ./mac_install.sh
-
-This will first download and install PyGTK, which you can cancel if you have already installed, then
-is will download and install all the Python dependencies, before installng the STK itself. You will
-find the STK app in your Applications folder. The command line version will also be available.
+To install the CLI you must alter your PATH variable. 
+NOTE: NEED TO ADD THIS TO THE RELEASE AND FIGURE OUT THE PATH AND PYTHONPATH!
 
 Source
 ------
