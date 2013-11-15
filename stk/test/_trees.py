@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0,"../../")
 from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon,_tree_contains
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_taxa_from_tree, get_characters_from_tree, amalgamate_trees, _uniquify
-from stk.supertree_toolkit import import_trees, _trees_equal, _find_trees_for_permuting, permute_tree, get_all_source_names, _getTaxaFromNewick
+from stk.supertree_toolkit import import_trees, import_tree, _trees_equal, _find_trees_for_permuting, permute_tree, get_all_source_names, _getTaxaFromNewick
 
 import os
 from lxml import etree
@@ -260,6 +260,12 @@ class TestTreeManipulation(unittest.TestCase):
     def test_create_tnt_matrix(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         matrix = create_matrix(XML)
+
+    def test_create_tnt_matrix_with_taxonomy(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        taxonomy = import_tree('data/input/paup_tree.tre')
+        matrix = create_matrix(XML,taxonomy=taxonomy)
+        self.assertRegexpMatches(matrix,'Mimus_gilvus')
 
     def test_create_nexus_matrix_quote(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)

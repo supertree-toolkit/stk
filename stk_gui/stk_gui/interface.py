@@ -1623,7 +1623,9 @@ class Diamond:
     signals = {"on_create_matrix_dialog_close": self.on_create_matrix_cancel_button,
                "on_create_matrix_cancel_clicked": self.on_create_matrix_cancel_button,
                "on_create_matrix_clicked": self.on_create_matrix_create_matrix_button,
-               "on_create_matrix_browse_clicked": self.on_create_matrix_browse_button}
+               "on_create_matrix_browse_clicked": self.on_create_matrix_browse_button,
+               "on_create_matrix_browse2_clicked": self.on_create_matrix_browse2_button,
+               }
 
     self.create_matrix_gui = gtk.glade.XML(self.gladefile, root="create_matrix_dialog")
     self.create_matrix_dialog = self.create_matrix_gui.get_widget("create_matrix_dialog")
@@ -1640,7 +1642,12 @@ class Diamond:
     """
 
     filename_textbox = self.create_matrix_gui.get_widget("entry1")
+    taxonomy_textbox = self.create_matrix_gui.get_widget("entry2")
+
     filename = filename_textbox.get_text()
+    taxonomy_tree = taxonomy_textbox.get_text()
+    if (taxonomy_tree == ""):
+        taxonomy_tree = None
     format_radio_1 = self.create_matrix_gui.get_widget("matrix_format_tnt_chooser")
     format_radio_2 = self.create_matrix_gui.get_widget("matrix_format_nexus_chooser")
     ignoreWarnings = self.create_matrix_gui.get_widget("ignoreWarnings_checkbutton").get_active()
@@ -1659,7 +1666,7 @@ class Diamond:
     self.tree.write(f)
     XML = f.getvalue()
     try:
-        matrix = stk.create_matrix(XML,format=format,ignoreWarnings=ignoreWarnings)
+        matrix = stk.create_matrix(XML,format=format,taxonomy=taxonomy_tree,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
         msg = "Failed to create matrix.\n"+detail.msg
         dialogs.error(self.main_window,msg)
@@ -1703,6 +1710,8 @@ class Diamond:
 
   def on_create_matrix_browse_button(self, button):
       filter_names_and_patterns = {}
+      filter_names_and_patterns['Trees'] = ["*.tre","*nex","*.nwk","*.tnt"]
+      filter_names_and_patterns['Matrix'] = ["*nex","*.tnt"]
       # open file dialog
       filename = dialogs.get_filename(title = "Choose output matrix file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
       filename_textbox = self.create_matrix_gui.get_widget("entry1")
@@ -1726,7 +1735,16 @@ class Diamond:
     self.export_dialog.show()
 
     return
-      
+
+  def on_create_matrix_browse2_button(self, button):
+      filter_names_and_patterns = {}
+      filter_names_and_patterns['Trees'] = ["*.tre","*nex","*.nwk","*.tnt"]
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose taxonomy tree", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+      filename_textbox = self.create_matrix_gui.get_widget("entry2")
+      filename_textbox.set_text(filename)
+
+
   def on_export_button(self, button):
 
     filename_textbox = self.export_gui.get_widget("entry1")
