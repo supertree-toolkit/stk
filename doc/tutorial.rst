@@ -292,13 +292,15 @@ or via the GUI, you can remove McLaughlin et al 2007, tree 1.
 
 Then open a new STK GUI and copy and paste the Ahyong_etal_2009 across. This source only contains
 those two trees, so simply create the matrix using :menuselection:`STK Functions->Create Matrix`.
-Run this matrix in TNT to create a combined source tree. 
+Run this matrix in TNT to create a combined source tree.
+
+[KATIE TO ADD THIS]
 
 In :file:`Anomura_ind.phyml`, remove one of the Ahyong_etal_2009 source trees and import the output
 from TNT into the other. It is advisable here to edit the figure legend etc to match that this is
 now a combined tree (in this dataset the figure legend etc contain dummy data) and to add a comment
 on this tree with the TNT commands used as a reminder in future of where this tree came from. Save
-this Phyml.
+this Phyml as :filename:`Anomura_ind_final.phyml`.
 
 Remove higher taxa
 ------------------
@@ -318,7 +320,10 @@ replaces any source tree containing the higher order taxa *Aegialornithidae* or
 *Ciconiidae* with polytomies of species within the group. Note that the species
 listed do *not* need to be in the dataset already, though you will need to
 ensure you use the "replace existing taxa only" option in the replacement. You
-can use the data summary output to check this.
+can use the data summary output to check this. There are options on the command line and in the GUI
+to ensure this is the case, e.g.:
+
+:command:`stk sub_taxa -e -s SUBFILE input.phyml output.phyml`
 
 Note we can replace using generic or specific names. In the former, the genera
 will be replaced with specific names in a later step. Therefore, it is
@@ -335,12 +340,23 @@ Families to Groups; and a final file to go from Groups to genera.
 
 Finally, to guard against errors and bugs, back-up your data '''before'''
 carrying out substitutions. If you come across something that went wrong, report
-a bug on our Launchpad.
+a bug on our Launchpad. Replacing taxa in trees is not straightforward at times so this definitely
+the time to check your backups.
+
+Out Anomura data have no such higher taxa so we move onto replacing genera.
+
+Replacing genera
+++++++++++++++++
 
 The final part of this process is to replace all generic taxa with specific
 taxa, e.g. *Gallus* is replace with a polytomy of all species belonging to
 *Gallus*. This is done with the replace genera function. Only species already in
-the dataset are substituted in.
+the dataset are substituted in. This is a short-cut function of the general substitute taxa
+functions, but it generates the substitutions for you.
+
+To run this:
+
+
 
 Check data
 ----------
