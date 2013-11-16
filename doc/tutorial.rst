@@ -320,10 +320,7 @@ replaces any source tree containing the higher order taxa *Aegialornithidae* or
 *Ciconiidae* with polytomies of species within the group. Note that the species
 listed do *not* need to be in the dataset already, though you will need to
 ensure you use the "replace existing taxa only" option in the replacement. You
-can use the data summary output to check this. There are options on the command line and in the GUI
-to ensure this is the case, e.g.:
-
-:command:`stk sub_taxa -e -s SUBFILE input.phyml output.phyml`
+can use the data summary output to check this. 
 
 Note we can replace using generic or specific names. In the former, the genera
 will be replaced with specific names in a later step. Therefore, it is
@@ -334,6 +331,13 @@ Once your substitution file is ready, you can use either the GUI or CLI to
 replace taxa in a Phyml. The output of this is a new Phyml with the taxa replace
 or deleted as dictated in your subs file.
 
+The command line would be:
+
+:command:`stk sub_taxa -e -s SUBFILE input.phyml output.phyml`
+
+The GUI is done by simply clicking :menuselection:"`STK Functions->Sub Taxa`, loading your subs
+file, and clicking :menuselection:`Sub taxa`.
+
 For very large datasets it is probably best to split up your subs files into
 stages. For example, replace Orders with Families; then another file for
 Families to Groups; and a final file to go from Groups to genera.
@@ -343,7 +347,7 @@ carrying out substitutions. If you come across something that went wrong, report
 a bug on our Launchpad. Replacing taxa in trees is not straightforward at times so this definitely
 the time to check your backups.
 
-Out Anomura data have no such higher taxa so we move onto replacing genera.
+Our Anomura data have no such higher taxa so we move onto replacing genera.
 
 Replacing genera
 ++++++++++++++++
@@ -354,9 +358,14 @@ taxa, e.g. *Gallus* is replace with a polytomy of all species belonging to
 the dataset are substituted in. This is a short-cut function of the general substitute taxa
 functions, but it generates the substitutions for you.
 
-To run this:
+To run this you can either use the GUI or CLI. The CLI command is:
+
+:command:`stk replace_genera Anomura_ind_final.phyml Anomura_species.phyml`
+
+In the GUI, use :menuselection:`STK Functions->Replace genera`.
 
 
+Your data is now almost ready for making a supertree!
 
 Check data
 ----------
@@ -374,6 +383,7 @@ fix things. Note that some of the statistics in the file might be useful when
 writing up your papers - how many trees, over what years the data is from, etc,
 etc.
 
+The final step is to ensure there is sufficient taxonomic overlap between source trees. 
 Next, we need to check that all the trees are connected by at least two taxa
 with another tree. You may also want to experiment with using higher numbers.
 Use the data overlap function to determine this. The output can either be a
@@ -412,11 +422,35 @@ node only.
     there should be a single node (circle). These data is not sufficiently well
     connected.
 
-Create matrix
+To carry out this step on our data in the CLI run this command:
+
+:command:`stk data_overlap Anomura_species.phyml`
+
+It will fail, giving an error message. We can find out which trees are not connected using:
+
+:command:`stk data_overlap -g overlap_2.png -d Anomura_species.phyml`
+
+Using the GUI, use :menuselection:`STK Functions->Check data overlap`. Click :menuselection:`Check
+overlap` and you will get a message about insufficient overlap. Run it again, with graphical output
+and you will see the following output.
+
+Remove the following trees from the dataset:
+
+
+
+create matrix
 -------------
 
 Well done -- you have a dataset ready for supertree analysis. The final step is
 to create a matrix. This is very simple and the create matrix function is used.
 Simple tell the STK where to save and the format (Nexus for PAUP, Hennig for
 TNT) and your matrix will be create.
+
+Use :menuselection:`STK Functions->Create matrix` and fill in the GUI to create a matrix. Create a
+TNT matrix and save to :file:`Anomura_matrix.tnt`
+
+Alternatively, use:
+
+:command:`stk create_matrix Anomura_species.phyml Anomura_matrix.tnt`
+
 
