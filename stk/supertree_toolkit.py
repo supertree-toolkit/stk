@@ -3298,6 +3298,8 @@ def _amalgamate_trees(trees,format,anonymous=False):
     output_string = ""
     if format.lower() == "nexus":
         output_string += "#NEXUS\n\nBEGIN TREES;\n\n"
+    if format.lower() == "tnt":
+        output_string += "tread 'tree(s) from TNT, for data in Matrix.tnt'\n"
     tree_count = 0
     for tree in trees:
         if format.lower() == "nexus":

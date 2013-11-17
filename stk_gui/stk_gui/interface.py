@@ -1121,18 +1121,19 @@ class Diamond:
     else:
         try:
             sufficient_overlap, key_list = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed,ignoreWarnings=ignoreWarnings)
-            # we need to save the csv file too
-            file_stub = os.path.splitext(filename)[0]
-            csv_file = file_stub+"_"+str(overlap)+".csv"
-            f = open(csv_file,"w")
-            i = 0
-            for key in key_list:
-                if type(key).__name__=='list':
-                    f.write(str(i)+","+",".join(key)+"\n")
-                else:
-                    f.write(str(i)+","+key+"\n")
-                i = i+1
-            f.close()
+            if (not filename == None):
+                # we need to save the csv file too
+                file_stub = os.path.splitext(filename)[0]
+                csv_file = file_stub+"_"+str(overlap)+".csv"
+                f = open(csv_file,"w")
+                i = 0
+                for key in key_list:
+                    if type(key).__name__=='list':
+                        f.write(str(i)+","+",".join(key)+"\n")
+                    else:
+                        f.write(str(i)+","+key+"\n")
+                    i = i+1
+                f.close()
 
         except IOError as detail:
             msg = "Failed to calculate overlap.\n"+detail.message
@@ -1150,6 +1151,16 @@ class Diamond:
             msg = "Failed to calculate overlap.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return 
+
+        if (sufficient_overlap):
+            msg = "Your data are sufficently well connected"
+        else:
+            msg = "Your data are *not* well connected. Run with -g (and perhaps -d) to see which trees need to be removed"
+        dialogs.error(self.main_window,msg)
+
+        return
+
+
     if (show):
         # create our show result interface
         signals = {"on_data_overlap_show_dialog_close": self.on_data_overlap_show_dialog_cancel_button}
