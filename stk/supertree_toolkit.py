@@ -3316,7 +3316,7 @@ def _amalgamate_trees(trees,format,anonymous=False):
             if (tree_count < len(trees)-1):
                 output_string += t+"*\n"
             else:
-                output_string += t+"\n"
+                output_string += t+";\n"
         tree_count += 1
     # Footer
     if format.lower() == "nexus":
