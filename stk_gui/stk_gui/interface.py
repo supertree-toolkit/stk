@@ -2276,7 +2276,7 @@ class Diamond:
         dialogs.error(self.main_window,detail.msg)
         return 
      except:
-         dialogs.error_tb(self.main_window,"Error importing bib file:\n"+error)
+         dialogs.error_tb(self.main_window,"Error importing bib file\n")
          return
      
      try:

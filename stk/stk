@@ -1268,6 +1268,7 @@ def convert_file(args):
             i = 1
             for t in trees:
                 new_trees['tree_'+str(i)] = t
+                i += 1
             output = supertree_toolkit._amalgamate_trees(new_trees,format=output_format)
         except:
             print "Error saving tree"
