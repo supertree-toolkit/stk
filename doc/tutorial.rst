@@ -77,8 +77,6 @@ output, as can most journal websites. We recommend using `JabRef
 most operating systems. We have tested the STK extensively with output from
 JabRef, but your mileage with other reference managers may vary. 
 
-image
-
 Once all bibliographic data are collected they can be imported into the STK to
 provide the basic information for your dataset. 
 
@@ -89,20 +87,53 @@ bibliography`. Use the GUI dialog to navigate to the Bibtex file
 sources in the left hand side of the GUI. Note that all sources appear blue as
 there is a lot of missing meta data that needs completing. 
 
-image
+.. _img-tut-bib-import:
+
+.. figure:: images/import_bib_result.png   
+    :align: center
+    :scale: 75 %
+    :alt: STK GUI after importing bibliographic data
+    :figclass: align-center
+
+    The result of importing the bibliogrpahic file included in the tutorial.
+    Note the blue colour, which means there's missing data (the trees and
+    associated metadata).
 
 The next step is to digitise your trees and import them. We've already done
 this, so open :file:`tutorial/starting_data.phyml` which will have the
 bibliographic data and all but one source tree completed. 
 
+You can practice digitising trees using Treeview (link), Mesquite (link) or
+similar software. The tree missing is below.
+
+.. _img-tut-missing-tree:
+
+.. figure:: images/cabezas_etal_2009.pdf   
+    :align: center
+    :scale: 75 %
+    :alt: Cebezas et al 2009 tree
+    :figclass: align-center
+
+    This is the tree missing from the dataset
+
 To add the remaining source tree, navigate the source to reach Cabezas et al 2009
 (this is easy as it's the only blue source highlighted). Drill down to reach the
 tree_string entry (again, the only blue one). On the lower left of the GUI,
 click :menuselection:`Import tree` and navigate to the tree file
-:file:`tutorial/Cebezas_etal_tree1.tre`. This should place the tree file into
-the GUI.
+:file:`tutorial/Cebezas_etal_tree1.tre` (or use your own digitised tree). 
+This should place the tree file into the GUI.
 
-images
+.. _img-tut-import-missing-tree:
+
+.. figure:: images/browse_missing_tree.pdf   
+    :align: center
+    :scale: 75 %
+    :alt: Using the GUI to import a tree
+    :figclass: align-center
+
+    Using the blue colour as a guide, navigate to the source with missing tree.
+    Click :menuselection:`Import tree` (circled in red) and load the tree.
+
 
 Now save your Phyml using the :menuselection:`File --> Save As` and type in a name
 (suggest :file:`Anomura.phyml`).
@@ -117,12 +148,17 @@ you to *permute* the positions of these taxa and generate a tree with all
 possible combination of places of the taxa. These permuted trees can then be
 dealt with later. However, you must be aware of this when digitising trees. To
 indicate a taxon is polyphyletic append a '%d' on the end of the name where d is
-an integer. For example:
+an integer. For example, Fig. :num:`#img-tut-poly-tree` can be encoded as: 
 
+.. _img-tut-poly-tree:
 
-image of tree
+.. figure:: images/poly_tree.pdf  
+    :align: center
+    :scale: 75 %
+    :alt: A polyphyletic tree
+    :figclass: align-center
 
-which can be encoded as:
+    Polyphyletic clades can be denoted with %n in the name as above.
 
 .. code-block:: bash
 
@@ -149,6 +185,16 @@ character (CYtb instead of Cytb, for example) or didn't quite copy and paste the
 taxa correctly (missing the last few characters for example). All lists are
 sorted alphabetically, which makes spotting these kinds of errors relatively
 straightforward.
+
+.. _img-tut-data-summary:
+
+.. figure:: images/tutorial_data_summary.png 
+    :align: center
+    :scale: 75 %
+    :alt: Data summary
+    :figclass: align-center
+
+    Example data summary.
 
 There are other basic *housekeeping* tasks that can be useful at this point too.
 First, standardising the source names using :menuselection:`STK
@@ -220,7 +266,7 @@ taxa name by clicking :menuselection:`Import tree`.
 Removing synonyms requires that a "standard" taxonomy is used. It does not
 matter what this is, but it does matter that two taxa that are actually the same
 taxa have the same name. Services such as `ITIS <http://www.itis.gov/>`_, WORMS,
-NCID? and other online databases are useful. In future the functionality of
+Encylopedia of Life and other online, specialised, databases are useful. In future the functionality of
 creating a standardised taxonomy is planned to be included in STK. Once a
 standardised taxa has been decided, the names can be replaced. 
 
@@ -472,37 +518,36 @@ numbers.  Use the data overlap function to determine this. The output can either
 be a simple yes/no or graphical output. Graphical output can either be a
 detailed view where a graph is produced whereby each source is a vertex and
 edges are drawn between sources that share the required number of taxa (Fig
-:num:`#img-stk-data-overlap-detailed2`) . In this view *all* nodes should be
+:num:`#img-tut-pre-detailed-overlap`) . In this view *all* nodes should be
 blue, with no red (unconnected). However, for large datasets, this consume a lot
 of memory and can take a long time to calcualte. Instead use the normal view
 where connected trees compose a node in the graph (Fig
-:num:`#img-stk-data-overlap-simple2`). In this view there should be a single
+:num:`#img-tut-pre-overlap`). In this view there should be a single
 node only.
 
-.. _img-stk-data-overlap-detailed2:
+.. _img-tut-pre-overlap:
 
-.. figure:: images/stk_gui_check_overlap_detailed_result.png   
+.. figure:: images/tutorial_overlap_normal_pre.png   
     :align: center
-    :scale: 50 %
-    :alt: Data overlap detailed graphic
+    :scale: 60 %
+    :alt: Data overlap graphic
     :figclass: align-center
 
-    Detailed graphical view of data overlap. For a correctly connected dataset
-    there should be no red nodes (circles) in the graph. These data is not sufficiently well
-    connected.
+    Graphical view of data overlap. For a correctly connected dataset
+    there should be no unconnected nodes -- i.e. there should be a single node.
+    These data are not sufficiently well connected.
 
 
-.. _img-stk-data-overlap-simple2:
+.. _img-tut-pre-detailed-overlap:
 
-.. figure:: images/stk_gui_check_overlap_simple_graphic.png   
+.. figure:: images/tutorial_overlap_detailed_pre.png  
     :align: center
-    :scale: 50 %
-    :alt: Data overlap simple graphic
+    :scale: 60 %
+    :alt: Data overlap with detailed graphic
     :figclass: align-center
 
-    Normal graphical view of data overlap. For a correctly connected dataset
-    there should be a single node (circle). These data is not sufficiently well
-    connected.
+    Detailed graphical view of data overlap. There should be no red nodes in 
+    a dataset that is well connected.
 
 To carry out this step on our data in the CLI run this command:
 
@@ -524,6 +569,30 @@ Remove the following trees from the dataset:
 
  You should then have 12 trees remaining. Remove the above and regenerate the
  overlap graphic. Save your data to :file:`Anomura_final.phyml`.
+
+.. _img-tut-post-overlap:
+
+.. figure:: images/tutorial_overlap_normal_post.png   
+    :align: center
+    :scale: 60 %
+    :alt: Data overlap graphic
+    :figclass: align-center
+
+    Graphical view of data overlap. For a correctly connected dataset
+    there should be no unconnected nodes -- i.e. there should be a single node.
+    These data are now well connected.
+
+
+.. _img-tut-post-detailed-overlap:
+
+.. figure:: images/tutorial_overlap_detailed_post.png  
+    :align: center
+    :scale: 60 %
+    :alt: Data overlap with detailed graphic
+    :figclass: align-center
+
+    Detailed graphical view of data overlap. There are now no red nodes.
+
 
 create matrix
 -------------
