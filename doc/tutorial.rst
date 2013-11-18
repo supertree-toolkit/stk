@@ -320,7 +320,7 @@ your dataset.
 For our tutorial dataset, we have already created the subs file for you. Run
 this on :file:`Anomura.phyml` using the GUI or command line:
 
-:command:`stk sub_taxa -s anomura_subs Anomura.phyml Anomura_subbed.phyml`
+:command:`stk sub_taxa -s standard_taxonomy.dat Anomura.phyml Anomura_subbed.phyml`
 
 In the GUI use :menuselection:`STK Function --> Sub taxa` and then
 :menuselection:`Import subs` to import the subs file. Then click
@@ -602,11 +602,12 @@ to create a matrix. This is very simple and the create matrix function is used.
 Simple tell the STK where to save and the format (Nexus for PAUP, Hennig for
 TNT) and your matrix will be create.
 
-Use :menuselection:`STK Functions --> Create matrix` and fill in the GUI to create
+Open :file:`Anomura_final.phyml` and use 
+:menuselection:`STK Functions --> Create matrix` and fill in the GUI to create
 a matrix. Create a TNT matrix and save to :file:`Anomura_matrix.tnt`
 
 Alternatively, use:
 
-:command:`stk create_matrix Anomura_species.phyml Anomura_matrix.tnt`
+:command:`stk create_matrix Anomura_final.phyml Anomura_matrix.tnt`
 
 
