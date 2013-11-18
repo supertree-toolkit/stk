@@ -29,12 +29,16 @@ install the package. Run the commands below to do all this.
     sudo apt-get update
     sudo apt-get -y install supertree-toolkit
 
+This will install the GUI and CLI to standard locations and add the GUI to your
+Applications menu.
 
 Windows
 -------
 
-A pre-built binary package is available. Simply download and run to install. Follow the on-screen
-instructions.
+A pre-built binary package is available. Simply download and run to install. 
+Follow the on-screen instructions.
+
+The STK CLI is also available from a Command Prompt.
 
 MacOS X
 -------
@@ -42,8 +46,15 @@ MacOS X
 A DMG is available on Launchpad. Drag the STK icon into the Applications folder. This will install
 the STK GUI on your Mac.
 
-To install the CLI you must alter your PATH variable. 
-NOTE: NEED TO ADD THIS TO THE RELEASE AND FIGURE OUT THE PATH AND PYTHONPATH!
+To install the CLI you must alter your PATH and PYTHONPATH variables. To do this
+permanently, edit your .bash_profile file and add the following lines:
+
+.. code-block:: bash
+
+    export PYTHONPATH=$PYTHONPATH:/Applications/STK.app/Contents/Resources/lib/python2.7/site-packages/
+    export PATH=/Applications/STK.app/Contents/Resources/bin/:$PATH
+
+You can access the STK CLI from a standard terminal
 
 Source
 ------
@@ -88,7 +99,8 @@ When running from source you must install the following prerequisites and depend
 * libspud
 * numpy
 * lxml
-* dxdiff (distributed with STK in macosx or available from http://launchpad.net/spud)
+* pyGTK
+* dxdiff (available from http://launchpad.net/spud)
 
 
 Running the STK
@@ -124,4 +136,5 @@ which will produce the following help.
     stk: error: too few arguments
 
 The STK GUI can also be accessed via the Start Menu (Windows), the Applications
-folder (Mac OS X) or in the Applications menu (most Linux varients)
+folder (Mac OS X) or in the Applications menu (most Linux varients).
+
