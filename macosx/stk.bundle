@@ -168,6 +168,15 @@
   <data>
     ${prefix}/share/themes
   </data>
+  
+  <!-- Copy the CLI into place too -->
+  <data dest="${bundle}/Contents/Resources/bin/stk_cli">
+    ${project}/../stk/stk
+  </data>
+  <data dest="${bundle}/Contents/Resources/bin/stk">
+    ${project}/stk_cli
+  </data>
+
 
   <!-- Copy icons. Note that the .icns file is an Apple format which
        contains up to 4 sizes of icon. You can use

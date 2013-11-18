@@ -39,14 +39,7 @@ import re
 import operator
 import stk.p4.MRP as MRP
 import networkx as nx
-import matplotlib
-if (sys.platform == "darwin"):
-    matplotlib.use('GTKAgg')
-import pylab as plt
-from matplotlib.ticker import MaxNLocator
-from matplotlib import backends
 import datetime
-import gtk
 from indent import *
 import unicodedata
 from stk_internals import *
@@ -977,6 +970,8 @@ def import_trees(filename):
 def import_tree(filename, gui=None, tree_no = -1):
     """Takes a NEXUS formatted file and returns a list containing the tree
     strings"""
+    
+    import gtk
   
     trees = import_trees(filename)
 
@@ -1716,7 +1711,13 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
     source tres this could be very big and take along time. More likely, you'll run
     out of memory.
     """
-
+    import matplotlib
+    if (sys.platform == "darwin"):
+        matplotlib.use('GTKAgg')
+    import pylab as plt
+    from matplotlib.ticker import MaxNLocator
+    from matplotlib import backends
+    
     if not ignoreWarnings:
         _check_data(XML)
 
