@@ -22,7 +22,7 @@ def handle_click(xml, xpath, path=None):
         path = os.getcwd()
 
     filter_names_and_patterns = {}
-    filter_names_and_patterns['Trees'] = ["*.tre","*nex","*.nwk"]
+    filter_names_and_patterns['Trees'] = ["*.tre","*nex","*.nwk","*.tnt"]
    
     filename = dialogs.get_filename(title = "Choose tree file", action = gtk.FILE_CHOOSER_ACTION_OPEN, 
             filter_names_and_patterns = filter_names_and_patterns,

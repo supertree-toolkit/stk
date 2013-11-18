@@ -964,7 +964,7 @@ def import_trees(filename):
         content += "\nend;"
 
     treedata = content
-    
+   
     trees = _parse_trees(treedata)
     r_trees = []
     for t in trees:
@@ -979,7 +979,6 @@ def import_tree(filename, gui=None, tree_no = -1):
     strings"""
   
     trees = import_trees(filename)
-
     if (len(trees) == 1):
         tree_no = 0
 
@@ -1014,7 +1013,7 @@ def import_tree(filename, gui=None, tree_no = -1):
             text = entry.get_text()
             dialog.destroy()
             tree_no = int(text) - 1
-
+    
     tree = trees[tree_no]
     return tree
 
@@ -1971,6 +1970,7 @@ def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
         for name in non_ind:
             if (non_ind[name][1] == SUBSET):
                 new_xml = _swap_tree_in_XML(new_xml,None,name) 
+        new_xml = clean_data(new_xml)
         return non_ind, new_xml
     else:
         return non_ind

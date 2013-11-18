@@ -80,11 +80,11 @@ Once all bibliographic data are collected they can be imported into the STK to
 provide the basic information for your dataset. 
 
 Open a new instance of the GUI by double clicking the installed icon, or typing
-stk_gui at a terminal. Using the menus, go to :menuselection:`File->Import
-bibliography`. Use the GUI dialog to navigate to your Bibtex file and open it.
-You will now see a list of sources in the left hand side of the GUI. Note that
-all sources appear blue as there is a lot of missing meta data that needs
-completing. 
+stk_gui at a terminal. Using the menus, go to :menuselection:`File->Import from
+bibliography`. Use the GUI dialog to navigate to the Bibtex file
+:file:`tutorial/bibliography.bib` and open it.  You will now see a list of
+sources in the left hand side of the GUI. Note that all sources appear blue as
+there is a lot of missing meta data that needs completing. 
 
 image
 
@@ -169,7 +169,7 @@ The next stage is to standardise the taxa - removing synonyms, polyphyletic taxa
 and sub-species.
 
 To remove polyphyletic taxa and sub-species, the tree permutation function is
-used. As mentioned above, polyphyletic taxa are dealt with speerately and
+used. As mentioned above, polyphyletic taxa are dealt with seperately and
 denoted with a '%n' in the taxon name where n is an integer. We deal with these
 taxa by permuting every possible location of these taxa. This creates a number
 of trees per source tree, each with a different combination of the polyphyletic
@@ -181,7 +181,7 @@ branch-and-bound search or heuristic search for larger trees.
 
 There is one tree in our test dataset that requires removal of polypheltic taxa.
 Create a matrix using either :menuselection:`STK Functions->Permute all trees`
-or use the command:
+(call the output :file:`anomura_poly.tnt` and use Hennig format) or use the command:
 
 :command:`stk permute_trees -c hennig Anomura.phyml anomura_poly.tnt`
 
@@ -189,11 +189,25 @@ The above command will create a matrix for each permutable tree (in this case
 one matrix) which will be called
 :filename:`anomura_poly_cunningham_etal_1992_1.tnt`. 
 
-Run this matrix in TNT to generate a mini-supertree. 
+Run this matrix in TNT to generate a mini-supertree. The commands below are
+suggestions for how to do this in TNT. 
 
-ADD INSTRUCTIONS ON THIS
+.. code-block:: bash
 
-You can then re-import this tree into your dataset, replacing the original tree.
+    run permuted_cunningham_etal_1992_1.tnt;
+    ienum;
+    taxname=;
+    tsave *permuted_cunningham_etal_1992.tnt;
+    save;
+    tsave /;
+    nelson*;
+    tsave *permuted_cunningham_etal_1992_strict.tnt;
+    save 5;
+    tsave /;
+    quit;
+
+You can then re-import this tree into your dataset, replacing the original tree
+with the strict concensus :file:`permuted_cunningham_etal_1992_strict.tnt`.
 Navigate to Cunningham_et_al_1992 and replace the tree with the % symbols in the
 taxa name by clicking :menuselection:`Import tree`.
 
@@ -259,6 +273,13 @@ this on :filename:`Anomura.phyml` using the GUI or command line:
 
 :command:`stk sub_taxa -s anomura_subs Anomura.phyml Anomura_subbed.phyml`
 
+In the GUI use :menuselection:`STK Function->Sub taxa` and then
+:menuselection:`Import subs` to import the subs file. Then click
+:menuselection:`Sub taxa`. This will give you a warning message. This is fine,
+so click OK (we want to put in new taxa). Now save the currently open file
+(:filename:`Anomura.phyml`) as a new *history* entry has been added, containing
+details of the substitution.
+
 *The next few steps need doing each time you need to generate a supertree after
 adding more source data and have re-standardised the taxa*
 
@@ -289,17 +310,21 @@ Using the command line, use the following command:
 :command-line:`stk data_ind  Anomura_subbed.phyml -n  Anomura_ind.phyml`
 
 Will create a new Phyml with all non-independent *subset* data removed, using
-the above rules.  Trees that are identical will not be removed. You have to
+the above rules. Trees that are identical will not be removed. You have to
 decide which one should be removed or combine them using a mini-supertree. The
-same can be acheived in the GUI using the :menuslecetion:`STK Functions->Data
-Independence Check` and clicking :menuselection:`Remove subsets and save`.
+same can be acheived in the GUI using the 
+:menuslection:`STK Functions->Data Independence Check` and 
+clicking :menuselection:`Remove subsets and save`, giving
+:filename:`Anomura_ind.phyml` as the filename.
 
 To deal with identical data, open a new STK GUI and give it a temporary name.
 Then copy and paste the sources that contain the identical trees from your
 existing dataset into your new one. You can delete any trees that aren't
 identical but were copied over at this point. You can now make a matrix using
-:menuselection:`Stk Functions->Create Matrix` and create a supertree. For our
-tutotial dataset we have the following non-independent data:
+:menuselection:`Stk Functions->Create Matrix` and create a supertree. 
+
+
+For our tutotial dataset we have the following non-independent data:
 
 .. code-block:: bash
     Source trees that are subsets of others
@@ -315,21 +340,26 @@ So, running
 
 :command-line:`stk data_ind  Anomura_subbed.phyml -n  Anomura_ind.phyml`
 
-or via the GUI, you can remove McLaughlin et al 2007, tree 1.
+or via the GUI, you can remove Boyko and Harvey 2009, tree 1 manually or use the 
+:menuslection:`STK Functions->Data Independence Check` and 
+clicking :menuselection:`Remove subsets and save`, giving
+:filename:`Anomura_ind.phyml` as the filename.
 
-Then open a new STK GUI and copy and paste the Ahyong_etal_2009 across. This
-source only contains those two trees, so simply create the matrix using
-:menuselection:`STK Functions->Create Matrix`.  Run this matrix in TNT to create
-a combined source tree.
+.. warning:: If you removed the source manually, remember to "Save as"
 
-[KATIE TO ADD THIS]
+To deal with the two identical trees, open a new STK GUI and copy and 
+paste the Ahyong_etal_2009 across. This source only contains those two 
+trees, so simply create the matrix using :menuselection:`STK Functions->Create Matrix`.  Run this matrix in TNT (see above for example commands) to create a 
+combined source tree to import back into your original
+(:filename:`Anomura_ind.phyml`) file
 
 In :file:`Anomura_ind.phyml`, remove one of the Ahyong_etal_2009 source trees
 and import the output from TNT into the other. It is advisable here to edit the
 figure legend etc to match that this is now a combined tree (in this dataset the
 figure legend etc contain dummy data) and to add a comment on this tree with the
 TNT commands used as a reminder in future of where this tree came from. Save
-this Phyml as :filename:`Anomura_ind_final.phyml`.
+this Phyml as :filename:`Anomura_ind_final.phyml`. There is no need to save your
+temporary file.
 
 Remove higher taxa
 ------------------
@@ -368,6 +398,10 @@ The command line would be:
 The GUI is done by simply clicking :menuselection:"`STK Functions->Sub Taxa`,
 loading your subs file, and clicking :menuselection:`Sub taxa`.
 
+.. note::  It is important here to only substitute in *existing taxa* so use
+           the -e flag on the CLI and click the :menuselection:`Only existing
+           taxa` in the GUI
+
 For very large datasets it is probably best to split up your subs files into
 stages. For example, replace Orders with Families; then another file for
 Families to Groups; and a final file to go from Groups to genera.
@@ -377,7 +411,21 @@ carrying out substitutions. If you come across something that went wrong, report
 a bug on our Launchpad. Replacing taxa in trees is not straightforward at times
 so this definitely the time to check your backups.
 
-Our Anomura data have no such higher taxa so we move onto replacing genera.
+Our Anomura data have no such higher taxa, however, we have introduced an extra
+taxon by creating the mini-supertrees earlier; MRP_Outgroup. Carry out a data
+summary on :filename:`Anomura_ind_final.phyml` and you should see this taxon in
+the list. We can remove this easily, by doing a simple substitution. In the GUI,
+use :menuselection:`STK Functions->Sub taxa` to move MRP_Outgroup from the left
+to the right of the interface. Leave the second column blank, and click
+:menuselection:`Substitute taxa` to delete this. Save the file as
+:filename:`Anomura_ind_final_2.pyml`.
+
+On the command line use the following command:
+
+:command:`stk sub_taxa -o MRP_Outgroup Anomura_ind_final.phyml Anomura_ind_final_2.phyml`
+
+which will delete the taxon.
+
 
 Replacing genera
 ++++++++++++++++
@@ -390,10 +438,10 @@ substitute taxa functions, but it generates the substitutions for you.
 
 To run this you can either use the GUI or CLI. The CLI command is:
 
-:command:`stk replace_genera Anomura_ind_final.phyml Anomura_species.phyml`
+:command:`stk replace_genera Anomura_ind_final_2.phyml Anomura_species.phyml`
 
-In the GUI, use :menuselection:`STK Functions->Replace genera`.
-
+In the GUI, use :menuselection:`STK Functions->Replace genera`. Get the STK to
+create a new Phyml for you, named :filename:`Anomura_species.phyml`
 
 Your data is now almost ready for making a supertree!
 
@@ -467,8 +515,11 @@ overlap. Run it again, with graphical output and you will see the following
 output.
 
 Remove the following trees from the dataset:
+ * Cabezas et al 2009
+ * Werding et al 2001
 
-
+ You should then have 12 trees remaining. Remve the above and regenerate the
+ overlap graphic. Save your data to :filename:`Anomura_final.phyml`.
 
 create matrix
 -------------

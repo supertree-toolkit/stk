@@ -2122,15 +2122,9 @@ class Diamond:
             return
 
 
-    # Need to check for existing taxa, etc
-    f = StringIO.StringIO()
-    self.tree.write(f)
-    XML = f.getvalue()
-    taxa = stk.get_all_taxa(XML)
     i = 0
     for t in old_taxa:
-        if (t in taxa):
-            self.liststore_sub.append([t,new_taxa[i]])
+        self.liststore_sub.append([t,new_taxa[i]])
         i += 1
     return
 
