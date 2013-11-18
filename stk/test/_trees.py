@@ -32,6 +32,13 @@ class TestImportExportTree(unittest.TestCase):
         tree = import_tree(test_file)
         self.assert_(e_tree == tree)
 
+    def test_import_tutorial_tree(self):
+        test_file = "../../doc/tutorial/Cebezas_etal_tree1.tre"
+        e_tree = "(Onconida_alaini, ((Paramunida_granulata, ((Paramunida_pronoe, ((Paramunida_thalie, (Paramunida_pictura, Paramunida_labis)), (Paramunida_luminata, (Paramunida_belone, (Paramunida_salai, Paramunida_lophia))))), (Paramunida_stichas, Paramunida_proxima))), (Plesionida_concava, Plesionida_aliena)));"
+        tree = import_tree(test_file)
+        self.assert_(e_tree == tree)
+
+
     def test_unquoted_taxa_parse(self):
         tree="""(Lithobius_obscurus, Lithobius_variegatus, Australobius_scabrior, Bothropolys_multidentatus, ((Shikokuobius_japonicus, (Dichelobius_flavens, (Anopsobius_sp._nov._TAS, (Anopsobius_neozelanicus, Anopsobius_sp._nov._NSW)))), (Zygethobius_pontis, Cermatobius_japonicus), (Lamyctes_emarginatus, Lamyctes_africanus, Lamyctes_caeculus, Analamyctes_tucumanus, Analamyctes_andinus, (Lamyctopristus_validus, Lamyctopristus_sinuatus), (Easonobius_humilis, Easonobius_tridentatus, (Henicops_dentatus, (Henicops_maculatus, Henicops_sp._nov._QLD)))), (Paralamyctes_spenceri, Paralamyctes_neverneverensis, (Paralamyctes_asperulus, Paralamyctes_weberi), (Paralamyctes_tridens, (Paralamyctes_monteithi, Paralamyctes_harrisi)), (Paralamyctes_chilensis, (Paralamyctes_cassisi, Paralamyctes_mesibovi)), (Paralamyctes_validus, (Paralamyctes_grayi, 'Paralamyctes ?grayi', Paralamyctes_hornerae)), (Paralamyctes_subicolus, (Paralamyctes_trailli, (Paralamyctes_cammooensis, Paralamyctes_ginini))))));"""
         self.assert_(_tree_contains("Paralamyctes_validus",tree))

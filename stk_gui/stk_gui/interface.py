@@ -1155,7 +1155,7 @@ class Diamond:
         if (sufficient_overlap):
             msg = "Your data are sufficently well connected"
         else:
-            msg = "Your data are *not* well connected. Run with -g (and perhaps -d) to see which trees need to be removed"
+            msg = "Your data are *not* well connected. Run with graphical output to see which trees need to be removed"
         dialogs.error(self.main_window,msg)
 
         return
@@ -2122,15 +2122,9 @@ class Diamond:
             return
 
 
-    # Need to check for existing taxa, etc
-    f = StringIO.StringIO()
-    self.tree.write(f)
-    XML = f.getvalue()
-    taxa = stk.get_all_taxa(XML)
     i = 0
     for t in old_taxa:
-        if (t in taxa):
-            self.liststore_sub.append([t,new_taxa[i]])
+        self.liststore_sub.append([t,new_taxa[i]])
         i += 1
     return
 
@@ -2276,7 +2270,7 @@ class Diamond:
         dialogs.error(self.main_window,detail.msg)
         return 
      except:
-         dialogs.error_tb(self.main_window,"Error importing bib file:\n"+error)
+         dialogs.error_tb(self.main_window,"Error importing bib file\n")
          return
      
      try:
