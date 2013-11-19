@@ -1,3 +1,14 @@
+supertree-toolkit (2.8) precise; urgency=low
+
+  * Adding command line to Mac version
+  * Fixing numerous small bugs
+  * Adding tutorial and data
+  * More auxilary scripts, including taxonomy
+  * Adding optional taxonomy tree to create_matrix
+  * MRPOutgroup to MRP_Outgroup
+
+ -- Jon Hill <jhill1@iapetus>  Tue, 19 Nov 2013 10:28:10 +0000
+
 supertree-toolkit (2.6) precise; urgency=low
 
   * Fixing mac compatability

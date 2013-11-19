@@ -1121,18 +1121,19 @@ class Diamond:
     else:
         try:
             sufficient_overlap, key_list = stk.data_overlap(XML,filename=filename,overlap_amount=overlap,show=show,detailed=detailed,ignoreWarnings=ignoreWarnings)
-            # we need to save the csv file too
-            file_stub = os.path.splitext(filename)[0]
-            csv_file = file_stub+"_"+str(overlap)+".csv"
-            f = open(csv_file,"w")
-            i = 0
-            for key in key_list:
-                if type(key).__name__=='list':
-                    f.write(str(i)+","+",".join(key)+"\n")
-                else:
-                    f.write(str(i)+","+key+"\n")
-                i = i+1
-            f.close()
+            if (not filename == None):
+                # we need to save the csv file too
+                file_stub = os.path.splitext(filename)[0]
+                csv_file = file_stub+"_"+str(overlap)+".csv"
+                f = open(csv_file,"w")
+                i = 0
+                for key in key_list:
+                    if type(key).__name__=='list':
+                        f.write(str(i)+","+",".join(key)+"\n")
+                    else:
+                        f.write(str(i)+","+key+"\n")
+                    i = i+1
+                f.close()
 
         except IOError as detail:
             msg = "Failed to calculate overlap.\n"+detail.message
@@ -1150,6 +1151,16 @@ class Diamond:
             msg = "Failed to calculate overlap.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return 
+
+        if (sufficient_overlap):
+            msg = "Your data are sufficently well connected"
+        else:
+            msg = "Your data are *not* well connected. Run with graphical output to see which trees need to be removed"
+        dialogs.error(self.main_window,msg)
+
+        return
+
+
     if (show):
         # create our show result interface
         signals = {"on_data_overlap_show_dialog_close": self.on_data_overlap_show_dialog_cancel_button}
@@ -1253,12 +1264,17 @@ class Diamond:
         self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
     except InvalidSTKData as detail:
         msg = "Failed to check data independence.\n"+detail.msg
-        dialogs.error(self.main_window,msg)
+        dialogs.error_tb(self.main_window,msg)
         self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
     except UninformativeTreeError as detail:
         msg = "Failed to check data independence.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
+    except:
+        msg = "Failed to check data independence. Incomplete Data\n"
+        dialogs.error_tb(self.main_window,msg)
+        return
+
     liststore = gtk.ListStore(str,str)
     treeview = gtk.TreeView(liststore)
     rendererText = gtk.CellRendererText()
@@ -1618,7 +1634,9 @@ class Diamond:
     signals = {"on_create_matrix_dialog_close": self.on_create_matrix_cancel_button,
                "on_create_matrix_cancel_clicked": self.on_create_matrix_cancel_button,
                "on_create_matrix_clicked": self.on_create_matrix_create_matrix_button,
-               "on_create_matrix_browse_clicked": self.on_create_matrix_browse_button}
+               "on_create_matrix_browse_clicked": self.on_create_matrix_browse_button,
+               "on_create_matrix_browse2_clicked": self.on_create_matrix_browse2_button,
+               }
 
     self.create_matrix_gui = gtk.glade.XML(self.gladefile, root="create_matrix_dialog")
     self.create_matrix_dialog = self.create_matrix_gui.get_widget("create_matrix_dialog")
@@ -1635,7 +1653,12 @@ class Diamond:
     """
 
     filename_textbox = self.create_matrix_gui.get_widget("entry1")
+    taxonomy_textbox = self.create_matrix_gui.get_widget("entry2")
+
     filename = filename_textbox.get_text()
+    taxonomy_tree = taxonomy_textbox.get_text()
+    if (taxonomy_tree == ""):
+        taxonomy_tree = None
     format_radio_1 = self.create_matrix_gui.get_widget("matrix_format_tnt_chooser")
     format_radio_2 = self.create_matrix_gui.get_widget("matrix_format_nexus_chooser")
     ignoreWarnings = self.create_matrix_gui.get_widget("ignoreWarnings_checkbutton").get_active()
@@ -1654,7 +1677,7 @@ class Diamond:
     self.tree.write(f)
     XML = f.getvalue()
     try:
-        matrix = stk.create_matrix(XML,format=format,ignoreWarnings=ignoreWarnings)
+        matrix = stk.create_matrix(XML,format=format,taxonomy=taxonomy_tree,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
         msg = "Failed to create matrix.\n"+detail.msg
         dialogs.error(self.main_window,msg)
@@ -1698,6 +1721,8 @@ class Diamond:
 
   def on_create_matrix_browse_button(self, button):
       filter_names_and_patterns = {}
+      filter_names_and_patterns['Trees'] = ["*.tre","*nex","*.nwk","*.tnt"]
+      filter_names_and_patterns['Matrix'] = ["*nex","*.tnt"]
       # open file dialog
       filename = dialogs.get_filename(title = "Choose output matrix file", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
       filename_textbox = self.create_matrix_gui.get_widget("entry1")
@@ -1721,7 +1746,16 @@ class Diamond:
     self.export_dialog.show()
 
     return
-      
+
+  def on_create_matrix_browse2_button(self, button):
+      filter_names_and_patterns = {}
+      filter_names_and_patterns['Trees'] = ["*.tre","*nex","*.nwk","*.tnt"]
+      # open file dialog
+      filename = dialogs.get_filename(title = "Choose taxonomy tree", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
+      filename_textbox = self.create_matrix_gui.get_widget("entry2")
+      filename_textbox.set_text(filename)
+
+
   def on_export_button(self, button):
 
     filename_textbox = self.export_gui.get_widget("entry1")
@@ -2068,20 +2102,29 @@ class Diamond:
     old_taxa, new_taxa = self.construct_subs_from_treeview()
     # open browse button and get a filename
     filter_names_and_patterns = {}
+    filter_names_and_patterns['CSV files'] = ["*.csv"]
+    filter_names_and_patterns['Sub files'] = ["*.dat","*.txt"]
+    filter_names_and_patterns['All files'] = ["*"]
     # open file dialog
     filename = dialogs.get_filename(title = "Choose input subs fle", action = gtk.FILE_CHOOSER_ACTION_OPEN, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 
-    old_taxa, new_taxa = stk.parse_subs_file(filename)
+    if (filename.endswith(".csv")):
+        try:
+            old_taxa, new_taxa = stk.subs_from_csv(filename)
+        except:
+            dialogs.error_tb(self.main_window,"Error importing sub file from CSV:\n"+error)
+            return
+    else:
+        try:
+            old_taxa, new_taxa = stk.parse_subs_file(filename)
+        except:
+            dialogs.error_tb(self.main_window,"Error importing sub file:\n"+error)
+            return
 
-    # Need to check for existing taxa, etc
-    f = StringIO.StringIO()
-    self.tree.write(f)
-    XML = f.getvalue()
-    taxa = stk.get_all_taxa(XML)
+
     i = 0
     for t in old_taxa:
-        if (t in taxa):
-            self.liststore_sub.append([t,new_taxa[i]])
+        self.liststore_sub.append([t,new_taxa[i]])
         i += 1
     return
 
@@ -2227,7 +2270,7 @@ class Diamond:
         dialogs.error(self.main_window,detail.msg)
         return 
      except:
-         dialogs.error_tb(self.main_window,"Error importing bib file:\n"+error)
+         dialogs.error_tb(self.main_window,"Error importing bib file\n")
          return
      
      try:

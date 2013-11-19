@@ -253,8 +253,6 @@ a window with the result as a graphic. There are two options; the normal graphic
 (Fig :num:`#img-stk-data-overlap-simple`) and detailed graphic (Fig
 :num:`#img-stk-data-overlap-detailed`). 
 
-.. warning:: The MacOs version does not display the graphics. Save them to file instead.
-
 .. _img-stk-data-overlap-gui:
 
 .. figure:: images/stk_gui_check_overlap.png   

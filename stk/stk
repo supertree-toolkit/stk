@@ -110,6 +110,8 @@ def main():
             action='store_true',
             default=False,
             help="Overwrite the existing file without asking for confirmation")
+    parser_cm.add_argument('--taxonomy',
+            help="Add an additional tree file containig a taxonomy backbone tree into the matrix.")
     # Set the function that gets called when the sub command is activated
     parser_cm.set_defaults(func=create_matrix)
 
@@ -309,7 +311,7 @@ def main():
             )
     parser_cm.add_argument('-g',
             '--graphic',
-            default=False,
+            default=None,
             const=True,
             nargs='?',
             help='Save a graphical representation of the connectivity. This is in the form of a graph. '+
@@ -710,6 +712,7 @@ def create_matrix(args):
     overwrite = args.overwrite
     quote = args.quote
     ignoreWarnings = args.ignoreWarnings
+    taxonomy = args.taxonomy
     
     # check all the options
     if (f_format == None):
@@ -738,8 +741,11 @@ def create_matrix(args):
                 break
 
     XML = supertree_toolkit.load_phyml(input_file)
+    if (not taxonomy == None):
+        taxonomy_tree = None
+        taxonomy_tree = supertree_toolkit._parse_tree(taxonomy)
     try:
-        matrix = supertree_toolkit.create_matrix(XML,format=f_format,quote=quote,ignoreWarnings=ignoreWarnings)
+        matrix = supertree_toolkit.create_matrix(XML,format=f_format,quote=quote,taxonomy=taxonomy,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
         msg = "***Error: Failed to create matrix.\n"+detail.msg
         print msg
@@ -796,11 +802,18 @@ def sub_taxa(args):
             new_taxa.append(None)
 
     if (subs_file):
-        try:
-            old_taxa, new_taxa = supertree_toolkit.parse_subs_file(subs_file)
-        except UnableToParseSubsFile as e:
-            print e.msg
-            sys.exit(-1)
+        if (subs_file.endswith(".csv")):
+            try:
+                old_taxa, new_taxa = supertree_toolkit.subs_from_csv(subs_file)
+            except UnableToParseSubsFile as e:
+                print e.msg
+                sys.exit(-1)
+        else:
+            try:
+                old_taxa, new_taxa = supertree_toolkit.parse_subs_file(subs_file)
+            except UnableToParseSubsFile as e:
+                print e.msg
+                sys.exit(-1)
     
     
     # Does the input file exist
@@ -828,9 +841,9 @@ def sub_taxa(args):
         try:
             trees = supertree_toolkit.import_trees(input_file) 
             treefile = True
-        except:
-            import traceback
+        except TreeParseError as detail:
             print "Error loading file as PHYML or a tree file. Check your input, please"
+            print detail.msg
             sys.exit(-1)
     try:
         if (treefile):
@@ -965,9 +978,9 @@ def data_overlap(args):
             output_file = filename+"_"+str(overlap)+".pdf"
         else:
             output_file = args.graphic
-            # check it ends in .png...
+            # check it ends in known graphics type
             extension = os.path.splitext(output_file)[1]
-            if (not extension == '.png' or not extension == '.svg' or not extension == '.pdf'):
+            if (not (extension == '.png' or extension == '.svg' or extension == '.pdf')):
                 print "Warning: unknown output format. Correcting the output file you gave to .pdf"
                 output_file = os.path.splitext(output_file)[0]+".pdf"
 
@@ -989,7 +1002,7 @@ def data_overlap(args):
 
     if (graphic):
         # generate key file
-        filename =  os.path.splitext(input_file)[0]
+        filename =  os.path.splitext(output_file)[0]
         csv_file = filename+'_key_list_'+str(overlap)+".csv"
         i = 0
         f = open(csv_file,"w")
@@ -1000,7 +1013,13 @@ def data_overlap(args):
                 f.write(str(i)+","+key+"\n")
             i = i+1
         f.close()
+    
+    if (overlap_ok):
+        print "Your data are sufficently well connected"
+    else:
+        print "Your data are *not* well connected. Run with -g (and perhaps -d) to see which trees need to be removed"
 
+    return
 
 def export_trees(args):
     """ Export source trees to a single tree file
@@ -1226,7 +1245,7 @@ def convert_file(args):
         sys.exit(-1)
     data = f.read()
     data = data.lower()
-    if (not data.find('matrix') == -1):
+    if (not data.find('matrix') == -1 and data.find('tree') == -1):
         matrix = True
     else:
         matrix = False
@@ -1249,6 +1268,7 @@ def convert_file(args):
             i = 1
             for t in trees:
                 new_trees['tree_'+str(i)] = t
+                i += 1
             output = supertree_toolkit._amalgamate_trees(new_trees,format=output_format)
         except:
             print "Error saving tree"
@@ -1356,11 +1376,18 @@ def check_subs(args):
     input_file = args.input
 
     XML = supertree_toolkit.load_phyml(input_file)
-    try:
-        old_taxa, new_taxa = supertree_toolkit.parse_subs_file(subs_file)
-    except UnableToParseSubsFile as e:
-        print e.msg
-        sys.exit(-1)    
+    if (subs_file.endswith(".csv")):
+        try:
+            old_taxa, new_taxa = supertree_toolkit.subs_from_csv(subs_file)
+        except UnableToParseSubsFile as e:
+            print e.msg
+            sys.exit(-1)
+    else:
+        try:
+            old_taxa, new_taxa = supertree_toolkit.parse_subs_file(subs_file)
+        except UnableToParseSubsFile as e:
+            print e.msg
+            sys.exit(-1) 
     
     try:
         supertree_toolkit.check_subs(XML,new_taxa)
@@ -1369,7 +1396,6 @@ def check_subs(args):
         print "Warning: This substitution will add taxa to the dataset"
         print "**************************************************************\n"
         print detail.msg
-        print "Are you sure this is what you intend?" 
         return
 
     print "**************************************************************"

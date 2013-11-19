@@ -181,6 +181,37 @@
           <character type="molecular" name="cytb"/>
           <character type="molecular" name="12S"/>
         </character_data>
+    </source_tree>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">(A, (B, (C, D, 'E E%1', F, G, 'E E%2', 'E E%3')));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">1</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">1</string_value>
+			</page_number>
+          <tree_inference>
+            <optimality_criterion name="Bayesian"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="cytb"/>
+          <character type="molecular" name="12S"/>
+        </character_data>
       </source_tree>
     </source>
   </sources>

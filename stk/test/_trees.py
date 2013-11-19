@@ -3,9 +3,9 @@ import math
 import sys
 # so we import local stk before any other
 sys.path.insert(0,"../../")
-from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
-from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_taxa_from_tree, get_characters_from_tree, amalgamate_trees
-from stk.supertree_toolkit import import_trees, _trees_equal, _find_trees_for_permuting, permute_tree, get_all_source_names, _getTaxaFromNewick
+from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon,_tree_contains
+from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_taxa_from_tree, get_characters_from_tree, amalgamate_trees, _uniquify
+from stk.supertree_toolkit import import_trees, import_tree, _trees_equal, _find_trees_for_permuting, permute_tree, get_all_source_names, _getTaxaFromNewick
 
 import os
 from lxml import etree
@@ -32,12 +32,22 @@ class TestImportExportTree(unittest.TestCase):
         tree = import_tree(test_file)
         self.assert_(e_tree == tree)
 
+    def test_import_tutorial_tree(self):
+        test_file = "../../doc/tutorial/Cebezas_etal_tree1.tre"
+        e_tree = "(Onconida_alaini, ((Paramunida_granulata, ((Paramunida_pronoe, ((Paramunida_thalie, (Paramunida_pictura, Paramunida_labis)), (Paramunida_luminata, (Paramunida_belone, (Paramunida_salai, Paramunida_lophia))))), (Paramunida_stichas, Paramunida_proxima))), (Plesionida_concava, Plesionida_aliena)));"
+        tree = import_tree(test_file)
+        self.assert_(e_tree == tree)
+
+
+    def test_unquoted_taxa_parse(self):
+        tree="""(Lithobius_obscurus, Lithobius_variegatus, Australobius_scabrior, Bothropolys_multidentatus, ((Shikokuobius_japonicus, (Dichelobius_flavens, (Anopsobius_sp._nov._TAS, (Anopsobius_neozelanicus, Anopsobius_sp._nov._NSW)))), (Zygethobius_pontis, Cermatobius_japonicus), (Lamyctes_emarginatus, Lamyctes_africanus, Lamyctes_caeculus, Analamyctes_tucumanus, Analamyctes_andinus, (Lamyctopristus_validus, Lamyctopristus_sinuatus), (Easonobius_humilis, Easonobius_tridentatus, (Henicops_dentatus, (Henicops_maculatus, Henicops_sp._nov._QLD)))), (Paralamyctes_spenceri, Paralamyctes_neverneverensis, (Paralamyctes_asperulus, Paralamyctes_weberi), (Paralamyctes_tridens, (Paralamyctes_monteithi, Paralamyctes_harrisi)), (Paralamyctes_chilensis, (Paralamyctes_cassisi, Paralamyctes_mesibovi)), (Paralamyctes_validus, (Paralamyctes_grayi, 'Paralamyctes ?grayi', Paralamyctes_hornerae)), (Paralamyctes_subicolus, (Paralamyctes_trailli, (Paralamyctes_cammooensis, Paralamyctes_ginini))))));"""
+        self.assert_(_tree_contains("Paralamyctes_validus",tree))
 
     def test_import_treeview(self):
         test_file = "data/input/treeview_test.tre"
         tree = import_tree(test_file)
         expected_tree = "((Taxon_c, (Taxon_a, Taxon_b)), (Taxon_d, Taxon_e));"        
-        self.assert_(expected_tree == tree)
+        self.assert_(_trees_equal(expected_tree,tree))
 
     def test_import_mesquite(self):
         test_file = "data/input/mesquite_test.tre"
@@ -49,31 +59,31 @@ class TestImportExportTree(unittest.TestCase):
         test_file = "data/input/figtree_test.tre"
         tree = import_tree(test_file)
         expected_tree = "((Taxon_c, (Taxon_a, Taxon_b)), (Taxon_d, Taxon_e));" 
-        self.assert_(expected_tree == tree)
+        self.assert_(_trees_equal(expected_tree,tree))
 
     def test_import_dendroscope(self):
         test_file = "data/input/dendroscope_test.tre"
         tree = import_tree(test_file)
         expected_tree = "((Taxon_c:1, (Taxon_a:1, Taxon_b:1):0):0, (Taxon_d:1, Taxon_e:1):0);" 
-        self.assert_(expected_tree == tree)
+        self.assert_(_trees_equal(expected_tree,tree))
 
     def test_import_macclade(self):
         test_file = "data/input/macclade_test.tre"
         tree = import_tree(test_file)
         expected_tree = "((Taxon_c, (Taxon_a, Taxon_b)), (Taxon_d, Taxon_e));" 
-        self.assert_(expected_tree == tree)
+        self.assert_(_trees_equal(expected_tree,tree))
 
     def test_import_paup(self):
         test_file = "data/input/paup_tree.tre"
         tree = import_tree(test_file)
         expected_tree = "(Mimodes_graysoni, (Mimus_gilvus, Mimus_polyglottos), ((Mimus_gundlachii, (Nesomimus_macdonaldi, Nesomimus_melanotis, Nesomimus_parvulus, Nesomimus_trifasciatus)), ((Mimus_longicaudatus, ((Mimus_patagonicus, Mimus_thenca), (Mimus_saturninus, Mimus_triurus))), (Oreoscoptes_montanus, (Toxostoma_curvirostre, Toxostoma_rufum)))));" 
-        self.assert_(expected_tree == tree)
+        self.assert_(_trees_equal(expected_tree,tree))
 
     def test_utf_tree(self):
         test_file = "data/input/utf_tree.tre"
         trees = import_trees(test_file)
-        expected_tree = """(Colletes_skinneri, ((((Melitta_eickworti, Hesperapis_larreae), (\'Andrena (Callandrena) sp.\', (Panurgus_calcaratus, (Calliopsis_fracta, Calliopsis_pugionis)))), ((Svastra_machaerantherae, Svastra_obliqua), (Tetraloniella_sp., (Melissodes_rustica, (Melissodes_desponsa, Melissodes_sp.))))), ((((Dieunomia_heteropoda, Dieunomia_nevadensis), ((Ceratina_calcarata, ((Chelostoma_fuliginosum, (Hoplitis_biscutellae, (Hoplitis_albifrons, Hoplitis_pilosifrons))), (Megachile_pugnata, Coelioxys_alternata))), ((Paranthidium_jugatorium, Anthidiellum_notatum), (Anthidium_oblongatum, Anthidium_porterae)))), ((Oreopasites_barbarae, ((Holcopasites_calliopsidis, Holcopasites_ruthae), (Nomada_maculata, (Nomada_imbricata, Nomada_obliterta)))), ((Leiopodus_singularis, (Xeromelecta_californica, Zacosmia_maculata)), ((Paranomada_velutina, Triopasites_penniger), (Epeolus_scutellaris, (\'Triepeolus "rozeni"\', Triepeolus_verbesinae)))))), ((Anthophora_furcata, (Anthophora_montana, Anthophora_urbana)), (((Exomalopsis_completa, Exomalopsis_rufiventris), (Ptilothrix_sp., (Diadasia_bituberculata, Diadasia_nigrifrons, (Diadasia_diminuta, Diadasia_martialis)))), ((Xylocopa_tabaniformis, Xylocopa_virginica), (Centris_hoffmanseggiae, (Apis_dorsata, (Apis_mellifera, Apis_nigrocincta)), ((Euglossa_imperialis, (Eulaema_meriana, (Eufriesea_caerulescens, Exaerete_frontalis))), ((Bombus_avinoviellus, (Bombus_pensylvanicus, Bombus_terrestris)), (Melipona_sp., Scaptotrigona_depilis, Lestrimelitta_limao, (Trigona_dorsalis, Trigona_necrophaga)))))))))));"""
-        self.assert_(expected_tree == trees[0])
+        expected_tree = """(Colletes_skinneri, ((((Melitta_eickworti, Hesperapis_larreae), ('Andrena (Callandrena) sp.', (Panurgus_calcaratus, (Calliopsis_fracta, Calliopsis_pugionis)))), ((Svastra_machaerantherae, Svastra_obliqua), ('Tetraloniella_sp.', (Melissodes_rustica, (Melissodes_desponsa, 'Melissodes_sp.'))))), ((((Dieunomia_heteropoda, Dieunomia_nevadensis), ((Ceratina_calcarata, ((Chelostoma_fuliginosum, (Hoplitis_biscutellae, (Hoplitis_albifrons, Hoplitis_pilosifrons))), (Megachile_pugnata, Coelioxys_alternata))), ((Paranthidium_jugatorium, Anthidiellum_notatum), (Anthidium_oblongatum, Anthidium_porterae)))), ((Oreopasites_barbarae, ((Holcopasites_calliopsidis, Holcopasites_ruthae), (Nomada_maculata, (Nomada_imbricata, Nomada_obliterta)))), ((Leiopodus_singularis, (Xeromelecta_californica, Zacosmia_maculata)), ((Paranomada_velutina, Triopasites_penniger), (Epeolus_scutellaris, ('Triepeolus "rozeni"', Triepeolus_verbesinae)))))), ((Anthophora_furcata, (Anthophora_montana, Anthophora_urbana)), (((Exomalopsis_completa, Exomalopsis_rufiventris), ('Ptilothrix_sp.', (Diadasia_bituberculata, Diadasia_nigrifrons, (Diadasia_diminuta, Diadasia_martialis)))), ((Xylocopa_tabaniformis, Xylocopa_virginica), (Centris_hoffmanseggiae, (Apis_dorsata, (Apis_mellifera, Apis_nigrocincta)), ((Euglossa_imperialis, (Eulaema_meriana, (Eufriesea_caerulescens, Exaerete_frontalis))), ((Bombus_avinoviellus, (Bombus_pensylvanicus, Bombus_terrestris)), ('Melipona_sp.', Scaptotrigona_depilis, Lestrimelitta_limao, (Trigona_dorsalis, Trigona_necrophaga)))))))))));"""
+        self.assert_(_trees_equal(expected_tree,trees[0]))
 
     def test_import_tb_tree(self):
         test_file = "data/input/tree_with_taxa_block.tre"
@@ -258,6 +268,12 @@ class TestTreeManipulation(unittest.TestCase):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         matrix = create_matrix(XML)
 
+    def test_create_tnt_matrix_with_taxonomy(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        taxonomy = import_tree('data/input/paup_tree.tre')
+        matrix = create_matrix(XML,taxonomy=taxonomy)
+        self.assertRegexpMatches(matrix,'Mimus_gilvus')
+
     def test_create_nexus_matrix_quote(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         matrix = create_matrix(XML,format="nexus",quote=True)
@@ -377,7 +393,7 @@ class TestTreeMetaData(unittest.TestCase):
         chars = get_characters_from_tree(XML,"Hill_Davis_2011_1",sort=True)
         expected_chars = ['12S','cytb']
         self.assertListEqual(chars,expected_chars)
-    
+
 
     def test_find_trees_for_permuting(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
@@ -387,10 +403,12 @@ class TestTreeMetaData(unittest.TestCase):
     def test_find_trees_for_permuting(self):
         XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
         permute_trees = _find_trees_for_permuting(XML)
-        self.assert_(len(permute_trees) == 3)
+        self.assert_(len(permute_trees) == 4)
         self.assert_(permute_trees['Hill_2011_1'] == "((E%1,'G%1'),A,(G%2,(E%2,F,D,H,E%3)));")
         self.assert_(permute_trees['Davis_2011_1'] == '(Outgroup,(((((Leopardus_geoffroyi,Leopardus_pardalis),(Otocolobus_manul,Felis_magrita)),(Prionailurus_bengalensis,Leptailurus_serval)),(Catopuma_temmincki,(Caracal_caracal,Lynx_rufus))),((Acinonyx_jubatus,(Puma_concolor,(Panthera_tigris%1,Panthera_uncia))),(Panthera_onca,(Panthera_leo,Panthera_tigris%2)))));')
         self.assert_(permute_trees['Hill_Davis_2011_1'] == '(A, (B, (C, D, E%1, F, G, E%2, E%3)));')
+        self.assert_(permute_trees['Hill_Davis_2011_2'] == "(A, (B, (C, D, 'E E%1', F, G, 'E E%2', 'E E%3')));")
+
 
     def test_permute_trees(self):
         XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
@@ -407,6 +425,21 @@ class TestTreeMetaData(unittest.TestCase):
         self.assert_(len(output_trees)==len(expected_trees))
         for i in range(0,len(output_trees)):
             self.assert_(_trees_equal(output_trees[i],expected_trees[i]))
+    
+    def test_permute_trees_3(self):
+        XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
+        trees = obtain_trees(XML)
+        # contains quoted taxa too
+        output = permute_tree(trees['Hill_Davis_2011_2'],treefile="newick")
+        self.assert_(_trees_equal(output,"(A, (B, (C, D, E_E, F, G)));"))
+
+    def test_collapse_with_quotes(self):
+        tree = "(Proteroiulus_fuscus, (Craterostigmus_tasmanianus, ((Scolopendra_viridis,(Lithobius_variegatus, (Paralamyctes_validus, Anopsobius_neozelanicus))),(Sphendononema_guildingii, ((Scutigerina_weberi%1, (Scutigerina_weberi%2,(Scutigerina_malagassa, Scutigerina_hova))), (Scutigera_coleoptrata,((Thereuopoda_longicornis, 'Thereuopodina, sp. nov.', (Thereuonema_tuberculata,Thereuonema_turkestana, Thereuopoda_clunifera)), (Allothereua_bidenticulata,Allothereua_serrulata, Parascutigera_festiva, Parascutigera_latericia))))))));"
+        output = permute_tree(tree,treefile="newick")
+        expected_tree = "(Proteroiulus_fuscus, (Craterostigmus_tasmanianus,((Scolopendra_viridis,(Lithobius_variegatus,(Paralamyctes_validus,Anopsobius_neozelanicus))),(Sphendononema_guildingii,((Scutigerina_weberi,(Scutigerina_malagassa, Scutigerina_hova)), (Scutigera_coleoptrata,((Thereuopoda_longicornis, 'Thereuopodina, sp. nov.', (Thereuonema_tuberculata,Thereuonema_turkestana, Thereuopoda_clunifera)), (Allothereua_bidenticulata,Allothereua_serrulata, Parascutigera_festiva, Parascutigera_latericia))))))));"
+        self.assert_(_trees_equal(output,expected_tree))
+
+
 
     def test_permute_trees_2(self):
         XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
@@ -422,6 +455,15 @@ class TestTreeMetaData(unittest.TestCase):
         self.assert_(len(output_trees)==len(expected_trees))
         for i in range(0,len(output_trees)):
             self.assert_(_trees_equal(output_trees[i],expected_trees[i]))
+
+    def test_permute_tree_quoted(self):
+        """Test an awkward tree to permute"""
+        tree = "(((Theatops_posticus, (Cryptops_spinipes, Scolopocryptops_sexspinosus)),((Rhysida_nuda, ((Alipes_crotalus, (Ethmostigmus_rubripes, (Ethmostigmus_sp1, Ethmostigmus_sp2))), (((Rhysida_sp, (Rhysida_lithobiodis, Rhysida_imarginata%1)), (Rhysida_imarginata%2, Rhysida_longipes%1)), (Rhysida_imarginata%3, (Rhysida_imarginata%4, (Rhysida_imarginata%5, Rhysida_longipes%2)))), (Digitipes_coonoorensis, Digitipes_sp1, Digitipes_barnabasi, Digitipes_sp2))), ((Cormocephalus_monthanii, (Cormocephalus_nigrificatus, (Cormocephalus_sp1, (Cormocephalus_nudipes, (Cormocephalus_sp2, Cormocephalus_westwoodi))))), (('Scolopendra cf. morsitans%1', 'Scolopendra cf. morsitans%2', ('Scolopendra cf. morsitans%3', Scolopendra_cf._amazonica)), (Asanada_agharkari, Asanada_brevicornis))))), (Craterostigmus_tasmanianus, Craterostigmus_crabilli), (Mecistocephalus_guildingii, ((Himantarium_gabrielis, Bothriogaster_signata), (Geophilus_electricus, (Strigamia_maritima, Pachymerium_ferrugineum)))));"
+        try:
+            trees = permute_tree(tree,treefile="nexus")
+        except:
+            self.assert_(False)
+        # just check this runs and doesn't err
 
     def test_getTaxaFromNewick_quoted(self):
         tree = "((Bothropolys_multidentatus, Lithobius_obscurus, 'Lithobius variegatus rubriceps', Lithobius_forficatus, Australobius_scabrior, Eupolybothrus_fasciatus), (Shikokuobius_japonicus, (Dichelobius_flavens, Dichelobius_ACT, (Anopsobius_TAS, (Anopsobius_neozelanicus, Anopsobius_NSW))), (Zygethobius_pontis, Cermatobius_japonicus, (Henicops_brevilabiatus, Henicops_dentatus, Henicops_SEQLD, (Lamyctes_emarginatus, Lamyctes_coeculus, Lamyctes_inermipes, Lamyctes_africanus, Lamyctes_hellyeri), (Henicops_maculatus_TAS, (Henicops_maculatus_NSW, Henicops_maculatus_NZ))), ('Paralamyctes (Paralamyctes) spenceri', 'Paralamyctes (Paralamyctes) weberi', 'Paralamyctes (Paralamyctes) asperulus', 'Paralamyctes (Paralamyctes) prendinii', 'Paralamyctes (Paralamyctes) tridens', 'Paralamyctes (Paralamyctes) neverneverensis', 'Paralamyctes (Paralamyctes) harrisi', 'Paralamyctes (Paralamyctes) monteithi SEQLD', 'Paralamyctes (Paralamyctes) monteithi NEQLD', 'Paralamyctes (Paralamyctes) monteithi MEQLD', ('Paralamyctes (Haasiella) trailli', 'Paralamyctes (Haasiella) subicolus'), ('Paralamyctes chilensis', 'Paralamyctes wellingtonensis'), ('Paralamyctes (Nothofagobius) cassisi', 'Paralamyctes (Nothofagobius) mesibovi'), ('Paralamyctes (Thingathinga) ?grayi', ('Paralamyctes (Thingathinga) grayi NSW1', 'Paralamyctes (Thingathinga) grayi NSW2')), ('Paralamyctes (Thingathinga) validus NZ3', ('Paralamyctes (Thingathinga) validus NZ1', 'Paralamyctes (Thingathinga) validus NZ2'))))));"
