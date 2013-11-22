@@ -208,7 +208,7 @@ def set_unique_names(XML):
     return XML
 
 
-def import_bibliography(XML, bibfile):
+def import_bibliography(XML, bibfile, skip=False):
     """
     Create a bunch of sources from a bibtex file. This includes setting the sourcenames 
     for each source.
@@ -307,7 +307,14 @@ def import_bibliography(XML, bibfile):
                 sources.append(source)
             
         else:
-            raise BibImportError("Error with one of the entries in the bib file")
+            if (skip):
+                continue
+
+            msg = entry
+            raise BibImportError("Error with one of the entries in the bib file."+
+                                " Note the name is mangled to generate a unique ID "+
+                                "(but should include the name and the year). Remove this and"+
+                                " try again. You can add the offending entry manually.\n\n"+msg)
 
     # sort sources in alphabetical order
     xml_root = _sort_data(xml_root)

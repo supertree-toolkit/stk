@@ -2267,8 +2267,15 @@ class Diamond:
         XML = stk.add_historical_event(XML, "Bibliographic information imported from: "+filename)
         ios = StringIO.StringIO(XML)
      except BibImportError as detail:
-        dialogs.error(self.main_window,detail.msg)
-        return 
+        dialogs.error(self.main_window,detail.msg+"\n\nWill try skipping bad entries")
+        try:
+            XML = stk.import_bibliography(XML, filename, skip=True)
+            XML = _removeNonAscii(XML)
+            XML = stk.add_historical_event(XML, "Bibliographic information imported from: "+filename)
+            ios = StringIO.StringIO(XML)
+        except:
+            dialogs.error_tb(self.main_window,"Sorry, completely failed.\n")
+            return
      except:
          dialogs.error_tb(self.main_window,"Error importing bib file\n")
          return
