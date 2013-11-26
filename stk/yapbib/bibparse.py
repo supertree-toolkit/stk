@@ -154,8 +154,12 @@ def create_entrycode(b={}):
       bibid+= '_'+helper.create_initials(b.get('title','').upper())[:3]
 
   if 'thesis' not in b['_type']:
-    if b.has_key('firstpage'):   bibid+= 'p'+b['firstpage'].strip()
-    elif b.has_key('volume'):    bibid+= 'v'+b['volume'].strip()
+    if b.has_key('firstpage'):  
+        if not b['firstpage'] == None:
+            bibid+= 'p'+b['firstpage'].strip()
+    elif b.has_key('volume'):
+        if not b['volume'] == None:
+            bibid+= 'v'+b['volume'].strip()
   return helper.oversimplify(bibid)
 
 
