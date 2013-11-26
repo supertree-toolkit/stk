@@ -576,8 +576,9 @@ def data_ind(args):
         # output file is set, but no file given
         # set to default
         # grab directory from input file
-        direc = os.path.dirname(input_file)
-        output_file = direc + os.path.sep + "data_independence.txt"
+        path = os.path.abspath(input_file)
+        direc = os.path.dirname(path)
+        output_file = os.path.join(direc,"data_independence.txt")
 
     # check if output files are there
     if (output_file and os.path.exists(output_file) and not overwrite):
