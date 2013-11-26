@@ -368,27 +368,34 @@ def export_bibliography(XML,filename,format="bibtex"):
                 }
         # these are optional in the schema
         if (a.xpath("journal/string_value")):
-            journal = a.xpath("journal/string_value")[0].text
-            bib_dict['journal']=journal
+            if (not a.xpath("journal/string_value") == None):
+                journal = a.xpath("journal/string_value")[0].text
+                bib_dict['journal']=journal
         if (a.xpath("volume/string_value")):
-            volume  = a.xpath("volume/string_value")[0].text
-            bib_dict['volume']=volume
+            if (not a.xpath("volume/string_value") == None):
+                volume  = a.xpath("volume/string_value")[0].text
+                bib_dict['volume']=volume
         if (a.xpath("pages/string_value")):
-            firstpage, lastpage = bibparse.process_pages(a.xpath("pages/string_value")[0].text)
-            bib_dict['firstpage']=firstpage
-            bib_dict['lastpage']=lastpage
+            if (not a.xpath("pages/string_value")[0].text == None):
+                firstpage, lastpage = bibparse.process_pages(a.xpath("pages/string_value")[0].text)
+                bib_dict['firstpage']=firstpage
+                bib_dict['lastpage']=lastpage
         if (a.xpath("issue/string_value")):
-            issue   = a.xpath("issue/string_value")[0].text
-            bib_dict['issue']=issue
+            if (not a.xpath("issue/string_value") == None):
+                issue   = a.xpath("issue/string_value")[0].text
+                bib_dict['issue']=issue
         if (a.xpath("doi/string_value")):
-            doi     = a.xpath("doi/string_value")[0].text
-            bib_dict['doi']=doi
+            if (not a.xpath("doi/string_value") == None):
+                doi     = a.xpath("doi/string_value")[0].text
+                bib_dict['doi']=doi
         if (a.xpath("number/string_value")):
-            number  = a.xpath("number/string_value")[0].text
-            bib_dict['number']=number
+            if (not a.xpath("number/string_value") == None):
+                number  = a.xpath("number/string_value")[0].text
+                bib_dict['number']=number
         if (a.xpath("url/string_value")):
-            url     = a.xpath("url/string_value")[0].text
-            bib_dict['url']=url
+            if (not a.xpath("url/string_value") == None):
+                url     = a.xpath("url/string_value")[0].text
+                bib_dict['url']=url
         
         bib_it = bibitem.BibItem(bib_dict)
         bibliography.add_item(bib_it)

@@ -52,6 +52,7 @@ ignore_list = ["data/input/start_up.phyml", # contains only a stub
                "data/output/bib_import_single_book.phyml", # contains only a valid bibliography
                "data/output/bib_import_utf8.phyml", # contains only a valid bibliography
                "data/input/old_stk_input_data_summary_test.phyml", # partial data set
+               "data/input/bib_export_no_pages.phyml",# invalid data
               ]
 
 
