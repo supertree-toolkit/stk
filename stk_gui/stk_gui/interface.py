@@ -555,8 +555,8 @@ class Diamond:
       try:
         # rename original to backup...
         shutil.move(self.filename, self.filename+".bak")
-        # ...and temporary to original
-        shutil.move(temp_file, self.filename)
+        # ...and resave to original name
+        self.tree.write(sel.filename)
       except:
         dialogs.error_tb(self.main_window, "Saving to \"" + self.filename + "\" failed")
         self.statusbar.clear_statusbar()
