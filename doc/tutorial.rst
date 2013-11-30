@@ -215,6 +215,8 @@ Standardising Taxa
 
 The next stage is to standardise the taxa - removing synonyms and higher taxa.
 
+.. note:: The tutorial dataset has a sub file already defined. Below is for information only.
+
 Removing synonyms requires that a "standard" taxonomy is used. It does not matter what this is, but
 it does matter that two taxa that are actually the same taxa have the same name  to avoid artificial
 inflation of the taxa number and also to improve overlap between the source trees.  Services such as
@@ -230,12 +232,17 @@ one:
 
 .. code-block:: bash
 
-    "Scutigera"_nossibei = Scutigera_nossibei
-    Cryptops_(Trigonocryptops)_pictus = Cryptops_pictus
-    Anopsobius_sp._nov._NSW = Anopsobius_wrighti
+    Aegla denticulata denticulata = Aegla denticulata
+    Axius vivesi = Neaxius vivesi
+    Calcinus tibicen = Gilvossius setimanus
+    Callianqssa tyrrhena = Callianassa tyrrhena
+    Cambarus bartoni = Cambarus bartonii
+    Cliopagurus galzini = Ciliopagurus galzini
 
-Note that spaces have been replaced with underscores and there are spaces *both*
-sides of the '=' sign. 
+
+Note that spaces can be replaced with underscores if needed, but there needs to be spaces *both*
+sides of the '=' sign. The above is an excerpt from the subs file included in the tutorial dataset,
+which replaces a sub-species and corrects some common mispellings and synonyms.
 
 Alternatively, create a simple CSV (Comma Separated Value) file in Excel or
 similar. The first column contains the taxa already in the dataset and the subsequent
@@ -305,13 +312,13 @@ suggestions for how to do this in TNT.
 
 .. code-block:: bash
 
-    run permuted_cunningham_etal_1992_1.tnt;
+    run anomura_poly_cunningham_etal_1992_1.tnt;
     ienum;
     taxname=;
     tsave *permuted_cunningham_etal_1992.tnt;
     save;
     tsave /;
-    nelson*;
+    nelsen*;
     tsave *permuted_cunningham_etal_1992_strict.tnt;
     save 5;
     tsave /;
@@ -460,8 +467,7 @@ taxon by creating the mini-supertrees earlier; MRP_Outgroup. Carry out a data
 summary on :file:`Anomura_ind_final.phyml` and you should see this taxon in
 the list. We can remove this easily, by doing a simple substitution. In the GUI,
 use :menuselection:`STK Functions --> Sub taxa` to move MRP_Outgroup from the left
- 
-to the right of the interface. Leave the second column blank, and click
+ to the right of the interface. Leave the second column blank, and click
 :menuselection:`Substitute taxa` to delete this. Save the file as
 :file:`Anomura_ind_final_2.pyml`.
 
