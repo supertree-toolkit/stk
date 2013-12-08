@@ -561,9 +561,12 @@ class Diamond:
       # now move the tempfile to the correct filename, after making a .bak
       try:
         # rename original to backup...
-        shutil.move(self.filename, self.filename+".bak")
+        try:
+            shutil.move(self.filename, self.filename+".bak")
+        except IOError:
+            pass # file doesn't exist
         # ...and resave to original name
-        self.tree.write(sel.filename)
+        self.tree.write(self.filename)
       except:
         dialogs.error_tb(self.main_window, "Saving to \"" + self.filename + "\" failed")
         self.statusbar.clear_statusbar()

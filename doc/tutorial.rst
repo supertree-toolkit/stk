@@ -277,10 +277,13 @@ this on :file:`Anomura.phyml` using the GUI or command line:
 
 In the GUI use :menuselection:`STK Function --> Sub taxa` and then
 :menuselection:`Import subs` to import the subs file. Then click
-:menuselection:`Sub taxa`. This will give you a warning message. This is fine,
+:menuselection:`Sub taxa`. Give the filename :file:`Anomura_subbed.phyml` and click save.
+This will give you a warning message. This is fine,
 so click OK (we want to put in new taxa). Now save the currently open file
 (:file:`Anomura.phyml`) as a new *history* entry has been added, containing
-details of the substitution.
+details of the substitution. You now have *two* files: your original with an additional
+history event detailing the substitutions done, and a new file where the substitutions have taken
+place (including a history event stating how the file was created).
 
 
 Removing polyphyletic taxa
@@ -310,7 +313,7 @@ one matrix) which will be called
 Run this matrix in TNT to generate a mini-supertree. The commands below are
 suggestions for how to do this in TNT. 
 
-.. code-block:: bash
+.. code-block:: none
 
     run anomura_poly_cunningham_etal_1992_1.tnt;
     ienum;
@@ -327,7 +330,8 @@ suggestions for how to do this in TNT.
 You can then re-import this tree into your dataset, replacing the original tree
 with the strict consensus :file:`permuted_cunningham_etal_1992_strict.tnt`.
 Navigate to Cunningham_et_al_1992 and replace the tree with the % symbols in the
-taxa name by clicking :menuselection:`Import tree`.
+taxa name by clicking :menuselection:`Import tree`. Now :menuselection:`File --> Save as` to
+filename :file:`Anomura_poly.phyml`.
 
 .. note:: This is the "standard" data - *keep this* as this is what gets updated
     when new trees are added to the dataset.
@@ -564,7 +568,8 @@ Using the GUI, use :menuselection:`STK Functions --> Check data overlap`. Click
 overlap. Run it again, with graphical output and you will see the following
 output.
 
-Remove the following trees from the dataset:
+Remove the following sources from the dataset (the sources contain all the trees that do not contain
+sufficient overlap):
  * Cabezas et al 2009
  * Werding et al 2001
 
