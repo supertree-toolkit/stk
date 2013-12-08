@@ -1714,7 +1714,7 @@ class Diamond:
     ios = StringIO.StringIO(XML)
     self.update_data(ios, "Error adding history event (create matrix) to XML", skip_warning=True)
 
-    
+    dialogs.message_box(self.main_window, "Matrix created", "Matrix created and saved to: "+filename)
     self.create_matrix_dialog.hide()
 
     return
@@ -2007,6 +2007,7 @@ class Diamond:
       XML = stk.add_historical_event(XML, "Bibliographic information exported to: "+filename)
       ios = StringIO.StringIO(XML)
       self.update_data(ios, "Error adding history event (export bibliography) to XML", skip_warning=True)
+      dialogs.message_box(self.main_window, "Bibliography exported", "Bibliography export to: "+filename)      
       self.export_bib_dialog.hide()
 
       return
@@ -2240,6 +2241,8 @@ class Diamond:
     XML = stk.add_historical_event(XML,event_desc) 
     ios = StringIO.StringIO(XML)
     self.update_data(ios, "Error adding history event (taxa sub) to XML",skip_warning=True)
+    dialogs.message_box(self.main_window, "Data substituted", "Taxa have been substituted/deleted and the new data saved to: "+filename)      
+    
     
     self.sub_taxa_dialog.hide()
 
@@ -2315,6 +2318,8 @@ class Diamond:
      ios = StringIO.StringIO(XML)
 
      self.update_data(ios, "Error standardising names")
+     dialogs.message_box(self.main_window, "Standardise names", "Names standardised")      
+     
 
      return 
 
@@ -2340,6 +2345,8 @@ class Diamond:
      ios = StringIO.StringIO(XML)
 
      self.update_data(ios, "Error cleaning data")
+     dialogs.message_box(self.main_window, "Clean data", "Data cleaned")      
+     
 
      return 
 
@@ -2428,6 +2435,8 @@ class Diamond:
      ios = StringIO.StringIO(XML)
 
      self.update_data(ios, "Error replacing genera")
+     dialogs.message_box(self.main_window, "Replace genera", msg)      
+     
 
      return 
 
