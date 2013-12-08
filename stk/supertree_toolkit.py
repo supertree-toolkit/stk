@@ -3432,7 +3432,7 @@ def _parse_trees(tree_block):
         p4.var.warnReadNoFile = True
         p4.var.doRepairDupedTaxonNames = 0
     except p4.Glitch as detail:
-        raise TreeParseError("Error parsing tree\n"+detail.msg )
+        raise TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree_block )
     trees = p4.var.trees
     p4.var.trees = []
     return trees
@@ -3453,9 +3453,7 @@ def _parse_tree(tree,fixDuplicateTaxa=False):
         if (fixDuplicateTaxa):
             p4.var.doRepairDupedTaxonNames = 0
     except p4.Glitch as detail:
-        print detail.msg
-        print tree
-        raise TreeParseError("Error parsing tree\n"+detail.msg )
+        raise TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree )
 
     t = p4.var.trees[0]
     p4.var.trees = []

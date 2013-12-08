@@ -320,7 +320,7 @@ suggestions for how to do this in TNT.
     tsave /;
     nelsen*;
     tsave *permuted_cunningham_etal_1992_strict.tnt;
-    save 5;
+    save /;
     tsave /;
     quit;
 

@@ -546,6 +546,13 @@ class Diamond:
       try:
         temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tmp") 
         self.tree.write(temp_file)
+      except ValueError:
+        dialogs.error(self.main_window, "Saving to \"" + self.filename + "failed.\n\n You have "+
+                "non-ASCII or non-Unicode characters in your text somewhere. Check for mathematical"+
+                "or Greek symbols, particularly where you have copy and pasted data.")
+        self.statusbar.clear_statusbar()
+        self.main_window.window.set_cursor(None)
+        return False
       except:
         dialogs.error_tb(self.main_window, "Saving to \"" + self.filename + "\" failed")
         self.statusbar.clear_statusbar()
@@ -595,15 +602,8 @@ class Diamond:
       # Check that the selected file has a file extension. If not, add a .xml extension.
       if len(filename.split(".")) <= 1:
         filename += ".phyml"
-
-      # Save the file
-      self.statusbar.set_statusbar("Saving ...")
-      self.main_window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
-      self.tree.write(filename)
-      self.set_saved(True, filename)
-      self.statusbar.clear_statusbar()
-      self.main_window.window.set_cursor(None)
-      return True
+      self.filename = filename
+      self.on_save(widget)
 
     return False
 
@@ -1446,19 +1446,22 @@ class Diamond:
     # get all trees
     tree_list = stk._find_trees_for_permuting(XML)
 
-    for t in tree_list:
-        # permute
-        if (not treefile == None):
-            output_string = stk.permute_tree(tree_list[t],treefile=treefile)
-        else:
-            output_string = stk.permute_tree(tree_list[t],matrix=format,treefile=None)
+    try:
+        for t in tree_list:
+            # permute
+            if (not treefile == None):
+                output_string = stk.permute_tree(tree_list[t],treefile=treefile)
+            else:
+                output_string = stk.permute_tree(tree_list[t],matrix=format,treefile=None)
 
-        #save
-        new_output,ext = os.path.splitext(filename)
-        new_output += "_"+t+ext
-        f = open(new_output,'w')
-        f.write(output_string)
-        f.close
+            #save
+            new_output,ext = os.path.splitext(filename)
+            new_output += "_"+t+ext
+            f = open(new_output,'w')
+            f.write(output_string)
+            f.close
+    except TreeParseError as e:
+        dialogs.error(self.main_window,"Error permuting trees." + e.msg)
   
 
     # Add a history event
