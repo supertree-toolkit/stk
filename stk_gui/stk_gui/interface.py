@@ -2040,7 +2040,10 @@ class Diamond:
     XML = f.getvalue()
 
     # construct list and treeview
-    taxa = stk.get_all_taxa(XML)
+    try:
+        taxa = stk.get_all_taxa(XML)
+    except TreeParseError as e:
+        dialogs.error(self.main_window,e.msg)
     self.liststore_taxa = gtk.ListStore(str)
     rendererText = gtk.CellRendererText()
     column = gtk.TreeViewColumn("Taxa in data", rendererText, text=0)
@@ -2119,7 +2122,7 @@ class Diamond:
         try:
             old_taxa, new_taxa = stk.subs_from_csv(filename)
         except:
-            dialogs.error_tb(self.main_window,"Error importing sub file from CSV:\n"+error)
+            dialogs.error_tb(self.main_window,"Error importing sub file from CSV\n")
             return
     else:
         try:

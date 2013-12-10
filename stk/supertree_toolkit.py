@@ -2152,7 +2152,7 @@ def subs_from_csv(filename):
     new_taxa = []
     old_taxa = []
 
-    with open(filename, 'r') as csvfile:
+    with open(filename, 'rU') as csvfile:
         subsreader = csv.reader(csvfile, delimiter=',')
         for row in subsreader:
             if (len(row) == 0):
