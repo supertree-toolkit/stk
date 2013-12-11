@@ -537,6 +537,10 @@ def safe_taxonomic_reduction(args):
         msg = "***Error: Failed to carry out STR.\n"+detail.msg
         print msg
         return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
 
     if (not subs == None or not subs):
         substitutions = supertree_toolkit.subs_file_from_str(output)
@@ -620,6 +624,10 @@ def data_ind(args):
         msg = "***Error: Failed to check independence.\n"+detail.msg
         print msg
         return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
 
     # process data
     data_ind = ""
@@ -684,7 +692,7 @@ def data_summary(args):
         print msg
         return
     except TreeParseError as detail:
-        msg = "***Error: Failed to summarise data - can't parse tree. Try again with -i flag.\n"+detail.msg
+        msg = "***Error: Failed to summarise data - can't parse tree.\n"+detail.msg
         print msg
         return 
     except: 
@@ -757,6 +765,10 @@ def create_matrix(args):
         return
     except UninformativeTreeError as detail:
         msg = "***Error: Failed to create matrix.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
 
@@ -867,6 +879,10 @@ def sub_taxa(args):
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
         return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
 
 
     if (treefile):
@@ -954,6 +970,10 @@ def export_data(args):
         msg = "***Error: Failed to export data.\n"+detail.msg
         print msg
         return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
 
 
 def data_overlap(args):
@@ -998,6 +1018,10 @@ def data_overlap(args):
         return
     except UninformativeTreeError as detail:
         msg = "***Error: Failed to check overlap.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
 
@@ -1065,6 +1089,10 @@ def export_trees(args):
         return
     except UninformativeTreeError as detail:
         msg = "***Error: Failed to export trees.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
 
@@ -1358,6 +1386,10 @@ def create_subset(args):
         return
     except UninformativeTreeError as detail:
         msg = "***Error: Failed to create subset.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
 
