@@ -101,7 +101,14 @@ bibliographic data and all but one source tree completed.
 
 You can practice digitising trees using `Treeview <http://taxonomy.zoology.gla.ac.uk/rod/treeview.html>`_, 
 `Mesquite <http://mesquiteproject.org/mesquite/mesquite.html>`_ or
-similar software. The tree missing from the dataset is shown below.
+similar software. 
+.. note:: Avoid non-standard characters in taxa names. Your names *must* not contain commas, 
+    parantheses, asterisks, hyphens, or percentage signs (except for polyphyletic taxa - see later). 
+
+.. note:: Quoted taxa should be done with single quotes only ('), not double or "smart
+          quotes"
+
+The tree missing from the dataset is shown below.
 
 .. _img-tut-missing-tree:
 

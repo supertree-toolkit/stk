@@ -352,6 +352,12 @@ class TestSubs(unittest.TestCase):
         expected_tree = "(A%1, (C, D), E, F, G, A%2);"
         self.assert_(_trees_equal(expected_tree,new_tree))
 
+    def test_replace_poly_taxa(self):
+        tree = "(A_a%1, A_b%1, (A_a%2, A_b%2, A_c, A_d));"
+        new_tree = _sub_taxa_in_tree(tree,"A_a", "A_f")
+        expected_tree = "(A_f%1, A_b%1, (A_f%2, A_b%2, A_c, A_d));"
+        self.assert_(_trees_equal(expected_tree,new_tree))
+
 
     def old_stk_replace_taxa_tests(self):
         original_trees = "((((Catharacta_maccormicki,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);";

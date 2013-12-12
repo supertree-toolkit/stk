@@ -872,7 +872,7 @@ def sub_taxa(args):
         print msg
         return
     except InvalidSTKData as detail:
-        msg = "***Error: Failed to substituting taxa.\n"+detail.msg
+        msg = "***Error: Failed substituting taxa.\n"+detail.msg
         print msg
         return
     except UninformativeTreeError as detail:
