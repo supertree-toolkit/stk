@@ -125,7 +125,7 @@ button will then appear in the status bar, in the lower left of the GUI (Fig.
 Once done, your tree string will appear in the data panel.
 
 .. note:: Avoid non-standard characters in taxa names. Your names *must* not contain commas, 
-    parantheses, asterisks, hyphens, or percentage signs (except for polyphyletic taxa - see later). 
+    parantheses, asterisks, colons, hyphens, or percentage signs (the latter doesn't apply to polyphyletic taxa - see later). 
 
 .. note:: Quoted taxa should be done with single quotes only ('), not double or "smart
           quotes"

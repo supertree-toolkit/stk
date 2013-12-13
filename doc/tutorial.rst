@@ -103,7 +103,7 @@ You can practice digitising trees using `Treeview <http://taxonomy.zoology.gla.a
 `Mesquite <http://mesquiteproject.org/mesquite/mesquite.html>`_ or
 similar software. 
 .. note:: Avoid non-standard characters in taxa names. Your names *must* not contain commas, 
-    parantheses, asterisks, hyphens, or percentage signs (except for polyphyletic taxa - see later). 
+    parantheses, colons, asterisks, hyphens, or percentage signs (percentage signs are allowed for polyphyletic taxa - see later). 
 
 .. note:: Quoted taxa should be done with single quotes only ('), not double or "smart
           quotes"
