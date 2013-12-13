@@ -1,8 +1,5 @@
 xread
-8 6
-	format missing = ?;
-
-	matrix
+6 8
 
 MRPOutgroup	000000
 A	101010

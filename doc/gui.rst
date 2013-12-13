@@ -124,9 +124,10 @@ button will then appear in the status bar, in the lower left of the GUI (Fig.
 
 Once done, your tree string will appear in the data panel.
 
-.. note:: Avoid non-standard characters in taxa names. Your names *must* not contain commas, 
-    parantheses, asterisks, colons, hyphens, or percentage signs (the latter doesn't apply to polyphyletic taxa - see later). 
-
+.. warning:: Avoid non-standard characters in taxa names. Your names *must* not contain commas, 
+    parantheses, colons, asterisks, hyphens, slashes or percentage signs (percentage signs are allowed for polyphyletic taxa - see later).
+    These are not allowed in taxa names in Newick format as they mean other things.
+    
 .. note:: Quoted taxa should be done with single quotes only ('), not double or "smart
           quotes"
 

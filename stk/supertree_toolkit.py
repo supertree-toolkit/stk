@@ -3374,11 +3374,32 @@ def _read_nexus_matrix(filename):
 
 def _read_hennig_matrix(filename):
     """ Read in essential info from a TNT matrix file
-        - actually just calls our NEXUS reader as the file
-        layout is surprisingly similar...
     """
 
-    return _read_nexus_matrix(filename)
+    taxa = []
+    matrix = []
+    f = open(filename,"r")
+    inData = False
+    for line in f:
+        linel = line.lower()
+        if linel.find(";") > -1:
+            inData = False
+        if (inData):
+            linel = linel.strip()
+            if len(linel) == 0:
+                continue # empty line
+            
+            data = line.split()
+            taxa.append(data[0])
+            char_row = []
+            for n in range(0,len(data[1])):
+                char_row.append(data[1][n])
+            matrix.append(char_row)
+        m = re.match('\d+ \d+', linel)
+        if (not m == None):
+            inData = True
+
+    return matrix,taxa
 
 
 def _check_informative_trees(XML,delete=False):

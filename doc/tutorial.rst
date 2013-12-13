@@ -102,8 +102,9 @@ bibliographic data and all but one source tree completed.
 You can practice digitising trees using `Treeview <http://taxonomy.zoology.gla.ac.uk/rod/treeview.html>`_, 
 `Mesquite <http://mesquiteproject.org/mesquite/mesquite.html>`_ or
 similar software. 
-.. note:: Avoid non-standard characters in taxa names. Your names *must* not contain commas, 
-    parantheses, colons, asterisks, hyphens, or percentage signs (percentage signs are allowed for polyphyletic taxa - see later). 
+.. warning:: Avoid non-standard characters in taxa names. Your names *must* not contain commas, 
+    parantheses, colons, asterisks, hyphens, slashes or percentage signs (percentage signs are allowed for polyphyletic taxa - see later).
+    These are not allowed in taxa names in Newick format as they mean other things.
 
 .. note:: Quoted taxa should be done with single quotes only ('), not double or "smart
           quotes"
