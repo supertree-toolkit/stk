@@ -632,7 +632,7 @@ def data_ind(args):
     except:
         msg = "***Error: failed to check independence due to unknown error."
         print msg
-        traceback.print_tb()
+        traceback.print_exc()
         return
 
     # process data
@@ -704,7 +704,7 @@ def data_summary(args):
     except: 
         msg = "***Error: Failed to summarise data - incomplete data. Try again with -i flag.\n"
         print msg
-        traceback.print_tb()
+        traceback.print_exc()
         return 
 
 
@@ -781,7 +781,7 @@ def create_matrix(args):
     except: 
         msg = "***Error: Failed to create matrix due to unknown error.\n"
         print msg
-        traceback.print_tb()
+        traceback.print_exc()
         return 
 
     f = open(output_file, "w")
@@ -902,7 +902,7 @@ def sub_taxa(args):
     except: 
         msg = "***Error: Failed sbstituting taxa due to unknown error.\n"
         print msg
-        traceback.print_tb()
+        traceback.print_exc()
         return 
 
 
@@ -998,7 +998,7 @@ def export_data(args):
     except: 
         msg = "***Error: Failed to export data due to unknown error.\n"
         print msg
-        traceback.print_tb()
+        traceback.print_exc()
         return 
 
 
@@ -1053,7 +1053,7 @@ def data_overlap(args):
     except: 
         msg = "***Error: Failed to check overlap due to unknown error.\n"
         print msg
-        traceback.print_tb()
+        traceback.print_exc()
         return 
 
     if (graphic):
@@ -1129,7 +1129,7 @@ def export_trees(args):
     except: 
         msg = "***Error: Failed to export trees due to unknown error.\n"
         print msg
-        traceback.print_tb()
+        traceback.print_exc()
         return 
 
     f = open(output_file,"w")
@@ -1211,7 +1211,7 @@ def permute_trees(args):
         except:
             msg = "***Error: Failed to extract a tree list to check for permutable.\n"
             print msg
-            traceback.print_tb()
+            traceback.print_exc()
             return 
 
     if (verbose):
@@ -1247,7 +1247,7 @@ def permute_trees(args):
         except: 
             msg = "***Error: Failed to permute trees due to unknown error.\n"
             print msg
-            traceback.print_tb()
+            traceback.print_exc()
             return 
 
 
@@ -1308,7 +1308,7 @@ def clean_data(args):
     except: 
         msg = "***Error: Failed to clean data due to unknown error.\n"
         print msg
-        traceback.print_tb()
+        traceback.print_exc()
         return 
 
     f = open(output_file, "w")
@@ -1365,7 +1365,7 @@ def replace_genera(args):
     except: 
         msg = "***Error: Failed to replace genera due to unknown error.\n"
         print msg
-        traceback.print_tb()
+        traceback.print_exc()
         return 
 
     f = open(output_file, "w")
@@ -1517,7 +1517,7 @@ def create_subset(args):
     except: 
         msg = "***Error: Failed to create subset due to unknown error.\n"
         print msg
-        traceback.print_tb()
+        traceback.print_exc()
         return 
 
     new_XML = supertree_toolkit.add_historical_event(new_XML, "Subset created with " +" ".join(sys.argv)) 
