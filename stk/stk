@@ -1225,9 +1225,9 @@ def permute_trees(args):
             print "Permuting "+t
         try:
             if (not treefile == ''):
-                output_string = supertree_toolkit.permute_tree(tree_list[t],treefile=treefile)
+                output_string = supertree_toolkit.permute_tree(tree_list[t],treefile=treefile,verbose=verbose)
             else:
-                output_string = supertree_toolkit.permute_tree(tree_list[t],matrix=create_matrix,treefile=None)
+                output_string = supertree_toolkit.permute_tree(tree_list[t],matrix=create_matrix,treefile=None,verbose=verbose)
         except NotUniqueError as detail:
             msg = "***Error: Failed to permute trees.\n"+detail.msg
             print msg

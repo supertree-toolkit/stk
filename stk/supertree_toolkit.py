@@ -1066,6 +1066,43 @@ def get_all_characters(XML,ignoreErrors=False):
 
     return char_dict
 
+def get_publication_year_tree(XML,name):
+    """Return a dictionary of years and the number of publications
+    within that year
+    """
+
+    # Our input tree has name source_no, so find the source by stripping off the number
+    source_name, number = name.rsplit("_",1)
+    number = int(number.replace("_",""))
+    xml_root = _parse_xml(XML)
+    # By getting source, we can then loop over each source_tree
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+    # loop through all sources
+    for s in sources:
+        # for each source, get source name
+        name = s.attrib['name']
+        if source_name == name:
+            # found the bugger!
+            tree_no = 1
+            for t in s.xpath("source_tree/tree/tree_string"):
+                if tree_no == number:
+                    # and now we have the correct tree. 
+                    # Now we can get the year for this tree
+                    if not t.getparent().getparent().getparent().xpath("bibliographic_information/article") == None:
+                        year = int(t.getparent().getparent().getparent().xpath("bibliographic_information/article/year/integer_value")[0].text)
+                    elif not t.getparent().getparent().getparent().xpath("bibliographic_information/book") == None:
+                        year = int(t.getparent().getparent().getparent().xpath("bibliographic_information/book/year/integer_value")[0].text)
+                    elif not t.getparent().getparent().getparent().xpath("bibliographic_information/in_book") == None:
+                        year = int(t.getparent().getparent().getparent().xpath("bibliographic_information/in_book/year/integer_value")[0].text)
+                    elif not t.getparent().getparent().getparent().xpath("bibliographic_information/in_collection") == None:
+                        year = int(t.getparent().getparent().getparent().xpath("bibliographic_information/in_collection/year/integer_value")[0].text)
+                    return year
+                tree_no += 1
+
+    # should raise exception here
+    return None
+
 def get_characters_from_tree(XML,name,sort=False):
     """Get the characters that were used in a particular tree
     """
@@ -1099,6 +1136,41 @@ def get_characters_from_tree(XML,name,sort=False):
 
     # should raise exception here
     return characters
+
+def get_character_types_from_tree(XML,name,sort=False):
+    """Get the character types that were used in a particular tree
+    """
+
+    characters = []
+    # Our input tree has name source_no, so find the source by stripping off the number
+    source_name, number = name.rsplit("_",1)
+    number = int(number.replace("_",""))
+    xml_root = _parse_xml(XML)
+    # By getting source, we can then loop over each source_tree
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+    # loop through all sources
+    for s in sources:
+        # for each source, get source name
+        name = s.attrib['name']
+        if source_name == name:
+            # found the bugger!
+            tree_no = 1
+            for t in s.xpath("source_tree/tree/tree_string"):
+                if tree_no == number:
+                    # and now we have the correct tree. 
+                    # Now we can get the characters for this tree
+                    chars = t.getparent().getparent().xpath("character_data/character")
+                    for c in chars:
+                        characters.append(c.attrib['type'])
+                    if (sort):
+                        characters.sort()
+                    return characters
+                tree_no += 1
+
+    # should raise exception here
+    return characters
+
 
 def get_characters_used(XML):
     """ Return a sorted, unique array of all character names used
@@ -1518,7 +1590,7 @@ def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, only_existing = Fal
 
 
 
-def permute_tree(tree,matrix="hennig",treefile=None):
+def permute_tree(tree,matrix="hennig",treefile=None,verbose=False):
     """ Permute a tree where there is uncertianty in taxa location.
     Output either a tree file or matrix file of all possible 
     permutations.
@@ -1563,6 +1635,14 @@ def permute_tree(tree,matrix="hennig",treefile=None):
                 if name == names_unique[i]:
                     count += 1
         non_unique_numbers.append(count)
+
+    total = 1
+    for n in non_unique_numbers:
+        if (n > 0):
+            total = total * n
+
+    if (verbose):
+        print "This tree requires a of "+str(total)+ " permutations"
 
     trees_saved = []
     # I hate recursive functions, but it actually is the
