@@ -1201,7 +1201,7 @@ def permute_trees(args):
             print "Error finding that name. It should be in the form 'Hill_2011_1'"
             sys.exit(-1)
     else:
-        # get all trees
+        # get all permutable trees
         try:
             tree_list = supertree_toolkit._find_trees_for_permuting(XML)
         except TreeParseError as detail:
@@ -1214,8 +1214,15 @@ def permute_trees(args):
             traceback.print_tb()
             return 
 
+    if (verbose):
+        print "List of trees to permute:"
+        for t in tree_list:
+            print t
+
     for t in tree_list:
         # permute
+        if (verbose):
+            print "Permuting "+t
         try:
             if (not treefile == ''):
                 output_string = supertree_toolkit.permute_tree(tree_list[t],treefile=treefile)
@@ -1245,11 +1252,12 @@ def permute_trees(args):
 
 
         #save
-        new_output,ext = os.path.splitext(output_file)
-        new_output += "_"+t+ext
-        f = open(new_output,'w')
-        f.write(output_string)
-        f.close
+        if (not output_string == ""):
+            new_output,ext = os.path.splitext(output_file)
+            new_output += "_"+t+ext
+            f = open(new_output,'w')
+            f.write(output_string)
+            f.close
             
 
 def clean_data(args):
@@ -1339,15 +1347,15 @@ def replace_genera(args):
     try:
         XML,generic,subs = supertree_toolkit.replace_genera(XML,dry_run=only_subs,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
-        msg = "***Error: Failed to permute trees.\n"+detail.msg
+        msg = "***Error: Failed to replace genera.\n"+detail.msg
         print msg
         return
     except InvalidSTKData as detail:
-        msg = "***Error: Failed to permute trees.\n"+detail.msg
+        msg = "***Error: Failed to replace genera.\n"+detail.msg
         print msg
         return
     except UninformativeTreeError as detail:
-        msg = "***Error: Failed to permute trees.\n"+detail.msg
+        msg = "***Error: Failed to replace genera.\n"+detail.msg
         print msg
         return
     except TreeParseError as detail:
@@ -1355,7 +1363,7 @@ def replace_genera(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to permute trees due to unknown error.\n"
+        msg = "***Error: Failed to replace genera due to unknown error.\n"
         print msg
         traceback.print_tb()
         return 

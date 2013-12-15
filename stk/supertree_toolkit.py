@@ -1534,8 +1534,6 @@ def permute_tree(tree,matrix="hennig",treefile=None):
 
     # first thing is to get hold of the unique taxa names
     # i.e. without % on them
-    # we need to ensure all spaces are replaced in the % taxa to start with. This might take a few
-    # iterations
     tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\=\.\? ]*) (?P<taxon2>[a-zA-Z0-9_\+\=\.\? %]*)'","\g<taxon>_\g<taxon2>",tree)
 
     all_taxa = _getTaxaFromNewick(tree)
@@ -2909,12 +2907,12 @@ def _collapse_nodes(in_tree):
             siblings = _get_all_siblings(tree.node(t))
         except p4.Glitch:
             continue
-        m = re.match('([a-zA-Z0-9_\+\=\? ]*)%[0-9]+', t)
+        m = re.match('([a-zA-Z0-9_\+\=\?\. ]*)%[0-9]+', t)
         if (not m == None):
             t = m.group(1)
         for s in siblings:
             orig_s = s
-            m = re.match('([a-zA-Z0-9_\+\=\? ]*)%[0-9]+', s)
+            m = re.match('([a-zA-Z0-9_\+\=\?\. ]*)%[0-9]+', s)
             if (not m == None):
                 s = m.group(1)
             if t == s:

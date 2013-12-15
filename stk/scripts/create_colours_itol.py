@@ -47,7 +47,7 @@ def main():
             'input_file', 
             metavar='input_file',
             nargs=1,
-            help="Your Phyml"
+            help="Your Phyml *or* a taxa list"
             )
     parser.add_argument(
             'input_taxonomy', 
@@ -92,8 +92,17 @@ def main():
         index = 6
 
     # grab taxa in dataset
-    XML = stk.load_phyml(input_file)
-    taxa = stk.get_all_taxa(XML)
+    fileName, fileExtension = os.path.splitext(input_file)
+    if (fileExtension == 'phyml'):
+        XML = stk.load_phyml(input_file)
+        taxa = stk.get_all_taxa(XML)
+    else:
+        f = open(input_file,"r")
+        taxa = []
+        for line in f:
+            taxa.append(line.strip())
+        f.close()
+
 
     taxonomy = {}
     with open(input_taxonomy, 'r') as f:

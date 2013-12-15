@@ -49,8 +49,16 @@ def main():
     output_file = args.output_file[0]
 
     # grab taxa in dataset
-    XML = stk.load_phyml(input_file)
-    taxa = stk.get_all_taxa(XML)
+    fileName, fileExtension = os.path.splitext(input_file)
+    if (fileExtension == 'phyml'):
+        XML = stk.load_phyml(input_file)
+        taxa = stk.get_all_taxa(XML)
+    else:
+        f = open(input_file,"r")
+        taxa = []
+        for line in f:
+            taxa.append(line.strip())
+        f.close()
 
     taxonomy = {}
     # What we get from EOL
@@ -84,6 +92,9 @@ def main():
         opener = urllib2.build_opener()
         f = opener.open(req)
         data = json.load(f)
+        if len(data['taxonConcepts']) == 0:
+            taxonomy[taxon] = {}
+            continue
         TID = str(data['taxonConcepts'][0]['identifier']) # take first hit
         # now get taxonomy
         URL="http://eol.org/api/hierarchy_entries/1.0/"+TID+".json"

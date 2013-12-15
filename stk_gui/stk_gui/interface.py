@@ -1479,11 +1479,12 @@ class Diamond:
                 output_string = stk.permute_tree(tree_list[t],matrix=format,treefile=None)
 
             #save
-            new_output,ext = os.path.splitext(filename)
-            new_output += "_"+t+ext
-            f = open(new_output,'w')
-            f.write(output_string)
-            f.close
+            if (not output_string == ""):
+                new_output,ext = os.path.splitext(filename)
+                new_output += "_"+t+ext
+                f = open(new_output,'w')
+                f.write(output_string)
+                f.close
     except TreeParseError as e:
         dialogs.error(self.main_window,"Error permuting trees." + e.msg)
   
