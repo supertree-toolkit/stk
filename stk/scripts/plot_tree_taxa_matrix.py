@@ -7,6 +7,7 @@ sys.path.insert(0, stk_path)
 import supertree_toolkit as stk
 from lxml import etree
 from pylab import *
+from collections import Counter
 
 params = {
           'legend.fontsize': 25,
@@ -28,8 +29,8 @@ def main():
 
     # do stuff
     parser = argparse.ArgumentParser(
-         prog="plot chracter taxa matrix",
-         description="""Plot a matrix of character availability against taxa""",
+         prog="plot tree-taxa matrix",
+         description="""Plot a matrix of trees against taxa""",
          )
     parser.add_argument(
             '-v', 
@@ -59,45 +60,50 @@ def main():
 
     XML = stk.load_phyml(input_file)
     all_taxa = stk.get_all_taxa(XML)
-    all_chars_d = stk.get_all_characters(XML)
-    all_chars = []
-    for c in all_chars_d:
-        all_chars.extend(all_chars_d[c])
 
-    taxa_character_matrix = {}
+    taxa_tree_matrix = {}
     for t in all_taxa:
-        taxa_character_matrix[t] = []
+        taxa_tree_matrix[t] = []
 
     trees = stk.obtain_trees(XML)
+    i = 0
     for t in trees:
-        chars = stk.get_characters_from_tree(XML,t,sort=True)
         taxa = stk.get_taxa_from_tree(XML,t, sort=True)
         for taxon in taxa:
             taxon = taxon.replace(" ","_")
-            taxa_character_matrix[taxon].extend(chars)
+            taxa_tree_matrix[taxon].append(i)
+        i+=1
     
-    for t in taxa_character_matrix:
-        array = taxa_character_matrix[t]
-        taxa_character_matrix[t] = list(set(array))
-
     # create a map
-    x = []
     y = []
     for i in range(0,len(all_taxa)):
-        for j in range(0,len(all_chars)):
-            if (all_chars[j] in taxa_character_matrix[all_taxa[i]]):
-                x.append(i)
+        for j in range(0,len(trees)):
+            if (j in taxa_tree_matrix[all_taxa[i]]):
                 y.append(j)
+
+    tree_count = Counter(y)
+    tree_dict = dict(tree_count)
+    tree_order = sorted(tree_dict.items(), key=lambda x: x[1], reverse=True)
+    
+    new_x = []
+    new_y = []
+    for i in range(0,len(all_taxa)):
+        counter = 0
+        for t in tree_order:
+            j = t[0]
+            if (j in taxa_tree_matrix[all_taxa[i]]):
+                new_x.append(i)
+                new_y.append(counter)
+            counter += 1
 
     fig=figure(figsize=(22,17),dpi=90)
     fig.subplots_adjust(left=0.3)
     ax = fig.add_subplot(1,1,1)
-    ax.scatter(x,y,50,marker='o',c='r',lw=0)
-    yticks(range(0,len(all_chars)), all_chars)    
+    ax.scatter(new_x,new_y,50,marker='o',c='k',lw=0)
     ax.set_xlim(0,len(all_taxa))
-    ax.set_ylim(0,len(all_chars))
+    ax.set_ylim(0,len(trees))
     xlabel('Taxa')
-    ylabel('Characters')
+    ylabel('Tree Number')
     savefig(output_file, dpi=90)
 
 if __name__ == "__main__":

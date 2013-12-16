@@ -51,7 +51,8 @@ permanently, edit your .bash_profile file and add the following lines:
 
 .. code-block:: bash
 
-    export PYTHONPATH=$PYTHONPATH:/Applications/STK.app/Contents/Resources/lib/python2.7/site-packages/
+    export PYTHONPATH=$PYTHONPATH:\
+    /Applications/STK.app/Contents/Resources/lib/python2.7/site-packages/
     export PATH=/Applications/STK.app/Contents/Resources/bin/:$PATH
 
 You can access the STK CLI from a standard terminal

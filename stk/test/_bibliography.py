@@ -140,6 +140,20 @@ class TestBibliography(unittest.TestCase):
         self.assert_(orig.get('publisher') == exp.get('publisher'))
 
 
+    def test_export_bib_nopages(self):
+        xml_article_c = etree.tostring(etree.parse("data/input/bib_export_no_pages.phyml",parser),pretty_print=True)
+        # Now export it back and compare the data
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".bib")
+        export_bibliography(xml_article_c,temp_file)        
+        # parse both files in yapbib and compare
+        b_exported = biblist.BibList()
+        b_exported.import_bibtex(temp_file)
+        items= b_exported.List() # yapbib helpfully renames the item key, so grab the first one
+        exp = b_exported.get_item(items[0])
+        os.remove(temp_file)        
+        self.assert_(exp.get('title') == "A great and important paper")
+        self.assert_(exp.get('pages') == None)
+
     def test_export_html(self):
         bib_article = "data/input/article.bib"
         xml = etree.tostring(xml_start)

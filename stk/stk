@@ -24,6 +24,7 @@ import sys
 import math
 import numpy 
 import argparse
+import traceback
 try:
     __file__
 except NameError:
@@ -537,6 +538,10 @@ def safe_taxonomic_reduction(args):
         msg = "***Error: Failed to carry out STR.\n"+detail.msg
         print msg
         return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
 
     if (not subs == None or not subs):
         substitutions = supertree_toolkit.subs_file_from_str(output)
@@ -576,8 +581,9 @@ def data_ind(args):
         # output file is set, but no file given
         # set to default
         # grab directory from input file
-        direc = os.path.dirname(input_file)
-        output_file = direc + os.path.sep + "data_independence.txt"
+        path = os.path.abspath(input_file)
+        direc = os.path.dirname(path)
+        output_file = os.path.join(direc,"data_independence.txt")
 
     # check if output files are there
     if (output_file and os.path.exists(output_file) and not overwrite):
@@ -618,6 +624,15 @@ def data_ind(args):
     except UninformativeTreeError as detail:
         msg = "***Error: Failed to check independence.\n"+detail.msg
         print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except:
+        msg = "***Error: failed to check independence due to unknown error."
+        print msg
+        traceback.print_exc()
         return
 
     # process data
@@ -683,12 +698,13 @@ def data_summary(args):
         print msg
         return
     except TreeParseError as detail:
-        msg = "***Error: Failed to summarise data - can't parse tree. Try again with -i flag.\n"+detail.msg
+        msg = "***Error: Failed to summarise data - can't parse tree.\n"+detail.msg
         print msg
         return 
     except: 
         msg = "***Error: Failed to summarise data - incomplete data. Try again with -i flag.\n"
         print msg
+        traceback.print_exc()
         return 
 
 
@@ -758,6 +774,15 @@ def create_matrix(args):
         msg = "***Error: Failed to create matrix.\n"+detail.msg
         print msg
         return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed to create matrix due to unknown error.\n"
+        print msg
+        traceback.print_exc()
+        return 
 
     f = open(output_file, "w")
     f.write(matrix)
@@ -859,13 +884,26 @@ def sub_taxa(args):
         print msg
         return
     except InvalidSTKData as detail:
-        msg = "***Error: Failed to substituting taxa.\n"+detail.msg
+        msg = "***Error: Failed substituting taxa.\n"+detail.msg
         print msg
         return
     except UninformativeTreeError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
         return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed sbstituting taxa due to unknown error.\n"
+        print msg
+        traceback.print_exc()
+        return 
 
 
     if (treefile):
@@ -953,6 +991,15 @@ def export_data(args):
         msg = "***Error: Failed to export data.\n"+detail.msg
         print msg
         return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed to export data due to unknown error.\n"
+        print msg
+        traceback.print_exc()
+        return 
 
 
 def data_overlap(args):
@@ -999,6 +1046,15 @@ def data_overlap(args):
         msg = "***Error: Failed to check overlap.\n"+detail.msg
         print msg
         return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed to check overlap due to unknown error.\n"
+        print msg
+        traceback.print_exc()
+        return 
 
     if (graphic):
         # generate key file
@@ -1066,6 +1122,15 @@ def export_trees(args):
         msg = "***Error: Failed to export trees.\n"+detail.msg
         print msg
         return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed to export trees due to unknown error.\n"
+        print msg
+        traceback.print_exc()
+        return 
 
     f = open(output_file,"w")
     f.write(output_string)
@@ -1136,22 +1201,63 @@ def permute_trees(args):
             print "Error finding that name. It should be in the form 'Hill_2011_1'"
             sys.exit(-1)
     else:
-        # get all trees
-        tree_list = supertree_toolkit._find_trees_for_permuting(XML)
+        # get all permutable trees
+        try:
+            tree_list = supertree_toolkit._find_trees_for_permuting(XML)
+        except TreeParseError as detail:
+            msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+            print msg
+            return
+        except:
+            msg = "***Error: Failed to extract a tree list to check for permutable.\n"
+            print msg
+            traceback.print_exc()
+            return 
+
+    if (verbose):
+        print "List of trees to permute:"
+        for t in tree_list:
+            print t
 
     for t in tree_list:
         # permute
-        if (not treefile == ''):
-            output_string = supertree_toolkit.permute_tree(tree_list[t],treefile=treefile)
-        else:
-            output_string = supertree_toolkit.permute_tree(tree_list[t],matrix=create_matrix,treefile=None)
+        if (verbose):
+            print "Permuting "+t
+        try:
+            if (not treefile == ''):
+                output_string = supertree_toolkit.permute_tree(tree_list[t],treefile=treefile,verbose=verbose)
+            else:
+                output_string = supertree_toolkit.permute_tree(tree_list[t],matrix=create_matrix,treefile=None,verbose=verbose)
+        except NotUniqueError as detail:
+            msg = "***Error: Failed to permute trees.\n"+detail.msg
+            print msg
+            return
+        except InvalidSTKData as detail:
+            msg = "***Error: Failed to permute trees.\n"+detail.msg
+            print msg
+            return
+        except UninformativeTreeError as detail:
+            msg = "***Error: Failed to permute trees.\n"+detail.msg
+            print msg
+            return
+        except TreeParseError as detail:
+            msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+            print msg
+            return
+        except: 
+            msg = "***Error: Failed to permute trees due to unknown error.\n"
+            print msg
+            traceback.print_exc()
+            return 
+
 
         #save
-        new_output,ext = os.path.splitext(output_file)
-        new_output += "_"+t+ext
-        f = open(new_output,'w')
-        f.write(output_string)
-        f.close
+        if (not output_string == ""):
+            new_output,ext = os.path.splitext(output_file)
+            new_output += "_"+t+ext
+            f = open(new_output,'w')
+            f.write(output_string)
+            f.close
             
 
 def clean_data(args):
@@ -1181,7 +1287,30 @@ def clean_data(args):
                 break
 
     XML = supertree_toolkit.load_phyml(input_file)
-    XML = supertree_toolkit.clean_data(XML)
+    try:
+        XML = supertree_toolkit.clean_data(XML)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to clean data.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to clean data.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to clean data.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed to clean data due to unknown error.\n"
+        print msg
+        traceback.print_exc()
+        return 
+
     f = open(output_file, "w")
     f.write(XML)
     f.close()
@@ -1215,8 +1344,30 @@ def replace_genera(args):
                 break
 
     XML = supertree_toolkit.load_phyml(input_file)
-    XML,generic,subs = supertree_toolkit.replace_genera(XML,dry_run=only_subs,ignoreWarnings=ignoreWarnings)
-    
+    try:
+        XML,generic,subs = supertree_toolkit.replace_genera(XML,dry_run=only_subs,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to replace genera.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to replace genera.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to replace genera.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed to replace genera due to unknown error.\n"
+        print msg
+        traceback.print_exc()
+        return 
+
     f = open(output_file, "w")
     if (only_subs):
         i = 0
@@ -1359,6 +1510,15 @@ def create_subset(args):
         msg = "***Error: Failed to create subset.\n"+detail.msg
         print msg
         return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed to create subset due to unknown error.\n"
+        print msg
+        traceback.print_exc()
+        return 
 
     new_XML = supertree_toolkit.add_historical_event(new_XML, "Subset created with " +" ".join(sys.argv)) 
     

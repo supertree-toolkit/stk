@@ -1,3 +1,13 @@
+supertree-toolkit (2.9) precise; urgency=low
+
+  * Increased usefullness of error message for GUI and CLI
+  * Minor corrections to tutorial and manual
+  * Update to embedded documentation
+  * Fix to Hennig I/O
+  * Fix to import CSV to handle excel-created csv files
+
+ -- Jon Hill <jhill1@iapetus>  Mon, 16 Dec 2013 10:24:34 +0000
+
 supertree-toolkit (2.8) precise; urgency=low
 
   * Adding command line to Mac version

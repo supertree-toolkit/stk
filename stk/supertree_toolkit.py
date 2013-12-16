@@ -208,7 +208,7 @@ def set_unique_names(XML):
     return XML
 
 
-def import_bibliography(XML, bibfile):
+def import_bibliography(XML, bibfile, skip=False):
     """
     Create a bunch of sources from a bibtex file. This includes setting the sourcenames 
     for each source.
@@ -307,7 +307,14 @@ def import_bibliography(XML, bibfile):
                 sources.append(source)
             
         else:
-            raise BibImportError("Error with one of the entries in the bib file")
+            if (skip):
+                continue
+
+            msg = entry
+            raise BibImportError("Error with one of the entries in the bib file."+
+                                " Note the name is mangled to generate a unique ID "+
+                                "(but should include the name and the year). Remove this and"+
+                                " try again. You can add the offending entry manually.\n\n"+msg)
 
     # sort sources in alphabetical order
     xml_root = _sort_data(xml_root)
@@ -361,27 +368,34 @@ def export_bibliography(XML,filename,format="bibtex"):
                 }
         # these are optional in the schema
         if (a.xpath("journal/string_value")):
-            journal = a.xpath("journal/string_value")[0].text
-            bib_dict['journal']=journal
+            if (not a.xpath("journal/string_value") == None):
+                journal = a.xpath("journal/string_value")[0].text
+                bib_dict['journal']=journal
         if (a.xpath("volume/string_value")):
-            volume  = a.xpath("volume/string_value")[0].text
-            bib_dict['volume']=volume
+            if (not a.xpath("volume/string_value") == None):
+                volume  = a.xpath("volume/string_value")[0].text
+                bib_dict['volume']=volume
         if (a.xpath("pages/string_value")):
-            firstpage, lastpage = bibparse.process_pages(a.xpath("pages/string_value")[0].text)
-            bib_dict['firstpage']=firstpage
-            bib_dict['lastpage']=lastpage
+            if (not a.xpath("pages/string_value")[0].text == None):
+                firstpage, lastpage = bibparse.process_pages(a.xpath("pages/string_value")[0].text)
+                bib_dict['firstpage']=firstpage
+                bib_dict['lastpage']=lastpage
         if (a.xpath("issue/string_value")):
-            issue   = a.xpath("issue/string_value")[0].text
-            bib_dict['issue']=issue
+            if (not a.xpath("issue/string_value") == None):
+                issue   = a.xpath("issue/string_value")[0].text
+                bib_dict['issue']=issue
         if (a.xpath("doi/string_value")):
-            doi     = a.xpath("doi/string_value")[0].text
-            bib_dict['doi']=doi
+            if (not a.xpath("doi/string_value") == None):
+                doi     = a.xpath("doi/string_value")[0].text
+                bib_dict['doi']=doi
         if (a.xpath("number/string_value")):
-            number  = a.xpath("number/string_value")[0].text
-            bib_dict['number']=number
+            if (not a.xpath("number/string_value") == None):
+                number  = a.xpath("number/string_value")[0].text
+                bib_dict['number']=number
         if (a.xpath("url/string_value")):
-            url     = a.xpath("url/string_value")[0].text
-            bib_dict['url']=url
+            if (not a.xpath("url/string_value") == None):
+                url     = a.xpath("url/string_value")[0].text
+                bib_dict['url']=url
         
         bib_it = bibitem.BibItem(bib_dict)
         bibliography.add_item(bib_it)
@@ -1052,6 +1066,43 @@ def get_all_characters(XML,ignoreErrors=False):
 
     return char_dict
 
+def get_publication_year_tree(XML,name):
+    """Return a dictionary of years and the number of publications
+    within that year
+    """
+
+    # Our input tree has name source_no, so find the source by stripping off the number
+    source_name, number = name.rsplit("_",1)
+    number = int(number.replace("_",""))
+    xml_root = _parse_xml(XML)
+    # By getting source, we can then loop over each source_tree
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+    # loop through all sources
+    for s in sources:
+        # for each source, get source name
+        name = s.attrib['name']
+        if source_name == name:
+            # found the bugger!
+            tree_no = 1
+            for t in s.xpath("source_tree/tree/tree_string"):
+                if tree_no == number:
+                    # and now we have the correct tree. 
+                    # Now we can get the year for this tree
+                    if not t.getparent().getparent().getparent().xpath("bibliographic_information/article") == None:
+                        year = int(t.getparent().getparent().getparent().xpath("bibliographic_information/article/year/integer_value")[0].text)
+                    elif not t.getparent().getparent().getparent().xpath("bibliographic_information/book") == None:
+                        year = int(t.getparent().getparent().getparent().xpath("bibliographic_information/book/year/integer_value")[0].text)
+                    elif not t.getparent().getparent().getparent().xpath("bibliographic_information/in_book") == None:
+                        year = int(t.getparent().getparent().getparent().xpath("bibliographic_information/in_book/year/integer_value")[0].text)
+                    elif not t.getparent().getparent().getparent().xpath("bibliographic_information/in_collection") == None:
+                        year = int(t.getparent().getparent().getparent().xpath("bibliographic_information/in_collection/year/integer_value")[0].text)
+                    return year
+                tree_no += 1
+
+    # should raise exception here
+    return None
+
 def get_characters_from_tree(XML,name,sort=False):
     """Get the characters that were used in a particular tree
     """
@@ -1085,6 +1136,41 @@ def get_characters_from_tree(XML,name,sort=False):
 
     # should raise exception here
     return characters
+
+def get_character_types_from_tree(XML,name,sort=False):
+    """Get the character types that were used in a particular tree
+    """
+
+    characters = []
+    # Our input tree has name source_no, so find the source by stripping off the number
+    source_name, number = name.rsplit("_",1)
+    number = int(number.replace("_",""))
+    xml_root = _parse_xml(XML)
+    # By getting source, we can then loop over each source_tree
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+    # loop through all sources
+    for s in sources:
+        # for each source, get source name
+        name = s.attrib['name']
+        if source_name == name:
+            # found the bugger!
+            tree_no = 1
+            for t in s.xpath("source_tree/tree/tree_string"):
+                if tree_no == number:
+                    # and now we have the correct tree. 
+                    # Now we can get the characters for this tree
+                    chars = t.getparent().getparent().xpath("character_data/character")
+                    for c in chars:
+                        characters.append(c.attrib['type'])
+                    if (sort):
+                        characters.sort()
+                    return characters
+                tree_no += 1
+
+    # should raise exception here
+    return characters
+
 
 def get_characters_used(XML):
     """ Return a sorted, unique array of all character names used
@@ -1504,7 +1590,7 @@ def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, only_existing = Fal
 
 
 
-def permute_tree(tree,matrix="hennig",treefile=None):
+def permute_tree(tree,matrix="hennig",treefile=None,verbose=False):
     """ Permute a tree where there is uncertianty in taxa location.
     Output either a tree file or matrix file of all possible 
     permutations.
@@ -1520,8 +1606,6 @@ def permute_tree(tree,matrix="hennig",treefile=None):
 
     # first thing is to get hold of the unique taxa names
     # i.e. without % on them
-    # we need to ensure all spaces are replaced in the % taxa to start with. This might take a few
-    # iterations
     tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\=\.\? ]*) (?P<taxon2>[a-zA-Z0-9_\+\=\.\? %]*)'","\g<taxon>_\g<taxon2>",tree)
 
     all_taxa = _getTaxaFromNewick(tree)
@@ -1551,6 +1635,14 @@ def permute_tree(tree,matrix="hennig",treefile=None):
                 if name == names_unique[i]:
                     count += 1
         non_unique_numbers.append(count)
+
+    total = 1
+    for n in non_unique_numbers:
+        if (n > 0):
+            total = total * n
+
+    if (verbose):
+        print "This tree requires a of "+str(total)+ " permutations"
 
     trees_saved = []
     # I hate recursive functions, but it actually is the
@@ -2138,7 +2230,7 @@ def subs_from_csv(filename):
     new_taxa = []
     old_taxa = []
 
-    with open(filename, 'r') as csvfile:
+    with open(filename, 'rU') as csvfile:
         subsreader = csv.reader(csvfile, delimiter=',')
         for row in subsreader:
             if (len(row) == 0):
@@ -2895,12 +2987,12 @@ def _collapse_nodes(in_tree):
             siblings = _get_all_siblings(tree.node(t))
         except p4.Glitch:
             continue
-        m = re.match('([a-zA-Z0-9_\+\=\? ]*)%[0-9]+', t)
+        m = re.match('([a-zA-Z0-9_\+\=\?\. ]*)%[0-9]+', t)
         if (not m == None):
             t = m.group(1)
         for s in siblings:
             orig_s = s
-            m = re.match('([a-zA-Z0-9_\+\=\? ]*)%[0-9]+', s)
+            m = re.match('([a-zA-Z0-9_\+\=\?\. ]*)%[0-9]+', s)
             if (not m == None):
                 s = m.group(1)
             if t == s:
@@ -3360,11 +3452,32 @@ def _read_nexus_matrix(filename):
 
 def _read_hennig_matrix(filename):
     """ Read in essential info from a TNT matrix file
-        - actually just calls our NEXUS reader as the file
-        layout is surprisingly similar...
     """
 
-    return _read_nexus_matrix(filename)
+    taxa = []
+    matrix = []
+    f = open(filename,"r")
+    inData = False
+    for line in f:
+        linel = line.lower()
+        if linel.find(";") > -1:
+            inData = False
+        if (inData):
+            linel = linel.strip()
+            if len(linel) == 0:
+                continue # empty line
+            
+            data = line.split()
+            taxa.append(data[0])
+            char_row = []
+            for n in range(0,len(data[1])):
+                char_row.append(data[1][n])
+            matrix.append(char_row)
+        m = re.match('\d+ \d+', linel)
+        if (not m == None):
+            inData = True
+
+    return matrix,taxa
 
 
 def _check_informative_trees(XML,delete=False):
@@ -3418,7 +3531,7 @@ def _parse_trees(tree_block):
         p4.var.warnReadNoFile = True
         p4.var.doRepairDupedTaxonNames = 0
     except p4.Glitch as detail:
-        raise TreeParseError("Error parsing tree\n"+detail.msg )
+        raise TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree_block )
     trees = p4.var.trees
     p4.var.trees = []
     return trees
@@ -3439,9 +3552,7 @@ def _parse_tree(tree,fixDuplicateTaxa=False):
         if (fixDuplicateTaxa):
             p4.var.doRepairDupedTaxonNames = 0
     except p4.Glitch as detail:
-        print detail.msg
-        print tree
-        raise TreeParseError("Error parsing tree\n"+detail.msg )
+        raise TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree )
 
     t = p4.var.trees[0]
     p4.var.trees = []

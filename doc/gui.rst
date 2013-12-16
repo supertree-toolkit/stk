@@ -124,6 +124,13 @@ button will then appear in the status bar, in the lower left of the GUI (Fig.
 
 Once done, your tree string will appear in the data panel.
 
+.. warning:: Avoid non-standard characters in taxa names. Your names *must* not contain commas, 
+    parantheses, colons, asterisks, hyphens, slashes or percentage signs (percentage signs are allowed for polyphyletic taxa - see later).
+    These are not allowed in taxa names in Newick format as they mean other things.
+    
+.. note:: Quoted taxa should be done with single quotes only ('), not double or "smart
+          quotes"
+
 Using the interface
 -------------------
 
@@ -299,7 +306,8 @@ taxonomic information is also updated. You can construct taxa deletions and
 substitutions using the *Sub taxa* interface (Fig. :num:`#img-stk-sub-taxa`).
 Move taxa from the dataset to the right-hand side and add the replacements or
 leave blank for a deletion. The substitutions created can be saved to a *subs
-file*. A subs file can also be imported.
+file*. A subs file can also be imported, either as a substitusion (or subs) file 
+or as a CSV file.
 
 .. _img-stk-sub-taxa:
 
@@ -315,7 +323,7 @@ file*. A subs file can also be imported.
 
 A *subs file* has the following format:
 
-.. code-block:: bash
+.. code-block:: none
 
     MRPoutgroup = 
     Dinornithidae = Anomalopteryx didiformis,Megalapteryx benhami
@@ -326,6 +334,17 @@ with polytomys of the taxa listed. Deletions cause collapsing of nodes where the
 deletion occurred.
 
 .. note:: There *must* be a space either side of the = symbol.
+
+Note that taxa with % signs in the name (see permute taxa below) do not need the % sign in 
+the old taxon name. For example to replace A_a with A_f in the tree:
+
+.. code-block:: none
+    (A_a%1, A_b%1, (A_a%2, A_b%2, A_c, A_d));
+
+the subs file should contain:
+
+.. code-block:: none
+    A_a = A_f
 
 Permute all trees
 *****************
