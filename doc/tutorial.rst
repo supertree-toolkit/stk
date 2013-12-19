@@ -20,7 +20,7 @@ There are several files included in the tutorial dataset:
     features and functions of the STK. Do not use in a real analysis.
 
 The aim of this tutorial is to guide you through the stages of collecting,
-storing and curating supertree source data. This can be divided into a number of
+storing and curating supertree source data (Fig. :num:`#img-pipeline`). This can be divided into a number of
 steps:
     * Collect and import bibliographic data
     * Collect, digitise and import trees
@@ -30,6 +30,17 @@ steps:
     * Check taxonomic overlap
     * Create a subset
     * Create a matrix
+
+.. _img-pipeline:
+
+.. figure:: images/pipeline.pdf   
+    :align: center
+    :scale: 75 %
+    :alt: STK processing pipeline
+    :figclass: align-center
+
+    An illusatration of the pipeline that can be created using the STK processing functions.
+
 
 In carrying out this tutorial, you will cover most of the functions of the STK.
 
@@ -623,4 +634,8 @@ Alternatively, use:
 
 :command:`stk create_matrix Anomura_final.phyml Anomura_matrix.tnt`
 
+You can then load this matrix into TNT and generate your supertree using any suitable method.
+You can of course change the output format suitable for Puap or any other supertree software.
+
+You've made your first STK supertree!
 
