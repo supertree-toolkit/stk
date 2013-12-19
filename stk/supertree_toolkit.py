@@ -3113,7 +3113,7 @@ def _check_taxa(XML,delete=False):
                 if (tree.find(xml_taxon) == -1):
                     if (delete):
                         # remove
-                        t.get_parent().remove(t)
+                        t.getparent().remove(t)
                     else:
                         # no - raise an error!
                         message = message + "Taxon: "+xml_taxon+" is not in the tree "+name+"\n"

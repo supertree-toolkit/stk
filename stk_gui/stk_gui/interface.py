@@ -18,6 +18,7 @@ from __future__ import generators
 import shutil
 import os
 import os.path
+import traceback
 import re
 import time
 import sys
@@ -1126,6 +1127,7 @@ class Diamond:
             return
         except:
             msg = "Failed to calculate overlap due to unknown error. Check the console output.\n"+detail.msg
+            traceback.print_exc()         
             dialogs.error(self.main_window,msg)
             return
 
@@ -1168,6 +1170,7 @@ class Diamond:
             return
         except:
             msg = "Failed to calculate overlap due to unknown error. Check the console output.\n"+detail.msg
+            traceback.print_exc()         
             dialogs.error(self.main_window,msg)
             return
 
@@ -1296,6 +1299,7 @@ class Diamond:
         return 
     except:
         msg = "Failed to check data independence. Probably due to incomplete data, but check the console output\n"
+        traceback.print_exc() 
         dialogs.error_tb(self.main_window,msg)
         return
 
@@ -1724,6 +1728,7 @@ class Diamond:
         return 
     except:
         msg = "Failed to create matrix due to an unknown error. Check the console output"
+        traceback.print_exc() 
         dialogs.error(self.main_window,msg)
         return 
 
@@ -1823,6 +1828,7 @@ class Diamond:
         return 
     except:
         msg = "Failed to export data due to an unknown error. Check the console output"
+        traceback.print_exc()         
         dialogs.error(self.main_window,msg)
         return 
     
@@ -2409,6 +2415,7 @@ class Diamond:
         return 
      except:
         msg = "Failed to clean data due to an unknown error. Check the console output"
+        traceback.print_exc()         
         dialogs.error(self.main_window,msg)
         return 
 
@@ -2473,6 +2480,7 @@ class Diamond:
         return 
      except:
         msg = "Failed to replace generic taxa due to an unknown error. Check the console output"
+        traceback.print_exc()                 
         dialogs.error(self.main_window,msg)
         return 
 
@@ -2684,6 +2692,7 @@ class Diamond:
         return 
      except:
         msg = "Failed to create subset due to an unknown error. Check the console output"
+        traceback.print_exc()     
         dialogs.error(self.main_window,msg)
         return 
   
