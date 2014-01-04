@@ -34,7 +34,7 @@ def main():
             'input_file', 
             metavar='input_file',
             nargs=1,
-            help="Your tree"
+            help="Your input taxa list or phyml"
             )
     parser.add_argument(
             'output_file', 
@@ -50,7 +50,7 @@ def main():
 
     # grab taxa in dataset
     fileName, fileExtension = os.path.splitext(input_file)
-    if (fileExtension == 'phyml'):
+    if (fileExtension == '.phyml'):
         XML = stk.load_phyml(input_file)
         taxa = stk.get_all_taxa(XML)
     else:
@@ -108,9 +108,12 @@ def main():
                 this_taxonomy[a['taxonRank']] = a['scientificName']
             except KeyError:
                 continue
-        if (not data['taxonRank'].lower() == 'species'):
-            # higher taxa, add it in to the taxonomy!
-            this_taxonomy[data['taxonRank'].lower()] = taxon
+        try:
+            if (not data['taxonRank'].lower() == 'species'):
+                # higher taxa, add it in to the taxonomy!
+                this_taxonomy[data['taxonRank'].lower()] = taxon
+        except KeyError:
+            continue
         taxonomy[taxon] = this_taxonomy
     
     if (verbose):
