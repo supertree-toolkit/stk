@@ -4,7 +4,7 @@ Getting started
 Introduction
 ------------
 
-This first chapter a brief guide to setting-up the STK on Linux, Windows and
+This first chapter is a brief guide to setting-up the STK on Linux, Windows and
 MacOS X. STK comes as either pre-compiled binaries for some platform or as a
 source package. Both downloading an archived source package or downloading via
 bzr are covered. We assume little knowledge of Linux or DOS commands, but some
@@ -109,7 +109,7 @@ Running the STK
 
 There are two ways to run the STK: via the GUI (Graphical User Interface) or the
 CLI (Command Line Interface). Most data collecting and curation is done via the
-GUI. However, processing can be done using either. The CLI also contains a few
+GUI. However, either can be used to carry out data processing. The CLI also contains a few
 more utility functions that are not available in the GUI.
 
 The GUI is run from the command line using:

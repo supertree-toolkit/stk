@@ -25,14 +25,14 @@ The GUI looks like this.
     :figclass: align-center
 
     The STK GUI with no data loaded. The GUI consists of two vertical panels
-    where data is edited (left) and entered (right).
+    where data are edited (left) and entered (right).
 
 The GUI consists of two main halves (Fig. :num:`#img-stk-gui`). The left-hand
 side is a tree-structure that allows you to navigate the data (tree panel). The
-data is structured into a project, which in turn contains sources, which in turn
+data are structured into a project, which in turn contains sources, which in turn
 contain trees and meta data. The right-hand side (data panel) contains three
 sub-panels. Each of these divisions is called an element (Fig.
-:num:`#img-stk-gui-lab`). The top gives user context-sensitive documentation on
+:num:`#img-stk-gui-lab`). The top gives context-sensitive documentation on
 the current selection in the left-hand side. The middle is where you add data.
 Depending on what part of the data you are editing, the middle panel will change
 to suit the data to be edited/input.  The lowermost sub-panel is where you can
@@ -51,7 +51,7 @@ sections of the data but should be used wherever it is useful.
 To navigate the left hand side, click the small arrows on the left. These will
 open and close sub-data within the hierarchy. On the right-hand side of the tree,
 there are small "+" and "-" signs to allow you add or remove data. Where the
-data is a choice, a dropdown list is activated on the right hand side.
+data are a choice, a dropdown list is activated on the right hand side.
 
 The colour in the left-hand side tree informs you if there is missing data. Blue
 lines show you are missing required data. The blue then progresses upwards from
@@ -70,19 +70,19 @@ menu. This toolbar menu contains:
  * Help
 
 Of these, the File and STK Functions are most often used. More on these will be
-covered later, but briefly the File menu contains command to open and save data,
-plus import and export.  The STK Functions menu contains all the STK-only
+covered later, but briefly the File menu contains commands to open and save data,
+plus import and export data.  The STK Functions menu contains all the STK-only
 functionality.
 
 The right click menu allows you to copy and paste elements (e.g. you can copy
-and past a source from the same or another file) and change how the data is
+and past a source from the same or another file) and change how the data are
 visualised. These are covered later.
 
 Entering data
 -------------
 
-The best way of starting a new dataset is to import bibliographic file. The STK
-uses `bibtex format <http://www.bibtex.org/>`_, which is a common format and all
+The best way to start a new dataset is to import a bibliographic file. The STK
+uses `bibtex format <http://www.bibtex.org/>`_, which is a common format and that all
 decent reference managers can output, as can most journal websites. We recommend
 using `JabRef <http://jabref.sourceforge.net/>`_, which is free, open source and
 available on most OS. We have tested the STK extensively with output from
@@ -134,9 +134,9 @@ Once done, your tree string will appear in the data panel.
 Using the interface
 -------------------
 
-There are a number of useful functionality in the STK to aid in data entering
-and exploration. They are slicing and grouping data, and copy and pasting
-elements. 
+There are a number of useful functions in the STK GUI to aid in data entering
+and exploration. They are slicing data, grouping data, and copy and pasting
+data sections. 
 
 .. index:: grouping
 
@@ -189,12 +189,12 @@ checking. First is the *Data summary*, which can be accessed via STK
 Functions->Data Summary. Activating this brings up a window containing the
 number of trees in the dataset, the taxa list, character list, and years (Fig.
 :num:`#img-stk-data-summary`). The output can be saved or copy and pasted as
-required. This can be used to **carefully** check the taxa list for example for
-user errors. 
+required. This can be used to **carefully** check the taxa list for
+user errors, for example
 
-.. note:: Incomplete data (with blue elements) may not produce a data summary
+.. note:: Incomplete data (with blue elements) may not produce a data summary.
 
-.. note:: See the tutorial for more information on how taxonomy should be dealt with
+.. note:: See the tutorial for more information on how nomenclature and taxonomy should be standardised.
 
 .. _img-stk-data-summary:
 
@@ -251,7 +251,7 @@ Data overlap
 
 In order to construct a supertree the source trees must have sufficient
 taxonomic overlap; that is at least two taxa in a source tree must occur in at
-least one other tree. The STK allows you to both check and visualise this.
+least one other tree. The STK allows you to both check and visualise this overlap.
 
 The interface (Fig. :num:`#img-stk-data-overlap-gui`) contains options to select
 the level of overlap (default is 2), which is the number of taxa trees should
@@ -279,7 +279,7 @@ a window with the result as a graphic. There are two options; the normal graphic
     :figclass: align-center
 
     Normal graphical view of data overlap. For a correctly connected dataset
-    there should be a single node (circle). These data is not sufficiently well
+    there should be a single node (circle). These data are not sufficiently well
     connected.
 
 .. _img-stk-data-overlap-detailed:
@@ -291,7 +291,7 @@ a window with the result as a graphic. There are two options; the normal graphic
     :figclass: align-center
 
     Detailed graphical view of data overlap. For a correctly connected dataset
-    there should be no red nodes (circles) in the graph. These data is not sufficiently well
+    there should be no red nodes (circles) in the graph. These data are not sufficiently well
     connected.
 
 
@@ -299,14 +299,14 @@ Sub Taxa
 ********
 
 Taxa substitutions and deletions are a key part of ensuring a standardised
-taxonomy for supertree analysis. However, it is usually quite cumbersome to
+nomenclature and taxonomy for supertree analysis. However, it is usually quite cumbersome to
 carry out this operation on a number of tree or matrix files. The STK will
 ensure that taxa substitutions are consistent across the whole dataset and any
 taxonomic information is also updated. You can construct taxa deletions and
 substitutions using the *Sub taxa* interface (Fig. :num:`#img-stk-sub-taxa`).
 Move taxa from the dataset to the right-hand side and add the replacements or
 leave blank for a deletion. The substitutions created can be saved to a *subs
-file*. A subs file can also be imported, either as a substitusion (or subs) file 
+file*. A subs file can also be imported, either as a substitution (or subs) file 
 or as a CSV file.
 
 .. _img-stk-sub-taxa:
@@ -330,7 +330,7 @@ A *subs file* has the following format:
     Enantiornithes = Avisaurus archibaldi,Avisaurus gloriae
 
 The above file deletes MRPoutgroup and replaces Dinornithidae and Enantiornithes
-with polytomys of the taxa listed. Deletions cause collapsing of nodes where the
+with polytomies of the taxa listed. Deletions cause collapsing of nodes where the
 deletion occurred.
 
 .. note:: There *must* be a space either side of the = symbol.
@@ -339,42 +339,44 @@ Note that taxa with % signs in the name (see permute taxa below) do not need the
 the old taxon name. For example to replace A_a with A_f in the tree:
 
 .. code-block:: none
+
     (A_a%1, A_b%1, (A_a%2, A_b%2, A_c, A_d));
 
 the subs file should contain:
 
 .. code-block:: none
+
     A_a = A_f
 
 Permute all trees
 *****************
 
-When recording trees from the literature inclusions of sub-species can be done
+When recording trees from the literature inclusions of non-monophyletic can be done
 using a special encoding of the taxa. Placing a '%' symbol at the end of a taxon
 name, followed by a number allows the STK to identify these taxa.
 
-To remove polyphyletic taxa and sub-species, the tree permutation function is
+To remove non-monophyletic taxa, the tree permutation function is
 used. This creates a number of trees per source tree, each with a different
-combination of the paraphyletic taxa (which sub-species can be). Note that this
+combination of the non-monophyletic taxa. Note that this
 produces a tree file containing the unique trees only or a matrix for each
 source tree in the dataset.
 
 These trees or matrices can then be combined into a single tree using PAUP, TNT
 or similar. The consensus of these trees then become the source tree for this
-source. 
+source by importing back into the GUI. 
 
 Replace genera
 **************
 
-Generic taxa can be replaced with a polytomy of all species that belong in that
+Genus-level taxa can be replaced with a polytomy of all species that belong in that
 genera and exist in the dataset. Replace genera automates this process. It can
-either create a new Phyml file or a subs file. The latter can be imported into
+either create a new Phyml file or a subs file; the latter can be imported into
 the Sub taxa function.
 
 STR
 ***
 
-Safe Taxonomic Reduction identifies possible problem taxa in the dataset. These
+Safe Taxonomic Reduction identifies possible problem taxa in the dataset, which
 may cause instabilities in the supertree analysis. The output files from STR
 are (Fig. :num:`#img-stk-str`):
  * Subs files for deletion and replacement of appropriate taxa (optional)
@@ -384,9 +386,7 @@ are (Fig. :num:`#img-stk-str`):
 
 .. note:: This can take a long time for even small datasets. For anything over 100 taxa use the command line interface.
 
-For further details on STR see 
-
-.. todo:: Add references and citations
+For further details on STR see `Wilkinson (1995) <http://sysbio.oxfordjournals.org/content/44/4/501.abstract>`_. 
 
 .. _img-stk-str:
 
@@ -396,7 +396,7 @@ For further details on STR see
     :alt: STR interface
     :figclass: align-center
 
-    STR interface. The file requested contains the equivalency matrix. The two
+    STR interface. The output file contains the equivalency matrix. The two
     optional sub files will automatically allow deletion and reinsertion of taxa
     where this is safe to do so.
 
@@ -444,7 +444,7 @@ Create matrix
 *************
 
 After all your processing, the final step is to create a matrix of your data.
-This function will create a matrix suitable for reading into Paup, TNT and most
+This function will create a matrix suitable for reading into Paup*, TNT and most
 other supertree software. Note that some software require a set of "input
 trees". In this case, use the "Export trees" function under the the "File" menu.
 Matrices can be output in Nexus or Hennig (TNT) format. Simply select "Create

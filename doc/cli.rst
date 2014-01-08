@@ -26,8 +26,8 @@ This will produce:
             ...
     stk: error: too few arguments
 
-The STK has a number of commands relating to data input and export, or
-processing, along with a some miscellaneous functions. These are detailed below.
+The STK has a number of commands relating to data input and export,
+processing, and some miscellaneous functions. These are detailed below.
 
 To run a command, e.g. the create matrix function, the command is:
 
@@ -122,7 +122,7 @@ import_data
 ***********
 
 Import data from the old STK format into a Phyml. Note there may be issues with author names which should be in the 
-format of "Jon Hill and Katie Davis". 
+format of "FirstName1 LastName1 and FirstName2 LastName2". 
 
 
 Data processing
@@ -134,14 +134,14 @@ clean_data
 **********
 
 Remove all non-informative trees and sources from the dataset. These are trees
-that contain only three or less taxa.
+that contain only three or fewer taxa.
 
 .. index:: create_matrix
 
 create_matrix
 *************
 
-Create a Hennig or Nexus matrix using Baum and Ragen coding of all trees in the dataset.
+Create a Hennig or Nexus matrix using Baum and Ragan coding of all trees in the dataset.
 
 .. index:: create_subset
 
