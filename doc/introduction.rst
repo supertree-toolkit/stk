@@ -37,7 +37,7 @@ About this document
 This document is the main manual for the software. Included in the software is
 context-relevant help embedded in the GUI, which is complementary to the
 manual. This manual will help you install and use the software, but it will
-still take experience to know which functions are appropriate for your dataset. In addition to this, many of the functions will require human input eg. making decisions on how to deal with non-independent data or choosing an appropriate taxonomy.
+still take experience to know which functions are appropriate for your dataset. In addition to this, many of the functions will require human input e.g. making decisions on how to deal with non-independent data or choosing an appropriate taxonomy.
 
 The processing pipeline
 -----------------------

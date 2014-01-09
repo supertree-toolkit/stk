@@ -337,21 +337,19 @@ def main():
     parser_cm.add_argument('-c',
             '--create_matrix',
             choices=['hennig', 'nexus'],
-            help="Create a matrix of the given format for all permutable trees in the input file. Default is hennig",
+            help="Create a matrix of the given format for all permutable trees in the input file.",
             required=False,
-            default='hennig',
             )
     parser_cm.add_argument('-t',
             '--treefile',
             choices=['nexus','newick','tnt'],
-            help="Create a tree file of the given format for all permutable trees in the input file. Default is nexus",
+            help="Create a tree file of the given format for all permutable trees in the input file.",
             required=False,
-            default='',
             )
     parser_cm.add_argument('-n',
             '--treename',
             default=None,
-            help="Do the permutation on a single tree only. Format of the name is Sourcename_treenumber, e.g. 'Hill_2011_1'",
+            help="Do the permutation on a single tree only. Format of the name is Sourcename_treenumber, e.g. 'Hill_etal_2011_1'",
             required=False,
             )
     parser_cm.set_defaults(func=permute_trees)
@@ -895,10 +893,6 @@ def sub_taxa(args):
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
-        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
-        print msg
-        return
     except: 
         msg = "***Error: Failed sbstituting taxa due to unknown error.\n"
         print msg
@@ -954,6 +948,28 @@ def import_data(args):
         phyml = supertree_import_export.import_old_data(input_dir,verbose=verbose) 
     except STKImportExportError as e:
         print e.msg
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to substituting taxa.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed substituting taxa.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to substituting taxa.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed sbstituting taxa due to unknown error.\n"
+        print msg
+        traceback.print_exc()
+        return 
+
     # Add an event to the history of the file
     phyml = supertree_toolkit.add_historical_event(phyml, "Data created using: "+ " ".join(sys.argv)) 
     f = open(output_file, "w")
@@ -1198,7 +1214,7 @@ def permute_trees(args):
             if t == name:
                 tree_list[t] = all_trees[t]
         if (len(tree_list) == 0):
-            print "Error finding that name. It should be in the form 'Hill_2011_1'"
+            print "Error finding that name. It should be in the form 'Hill_2011_1' or 'Hill_etal_2011_1' Note the lower case etal."
             sys.exit(-1)
     else:
         # get all permutable trees

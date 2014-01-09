@@ -305,7 +305,14 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
     treefile = find_treefiles(input_xml)[0].text
     # now stick on the root path of the XML to get the full path of the treefile
     cur_dir = os.path.split(xml_file)[0]
-    tree = supertree_toolkit.import_tree(os.path.join(cur_dir,treefile))
+    try:
+        tree = supertree_toolkit.import_tree(os.path.join(cur_dir,treefile))
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"
+        msg += "File is: "+treefile+"\n"+detail.msg
+        print msg
+        return
+    
     # all other data
     find_mol = etree.XPath('//Characters/Molecular/Type')
     find_morph = etree.XPath('//Characters/Morphological/Type')

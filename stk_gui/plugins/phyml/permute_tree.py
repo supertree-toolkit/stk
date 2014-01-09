@@ -36,20 +36,21 @@ def handle_click(xml, xpath, path=None):
 
     # guess format based on ending, assuming matrix
     new_output,ext = os.path.splitext(filename)
+    output_string = ""
     if ext == ".tre":
         # Nexus tree file
         output_string = stk.permute_tree(tree,treefile="nexus")
     elif ext == ".nex":
         # Nexus matrix
-        output_string = stk.permute_tree(tree,format="nexus")        
+        output_string = stk.permute_tree(tree,matrix="nexus")        
     elif ext==".tnt":
         # tnt matrix
-        output_string = stk.permute_tree(tree,format="tnt")
+        output_string = stk.permute_tree(tree,matrix="hennig")
     elif ext==".new" or ext==".nwk":
         # newick tree
         output_string = stk.permute_tree(tree,treefile="newick")
     else:
-        dialogs.error(None,"Error creating permuting trees. Incorrect format.")
+        dialogs.error(None,"Error creating permuting trees. Unknown format. Did you use a file extension to indicate the format required?")
     
     f = open(filename,'w')
     f.write(output_string)

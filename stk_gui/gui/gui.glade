@@ -1920,6 +1920,61 @@
                       </widget>
                     </child>
                     <child>
+                      <widget class="GtkMenuItem" id="clean_data1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Clean data by removing bad data</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Clean Data</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_clean_data" />
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="data_summary">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Create a text summary of the data</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Data Summary</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_data_summary" />
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="permute_trees">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Permute all tree in the dataset</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Permute all trees</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_permute_all_trees" />
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="sub_taxa">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Substitute or delete taxa in this dataset</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Sub taxa</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_sub_taxa" />
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="replace_genera">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Replace high level taxa with polytomys of specific-level taxa</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Replace genera</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_replace_genera" />
+                      </widget>
+                    </child>
+                    <child>
                       <widget class="GtkMenuItem" id="data_ind">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -1939,50 +1994,6 @@
                         <property name="label" translatable="yes">Data Overlap</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_data_overlap" />
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkMenuItem" id="data_summary">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tooltip" translatable="yes">Create a text summary of the data</property>
-                        <property name="use_action_appearance">False</property>
-                        <property name="label" translatable="yes">Data Summary</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_data_summary" />
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkMenuItem" id="sub_taxa">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tooltip" translatable="yes">Substitute or delete taxa in this dataset</property>
-                        <property name="use_action_appearance">False</property>
-                        <property name="label" translatable="yes">Sub taxa</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_sub_taxa" />
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkMenuItem" id="permute_trees">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tooltip" translatable="yes">Permute all tree in the dataset</property>
-                        <property name="use_action_appearance">False</property>
-                        <property name="label" translatable="yes">Permute all trees</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_permute_all_trees" />
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkMenuItem" id="replace_genera">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tooltip" translatable="yes">Replace high level taxa with polytomys of specific-level taxa</property>
-                        <property name="use_action_appearance">False</property>
-                        <property name="label" translatable="yes">Replace genera</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_replace_genera" />
                       </widget>
                     </child>
                     <child>
@@ -2016,17 +2027,6 @@
                         <property name="label" translatable="yes">Create subset</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_create_subset" />
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkMenuItem" id="clean_data1">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tooltip" translatable="yes">Clean data by removing bad data</property>
-                        <property name="use_action_appearance">False</property>
-                        <property name="label" translatable="yes">Clean Data</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_clean_data" />
                       </widget>
                     </child>
                   </widget>
