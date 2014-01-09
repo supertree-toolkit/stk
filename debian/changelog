@@ -1,3 +1,11 @@
+supertree-toolkit (2.10) precise; urgency=low
+
+  * Minor bug fixes
+  * Update to tutorial data and text
+  * Adding more user aids in form of messages
+
+ -- Jon Hill <jhill1@iapetus>  Thu, 09 Jan 2014 15:05:15 +0000
+
 supertree-toolkit (2.9) precise; urgency=low
 
   * Increased usefullness of error message for GUI and CLI
