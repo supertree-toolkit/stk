@@ -1,7 +1,7 @@
 The STK Graphical User Interface
 =================================
 
-The Graphical User Interface (GUI) is used to perform all of the STKs primary
+The Graphical User Interface (GUI) is used to perform all of the STK's primary
 functionality. It allows you to enter data, visualise data and process data all
 within a single interface.
 
@@ -13,7 +13,7 @@ line:
 
 .. code-block:: bash
 
-    stk-gui [filename]
+    stk-gui [file]
 
 The GUI looks like this.
 
@@ -125,7 +125,7 @@ button will then appear in the status bar, in the lower left of the GUI (Fig.
 Once done, your tree string will appear in the data panel.
 
 .. warning:: Avoid non-standard characters in taxa names. Your names *must* not contain commas, 
-    parantheses, colons, asterisks, hyphens, slashes or percentage signs (percentage signs are allowed for polyphyletic taxa - see later).
+    parentheses, colons, asterisks, hyphens, slashes or percentage signs (percentage signs are allowed for non-monophyletic taxa - see later).
     These are not allowed in taxa names in Newick format as they mean other things.
     
 .. note:: Quoted taxa should be done with single quotes only ('), not double or "smart
@@ -361,7 +361,7 @@ combination of the non-monophyletic taxa. Note that this
 produces a tree file containing the unique trees only or a matrix for each
 source tree in the dataset.
 
-These trees or matrices can then be combined into a single tree using PAUP, TNT
+These trees or matrices can then be combined into a single tree using PAUP*, TNT
 or similar. The consensus of these trees then become the source tree for this
 source by importing back into the GUI. 
 
@@ -444,7 +444,7 @@ Create matrix
 *************
 
 After all your processing, the final step is to create a matrix of your data.
-This function will create a matrix suitable for reading into Paup*, TNT and most
+This function will create a matrix suitable for reading into PAUP**, TNT and most
 other supertree software. Note that some software require a set of "input
 trees". In this case, use the "Export trees" function under the the "File" menu.
 Matrices can be output in Nexus or Hennig (TNT) format. Simply select "Create

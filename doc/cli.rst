@@ -182,7 +182,7 @@ other useful things.
 permute_trees
 *************
 
-Permute individual trees or all trees containing polyphyletic taxa (indicated by
+Permute individual trees or all trees containing non-monophyletic taxa (indicated by
 a '%' symbol). Output is tree file or matrix for analysis.
 
 .. index:: replace_genera

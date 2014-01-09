@@ -25,7 +25,7 @@ steps:
     * Collect and import bibliographic data
     * Collect, digitise and import trees
     * Standardise taxa (remove synonyms, higher-level taxa, etc)
-    * Deal with polyphyletic taxa
+    * Deal with non-monophyletic taxa
     * Check data independence
     * Check taxonomic overlap
     * Create a subset
@@ -39,7 +39,7 @@ steps:
     :alt: STK processing pipeline
     :figclass: align-center
 
-    An illusatration of the pipeline that can be created using the STK processing functions.
+    An illustration of the pipeline that can be created using the STK processing functions.
 
 
 In carrying out this tutorial, you will cover most of the functions of the STK.
@@ -115,7 +115,7 @@ You can practice digitising trees using `Treeview <http://taxonomy.zoology.gla.a
 similar software. 
 
 .. warning:: Avoid non-standard characters in taxa names. Your names *must* not contain commas, 
-    parantheses, colons, asterisks, hyphens, slashes or percentage signs (percentage signs are allowed for polyphyletic taxa - see later).
+    parentheses, colons, asterisks, hyphens, slashes or percentage signs (percentage signs are allowed for non-monophyletic taxa - see later).
     These are not allowed in taxa names in Newick format as they mean other things.
 
 .. note:: Quoted taxa should be done with single quotes only ('), not double or "smart
@@ -159,10 +159,10 @@ Now save your Phyml using the :menuselection:`File --> Save As` and type in a na
     safe. When you extend or alter the data later, you should begin with this
     file.
 
-It is worth noting at this point that polyphyletic taxa  need some special attention. The STK allows
+It is worth noting at this point that non-monophyletic taxa  need some special attention. The STK allows
 you to *permute* the positions of these taxa and generate a tree with all possible combination of
 places of the taxa. These permuted trees can then be dealt with later. However, you must be aware of
-this when digitising trees. To indicate a taxon is polyphyletic append a '%d' on the end of the name
+this when digitising trees. To indicate a taxon is non-monophyletic append a '%d' on the end of the name
 where d is an integer. For example, Fig. :num:`#img-tut-poly-tree` can be encoded as: 
 
 .. _img-tut-poly-tree:
@@ -170,10 +170,10 @@ where d is an integer. For example, Fig. :num:`#img-tut-poly-tree` can be encode
 .. figure:: images/poly_tree.pdf  
     :align: center
     :scale: 75 %
-    :alt: A polyphyletic tree
+    :alt: A non-monophyletic tree
     :figclass: align-center
 
-    Polyphyletic clades can be denoted with %n in the name as above.
+    Non-monophyletic clades can be denoted with %n in the name as above.
 
 .. code-block:: bash
 
@@ -215,7 +215,7 @@ There are other basic *housekeeping* tasks that can be useful at this point too.
 First, standardising the source names using :menuselection:`STK
 Functions --> Standardise source names` to ensure each source has a unique name.
 Second, cleaning the data using :menuselection:`STK --> Clean data` to remove all
-uninformative trees and remove polyphyletic taxa where only one possible
+uninformative trees and remove non-monophyletic taxa where only one possible
 combination exists.
 
 The above tasks will not alter the tutorial data, so it's safe to save the file
@@ -240,7 +240,7 @@ The next stage is to standardise the taxa - removing synonyms and higher taxa.
 Removing synonyms requires that a "standard" taxonomy is used. It does not matter what this is, but
 it does matter that two taxa that are actually the same taxa have the same name  to avoid artificial
 inflation of the taxa number and also to improve overlap between the source trees.  Services such as
-`ITIS <http://www.itis.gov/>`_, `WORMS <http://www.marinespecies.org/>`_, `Encylopedia of Life
+`ITIS <http://www.itis.gov/>`_, `WORMS <http://www.marinespecies.org/>`_, `Encyclopedia of Life
 <http://eol.org/>`_ and other online, specialised, databases are useful. In future the functionality
 of creating a standardised taxonomy is planned to be included in STK. Once a standardised taxa has
 been decided, the names can be replaced. 
@@ -262,12 +262,12 @@ one:
 
 Note that spaces can be replaced with underscores if needed, but spaces must occur *both*
 sides of the '=' sign. The above is an excerpt from the subs file included in the tutorial dataset,
-which replaces a sub-species and corrects some common mispellings and synonyms.
+which replaces a sub-species and corrects some common misspellings and synonyms.
 
 Alternatively, create a simple CSV (Comma Separated Value) file in Excel or
 similar. The first column contains the taxa already in the dataset and the subsequent
 columns are the taxa to be substituted into the dataset. Each substitution is on a new row. Ensure you save the
-file as a Comma Seperated Value (CSV) file.
+file as a Comma Separated Value (CSV) file.
 
 The above can be created using the GUI which ensures you only add taxa already
 in the dataset on the left-hand side. Using :menuselection:`STK Functions --> Sub
@@ -305,21 +305,21 @@ details of the substitution. You now have *two* files: your original with an add
 history event detailing the substitutions done, and a new file where the substitutions have taken
 place (including a history event stating how the file was created).
 
-Removing polyphyletic taxa
+Removing non-monophyletic taxa
 ----------------------------
 
 To remove non-monophyletic taxa, the tree permutation function is
-used. As mentioned above, polyphyletic taxa are dealt with separately and
+used. As mentioned above, non-monophyletic taxa are dealt with separately and
 denoted with a '%n' in the taxon name where n is an integer. We deal with these
 taxa by permuting every possible location of these taxa. This creates a number
 of trees per source tree, each with a different combination of the non-monophyletic
 taxa. Note that this produces unique trees only.
 These can then be output in a single tree file or as matrix. You
 take this and create a 'mini-supertree' which becomes your single source tree.
-For example load into PAUP or TNT and get the tree required with a
+For example load into PAUP* or TNT and get the tree required with a
 branch-and-bound search or heuristic search for larger trees.
 
-There is one tree in our test dataset that requires removal of polyphyletic taxa.
+There is one tree in our test dataset that requires removal of non-monophyletic taxa.
 Create a matrix using either :menuselection:`STK Functions --> Permute all trees`
 (call the output :file:`anomura_poly.tnt` and use Hennig format) or use the command:
 
@@ -634,7 +634,7 @@ Alternatively, use:
 :command:`stk create_matrix Anomura_final.phyml Anomura_matrix.tnt`
 
 You can then load this matrix into TNT and generate your supertree using any suitable method.
-You can of course change the output format suitable for Puap or any other supertree software.
+You can of course change the output format suitable for PAUP* or any other supertree software.
 
 You've made your first STK supertree.
 

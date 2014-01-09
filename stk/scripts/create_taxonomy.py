@@ -132,7 +132,10 @@ def main():
     for g in genera:
         if (verbose):
             print "Looking up ", g
-        URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(g.strip())
+        try:
+            URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(g.strip())
+        except:
+            continue
         req = urllib2.Request(URL)
         opener = urllib2.build_opener()
         f = opener.open(req)
@@ -145,7 +148,10 @@ def main():
         req = urllib2.Request(URL)
         opener = urllib2.build_opener()
         f = opener.open(req)
-        string = unicode(f.read(),"ISO-8859-1")
+        try:
+            string = unicode(f.read(),"ISO-8859-1")
+        except:
+            continue
         data = json.loads(string)
         this_taxonomy = {}
         for level in data['hierarchyList']:
@@ -228,22 +234,22 @@ def main():
                 kingdom = "-"
 
             this_classification = [
-                    species,
-                    genus,
-                    family,
-                    superfamily,
-                    infraorder,
-                    suborder,
-                    order,
-                    superorder,
-                    subclass,
-                    tclass,
-                    subphylum,
-                    phylum,
-                    superphylum,
-                    infrakingdom,
-                    subkingdom,
-                    kingdom]
+                    species.encode('utf-8'),
+                    genus.encode('utf-8'),
+                    family.encode('utf-8'),
+                    superfamily.encode('utf-8'),
+                    infraorder.encode('utf-8'),
+                    suborder.encode('utf-8'),
+                    order.encode('utf-8'),
+                    superorder.encode('utf-8'),
+                    subclass.encode('utf-8'),
+                    tclass.encode('utf-8'),
+                    subphylum.encode('utf-8'),
+                    phylum.encode('utf-8'),
+                    superphylum.encode('utf-8'),
+                    infrakingdom.encode('utf-8'),
+                    subkingdom.encode('utf-8'),
+                    kingdom.encode('utf-8')]
             writer.writerow(this_classification)
             
     

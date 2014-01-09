@@ -137,5 +137,5 @@ which will produce the following help.
     stk: error: too few arguments
 
 The STK GUI can also be accessed via the Start Menu (Windows), the Applications
-folder (Mac OS X) or in the Applications menu (most Linux varients).
+folder (Mac OS X) or in the Applications menu (most Linux variants).
 
