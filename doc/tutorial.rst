@@ -299,11 +299,12 @@ In the GUI use :menuselection:`STK Function --> Sub taxa` and then
 :menuselection:`Import subs` to import the subs file. Then click
 :menuselection:`Sub taxa`. Give the filename :file:`Anomura_subbed.phyml` and click save.
 This will give you a warning message. This is fine,
-so click OK (we want to put in new taxa). Now save the currently open file
+so click OK (we want to put in new taxa). You'll get confirmation the substitutions have been 
+successfully carried out and saved to a new file. Now save the currently open file
 (:file:`Anomura.phyml`) as a new *history* entry has been added, containing
 details of the substitution. You now have *two* files: your original with an additional
-history event detailing the substitutions done, and a new file where the substitutions have taken
-place (including a history event stating how the file was created).
+history event detailing the substitutions done (:file:`Anomura.phyml`), and a new file where the substitutions have taken
+place, including a history event stating how the file was created (:file:`Anomura_subbed.phyml` or whichever name you saved as).
 
 Removing non-monophyletic taxa
 ----------------------------
@@ -363,21 +364,20 @@ is best done with via a taxa substitution file. You can create this file once,
 amend as appropriate and run each time you alter the data before supertree
 analysis is done. For example:
 
-.. code-block:: bash
+.. code-block:: none
 
-    Aegialornithidae = Aegialornis
-    Ciconiidae = Mycteria,Anastomus,Ciconia,Ephippiorhynchus,Jabiru,Leptoptilos
+    Albuneidae = Albunea,Austrolepidopa,Harryhausenia
 
-replaces any source tree containing the higher order taxa *Aegialornithidae* or
-*Ciconiidae* with polytomies. Note that the genera
-listed should be in the dataset already, but you can avoid thoroughly checking this as
-you can use the "replace existing taxa only" option in the replacement. You
-can use the data summary output to check how well these substitutions have worked.
+replaces any source tree containing the higher order taxa *Albuneidae* with polytomies. 
 
 We can replace using genus or species names. When replacing with genera, species 
 will be replaced in a later step. Therefore, it is
 recommended you make your substitution file as comprehensive as possible. You
-can then keep it for later when you extend the dataset.
+can then keep it for later when you extend the dataset. Note that the species
+listed should be in the dataset already, but you can avoid thoroughly checking this as
+you can use the "replace existing taxa only" option in the replacement. When replacing with genera this is not necessary. You
+can use the data summary output to check how well these substitutions have worked.
+
 
 Once your substitution file is ready, you can use either the GUI or CLI to
 replace taxa in a Phyml. The output of this is a new Phyml with the taxa replace
@@ -392,28 +392,44 @@ loading your subs file, and clicking :menuselection:`Sub taxa`.
 
 .. note::  It is important here to only substitute in *existing taxa* so use
            the -e flag on the CLI and click the :menuselection:`Only existing
-           taxa` in the GUI
+           taxa` in the GUI if you are substituting in species to avoid adding extra taxa.
 
 Finally, to guard against errors and bugs, back-up your data '''before'''
 carrying each set of substitutions. If you come across something that went wrong, report
 a bug on our Launchpad. Replacing taxa in trees is not straightforward at times
 so this is definitely the time to check your backups.
 
-Our Anomura data have no such higher taxa, however, we have introduced an extra
-taxon by creating the mini-supertrees earlier; MRP_Outgroup. Carry out a data
-summary on :file:`Anomura_ind_final.phyml` and you should see this taxon in
-the list. We can remove this easily, by doing a simple substitution. In the GUI,
-use :menuselection:`STK Functions --> Sub taxa` to move MRP_Outgroup from the left
- to the right of the interface. Leave the second column blank, and click
-:menuselection:`Substitute taxa` to delete this. Save the file as
-:file:`Anomura_ind_final_2.pyml`.
+Our Anomura data have one such higher taxa and we have introduced an extra
+taxon by creating the mini-supertrees earlier: MRP_Outgroup. Carry out a data
+summary on :file:`Anomura_poly.phyml` and you should see the MRP_Outgroup and *Albuneidae* in
+the list. We therefore need to create a simple subs
+file using one of the three possible ways (CSV, subs or via the GUI) such that we have the following substitutions 
+(below is in subs file format):
 
-On the command line use the following command:
+.. code-block:: none
 
-:command:`stk sub_taxa -o MRP_Outgroup Anomura_ind_final.phyml Anomura_ind_final_2.phyml`
+    Albuneidae = Albunea,Austrolepidopa,Harryhausenia
+    MRPOutgroup = 
 
-which will delete the taxon.
 
+.. note::  There are two spaces either side of the '=' for the MRP_Outgroup
+
+In the GUI,
+use :menuselection:`STK Functions --> Sub taxa` to move *MRP_Outgroup* from the left
+to the right of the interface; likewise for Albuneidae. Leave the second column blank for MRP_Outgroup, but fill
+in *Albuneidae* with *Albunea,Austrolepidopa,Harryhausenia*. Then click
+:menuselection:`Substitute taxa` to do the substitutions. Save the file as
+:file:`Anomura_no_higher.pyml`.
+
+On the command line use the following command to delete the *MRP_Outgroup*:
+
+:command:`stk sub_taxa -o MRP_Outgroup Anomura_poly.phyml Anomura_no_higher1.phyml`
+
+which will delete the taxon. Then do:
+
+:command:`stk sub_taxa -o Albuneidae -n "Albunea,Austrolepidopa,Harryhausenia" Anomura_no_higher1.phyml Anomura_no_higher.phyml`
+
+To do the replacement of *Albuneidae*. Note that we have not needed a subs file when using the CLI for this trivial substitution.
 
 Replacing genera
 ++++++++++++++++
@@ -426,7 +442,7 @@ substitute taxa functions, but it generates the substitutions for you.
 
 To run this you can either use the GUI or CLI. The CLI command is:
 
-:command:`stk replace_genera Anomura_ind_final_2.phyml Anomura_species.phyml`
+:command:`stk replace_genera Anomura_no_higher.phyml Anomura_species.phyml`
 
 In the GUI, use :menuselection:`STK Functions --> Replace genera`. Get the STK to
 create a new Phyml for you, named :file:`Anomura_species.phyml`
@@ -462,7 +478,7 @@ you agree).
 
 Using the command line, type the following:
 
-:command:`stk data_ind  Anomura_poly.phyml -n  Anomura_ind.phyml`
+:command:`stk data_ind  Anomura_species.phyml -n  Anomura_ind.phyml`
 
 This will create a new Phyml with all non-independent *subset* data removed, using
 the above rules. Trees that are identical will not be removed. You have to
@@ -493,7 +509,7 @@ For our tutorial dataset we have the following non-independent data:
 
 So, running 
 
-:command:`stk data_ind  Anomura_poly.phyml -n  Anomura_ind.phyml`
+:command:`stk data_ind  Anomura_species.phyml -n  Anomura_ind.phyml`
 
 or via the GUI, you can remove Boyko and Harvey 2009, tree 1 manually or use the 
 :menuselection:`STK Functions --> Data Independence Check` and 
@@ -511,12 +527,17 @@ combined source tree to import back into your original
 
 In :file:`Anomura_ind.phyml`, remove one of the Ahyong_etal_2009 source trees
 and import the output from TNT into the other. It is advisable here to edit the
-figure legend etc to match that this is now a combined tree (in this dataset the
-figure legend etc contain dummy data) and to add a comment on this tree with the
+figure legend etc. to match that this is now a combined tree (in this dataset the
+figure legend etc. contain dummy data) and to add a comment on this tree with the
 TNT commands used as a reminder in future of where this tree came from. Save
 this Phyml as :file:`Anomura_ind_final.phyml`. There is no need to save your
 temporary file.
 
+.. warning:: If your temporary combined matrices are large do not use the ienum in TNT
+             to calculate the mini-supertree. Use other methods.
+
+We have introduced another *MRP_Outgroup*, so this needs deleting (see above). Name your new file
+:file:`Anomura_ind_final2.phyml`
 
 Check data
 ----------
@@ -574,12 +595,12 @@ node only.
 
 To carry out this step on our data in the CLI run this command:
 
-:command:`stk data_overlap Anomura_species.phyml`
+:command:`stk data_overlap Anomura_ind_final2.phyml`
 
 It will return a message saying your data are not sufficiently well connected. We can find out which trees are not
 connected using:
 
-:command:`stk data_overlap -g overlap_2.png -d Anomura_species.phyml`
+:command:`stk data_overlap -g overlap_2.png -d Anomura_ind_final.phyml`
 
 Using the GUI, use :menuselection:`STK Functions --> Check data overlap`. Click
 :menuselection:`Check overlap` and it will return a message about insufficient
@@ -632,6 +653,8 @@ a matrix. Create a TNT matrix and save to :file:`Anomura_matrix.tnt`
 Alternatively, use:
 
 :command:`stk create_matrix Anomura_final.phyml Anomura_matrix.tnt`
+
+The :file:`Anomura_final.phyml` is included in the tutorial for comparison to yours. 
 
 You can then load this matrix into TNT and generate your supertree using any suitable method.
 You can of course change the output format suitable for PAUP* or any other supertree software.
