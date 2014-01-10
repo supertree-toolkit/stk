@@ -24,8 +24,9 @@ storing and curating supertree source data (Fig. :num:`#img-pipeline`). This can
 steps:
     * Collect and import bibliographic data
     * Collect, digitise and import trees
-    * Standardise taxa (remove synonyms, higher-level taxa, etc)
+    * Standardise nomenclature (remove synonyms, misspellings, vernacular names, etc.)
     * Deal with non-monophyletic taxa
+    * Standardise taxonomy (e.g. remove higher level taxa)
     * Check data independence
     * Check taxonomic overlap
     * Create a subset
@@ -425,9 +426,9 @@ On the command line use the following command to delete the *MRP_Outgroup*:
 
 :command:`stk sub_taxa -o MRP_Outgroup Anomura_poly.phyml Anomura_no_higher1.phyml`
 
-which will delete the taxon. Then do:
+which will delete the taxon. Then do (on a single line):
 
-:command:`stk sub_taxa -o Albuneidae -n "Albunea,Austrolepidopa,Harryhausenia" Anomura_no_higher1.phyml Anomura_no_higher.phyml`
+:command:`stk sub_taxa -o Albuneidae -n "Albunea, Austrolepidopa, Harryhausenia" Anomura_no_higher1.phyml Anomura_no_higher.phyml`
 
 To do the replacement of *Albuneidae*. Note that we have not needed a subs file when using the CLI for this trivial substitution.
 
@@ -435,9 +436,9 @@ Replacing genera
 ++++++++++++++++
 
 The final part of this process is to replace all genera with their constituent
-species that are already present in the dataset, e.g. *Gallus* is replaced with a polytomy of all species belonging to
-*Gallus*. This is done with the replace genera function. Only species already in
-the dataset are added. This is a similar function of the general
+species that are already present in the dataset, e.g. *Aegla* is replaced with a polytomy of all species belonging to
+*Aegla*. This is done with the replace genera function. Only species already in
+the dataset are added. This is a similar function to the general
 substitute taxa functions, but it generates the substitutions for you.
 
 To run this you can either use the GUI or CLI. The CLI command is:
@@ -533,8 +534,8 @@ TNT commands used as a reminder in future of where this tree came from. Save
 this Phyml as :file:`Anomura_ind_final.phyml`. There is no need to save your
 temporary file.
 
-.. warning:: If your temporary combined matrices are large do not use the ienum in TNT
-             to calculate the mini-supertree. Use other methods.
+.. warning:: If your temporary combined matrices contain more than 10 taxa do not use the ienum in TNT
+             to calculate the mini-supertree, use a heuristic method.
 
 We have introduced another *MRP_Outgroup*, so this needs deleting (see above). Name your new file
 :file:`Anomura_ind_final2.phyml`
@@ -547,23 +548,20 @@ supertree analysis. The first step is to create a data summary. This creates a
 list of useful information, such as taxa and characters. The information is
 printed alphabetically, which makes it easy to check for final errors. Although
 this is not necessary, it allows manual checking of the data, e.g. were genera replaced where
-species are also in the dataset? are there any
-odd names that I forgot to substitute?
+species are also in the dataset?
 
-Have a look in the file output and check everything is OK. If not, go back and
-fix things. Note that some of the statistics in the file might be useful when
-writing up your papers - how many trees, over what years the data are from, types of characters in
-the dataset, etc.
+Have a look in the file output and check that everything looks correct. If not, go back and
+fix things. Note that some of the statistics in the file might be useful - how many trees, 
+over what years the data are from, types of characters in the dataset, etc.
 
 The final step is to ensure that there is sufficient taxonomic overlap between source
-trees.  We need to check that all the trees are connected by at least two
-taxa with another tree. You may also want to experiment with using higher
-numbers, use the data overlap function to determine this. The output can either
-be a simple yes/no or graphical output. Graphical output can either be a
+trees.  We need to check that all the trees share at least two
+taxa with another source tree. You may also want to experiment with using higher
+numbers. The output can either be a simple yes/no or graphical output. Graphical output can either be a
 detailed view where a graph is produced whereby each source is a vertex and
 edges are drawn between sources that share the required number of taxa (Fig
 :num:`#img-tut-pre-detailed-overlap`) . In this view *all* nodes should be
-blue, with no red (unconnected). However, for large datasets, this consumes a lot
+blue, with no red (unconnected) nodes. However, for large datasets, this consumes a lot
 of memory and can take a long time to calculate. Instead use the normal view
 where connected trees compose a node in the graph (Fig
 :num:`#img-tut-pre-overlap`). In this view there should be a single
@@ -640,11 +638,11 @@ connected. Save your data to :file:`Anomura_final.phyml`.
     Detailed graphical view of data overlap. There are now no red nodes.
 
 
-Create matrix
--------------
+Create matrix or export final tree set
+---------------------------------------
 
-You now have a dataset ready for creating a supertree. The final step is
-to create a matrix.
+You now have a dataset ready for creating a supertree. If you are using an algorithm
+that requires a matrix representation then the final step is to create a matrix.
 
 Open :file:`Anomura_final.phyml` and use 
 :menuselection:`STK Functions --> Create matrix` and fill in the GUI to create
@@ -657,7 +655,8 @@ Alternatively, use:
 The :file:`Anomura_final.phyml` is included in the tutorial for comparison to yours. 
 
 You can then load this matrix into TNT and generate your supertree using any suitable method.
-You can of course change the output format suitable for PAUP* or any other supertree software.
+You can of course change the output format suitable for PAUP* or any other tree building software.
 
-You've made your first STK supertree.
+If you are using an algorithm that requires a set of trees then you can export your trees using
+:menuselection:`File --> Export trees`.
 
