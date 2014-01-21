@@ -981,7 +981,7 @@ def import_trees(filename):
     return r_trees
 
 
-def import_tree(filename, gui=None, tree_no = -1):
+def import_tree(filename, gui=False, tree_no = -1):
     """Takes a NEXUS formatted file and returns a list containing the tree
     strings"""
     
@@ -992,9 +992,9 @@ def import_tree(filename, gui=None, tree_no = -1):
         tree_no = 0
 
     if (len(trees) > 1 and tree_no == -1):
-        message = "Found "+len(trees)+" trees. Which one do you want to load (1-"+len(trees)+"?"
-        if (gui==None):
-            tree_no = raw_input(message)
+        message = "Found "+str(len(trees))+" trees. Which one do you want to load (1-"+str(len(trees))+")?"
+        if (not gui):
+            tree_no = int(raw_input(message))
             # assume the user counts from 1 to n
             tree_no -= 1
         else:
@@ -1009,7 +1009,8 @@ def import_tree(filename, gui=None, tree_no = -1):
             #create the text input field
             entry = gtk.Entry()
             #allow the user to press enter to do ok
-            entry.connect("activate", responseToDialog, dialog, gtk.RESPONSE_OK)
+            #responseToDialog = 0
+            #entry.connect("activate", responseToDialog, dialog, gtk.RESPONSE_OK)
             #create a horizontal box to pack the entry and a label
             hbox = gtk.HBox()
             hbox.pack_start(gtk.Label("Tree number:"), False, 5, 5)

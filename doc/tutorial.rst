@@ -8,6 +8,7 @@ The following is an example of how the scripts were used in creating a
 species-level supertree of `Anomura <http://en.wikipedia.org/wiki/Anomura>`_ - an infraorder of decapods.
 
 There are several files included in the tutorial dataset:
+
     * A bibtex file containing all the original bibliographic datasets
     * A semi-complete Phyml with a single tree missing
     * A tree file to import into the above
@@ -22,6 +23,7 @@ There are several files included in the tutorial dataset:
 The aim of this tutorial is to guide you through the stages of collecting,
 storing and curating supertree source data (Fig. :num:`#img-pipeline`). This can be divided into a number of
 steps:
+
     * Collect and import bibliographic data
     * Collect, digitise and import trees
     * Standardise nomenclature (remove synonyms, misspellings, vernacular names, etc.)
@@ -34,7 +36,7 @@ steps:
 
 .. _img-pipeline:
 
-.. figure:: images/pipeline.pdf   
+.. figure:: images/pipeline.png 
     :align: center
     :scale: 75 %
     :alt: STK processing pipeline
@@ -308,7 +310,7 @@ history event detailing the substitutions done (:file:`Anomura.phyml`), and a ne
 place, including a history event stating how the file was created (:file:`Anomura_subbed.phyml` or whichever name you saved as).
 
 Removing non-monophyletic taxa
-----------------------------
+-------------------------------
 
 To remove non-monophyletic taxa, the tree permutation function is
 used. As mentioned above, non-monophyletic taxa are dealt with separately and
@@ -412,6 +414,7 @@ file using one of the three possible ways (CSV, subs or via the GUI) such that w
     Albuneidae = Albunea,Austrolepidopa,Harryhausenia
     MRPOutgroup = 
 
+which will delete the taxon.
 
 .. note::  There are two spaces either side of the '=' for the MRP_Outgroup
 
@@ -464,6 +467,7 @@ check for data independence, remove vernacular and higher names.
 
 The data independence check is done via the data independence function. The function
 checks if any source meets the following conditions: 
+    
     * Uses the same characters 
     * *and* is either a subset of, or contains the same taxa as, another source.
 
@@ -498,7 +502,8 @@ identical but were copied over at this point. You can now make a matrix using
 
 For our tutorial dataset we have the following non-independent data:
 
-.. code-block:: bash
+.. code-block:: none
+
     Source trees that are subsets of others
     Flagged tree, is a subset of:
     boyko_harvey_2009_1,mclaughlin_etal_2007_1
@@ -607,6 +612,7 @@ output.
 
 Remove the following sources from the dataset (the sources contain all the trees that do not contain
 sufficient overlap):
+
  * Cabezas et al 2009
  * Werding et al 2001
 

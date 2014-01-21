@@ -414,7 +414,8 @@ def main():
                     taxa or analyses. Use the data summary command to see all the data, such 
                     as characters, that are present in your data. By default does an "and" search' and 
                     allows matches when trees contain the desired character type and other types. See 
-                    manual for examples"""
+                    manual for examples. Note you may need an extra -- after your options if you get
+                    invalid option errors."""
             )
     parser_cm.add_argument('input', 
             help='The input file')
@@ -425,25 +426,30 @@ def main():
             default=False,
             help="Overwrite the existing file without asking for confirmation")
     parser_cm.add_argument('--years',
-            help="Only include data with these years. You can add multiple years per --year flar, use --year flags and/or use ranges, e.g. 2010-2013",
+            help="Only include data with these years. You can add multiple years per --year flag, use multiple --year flags and/or use ranges, e.g. 2010-2013",
             required=False,
+            nargs="*",
             )
     parser_cm.add_argument('--taxa',
             help="Only include data with these taxa. You can add multiple --taxa per flag or use multiple --taxa flags",
             required=False,
+            nargs="*",
             )
     parser_cm.add_argument('--character_types',
             help="Only include data with these character_types. You can add multiple --character_types or use multiple --character_types flags. Choices are molecular, morphological, behavioural, other",
             choices=['molecular', 'morphological', 'behavioural', 'other'],
+            nargs="*",
             required=False,
             )
     parser_cm.add_argument('--characters',
             help="Only include data with these characters. You can add multiple --characters per flag or use multiple --character flags",
             required=False,
+            nargs="*",
             )
     parser_cm.add_argument('--analyses',
             help="Only include data created with these analyses. You can add multiple --analyses per flag or use multiple --analyses flags",
             required=False,
+            nargs="*",
             )
     parser_cm.add_argument('--fossil',
             help="Set fossils to all_extant (no fossils) or all_fossil. Default is that a mix is allowed and requires no option.",
