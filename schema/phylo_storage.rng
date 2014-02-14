@@ -149,6 +149,14 @@ create the tree?</a:documentation>
               </optional>
             </element>
             <optional>
+              <element name="weight">
+                <a:documentation>Should this tree be weighted? The weight value is a fraction (0-1) where the sum
+of weights for a group of tree should be 1. For example if you have two trees that
+need weighting then they should be 0.5 each. 5 tree should be 0.2, etc, etc.</a:documentation>
+                <ref name="real"/>
+              </element>
+            </optional>
+            <optional>
               <element name="tree_support">
                 <a:documentation>Any tree support values recorded?</a:documentation>
                 <ref name="anystring"/>

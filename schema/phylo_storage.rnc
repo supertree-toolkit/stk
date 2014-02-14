@@ -115,6 +115,12 @@ source=
                     attribute type { "Rooted" | "Unrooted" }
                 }?
             },
+            ## Should this tree be weighted? The weight value is a fraction (0-1) where the sum
+            ## of weights for a group of tree should be 1. For example if you have two trees that
+            ## need weighting then they should be 0.5 each. 5 tree should be 0.2, etc, etc.
+            element weight {
+                real
+            }?,
             ## Any tree support values recorded?
             element tree_support {
                 anystring

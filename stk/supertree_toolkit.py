@@ -1391,12 +1391,49 @@ def get_all_taxa(XML, pretty=False, ignoreErrors=False):
     return taxa_list
 
 
+def get_weights(XML):
+    """ Get weights for each tree. Returns dictionary of tree name (key) and weights
+        (value)
+    """
+
+    xml_root = _parse_xml(XML)
+    # By getting source, we can then loop over each source_tree
+    # within that source and construct a unique name
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+
+    weights = {}
+
+    # loop through all sources
+    for s in sources:
+        # for each source, get source name
+        name = s.attrib['name']
+        # get trees
+        tree_no = 1
+        for t in s.xpath("source_tree/tree"):
+            t_name = name+"_"+str(tree_no)
+            if (len(t.xpath("weight/real_value")) > 0):
+                weights[t_name] = float(t.xpath("weight/real_value")[0].text)
+            else:
+                weights[t_name] = 1.0
+            tree_no += 1
+
+    min_weight = min(weights.values())
+    factor = 1.0/min_weight
+    for w in weights:
+        weights[w] = weights[w]*factor
+    
+    return weights
+
+
 def create_matrix(XML,format="hennig",quote=False,taxonomy=None,ignoreWarnings=False):
     """ From all trees in the XML, create a matrix
     """
 
     if not ignoreWarnings:
         _check_data(XML)
+
+    weights = None
 
     # get all trees
     trees = obtain_trees(XML)
@@ -1411,8 +1448,16 @@ def create_matrix(XML,format="hennig",quote=False,taxonomy=None,ignoreWarnings=F
         taxa = _uniquify(taxa)
         taxa.sort()
     taxa.insert(0,"MRP_Outgroup")
+
+    # return weights for each tree
+    weights = get_weights(XML)
+    # if all weights are 1, then just set back to None, so we don't add to matrix file
+    w = weights.values()
+    w = _uniquify(w)
+    if w == [1]:
+        weights = None
         
-    return _create_matrix(trees, taxa, format=format, quote=quote)
+    return _create_matrix(trees, taxa, format=format, quote=quote, weights=weights)
 
 
 def create_matrix_from_trees(trees,format="hennig"):
@@ -3274,7 +3319,7 @@ def _find_trees_for_permuting(XML):
 
     return permute_trees
 
-def _create_matrix(trees, taxa, quote=False,format="hennig"):
+def _create_matrix(trees, taxa, format="hennig", quote=False, weights=None):
     """
     Does the hard work on creating a matrix
     """
@@ -3285,14 +3330,22 @@ def _create_matrix(trees, taxa, quote=False,format="hennig"):
     # and nCharacters in the j direction
     matrix = []
     charsets = []
+    if (weights == None):
+        weights_per_char = None
+    else:
+        weights_per_char = []
     names = []
     current_char = 1
     for key in trees:
+        if (not weights == None):
+            weight = weights[key]
         names.append(key)
         submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
         nChars = len(submatrix[0,:])
         # loop over characters in the submatrix
         for i in range(1,nChars):
+            if (not weights == None):
+                weights_per_char.append(weight)
             # loop over taxa. Add '?' for an "unknown" taxa, otherwise
             # get 0 or 1 from submatrix. May as well turn into a string whilst
             # we're at it
@@ -3315,10 +3368,12 @@ def _create_matrix(trees, taxa, quote=False,format="hennig"):
     matrix = numpy.array(matrix)
     matrix = matrix.transpose()
 
-    return _create_matrix_string(matrix,taxa,charsets=charsets,names=names,format=format,quote=quote)
+    return _create_matrix_string(matrix,taxa,charsets=charsets,names=names,
+                                 format=format,quote=quote,weights=weights_per_char)
 
 
-def _create_matrix_string(matrix,taxa,charsets=None,names=None,format='hennig',quote=False):
+def _create_matrix_string(matrix,taxa,charsets=None,names=None,
+                          format='hennig',quote=False,weights=None):
     """
     Turns a matrix into a string
     """
@@ -3338,6 +3393,20 @@ def _create_matrix_string(matrix,taxa,charsets=None,names=None,format='hennig',q
             i += 1
             
         matrix_string += "\t;\n"
+        if (not weights == None):
+            # get unique weights
+            unique_weights = _uniquify(weights)
+            for uw in unique_weights:
+                # The float for the weight cannot start with 0, even if it's 0.5
+                # so we strip of the 0 to make .5 instead (lstrip). TNT is weird with formats...
+                # We also strip off trailing zeros for neatness (rstrip)
+                matrix_string += "ccode +[/"+("%f"%uw).lstrip('0').rstrip('0')
+                i = 0
+                for w in weights:
+                    if (w == uw):
+                        matrix_string += " " + str(i)
+                    i += 1
+                matrix_string += ";\n"
         matrix_string += "procedure /;"
     elif (format == 'nexus'):
         matrix_string = "#nexus\n\nbegin data;\n"
