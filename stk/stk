@@ -113,6 +113,11 @@ def main():
             help="Overwrite the existing file without asking for confirmation")
     parser_cm.add_argument('--taxonomy',
             help="Add an additional tree file containig a taxonomy backbone tree into the matrix.")
+    parser_cm.add_argument('--remove_outgroups',
+            help="Remove outgroups of the source trees before making the matrix.",
+            action='store_true',
+            default=False,            
+            )
     # Set the function that gets called when the sub command is activated
     parser_cm.set_defaults(func=create_matrix)
 
@@ -733,6 +738,7 @@ def create_matrix(args):
     quote = args.quote
     ignoreWarnings = args.ignoreWarnings
     taxonomy = args.taxonomy
+    remove_outgroups = args.remove_outgroups
     
     # check all the options
     if (f_format == None):
@@ -765,7 +771,8 @@ def create_matrix(args):
         taxonomy_tree = None
         taxonomy_tree = supertree_toolkit._parse_tree(taxonomy)
     try:
-        matrix = supertree_toolkit.create_matrix(XML,format=f_format,quote=quote,taxonomy=taxonomy,ignoreWarnings=ignoreWarnings)
+        matrix = supertree_toolkit.create_matrix(XML,format=f_format,quote=quote,taxonomy=taxonomy,
+                                                 outgroups=remove_outgroups,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
         msg = "***Error: Failed to create matrix.\n"+detail.msg
         print msg

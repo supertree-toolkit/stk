@@ -1693,6 +1693,7 @@ class Diamond:
         taxonomy_tree = None
     format_radio_1 = self.create_matrix_gui.get_widget("matrix_format_tnt_chooser")
     format_radio_2 = self.create_matrix_gui.get_widget("matrix_format_nexus_chooser")
+    no_outgroups = self.create_matrix_gui.get_widget("removeoutgroups_checkbutton").get_active()
     ignoreWarnings = self.create_matrix_gui.get_widget("ignoreWarnings_checkbutton").get_active()
 
 
@@ -1709,7 +1710,7 @@ class Diamond:
     self.tree.write(f)
     XML = f.getvalue()
     try:
-        matrix = stk.create_matrix(XML,format=format,taxonomy=taxonomy_tree,ignoreWarnings=ignoreWarnings)
+        matrix = stk.create_matrix(XML,format=format,taxonomy=taxonomy_tree,outgroups=no_outgroups,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
         msg = "Failed to create matrix.\n"+detail.msg
         dialogs.error(self.main_window,msg)

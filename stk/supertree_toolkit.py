@@ -1426,7 +1426,42 @@ def get_weights(XML):
     return weights
 
 
-def create_matrix(XML,format="hennig",quote=False,taxonomy=None,ignoreWarnings=False):
+def get_outgroup(XML):
+    """ For each tree, get the outgroup defined in the schema
+    """
+    xml_root = _parse_xml(XML)
+    # By getting source, we can then loop over each source_tree
+    # within that source and construct a unique name
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+
+    outgroups = {}
+
+    # loop through all sources
+    for s in sources:
+        # for each source, get source name
+        name = s.attrib['name']
+        # get trees
+        tree_no = 1
+        for t in s.xpath("source_tree/tree"):
+            t_name = name+"_"+str(tree_no)
+            if (len(t.xpath("topology/outgroup/string_value")) > 0):
+                temp_outgp = t.xpath("topology/outgroup/string_value")[0].text
+                temp_outgp = temp_outgp.replace("\n", ",")
+                temp_outgp = temp_outgp.split(",")
+                outgroups[t_name] = temp_outgp                
+            tree_no += 1
+
+    # replace spaces with _ in outgroup names
+    for key in outgroups:
+        og = outgroups[key]
+        og = [o.strip().replace(' ', '_') for o in og]
+        outgroups[key] = og
+
+    return outgroups
+
+
+def create_matrix(XML,format="hennig",quote=False,taxonomy=None,outgroups=False,ignoreWarnings=False):
     """ From all trees in the XML, create a matrix
     """
 
@@ -1440,14 +1475,6 @@ def create_matrix(XML,format="hennig",quote=False,taxonomy=None,ignoreWarnings=F
     if (not taxonomy == None):
         trees['taxonomy'] = taxonomy
 
-    # and the taxa
-    taxa = []
-    taxa.extend(get_all_taxa(XML))
-    if (not taxonomy == None):
-        taxa.extend(_getTaxaFromNewick(taxonomy))
-        taxa = _uniquify(taxa)
-        taxa.sort()
-    taxa.insert(0,"MRP_Outgroup")
 
     # return weights for each tree
     weights = get_weights(XML)
@@ -1456,6 +1483,28 @@ def create_matrix(XML,format="hennig",quote=False,taxonomy=None,ignoreWarnings=F
     w = _uniquify(w)
     if w == [1]:
         weights = None
+
+    if (outgroups):
+        outgroup_data = get_outgroup(XML)
+        for t in trees:
+            try:
+                current_og = outgroup_data[t]
+                # we need to delete any outgroups
+                for o in current_og:
+                    trees[t] = _delete_taxon(o, trees[t])
+            except KeyError:
+                pass
+
+    # and the taxa
+    taxa = []
+    for t in trees:
+        taxa.extend(_getTaxaFromNewick(trees[t]))
+    taxa = _uniquify(taxa)
+    if (not taxonomy == None):
+        taxa.extend(_getTaxaFromNewick(taxonomy))
+        taxa = _uniquify(taxa)
+        taxa.sort()
+    taxa.insert(0,"MRP_Outgroup")
         
     return _create_matrix(trees, taxa, format=format, quote=quote, weights=weights)
 

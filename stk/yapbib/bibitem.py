@@ -383,7 +383,12 @@ class BibItem(dict):
     for x in self.get_authorsList():
         v += '%s<author>\n'%(sp*spc)
         sp+=1
-        other_names, fam_name = x.strip().rsplit(' ',1)
+        try:
+            other_names, fam_name = x.strip().rsplit(' ',1)
+        except ValueError: # only family name
+            fam_name = x.strip()
+            other_names = "--"
+            
         v += '%s<surname>\n'%(sp*spc)
         sp+=1
         v += '%s<string_value lines="1">%s</string_value>\n'%(sp*spc,capwords(fam_name))

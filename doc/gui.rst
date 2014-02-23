@@ -449,7 +449,11 @@ other supertree software. Note that some software require a set of "input
 trees". In this case, use the "Export trees" function under the the "File" menu.
 Matrices can be output in Nexus or Hennig (TNT) format. Simply select "Create
 matrix", choose your options, including a filename, and click create matrix.
-This might take a few minutes for large datasets.
+This might take a few minutes for large datasets. You can also add a taxonomy tree and optionally
+ignore outgroups that have been specified for each tree.
+
+Weights will only be used in TNT format and are applied automatically. Remove any "weights" elements
+from your data if you do not wish to use weights.
 
 .. _img-stk-matrix:
 

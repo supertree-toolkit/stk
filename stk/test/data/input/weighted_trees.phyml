@@ -74,7 +74,7 @@
           </tree_inference>
           <topology>
             <outgroup>
-              <string_value lines="1">A</string_value>
+              <string_value lines="1">Jacana_jacana</string_value>
             </outgroup>
           </topology>
         </tree>
@@ -146,7 +146,8 @@
           </tree_inference>
           <topology>
             <outgroup>
-              <string_value lines="1">A</string_value>
+              <string_value lines="1">Uraeginthus bengalus
+Uraeginthus cyanocephalus</string_value>
             </outgroup>
           </topology>
           <weight>
@@ -182,7 +183,7 @@
           </tree_inference>
           <topology>
             <outgroup>
-              <string_value lines="1">A</string_value>
+              <string_value lines="1">Uraeginthus_bengalus, Uraeginthus_cyanocephalus</string_value>
             </outgroup>
           </topology>
           <weight>
