@@ -300,7 +300,7 @@ this on :file:`Anomura.phyml` using the GUI or command line:
 
 In the GUI use :menuselection:`STK Function --> Sub taxa` and then
 :menuselection:`Import subs` to import the subs file. Then click
-:menuselection:`Sub taxa`. Give the filename :file:`Anomura_subbed.phyml` and click save.
+:menuselection:`Substitute Taxa`. Give the filename :file:`Anomura_subbed.phyml` and click save.
 This will give you a warning message. This is fine,
 so click OK (we want to put in new taxa). You'll get confirmation the substitutions have been 
 successfully carried out and saved to a new file. Now save the currently open file
