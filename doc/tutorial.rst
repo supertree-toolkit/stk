@@ -8,6 +8,7 @@ The following is an example of how the scripts were used in creating a
 species-level supertree of `Anomura <http://en.wikipedia.org/wiki/Anomura>`_ - an infraorder of decapods.
 
 There are several files included in the tutorial dataset:
+
     * A bibtex file containing all the original bibliographic datasets
     * A semi-complete Phyml with a single tree missing
     * A tree file to import into the above
@@ -22,10 +23,12 @@ There are several files included in the tutorial dataset:
 The aim of this tutorial is to guide you through the stages of collecting,
 storing and curating supertree source data (Fig. :num:`#img-pipeline`). This can be divided into a number of
 steps:
+
     * Collect and import bibliographic data
     * Collect, digitise and import trees
-    * Standardise taxa (remove synonyms, higher-level taxa, etc)
+    * Standardise nomenclature (remove synonyms, misspellings, vernacular names, etc.)
     * Deal with non-monophyletic taxa
+    * Standardise taxonomy (e.g. remove higher level taxa)
     * Check data independence
     * Check taxonomic overlap
     * Create a subset
@@ -33,7 +36,7 @@ steps:
 
 .. _img-pipeline:
 
-.. figure:: images/pipeline.pdf   
+.. figure:: images/pipeline.png 
     :align: center
     :scale: 75 %
     :alt: STK processing pipeline
@@ -297,7 +300,7 @@ this on :file:`Anomura.phyml` using the GUI or command line:
 
 In the GUI use :menuselection:`STK Function --> Sub taxa` and then
 :menuselection:`Import subs` to import the subs file. Then click
-:menuselection:`Sub taxa`. Give the filename :file:`Anomura_subbed.phyml` and click save.
+:menuselection:`Substitute Taxa`. Give the filename :file:`Anomura_subbed.phyml` and click save.
 This will give you a warning message. This is fine,
 so click OK (we want to put in new taxa). You'll get confirmation the substitutions have been 
 successfully carried out and saved to a new file. Now save the currently open file
@@ -307,7 +310,7 @@ history event detailing the substitutions done (:file:`Anomura.phyml`), and a ne
 place, including a history event stating how the file was created (:file:`Anomura_subbed.phyml` or whichever name you saved as).
 
 Removing non-monophyletic taxa
-----------------------------
+-------------------------------
 
 To remove non-monophyletic taxa, the tree permutation function is
 used. As mentioned above, non-monophyletic taxa are dealt with separately and
@@ -411,6 +414,7 @@ file using one of the three possible ways (CSV, subs or via the GUI) such that w
     Albuneidae = Albunea,Austrolepidopa,Harryhausenia
     MRPOutgroup = 
 
+which will delete the taxon.
 
 .. note::  There are two spaces either side of the '=' for the MRP_Outgroup
 
@@ -425,9 +429,9 @@ On the command line use the following command to delete the *MRP_Outgroup*:
 
 :command:`stk sub_taxa -o MRP_Outgroup Anomura_poly.phyml Anomura_no_higher1.phyml`
 
-which will delete the taxon. Then do:
+which will delete the taxon. Then do (on a single line):
 
-:command:`stk sub_taxa -o Albuneidae -n "Albunea,Austrolepidopa,Harryhausenia" Anomura_no_higher1.phyml Anomura_no_higher.phyml`
+:command:`stk sub_taxa -o Albuneidae -n "Albunea, Austrolepidopa, Harryhausenia" Anomura_no_higher1.phyml Anomura_no_higher.phyml`
 
 To do the replacement of *Albuneidae*. Note that we have not needed a subs file when using the CLI for this trivial substitution.
 
@@ -435,9 +439,9 @@ Replacing genera
 ++++++++++++++++
 
 The final part of this process is to replace all genera with their constituent
-species that are already present in the dataset, e.g. *Gallus* is replaced with a polytomy of all species belonging to
-*Gallus*. This is done with the replace genera function. Only species already in
-the dataset are added. This is a similar function of the general
+species that are already present in the dataset, e.g. *Aegla* is replaced with a polytomy of all species belonging to
+*Aegla*. This is done with the replace genera function. Only species already in
+the dataset are added. This is a similar function to the general
 substitute taxa functions, but it generates the substitutions for you.
 
 To run this you can either use the GUI or CLI. The CLI command is:
@@ -463,6 +467,7 @@ check for data independence, remove vernacular and higher names.
 
 The data independence check is done via the data independence function. The function
 checks if any source meets the following conditions: 
+    
     * Uses the same characters 
     * *and* is either a subset of, or contains the same taxa as, another source.
 
@@ -497,7 +502,8 @@ identical but were copied over at this point. You can now make a matrix using
 
 For our tutorial dataset we have the following non-independent data:
 
-.. code-block:: bash
+.. code-block:: none
+
     Source trees that are subsets of others
     Flagged tree, is a subset of:
     boyko_harvey_2009_1,mclaughlin_etal_2007_1
@@ -533,8 +539,8 @@ TNT commands used as a reminder in future of where this tree came from. Save
 this Phyml as :file:`Anomura_ind_final.phyml`. There is no need to save your
 temporary file.
 
-.. warning:: If your temporary combined matrices are large do not use the ienum in TNT
-             to calculate the mini-supertree. Use other methods.
+.. warning:: If your temporary combined matrices contain more than 10 taxa do not use the ienum in TNT
+             to calculate the mini-supertree, use a heuristic method.
 
 We have introduced another *MRP_Outgroup*, so this needs deleting (see above). Name your new file
 :file:`Anomura_ind_final2.phyml`
@@ -547,23 +553,20 @@ supertree analysis. The first step is to create a data summary. This creates a
 list of useful information, such as taxa and characters. The information is
 printed alphabetically, which makes it easy to check for final errors. Although
 this is not necessary, it allows manual checking of the data, e.g. were genera replaced where
-species are also in the dataset? are there any
-odd names that I forgot to substitute?
+species are also in the dataset?
 
-Have a look in the file output and check everything is OK. If not, go back and
-fix things. Note that some of the statistics in the file might be useful when
-writing up your papers - how many trees, over what years the data are from, types of characters in
-the dataset, etc.
+Have a look in the file output and check that everything looks correct. If not, go back and
+fix things. Note that some of the statistics in the file might be useful - how many trees, 
+over what years the data are from, types of characters in the dataset, etc.
 
 The final step is to ensure that there is sufficient taxonomic overlap between source
-trees.  We need to check that all the trees are connected by at least two
-taxa with another tree. You may also want to experiment with using higher
-numbers, use the data overlap function to determine this. The output can either
-be a simple yes/no or graphical output. Graphical output can either be a
+trees.  We need to check that all the trees share at least two
+taxa with another source tree. You may also want to experiment with using higher
+numbers. The output can either be a simple yes/no or graphical output. Graphical output can either be a
 detailed view where a graph is produced whereby each source is a vertex and
 edges are drawn between sources that share the required number of taxa (Fig
 :num:`#img-tut-pre-detailed-overlap`) . In this view *all* nodes should be
-blue, with no red (unconnected). However, for large datasets, this consumes a lot
+blue, with no red (unconnected) nodes. However, for large datasets, this consumes a lot
 of memory and can take a long time to calculate. Instead use the normal view
 where connected trees compose a node in the graph (Fig
 :num:`#img-tut-pre-overlap`). In this view there should be a single
@@ -609,6 +612,7 @@ output.
 
 Remove the following sources from the dataset (the sources contain all the trees that do not contain
 sufficient overlap):
+
  * Cabezas et al 2009
  * Werding et al 2001
 
@@ -640,11 +644,11 @@ connected. Save your data to :file:`Anomura_final.phyml`.
     Detailed graphical view of data overlap. There are now no red nodes.
 
 
-Create matrix
--------------
+Create matrix or export final tree set
+---------------------------------------
 
-You now have a dataset ready for creating a supertree. The final step is
-to create a matrix.
+You now have a dataset ready for creating a supertree. If you are using an algorithm
+that requires a matrix representation then the final step is to create a matrix.
 
 Open :file:`Anomura_final.phyml` and use 
 :menuselection:`STK Functions --> Create matrix` and fill in the GUI to create
@@ -657,7 +661,8 @@ Alternatively, use:
 The :file:`Anomura_final.phyml` is included in the tutorial for comparison to yours. 
 
 You can then load this matrix into TNT and generate your supertree using any suitable method.
-You can of course change the output format suitable for PAUP* or any other supertree software.
+You can of course change the output format suitable for PAUP* or any other tree building software.
 
-You've made your first STK supertree.
+If you are using an algorithm that requires a set of trees then you can export your trees using
+:menuselection:`File --> Export trees`.
 

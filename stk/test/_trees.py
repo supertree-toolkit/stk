@@ -279,6 +279,20 @@ class TestTreeManipulation(unittest.TestCase):
         matrix = create_matrix(XML,format="nexus",quote=True)
         self.assert_(not matrix.find("'") == -1)
 
+    def test_create_nexus_matrix_weights(self):
+        XML = etree.tostring(etree.parse('data/input/weighted_trees.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML)
+        self.assert_(matrix.find('ccode +[/1. 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27;'))
+        self.assert_(matrix.find('ccode +[/2. 28 29;'))
+
+
+    def test_create_nexus_matrix_outgroups(self):
+        XML = etree.tostring(etree.parse('data/input/weighted_trees.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML,outgroups=True)
+        self.assert_(matrix.find('Jacana_jacana') == -1)
+        self.assert_(matrix.find('Uraeginthus_cyanocephalus') == -1)
+        self.assert_(matrix.find('Uraeginthus_bengalus') == -1)
+
 
     def test_delete_taxa(self):
         t = "((A_1,B_1),F_1,E_1,(G_1,H_1));"

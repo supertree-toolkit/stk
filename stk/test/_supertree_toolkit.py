@@ -11,7 +11,8 @@ from stk.supertree_toolkit import _check_uniqueness, _check_taxa, _check_data, g
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
 from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
-from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used, _trees_equal
+from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used, _trees_equal, get_weights
+from stk.supertree_toolkit import get_outgroup
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -503,6 +504,22 @@ class TestSetSourceNames(unittest.TestCase):
         expected = ["A","B","D","E","F","G","H","I","J"]
         self.assertListEqual(siblings,expected)
 
+    def test_get_weights(self):
+        XML = etree.tostring(etree.parse('data/input/weighted_trees.phyml',parser),pretty_print=True)
+        weights = get_weights(XML)
+        expected = {"Baker_etal_2007_1":2, "Baptista_Visser_1999_1":1,
+                "Baptista_Visser_1999_2":1}
+        self.assertDictEqual(weights,expected)
+        return
+
+    def test_get_outgroups(self):
+        XML = etree.tostring(etree.parse('data/input/weighted_trees.phyml',parser),pretty_print=True)
+        outgroups = get_outgroup(XML)
+        expected = {"Baker_etal_2007_1":['Jacana_jacana'],
+                "Baptista_Visser_1999_1":['Uraeginthus_bengalus', 'Uraeginthus_cyanocephalus'],
+                "Baptista_Visser_1999_2":['Uraeginthus_bengalus', 'Uraeginthus_cyanocephalus']}
+        self.assertDictEqual(outgroups,expected)
+        return
 
     def test_get_characters_used(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)

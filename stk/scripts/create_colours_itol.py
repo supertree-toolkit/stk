@@ -44,10 +44,16 @@ def main():
             help="Which taxonomic level to colour at. Note that not all will return data. Family and Order will always work."
             )
     parser.add_argument(
+            '--tree',
+            help = "Give a tree to colour and the colour will go around the tree, rather than be sorted alphabetically",
+            action='store_true', 
+            default=False,
+            )
+    parser.add_argument(
             'input_file', 
             metavar='input_file',
             nargs=1,
-            help="Your Phyml *or* a taxa list"
+            help="Your Phyml *or* a taxa lis *or* a tree file (use --tree in this case)t"
             )
     parser.add_argument(
             'input_taxonomy', 
@@ -68,6 +74,7 @@ def main():
     input_file = args.input_file[0]
     input_taxonomy = args.input_taxonomy[0]
     output_file = args.output_file[0]
+    tree = args.tree
 
     saturation=0.5
     value=0.95
@@ -91,17 +98,26 @@ def main():
     elif (level == "Order"):
         index = 6
 
-    # grab taxa in dataset
-    fileName, fileExtension = os.path.splitext(input_file)
-    if (fileExtension == 'phyml'):
-        XML = stk.load_phyml(input_file)
-        taxa = stk.get_all_taxa(XML)
+    if (tree):
+        tree_data = stk.import_tree(input_file)
+        # rather than simply grabbing taxa, just go through in "tree order"
+        tree_data = tree_data.replace("(","")
+        tree_data = tree_data.replace(")","")
+        taxa = tree_data.split(",")
+        for i in range(0,len(taxa)):
+            taxa[i] = taxa[i].strip()
     else:
-        f = open(input_file,"r")
-        taxa = []
-        for line in f:
-            taxa.append(line.strip())
-        f.close()
+        # grab taxa in dataset - ignore if tree
+        fileName, fileExtension = os.path.splitext(input_file)
+        if (fileExtension == 'phyml'):
+            XML = stk.load_phyml(input_file)
+            taxa = stk.get_all_taxa(XML)
+        else:
+            f = open(input_file,"r")
+            taxa = []
+            for line in f:
+                taxa.append(line.strip())
+            f.close()
 
 
     taxonomy = {}

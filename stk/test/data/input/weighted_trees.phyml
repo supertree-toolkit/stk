@@ -1,0 +1,222 @@
+<?xml version='1.0' encoding='utf-8'?>
+<phylo_storage>
+  <project_name>
+    <string_value lines="1">old_stk_test</string_value>
+  </project_name>
+  <sources>
+    <source name="Baker_etal_2007">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Baker</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Pereira</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">D</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Elbourne</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">R</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Hassell</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">C</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Mitochondrial-DNA evidence shows the Australian Painted Snipe is a full species, Rostratula australis</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2007</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Emu</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">185-189</string_value>
+          </pages>
+        </article>
+      </bibliographic_information>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Jacana_jacana, (Nycticryphes_semicollaris, (Rostratula_australis, Rostratula_benghalensis)));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Bayesian"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">Jacana_jacana</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="cytb"/>
+          <character type="molecular" name="COI"/>
+          <character type="molecular" name="ND5"/>
+          <character type="molecular" name="ATPase 6"/>
+          <character type="molecular" name="ATPase 8"/>
+          <character type="molecular" name="COIII"/>
+        </character_data>
+      </source_tree>
+    </source>
+    <source name="Baptista_Visser_1999">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Baptista</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">L</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Visser</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">E</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Relationships of some mannikins and waxbills in the Estrilididae.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">1999</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Journal fuer Ornithologie</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">179-192</string_value>
+          </pages>
+        </article>
+      </bibliographic_information>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">(((Lonchura_griseicapilla, (Lonchura_cucullata, (Lonchura_bicolor, Lonchura_fringilloides))), ((Lonchura_cantans, (Padda_fuscata, (Lonchura_castaneothorax, Lonchura_leucogastroides, Lonchura_maja, Lonchura_punctulata, Lonchura_quinticolor, Lonchura_spectabilis, Lonchura_striata))), (Taeniopygia_guttata, (Taeniopygia_bichenovii, Poephila_cincta)))), ((Amadina_fasciata, Pytilia_melba), (Ortygospiza_atricollis, (Uraeginthus_bengalus, Uraeginthus_cyanocephalus))));</string_value>
+            <comment>Single MPT.</comment>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">Uraeginthus bengalus
+Uraeginthus cyanocephalus</string_value>
+            </outgroup>
+          </topology>
+          <weight>
+            <real_value rank="0">0.5</real_value>
+          </weight>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="morphological" name="Plumage"/>
+          <character type="behavioural" name="Calls"/>
+          <character type="behavioural" name="Breeding"/>
+        </character_data>
+      </source_tree>
+      <source_tree>
+        <tree>
+          <tree_string>
+            <string_value lines="1">(((Lonchura_griseicapilla, (Lonchura_cucullata, (Lonchura_bicolor, Lonchura_fringilloides))), ((Lonchura_cantans, (Padda_fuscata, (Lonchura_castaneothorax, Lonchura_leucogastroides, Lonchura_maja, Lonchura_punctulata, Lonchura_quinticolor, Lonchura_spectabilis, Lonchura_striata))), (Taeniopygia_guttata, (Taeniopygia_bichenovii, Poephila_cincta)))), ((Amadina_fasciata, Pytilia_melba), (Ortygospiza_atricollis, (Uraeginthus_bengalus, Uraeginthus_cyanocephalus))));</string_value>
+            <comment>Single MPT.</comment>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">Uraeginthus_bengalus, Uraeginthus_cyanocephalus</string_value>
+            </outgroup>
+          </topology>
+          <weight>
+            <real_value rank="0">0.5</real_value>
+          </weight>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="morphological" name="Plumage"/>
+          <character type="behavioural" name="Calls"/>
+          <character type="behavioural" name="Breeding"/>
+        </character_data>
+      </source_tree>
+    </source>
+  </sources>
+  <history>
+    <event>
+      <datetime>
+        <string_value lines="1">2013-06-27 18:01</string_value>
+      </datetime>
+      <action>
+        <string_value lines="1">Data imported from: /home/jhill1/software/supertree_toolkit_2/data_overlap/stk/test/data/input/old_stk_test</string_value>
+      </action>
+    </event>
+    <event>
+      <datetime>
+        <string_value lines="1">2014-02-03 21:51</string_value>
+      </datetime>
+      <action>
+        <string_value lines="1">Source names standardised</string_value>
+      </action>
+    </event>
+  </history>
+</phylo_storage>
