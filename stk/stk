@@ -132,6 +132,8 @@ def main():
             help='The output phyml file')
     parser_cm.add_argument('-e',
             '--only_existing',
+            action='store_true',
+            default=False,
             help="Only substitute in taxa already in the dataset")
     parser_cm.add_argument('-s',
             '--subs', 
