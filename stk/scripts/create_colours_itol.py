@@ -103,6 +103,7 @@ def main():
         # rather than simply grabbing taxa, just go through in "tree order"
         tree_data = tree_data.replace("(","")
         tree_data = tree_data.replace(")","")
+        tree_data = tree_data.replace(";","")
         taxa = tree_data.split(",")
         for i in range(0,len(taxa)):
             taxa[i] = taxa[i].strip()
@@ -132,6 +133,7 @@ def main():
                taxonomy[row[0]] = row[index]
 
     values = taxonomy.values()
+    values = _uniquify(values)
     n = len(values)
     colours = get_colours(n,format="HEX",saturation=saturation,value=value)
     output_colours = {}
@@ -142,13 +144,17 @@ def main():
     
     f = open(output_file,"w")
     for t in taxa:
-        tt = t.replace("_"," ")
+        if (tree):
+            tt = t
+        else:
+            tt = t.replace("_"," ")
         try:
             if (taxonomy[tt] == "-"):
                 f.write(t+",#000000\n")
             else:
                 f.write(t+",#"+output_colours[taxonomy[tt]]+","+taxonomy[tt]+"\n")
-        except:
+        except KeyError:
+            print "Couldn't find "+tt
             f.write(t+",#000000\n")
 
     f.close()
@@ -174,7 +180,15 @@ def get_colours(num_colours,saturation=0.5,value=0.95,format="RGB"):
 def int_to_hex_colour(rgb):
   return "".join(map(chr, rgb)).encode('hex')
 
+def _uniquify(l):
+    """
+    Make a list, l, contain only unique data
+    """
+    keys = {}
+    for e in l:
+        keys[e] = 1
 
+    return keys.keys()
 
 if __name__ == "__main__":
     main()
