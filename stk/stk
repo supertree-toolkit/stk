@@ -1427,7 +1427,7 @@ def convert_file(args):
         sys.exit(-1)
     data = f.read()
     data = data.lower()
-    if (not data.find('matrix') == -1 and data.find('tree') == -1):
+    if (not data.find('xread') == -1 or not data.find('matrix') == -1 and data.find('tree') == -1):
         matrix = True
     else:
         matrix = False

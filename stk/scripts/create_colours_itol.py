@@ -144,10 +144,7 @@ def main():
     
     f = open(output_file,"w")
     for t in taxa:
-        if (tree):
-            tt = t
-        else:
-            tt = t.replace("_"," ")
+        tt = t.replace("_"," ")
         try:
             if (taxonomy[tt] == "-"):
                 f.write(t+",#000000\n")
