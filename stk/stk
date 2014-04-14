@@ -278,7 +278,7 @@ def main():
     parser_cm.set_defaults(func=safe_taxonomic_reduction)
 
 
-    # Data summary command
+    # Independence check for source trees.
     parser_cm = subparsers.add_parser('data_ind',
             help='Check the independence of source trees within this dataset.')
     parser_cm.add_argument('input', 
