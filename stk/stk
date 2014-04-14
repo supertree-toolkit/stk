@@ -21,8 +21,6 @@
 
 import os
 import sys
-import math
-import numpy 
 import argparse
 import traceback
 try:
