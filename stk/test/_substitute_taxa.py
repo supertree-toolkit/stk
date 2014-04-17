@@ -418,7 +418,7 @@ class TestSubs(unittest.TestCase):
         quote_taxa_tree = "(taxa_1, 'taxa_n=taxa_2', taxa_3, taxa_4);";
         original_trees = "((((Catharacta_maccormicki,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);";
         polytomy4 = "taxon_1,taxon_1,taxon_2,taxon_3"
-        tree3 = "((((taxon_1,taxon_2,taxon_3,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);"
+        tree3 = "(((((taxon_1,taxon_2,taxon_3),Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);"
         
         # checking for correct subbing of quoted taxa
         new_tree = _sub_taxa_in_tree(quote_taxa_tree,"'taxa_n=taxa_2'",'taxa_2')
@@ -447,7 +447,7 @@ class TestSubs(unittest.TestCase):
         polytomy5 = "taxon_n,'taxon_n+taxon_2',taxon_2,taxon_3"
         tree_in = "(taxa_n, 'taxa_n+taxa_2', 'taxa_3=taxa5', taxa_4);"
         new_tree = _sub_taxa_in_tree(tree_in,"taxa_4", polytomy5)
-        answer = "(taxa_n,'taxa_n+taxa_2','taxa_3=taxa5',taxon_n,'taxon_n+taxon_2',taxon_2,taxon_3);"
+        answer = "(taxa_n,'taxa_n+taxa_2','taxa_3=taxa5',(taxon_n,'taxon_n+taxon_2',taxon_2,taxon_3));"
         self.assert_(_trees_equal(new_tree, answer), "Dealt with double quoted taxa");
 
 

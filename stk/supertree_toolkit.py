@@ -3006,6 +3006,8 @@ def _sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
 
     modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',tree)
     new_taxon = ",".join(new_taxa)
+    if (len(new_taxa) > 1):
+        new_taxon = "("+new_taxon+")"
 
     if (len(new_taxon) == 0):
         # we need to delete instead
