@@ -27,6 +27,13 @@ def main():
             help="Produce a deleted taxa list. Give filename."
             )
     parser.add_argument(
+            '--poly_only', 
+            default=False,
+            action='store_true',
+            help="Restrict removal of taxa that are in polytomies only in source trees. Default"+
+                 " to removal those in polytomies *and* only in one other tree."
+            )
+    parser.add_argument(
             'input_phyml', 
             metavar='input_phyml',
             nargs=1,
@@ -53,6 +60,7 @@ def main():
         dl = False
     else:
         dl = True
+    poly_only = args.poly_only
     input_tree = args.input_tree[0]
     output_tree = args.output_tree[0]
     input_phyml = args.input_phyml[0]
@@ -94,18 +102,21 @@ def main():
                         nPoly += 1
                     else:
                         nResolved += 1
-
+        
         # record stats for this taxon and decide if to delete it
-        if (nPoly == nTrees ):#or # all in polytomies
-           #  (nResolved == 1 and (nPoly+nResolved)==nTrees) # only 1 resolved and rest (if any) polytomies
-           #):
-            delete_list.append(t)
+        if (poly_only):
+            if (nPoly == nTrees): # all in polytomies
+                delete_list.append(t)
+        else:
+            if (nPoly == nTrees or # all in polytomies
+                 (nResolved == 1 and (nPoly+nResolved)==nTrees) # only 1 resolved and rest (if any) polytomies
+               ):
+                delete_list.append(t)
 
     print "Taxa: "+str(len(taxa))
     print "Deleting: "+str(len(delete_list))
     # done, so delete the problem taxa from the supertree
     for t in delete_list:
-        #print "Deleting "+t
         # remove taxa from supertree
         supertree = stk._sub_taxa_in_tree(supertree,t)
 
