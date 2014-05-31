@@ -1570,17 +1570,21 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
         corrected_taxa = []
         for t in new_taxa:
             if (not t == None):    
+                current_corrected_taxa = []
                 # remove duplicates in the new taxa
                 for row in csv.reader([t],delimiter=',', quotechar="'"):
                     current_new_taxa = row
-                current_corrected_taxa = []
-                for cnt in current_new_taxa:
-                    if (cnt in existing_taxa):
-                        current_corrected_taxa.append(t)
-                if (len(current_corrected_taxa) == 0):
-                    corrected_taxa.append(None)
-                else:
-                    corrected_taxa.append(",".join(current_corrected_taxa))
+                    for cnt in current_new_taxa:
+                        cnt = cnt.strip()
+                        cnt = cnt.strip('_')
+                        if (cnt in existing_taxa):
+                            current_corrected_taxa.append(cnt)
+               
+                    if (len(current_corrected_taxa) == 0):
+                        corrected_taxa.append(None)
+                    else:
+                        temp = ",".join(current_corrected_taxa)
+                        corrected_taxa.append(temp)
             else:
                 corrected_taxa.append(None)
         new_taxa = corrected_taxa
