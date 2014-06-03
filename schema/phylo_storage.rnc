@@ -55,7 +55,7 @@ source=
     element contributor {
         person,
         element institution { 
-            string 
+            anystring 
         }?
     }?,
     ## Information on the source publication. Use the File->Import bibliography
@@ -103,7 +103,7 @@ source=
                     anystring
                 }*,
                 consensus?,
-                comment
+                comment //TODO should go, duplicated comment
             },
             element topology {
                 ## Which taxon or taxa were the outgroup in this study? Just make a list here
@@ -163,7 +163,6 @@ source=
                 taxon*
             } 
         },
-        comment,
         ## This stores the character data used to construct the 
         ## source tree(s).
         element character_data {
@@ -171,7 +170,8 @@ source=
         },
         ## Some notes on this action
         comment
-    }+
+    }+,
+    comment
     )
 )
 
