@@ -103,7 +103,7 @@ source=
                     anystring
                 }*,
                 consensus?,
-                comment //TODO should go, duplicated comment
+                comment //TODO should go, duplicated comment, maybe move down.
             },
             element topology {
                 ## Which taxon or taxa were the outgroup in this study? Just make a list here
