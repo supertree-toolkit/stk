@@ -1531,8 +1531,67 @@ def load_phyml(filename):
     parser = etree.XMLParser(remove_blank_text=True)
     return etree.tostring(etree.parse(filename,parser),pretty_print=True)
 
+def _sort_sub_taxa(old_taxa, new_taxa):
+    """
+    Sort out what the new and old taxa vars are and sort them out 
+    into the expected format
+    """
 
-def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWarnings=False, verbose=False, skip_existing=False):
+    # are the input values lists or simple strings?
+    if (isinstance(old_taxa,str)):
+        old_taxa = [old_taxa]
+    if (new_taxa and isinstance(new_taxa,str)):
+        new_taxa = [new_taxa]
+
+    # check they are same lengths now
+    if (new_taxa):
+        if (len(old_taxa) != len(new_taxa)):
+            print "Substitution failed. Old and new are different lengths"
+            return # need to raise exception here
+
+    return old_taxa, new_taxa
+
+def _sub_deal_with_existing_only(existing_taxa,old_taxa, new_taxa, generic_match):
+    import csv
+    corrected_taxa = []
+    if (generic_match):
+        generic = []
+        for t in existing_taxa:
+            gen = t.split("_")[0]
+            generic.append(gen)
+        generic = _uniquify(gen)
+    i = 0
+    for t in new_taxa:
+        if (not t == None):    
+            current_corrected_taxa = []
+            # remove duplicates in the new taxa
+            for row in csv.reader([t],delimiter=',', quotechar="'"):
+                current_new_taxa = row
+                for cnt in current_new_taxa:
+                    cnt = cnt.strip()
+                    cnt = cnt.strip('_')
+                    if (generic_match):
+                        if (cnt in generic):
+                            current_corrected_taxa.append(cnt)
+                    if (cnt in existing_taxa):
+                        current_corrected_taxa.append(cnt)
+           
+                if (len(current_corrected_taxa) == 0):
+                    # None of the incoming taxa are in the data already - we need to leave in the old taxa instead
+                    #print old_taxa
+                    removed = old_taxa.pop(i)
+                    i = i-1
+                else:
+                    temp = ",".join(current_corrected_taxa)
+                    corrected_taxa.append(temp)
+        else:
+            corrected_taxa.append(None)
+        i += 1
+    new_taxa = corrected_taxa
+    return new_taxa
+
+
+def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWarnings=False, verbose=False, skip_existing=False, generic_match=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
@@ -1549,49 +1608,12 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
     if not ignoreWarnings:
         _check_data(XML)
 
-
-    # are the input values lists or simple strings?
-    if (isinstance(old_taxa,str)):
-        old_taxa = [old_taxa]
-    if (new_taxa and isinstance(new_taxa,str)):
-        new_taxa = [new_taxa]
-
-    # check they are same lengths now
-    if (new_taxa):
-        if (len(old_taxa) != len(new_taxa)):
-            print "Substitution failed. Old and new are different lengths"
-            return # need to raise exception here
+    old_taxa, new_taxa = _sort_sub_taxa(old_taxa,new_taxa)
 
     # Sort incoming taxa
     if (only_existing):
-        import csv
         existing_taxa = get_all_taxa(XML)
-        corrected_taxa = []
-        i = 0
-        for t in new_taxa:
-            if (not t == None):    
-                current_corrected_taxa = []
-                # remove duplicates in the new taxa
-                for row in csv.reader([t],delimiter=',', quotechar="'"):
-                    current_new_taxa = row
-                    for cnt in current_new_taxa:
-                        cnt = cnt.strip()
-                        cnt = cnt.strip('_')
-                        if (cnt in existing_taxa):
-                            current_corrected_taxa.append(cnt)
-               
-                    if (len(current_corrected_taxa) == 0):
-                        # None of the incoming taxa are in the data already - we need to leave in the old taxa instead
-                        #print old_taxa
-                        removed = old_taxa.pop(i)
-                        i = i-1
-                    else:
-                        temp = ",".join(current_corrected_taxa)
-                        corrected_taxa.append(temp)
-            else:
-                corrected_taxa.append(None)
-            i += 1
-        new_taxa = corrected_taxa
+        new_taxa = _sub_deal_with_existing_only(existing_taxa,old_taxa, new_taxa, generic_match)
 
     # need to check for uniquessness of souce names - error is not unique
     _check_uniqueness(XML)
@@ -1604,7 +1626,6 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
         new_tree = _sub_taxa_in_tree(tree,old_taxa,new_taxa,skip_existing=skip_existing)
         XML = _swap_tree_in_XML(XML,new_tree,name)
  
-
     # now loop over all taxon elements in the XML, and 
     # remove/sub as necessary
     i = 0
@@ -1636,7 +1657,7 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
     return etree.tostring(xml_root,pretty_print=True)
 
 
-def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, only_existing = False, ignoreWarnings=False, verbose=False):
+def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, only_existing = False, ignoreWarnings=False, verbose=False,generic_match=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
@@ -1650,18 +1671,7 @@ def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, only_existing = Fal
     do something sensible with this infomation
     """
 
-    # are the input values lists or simple strings?
-    if (isinstance(old_taxa,str)):
-        old_taxa = [old_taxa]
-    if (new_taxa and isinstance(new_taxa,str)):
-        new_taxa = [new_taxa]
-
-    # check they are same lengths now
-    if (new_taxa):
-        if (len(old_taxa) != len(new_taxa)):
-            print "Substitution failed. Old and new are different lengths"
-            return # need to raise exception here
-    
+    old_taxa, new_taxa = _sort_sub_taxa(old_taxa,new_taxa)
 
     # Sort incoming taxa
     if (only_existing):
@@ -1669,21 +1679,7 @@ def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, only_existing = Fal
         for tree in trees:
             existing_taxa.extend(_getTaxaFromNewick(tree))
         existing_taxa = _uniquify(existing_taxa)
-        corrected_taxa = []
-        for t in new_taxa:
-            if (not t == None):
-                current_new_taxa = t.split(",")
-                current_corrected_taxa = []
-                for cnt in current_new_taxa:
-                    if (cnt in existing_taxa):
-                        current_corrected_taxa.append(t)
-                if (len(current_corrected_taxa) == 0):
-                    corrected_taxa.append(None)
-                else:
-                    corrected_taxa.append(",".join(current_corrected_taxa))
-            else:
-                corrected_taxa.append(None)
-        new_taxa = corrected_taxa
+        new_taxa = _sub_deal_with_existing_only(existing_taxa,old_taxa, new_taxa, generic_match)
     
     new_trees = []
     for tree in trees:
