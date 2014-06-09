@@ -368,13 +368,13 @@ class TestTreeManipulation(unittest.TestCase):
     def test_taxa_from_tree(self):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
         taxa = get_taxa_from_tree(XML,"Hill_2011_1")
-        expected_taxa = ['A','B','F','E']
+        expected_taxa = ['A','B','F_b','G_g']
         self.assertListEqual(taxa,expected_taxa)
 
     def test_taxa_from_tree_sort(self):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
         taxa = get_taxa_from_tree(XML,"Hill_2011_1",sort=True)
-        expected_taxa = ['A','B','E','F']
+        expected_taxa = ['A','B','F_b','G_g']
         self.assertListEqual(taxa,expected_taxa)
 
     def test_trees_equal(self):

@@ -9,7 +9,7 @@ sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tree, _trees_equal, substitute_taxa_in_trees
 from stk.supertree_toolkit import check_subs, _tree_contains, _correctly_quote_taxa, _remove_single_poly_taxa
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree, _delete_taxon
-from stk.supertree_toolkit import _collapse_nodes, import_tree, subs_from_csv, _getTaxaFromNewick
+from stk.supertree_toolkit import _collapse_nodes, import_tree, subs_from_csv, _getTaxaFromNewick, obtain_trees
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -333,12 +333,36 @@ class TestSubs(unittest.TestCase):
 
         # we should end up with...
         expected_trees = []
-        expected_trees.append("(A, B, (C, D), E, F);")
+        expected_trees.append("(A, B, (C, D), E, F, G);")
         expected_trees.append("(A, B, (C, D), E, F, H);")
         expected_trees.append("(A, B, (C, D), E, F);")
-        expected_trees.append("(A, B, (C, D), E, F, H, L);")
+        expected_trees.append("(A, B, (C, D), E, F, G, H, L);")
 
         self.assertListEqual(expected_trees,new_trees)
+
+    def test_substitute_taxa_only_existing_generic_match(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        XML2 = substitute_taxa(XML, ["A","F_b"], ["Fred",'G'],only_existing=True,generic_match=True)
+        taxa = get_all_taxa(XML2)
+        contains_Fred = False
+        contains_G = False
+        contains_F_b = False
+        for t in taxa:
+            if (t == 'Fred'):
+                contains_Fred = True
+            if (t == "G"):
+                contains_G = True
+            if (t == "F_b"):
+                contains_F = True
+
+        self.assert_(not contains_Fred) # No Fred
+        self.assert_(not contains_F_b) # we should not have F_b in a tree
+        self.assert_(contains_G) # we should have G in a tree
+        
+        # check the trees
+        trees = obtain_trees(XML2)
+        expected_tree = "((A,B),(G,G_g));"
+        self.assert_(_trees_equal(expected_tree,trees['Hill_2011_1']))
 
     def test_delete_percent_taxa(self):
         tree = "(A%3, B, (C, D), E, F, G, (A%1, A%2));"
