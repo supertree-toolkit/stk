@@ -1565,9 +1565,9 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
     # Sort incoming taxa
     if (only_existing):
         import csv
-        
         existing_taxa = get_all_taxa(XML)
         corrected_taxa = []
+        i = 0
         for t in new_taxa:
             if (not t == None):    
                 current_corrected_taxa = []
@@ -1581,12 +1581,16 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
                             current_corrected_taxa.append(cnt)
                
                     if (len(current_corrected_taxa) == 0):
-                        corrected_taxa.append(None)
+                        # None of the incoming taxa are in the data already - we need to leave in the old taxa instead
+                        #print old_taxa
+                        removed = old_taxa.pop(i)
+                        i = i-1
                     else:
                         temp = ",".join(current_corrected_taxa)
                         corrected_taxa.append(temp)
             else:
                 corrected_taxa.append(None)
+            i += 1
         new_taxa = corrected_taxa
 
     # need to check for uniquessness of souce names - error is not unique

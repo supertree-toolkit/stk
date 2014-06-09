@@ -230,10 +230,10 @@ class TestSubs(unittest.TestCase):
             if (t == "Grenville"):
                 contains_Grenville = True
 
-        self.assert_(not contains_Fred) # we should not have ant of these
-        self.assert_(not contains_A)
+        self.assert_(not contains_Fred)
+        self.assert_(contains_A) # should not be deleted
         self.assert_(not contains_Bob)
-        self.assert_(not contains_B)
+        self.assert_(contains_B) # should not be deleted
         self.assert_(not contains_Grenville)
 
         # now need to check the XML for the taxon block has been altered
@@ -258,10 +258,10 @@ class TestSubs(unittest.TestCase):
             if (t == "Grenville"):
                 contains_Grenville = True
 
-        self.assert_(not contains_Fred) # we should not have any of these
-        self.assert_(not contains_A)
+        self.assert_(not contains_Fred)
+        self.assert_(contains_A) # should not be deleted
         self.assert_(not contains_Bob)
-        self.assert_(not contains_B)
+        self.assert_(contains_B) # should not be deleted
         self.assert_(not contains_Grenville)
 
 
