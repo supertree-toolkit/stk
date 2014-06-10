@@ -857,7 +857,7 @@ def sub_taxa(args):
                 print e.msg
                 sys.exit(-1)
     
-    
+   
     # Does the input file exist
     if (not os.path.exists(input_file)):
         print "Input file cannot be found. Exiting"
