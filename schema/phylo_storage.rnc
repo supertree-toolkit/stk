@@ -90,7 +90,6 @@ source=
                 ## Which analytical methods were used to create
                 ## the this tree?
                 analysis+,
-                comment,
                 ## Which software was used?
                 software?,
                 ## Did the authors give the command or parameters used to 
@@ -103,7 +102,7 @@ source=
                     anystring
                 }*,
                 consensus?,
-                comment //TODO should go, duplicated comment, maybe move down.
+                comment
             },
             element topology {
                 ## Which taxon or taxa were the outgroup in this study? Just make a list here
@@ -390,9 +389,9 @@ software=
     ## Name and version of the software used
     element software {
         attribute name {string},
-        attribute version {string}
+        attribute version {string},
+        comment
     },
-    comment
 )
 
 # Any value in the xml file can be accompanied by a comment
