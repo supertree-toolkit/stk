@@ -1633,13 +1633,15 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
     i = 0
     xml_root = _parse_xml(XML)
     xml_taxa = []
+    xml_outgroup = []
     # grab all taxon elements and store
     # We're going to delete and we can't do that whilst
     # iterating over the XML. There lies chaos.
     for ele in xml_root.iter():
         if (ele.tag == "taxon"):
             xml_taxa.append(ele)
-
+        if (ele.tag == "outgroup"):
+            xml_outgroup.append(ele)
    
     i = 0
     for taxon in old_taxa:
@@ -1650,10 +1652,37 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
                     # You remove the element by getting the 
                     # deleting it from the parent
                     ele.getparent().remove(ele)
+            for ele in xml_outgroup:
+                if (taxon in ele.xpath("string_value")[0].text):
+                    outgroup = ele.xpath("string_value")[0].text
+                    outgroup_lines = [s.strip() for s in outgroup.splitlines()]
+                    outgroup_taxa = []
+                    for line in outgroup_lines:
+                        outgroup_taxa.extend(line.split(","))
+                    new_outgroup_taxa = []
+                    for t in outgroup_taxa:
+                        if not t == taxon:
+                            new_outgroup_taxa.append(t)
+                    ele.xpath("string_value")[0].text = ",".join(new_outgroup_taxa)
         else:
             for ele in xml_taxa:
                 if (ele.attrib['name'] == taxon):
                     ele.attrib['name'] = new_taxa[i]
+            for ele in xml_outgroup:
+                if (taxon in ele.xpath("string_value")[0].text):
+                    outgroup = ele.xpath("string_value")[0].text
+                    outgroup_lines = [s.strip() for s in outgroup.splitlines()]
+                    outgroup_taxa = []
+                    for line in outgroup_lines:
+                        outgroup_taxa.extend(line.split(","))
+                    new_outgroup_taxa = []
+                    for t in outgroup_taxa:
+                        if t == taxon:
+                            new_outgroup_taxa.append(new_taxa[i])
+                        else:
+                            new_outgroup_taxa.append(t)
+                    ele.xpath("string_value")[0].text = ",".join(new_outgroup_taxa)
+
         i = i+1
 
     return etree.tostring(xml_root,pretty_print=True)
