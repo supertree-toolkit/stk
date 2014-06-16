@@ -1484,11 +1484,18 @@ class Diamond:
 
             #save
             if (not output_string == ""):
-                new_output,ext = os.path.splitext(filename)
-                new_output += "_"+t+ext
+                file_name = os.path.basename(filename)
+                dirname = os.path.dirname(filename)
+                new_output = os.path.join(dirname,t,file_name)
+                try: 
+                   os.makedirs(os.path.join(dirname,t))
+                except OSError:
+                    if not os.path.isdir(os.path.join(dirname,t)):
+                        raise
                 f = open(new_output,'w')
                 f.write(output_string)
                 f.close
+
     except TreeParseError as e:
         dialogs.error(self.main_window,"Error permuting trees." + e.msg)
   

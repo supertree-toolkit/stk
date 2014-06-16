@@ -1288,8 +1288,14 @@ def permute_trees(args):
 
         #save
         if (not output_string == ""):
-            new_output,ext = os.path.splitext(output_file)
-            new_output += "_"+t+ext
+            filename = os.path.basename(output_file)
+            dirname = os.path.dirname(output_file)
+            new_output = os.path.join(dirname,t,filename)
+            try: 
+               os.makedirs(os.path.join(dirname,t))
+            except OSError:
+                if not os.path.isdir(os.path.join(dirname,t)):
+                    raise
             f = open(new_output,'w')
             f.write(output_string)
             f.close
