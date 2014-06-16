@@ -3239,6 +3239,7 @@
                 <property name="tooltip" translatable="yes">Only insert taxa that already occur in the dataset</property>
                 <property name="use_action_appearance">False</property>
                 <property name="draw_indicator">True</property>
+                <signal name="clicked" handler="on_onlyexisting_clicked" />
              </widget>
               <packing>
                 <property name="expand">False</property>

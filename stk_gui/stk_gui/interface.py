@@ -2072,6 +2072,7 @@ class Diamond:
                "on_move_to_subs_clicked": self.on_move_to_subs_clicked,
                "on_remove_from_subs_clicked": self.on_remove_from_subs_clicked,
                "on_reset_clicked": self.on_reset_clicked,
+               "on_onlyexisting_clicked": self.on_onlyexisting_clicked,
                "on_import_subs_clicked": self.on_import_subs_clicked,
                "on_export_subs_clicked": self.on_export_subs_clicked}
 
@@ -2082,6 +2083,9 @@ class Diamond:
     sub_taxa_button.connect("activate", self.on_sub_taxa_sub_taxa_button)
     self.taxa_list_treeview = self.sub_taxa_gui.get_widget("treeview_taxa_list")
     self.sub_list_treeview = self.sub_taxa_gui.get_widget("treeview_sub_taxa")
+    only_existing_gen = self.sub_taxa_gui.get_widget("onlyexistinggen_checkbutton")
+
+    only_existing_gen.set_sensitive(False)
 
     f = StringIO.StringIO()
     self.tree.write(f)
@@ -2092,6 +2096,11 @@ class Diamond:
         taxa = stk.get_all_taxa(XML)
     except TreeParseError as e:
         dialogs.error(self.main_window,e.msg)
+    except:
+        msg = "Failed to parse XML and obtain taxa. You probably have an unfinished dataset"
+        dialogs.error(self.main_window,msg)
+        return 
+
     self.liststore_taxa = gtk.ListStore(str)
     rendererText = gtk.CellRendererText()
     column = gtk.TreeViewColumn("Taxa in data", rendererText, text=0)
@@ -2117,6 +2126,17 @@ class Diamond:
     self.sub_taxa_dialog.show_all()
 
     return
+
+  def on_onlyexisting_clicked(self, button):
+     only_existing = self.sub_taxa_gui.get_widget("onlyexisting_checkbutton").get_active()
+     only_existing_gen = self.sub_taxa_gui.get_widget("onlyexistinggen_checkbutton")
+
+     if (only_existing):
+         only_existing_gen.set_sensitive(True)
+     else:
+         only_existing_gen.set_sensitive(False)
+
+     return
 
   def construct_subs_from_treeview(self):
 
@@ -2244,6 +2264,7 @@ class Diamond:
 
     ignoreWarnings = self.sub_taxa_gui.get_widget("ignoreWarnings_checkbutton").get_active()
     only_existing = self.sub_taxa_gui.get_widget("onlyexisting_checkbutton").get_active()
+    only_existing_gen = self.sub_taxa_gui.get_widget("onlyexistinggen_checkbutton").get_active()    
     old_taxa, new_taxa = self.construct_subs_from_treeview()
     
     f = StringIO.StringIO()
@@ -2259,7 +2280,7 @@ class Diamond:
             return
 
     try:
-        XML2 = stk.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings,only_existing=only_existing)
+        XML2 = stk.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings,only_existing=only_existing,generic_match=only_existing_gen)
     except NotUniqueError as detail:
         msg = "Failed to substitute taxa.\n"+detail.msg
         dialogs.error(self.main_window,msg)
