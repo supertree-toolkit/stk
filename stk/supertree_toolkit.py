@@ -43,6 +43,7 @@ import datetime
 from indent import *
 import unicodedata
 from stk_internals import *
+from copy import deepcopy
 
 #plt.ion()
 
@@ -1579,7 +1580,6 @@ def _sub_deal_with_existing_only(existing_taxa,old_taxa, new_taxa, generic_match
            
                 if (len(current_corrected_taxa) == 0):
                     # None of the incoming taxa are in the data already - we need to leave in the old taxa instead
-                    #print old_taxa
                     removed = old_taxa.pop(i)
                     i = i-1
                 else:
@@ -1669,8 +1669,26 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
                         ele.xpath("string_value")[0].text = ",".join(new_outgroup_taxa)
         else:
             for ele in xml_taxa:
+                new_taxa_info = []
                 if (ele.attrib['name'] == taxon):
-                    ele.attrib['name'] = new_taxa[i]
+                    nt = new_taxa[i].split(",") # incoming polytomy, maybe
+                    new_taxa_info.extend(nt)
+                    if (len(new_taxa_info) == 1):
+                        # straight swap
+                        ele.attrib['name'] = new_taxa_info[0]
+                    else:
+                        # we need to construct multiple taxa blocks!
+                        taxa_parent = ele.getparent()
+                        original_ele = deepcopy(ele)
+                        ele.getparent().remove(ele)
+                        for nt in new_taxa_info:
+                            temp_ele = deepcopy(original_ele)
+                            temp_ele.attrib['name'] = nt
+                            # add comment re: this was originally
+                            comment = etree.SubElement(temp_ele,"comment")
+                            comment.text = "Was originally "+taxon+" and was subbed"
+                            taxa_parent.append(temp_ele)
+
             for ele in xml_outgroup:
                 if (taxon in ele.xpath("string_value")[0].text):
                     outgroup = ele.xpath("string_value")[0].text
@@ -2066,11 +2084,6 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                 fig = plt.figure(dpi=90)
             else:
                 fig = plt.figure(dpi=270)
-            #Z = [[0,0],[0,0]]
-            #levels = plt.frange(0,max(colours)+1,(max(colours)+1)/256.)
-            #print levels
-            #CS3 = plt.contourf(Z,levels,cmap=custom)
-            #plt.clf()
             ax = fig.add_subplot(111)
             cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,node_color=colours,
                                   cmap=custom,edge_color='k',node_size=100,font_size=8,vmax=max(colours),vmin=0)

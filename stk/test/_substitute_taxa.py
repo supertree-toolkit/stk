@@ -255,7 +255,7 @@ class TestSubs(unittest.TestCase):
                 contains_Bob = True
             if name == 'B_b':
                 contains_B = True
-            if (t == "Grenville"):
+            if name == "Grenville":
                 contains_Grenville = True
 
         self.assert_(not contains_Fred)
@@ -263,6 +263,45 @@ class TestSubs(unittest.TestCase):
         self.assert_(not contains_Bob)
         self.assert_(contains_B) # should not be deleted
         self.assert_(not contains_Grenville)
+
+    def test_substitute_taxa_multiple_taxablock(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        XML2 = substitute_taxa(XML, ["A"], ["Bob,Grenville"])
+        taxa = get_all_taxa(XML2)
+        contains_Bob = False
+        contains_A = False
+        contains_Grenville = False
+        for t in taxa:
+            if (t == "A"):
+                contains_A = True
+            if (t == 'Bob'):
+                contains_Bob = True
+            if (t == "Grenville"):
+                contains_Grenville = True
+
+        self.assert_(not contains_A)
+        self.assert_(contains_Bob)
+        self.assert_(contains_Grenville)
+
+        # now need to check the XML for the taxon block has been altered
+        xml_root = etree.fromstring(XML2)
+        find = etree.XPath("//taxon")
+        taxa = find(xml_root)
+        contains_Bob = False
+        contains_A = False
+        contains_Grenville = False
+        for t in taxa:
+            name = t.attrib['name']
+            if name == 'A':
+                contains_A = True
+            if name == 'Bob':
+                contains_Bob = True
+            if name == "Grenville":
+                contains_Grenville = True
+
+        self.assert_(not contains_A) # should not be deleted
+        self.assert_(contains_Bob)
+        self.assert_(contains_Grenville)
 
     def test_substitute_taxa_outgroup(self):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
