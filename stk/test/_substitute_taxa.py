@@ -264,6 +264,63 @@ class TestSubs(unittest.TestCase):
         self.assert_(contains_B) # should not be deleted
         self.assert_(not contains_Grenville)
 
+    def test_substitute_taxa_outgroup(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        XML2 = substitute_taxa(XML, ["A"], ["Fred, Bob"])
+        taxa = get_all_taxa(XML2)
+        contains_Fred = False
+        contains_Bob = False
+        contains_A = False
+        contains_B = False
+        for t in taxa:
+            if (t == 'Fred'):
+                contains_Fred = True
+            if (t == "A"):
+                contains_A = True
+            if (t == 'Bob'):
+                contains_Bob = True
+
+        self.assert_(contains_Fred)
+        self.assert_(not contains_A) # we should not have A in a tree
+        self.assert_(contains_Bob)
+
+        # now need to check the XML for the outgroup block has been altered
+        xml_root = etree.fromstring(XML2)
+        find = etree.XPath("//outgroup")
+        taxa = find(xml_root)
+        contains_Fred = False
+        contains_Bob = False
+        contains_A = False
+        for t in taxa:
+            name = t.xpath("string_value")[0].text
+            if 'Fred' in name:
+                contains_Fred = True
+            if 'A' in name:
+                contains_A = True
+            if 'Bob' in name:
+                contains_Bob = True
+
+        self.assert_(contains_Fred)
+        self.assert_(not contains_A) # we should not have A in a tree
+        self.assert_(contains_Bob)
+
+    def test_delete_taxa_outgroup(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        XML2 = substitute_taxa(XML, ["A"], None)
+        taxa = get_all_taxa(XML2)
+        contains_A = False
+        for t in taxa:
+            if (t == "A"):
+                contains_A = True
+
+        self.assert_(not contains_A) # we should not have A in a tree
+
+        # now need to check the XML for the outgroup block has been altered
+        xml_root = etree.fromstring(XML2)
+        find = etree.XPath("//outgroup")
+        taxa = find(xml_root)
+        # we should have *no* outgroups now as A was the only one!
+        self.assert_(len(taxa) == 0)
 
     def test_substitute_taxa_multiple_sub1_del1(self):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)

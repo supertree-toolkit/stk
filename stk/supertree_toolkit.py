@@ -1663,7 +1663,10 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
                     for t in outgroup_taxa:
                         if not t == taxon:
                             new_outgroup_taxa.append(t)
-                    ele.xpath("string_value")[0].text = ",".join(new_outgroup_taxa)
+                    if (len(new_outgroup_taxa) == 0):
+                        ele.getparent().remove(ele)
+                    else:
+                        ele.xpath("string_value")[0].text = ",".join(new_outgroup_taxa)
         else:
             for ele in xml_taxa:
                 if (ele.attrib['name'] == taxon):
@@ -1678,7 +1681,8 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
                     new_outgroup_taxa = []
                     for t in outgroup_taxa:
                         if t == taxon:
-                            new_outgroup_taxa.append(new_taxa[i])
+                            nt = new_taxa[i].split(",") # incoming polytomy, maybe
+                            new_outgroup_taxa.extend(nt)
                         else:
                             new_outgroup_taxa.append(t)
                     ele.xpath("string_value")[0].text = ",".join(new_outgroup_taxa)
@@ -3010,6 +3014,8 @@ def _sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
                 taxa_in_tree[i] = "'"+taxa_in_tree[i]+"'" 
     
     # swap spaces for _, as we're dealing with Newick strings here
+    new_taxa = [s.strip() for s in new_taxon.split(",")]
+    new_taxon = ",".join(new_taxa)
     new_taxon = new_taxon.replace(" ","_")
 
     # remove duplicates in the new taxa
