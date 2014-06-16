@@ -3457,7 +3457,7 @@ def _create_matrix_string(matrix,taxa,charsets=None,names=None,
                 # The float for the weight cannot start with 0, even if it's 0.5
                 # so we strip of the 0 to make .5 instead (lstrip). TNT is weird with formats...
                 # We also strip off trailing zeros for neatness (rstrip)
-                matrix_string += "ccode +[/"+("%f"%uw).lstrip('0').rstrip('0')
+                matrix_string += "ccode +[/"+("%.3f"%uw).lstrip('0').rstrip('0')
                 i = 0
                 for w in weights:
                     if (w == uw):
