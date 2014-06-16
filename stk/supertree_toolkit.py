@@ -43,6 +43,7 @@ import datetime
 from indent import *
 import unicodedata
 from stk_internals import *
+from copy import deepcopy
 
 #plt.ion()
 
@@ -1579,7 +1580,6 @@ def _sub_deal_with_existing_only(existing_taxa,old_taxa, new_taxa, generic_match
            
                 if (len(current_corrected_taxa) == 0):
                     # None of the incoming taxa are in the data already - we need to leave in the old taxa instead
-                    #print old_taxa
                     removed = old_taxa.pop(i)
                     i = i-1
                 else:
@@ -1633,13 +1633,15 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
     i = 0
     xml_root = _parse_xml(XML)
     xml_taxa = []
+    xml_outgroup = []
     # grab all taxon elements and store
     # We're going to delete and we can't do that whilst
     # iterating over the XML. There lies chaos.
     for ele in xml_root.iter():
         if (ele.tag == "taxon"):
             xml_taxa.append(ele)
-
+        if (ele.tag == "outgroup"):
+            xml_outgroup.append(ele)
    
     i = 0
     for taxon in old_taxa:
@@ -1650,10 +1652,59 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
                     # You remove the element by getting the 
                     # deleting it from the parent
                     ele.getparent().remove(ele)
+            for ele in xml_outgroup:
+                if (taxon in ele.xpath("string_value")[0].text):
+                    outgroup = ele.xpath("string_value")[0].text
+                    outgroup_lines = [s.strip() for s in outgroup.splitlines()]
+                    outgroup_taxa = []
+                    for line in outgroup_lines:
+                        outgroup_taxa.extend(line.split(","))
+                    new_outgroup_taxa = []
+                    for t in outgroup_taxa:
+                        if not t == taxon:
+                            new_outgroup_taxa.append(t)
+                    if (len(new_outgroup_taxa) == 0):
+                        ele.getparent().remove(ele)
+                    else:
+                        ele.xpath("string_value")[0].text = ",".join(new_outgroup_taxa)
         else:
             for ele in xml_taxa:
+                new_taxa_info = []
                 if (ele.attrib['name'] == taxon):
-                    ele.attrib['name'] = new_taxa[i]
+                    nt = new_taxa[i].split(",") # incoming polytomy, maybe
+                    new_taxa_info.extend(nt)
+                    if (len(new_taxa_info) == 1):
+                        # straight swap
+                        ele.attrib['name'] = new_taxa_info[0]
+                    else:
+                        # we need to construct multiple taxa blocks!
+                        taxa_parent = ele.getparent()
+                        original_ele = deepcopy(ele)
+                        ele.getparent().remove(ele)
+                        for nt in new_taxa_info:
+                            temp_ele = deepcopy(original_ele)
+                            temp_ele.attrib['name'] = nt
+                            # add comment re: this was originally
+                            comment = etree.SubElement(temp_ele,"comment")
+                            comment.text = "Was originally "+taxon+" and was subbed"
+                            taxa_parent.append(temp_ele)
+
+            for ele in xml_outgroup:
+                if (taxon in ele.xpath("string_value")[0].text):
+                    outgroup = ele.xpath("string_value")[0].text
+                    outgroup_lines = [s.strip() for s in outgroup.splitlines()]
+                    outgroup_taxa = []
+                    for line in outgroup_lines:
+                        outgroup_taxa.extend(line.split(","))
+                    new_outgroup_taxa = []
+                    for t in outgroup_taxa:
+                        if t == taxon:
+                            nt = new_taxa[i].split(",") # incoming polytomy, maybe
+                            new_outgroup_taxa.extend(nt)
+                        else:
+                            new_outgroup_taxa.append(t)
+                    ele.xpath("string_value")[0].text = ",".join(new_outgroup_taxa)
+
         i = i+1
 
     return etree.tostring(xml_root,pretty_print=True)
@@ -2033,11 +2084,6 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                 fig = plt.figure(dpi=90)
             else:
                 fig = plt.figure(dpi=270)
-            #Z = [[0,0],[0,0]]
-            #levels = plt.frange(0,max(colours)+1,(max(colours)+1)/256.)
-            #print levels
-            #CS3 = plt.contourf(Z,levels,cmap=custom)
-            #plt.clf()
             ax = fig.add_subplot(111)
             cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,node_color=colours,
                                   cmap=custom,edge_color='k',node_size=100,font_size=8,vmax=max(colours),vmin=0)
@@ -2981,6 +3027,8 @@ def _sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
                 taxa_in_tree[i] = "'"+taxa_in_tree[i]+"'" 
     
     # swap spaces for _, as we're dealing with Newick strings here
+    new_taxa = [s.strip() for s in new_taxon.split(",")]
+    new_taxon = ",".join(new_taxa)
     new_taxon = new_taxon.replace(" ","_")
 
     # remove duplicates in the new taxa
