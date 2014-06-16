@@ -348,6 +348,10 @@ the subs file should contain:
 
     A_a = A_f
 
+There are also options for substituting in only taxa already in the dataset. This can be a 
+match at species level or at genus level. This is useful when using a pre-existing subs file
+on a smaller dataset, e.g. a subset.
+
 Permute all trees
 *****************
 

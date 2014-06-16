@@ -1557,9 +1557,10 @@ def _sub_deal_with_existing_only(existing_taxa,old_taxa, new_taxa, generic_match
     if (generic_match):
         generic = []
         for t in existing_taxa:
-            gen = t.split("_")[0]
-            generic.append(gen)
-        generic = _uniquify(gen)
+            gen = t.split("_")
+            if len(gen) == 2:
+                generic.append(gen[0])
+        generic = _uniquify(generic)
     i = 0
     for t in new_taxa:
         if (not t == None):    
@@ -1608,6 +1609,7 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
     if not ignoreWarnings:
         _check_data(XML)
 
+    
     old_taxa, new_taxa = _sort_sub_taxa(old_taxa,new_taxa)
 
     # Sort incoming taxa
