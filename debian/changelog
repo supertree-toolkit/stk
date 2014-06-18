@@ -1,3 +1,23 @@
+supertree-toolkit (12) precise; urgency=low
+
+  * Bug fixes to substitutions
+  * New option on subs to match taxa at genera level
+  * Permute trees now outputs in directories
+  * Bug fix to weighted TNT matrices
+  * Clean up of schema
+
+ -- Jon Hill <jhill1@iapetus>  Wed, 18 Jun 2014 09:55:53 +0100
+
+supertree-toolkit (2.11) precise; urgency=low
+
+  * Adding weights to TNT matrices
+  * Bug fixes on parsing bibtex files
+  * Minor manual fixes
+  * Option to remove outgroups when creating a matrix
+  * Tweaks to some scripts
+
+ -- Jon Hill <jhill1@iapetus>  Thu, 27 Feb 2014 09:33:40 +0000
+
 supertree-toolkit (2.10) precise; urgency=low
 
   * Minor bug fixes

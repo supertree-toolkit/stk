@@ -110,7 +110,8 @@ def main():
     else:
         # grab taxa in dataset - ignore if tree
         fileName, fileExtension = os.path.splitext(input_file)
-        if (fileExtension == 'phyml'):
+        if (fileExtension == '.phyml'):
+            print "Parsing PHYML"            
             XML = stk.load_phyml(input_file)
             taxa = stk.get_all_taxa(XML)
         else:
@@ -151,7 +152,7 @@ def main():
             else:
                 f.write(t+",#"+output_colours[taxonomy[tt]]+","+taxonomy[tt]+"\n")
         except KeyError:
-            print "Couldn't find "+tt
+            #print "Couldn't find "+tt
             f.write(t+",#000000\n")
 
     f.close()
