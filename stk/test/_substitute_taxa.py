@@ -9,7 +9,7 @@ sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tree, _trees_equal, substitute_taxa_in_trees
 from stk.supertree_toolkit import check_subs, _tree_contains, _correctly_quote_taxa, _remove_single_poly_taxa
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree, _delete_taxon
-from stk.supertree_toolkit import _collapse_nodes, import_tree, subs_from_csv, _getTaxaFromNewick
+from stk.supertree_toolkit import _collapse_nodes, import_tree, subs_from_csv, _getTaxaFromNewick, obtain_trees
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -230,10 +230,10 @@ class TestSubs(unittest.TestCase):
             if (t == "Grenville"):
                 contains_Grenville = True
 
-        self.assert_(not contains_Fred) # we should not have ant of these
-        self.assert_(not contains_A)
+        self.assert_(not contains_Fred)
+        self.assert_(contains_A) # should not be deleted
         self.assert_(not contains_Bob)
-        self.assert_(not contains_B)
+        self.assert_(contains_B) # should not be deleted
         self.assert_(not contains_Grenville)
 
         # now need to check the XML for the taxon block has been altered
@@ -255,15 +255,111 @@ class TestSubs(unittest.TestCase):
                 contains_Bob = True
             if name == 'B_b':
                 contains_B = True
+            if name == "Grenville":
+                contains_Grenville = True
+
+        self.assert_(not contains_Fred)
+        self.assert_(contains_A) # should not be deleted
+        self.assert_(not contains_Bob)
+        self.assert_(contains_B) # should not be deleted
+        self.assert_(not contains_Grenville)
+
+    def test_substitute_taxa_multiple_taxablock(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        XML2 = substitute_taxa(XML, ["A"], ["Bob,Grenville"])
+        taxa = get_all_taxa(XML2)
+        contains_Bob = False
+        contains_A = False
+        contains_Grenville = False
+        for t in taxa:
+            if (t == "A"):
+                contains_A = True
+            if (t == 'Bob'):
+                contains_Bob = True
             if (t == "Grenville"):
                 contains_Grenville = True
 
-        self.assert_(not contains_Fred) # we should not have any of these
         self.assert_(not contains_A)
-        self.assert_(not contains_Bob)
-        self.assert_(not contains_B)
-        self.assert_(not contains_Grenville)
+        self.assert_(contains_Bob)
+        self.assert_(contains_Grenville)
 
+        # now need to check the XML for the taxon block has been altered
+        xml_root = etree.fromstring(XML2)
+        find = etree.XPath("//taxon")
+        taxa = find(xml_root)
+        contains_Bob = False
+        contains_A = False
+        contains_Grenville = False
+        for t in taxa:
+            name = t.attrib['name']
+            if name == 'A':
+                contains_A = True
+            if name == 'Bob':
+                contains_Bob = True
+            if name == "Grenville":
+                contains_Grenville = True
+
+        self.assert_(not contains_A) # should not be deleted
+        self.assert_(contains_Bob)
+        self.assert_(contains_Grenville)
+
+    def test_substitute_taxa_outgroup(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        XML2 = substitute_taxa(XML, ["A"], ["Fred, Bob"])
+        taxa = get_all_taxa(XML2)
+        contains_Fred = False
+        contains_Bob = False
+        contains_A = False
+        contains_B = False
+        for t in taxa:
+            if (t == 'Fred'):
+                contains_Fred = True
+            if (t == "A"):
+                contains_A = True
+            if (t == 'Bob'):
+                contains_Bob = True
+
+        self.assert_(contains_Fred)
+        self.assert_(not contains_A) # we should not have A in a tree
+        self.assert_(contains_Bob)
+
+        # now need to check the XML for the outgroup block has been altered
+        xml_root = etree.fromstring(XML2)
+        find = etree.XPath("//outgroup")
+        taxa = find(xml_root)
+        contains_Fred = False
+        contains_Bob = False
+        contains_A = False
+        for t in taxa:
+            name = t.xpath("string_value")[0].text
+            if 'Fred' in name:
+                contains_Fred = True
+            if 'A' in name:
+                contains_A = True
+            if 'Bob' in name:
+                contains_Bob = True
+
+        self.assert_(contains_Fred)
+        self.assert_(not contains_A) # we should not have A in a tree
+        self.assert_(contains_Bob)
+
+    def test_delete_taxa_outgroup(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        XML2 = substitute_taxa(XML, ["A"], None)
+        taxa = get_all_taxa(XML2)
+        contains_A = False
+        for t in taxa:
+            if (t == "A"):
+                contains_A = True
+
+        self.assert_(not contains_A) # we should not have A in a tree
+
+        # now need to check the XML for the outgroup block has been altered
+        xml_root = etree.fromstring(XML2)
+        find = etree.XPath("//outgroup")
+        taxa = find(xml_root)
+        # we should have *no* outgroups now as A was the only one!
+        self.assert_(len(taxa) == 0)
 
     def test_substitute_taxa_multiple_sub1_del1(self):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
@@ -333,12 +429,36 @@ class TestSubs(unittest.TestCase):
 
         # we should end up with...
         expected_trees = []
-        expected_trees.append("(A, B, (C, D), E, F);")
+        expected_trees.append("(A, B, (C, D), E, F, G);")
         expected_trees.append("(A, B, (C, D), E, F, H);")
         expected_trees.append("(A, B, (C, D), E, F);")
-        expected_trees.append("(A, B, (C, D), E, F, H, L);")
+        expected_trees.append("(A, B, (C, D), E, F, G, H, L);")
 
         self.assertListEqual(expected_trees,new_trees)
+
+    def test_substitute_taxa_only_existing_generic_match(self):
+        XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
+        XML2 = substitute_taxa(XML, ["A","F_b"], ["Fred",'G'],only_existing=True,generic_match=True)
+        taxa = get_all_taxa(XML2)
+        contains_Fred = False
+        contains_G = False
+        contains_F_b = False
+        for t in taxa:
+            if (t == 'Fred'):
+                contains_Fred = True
+            if (t == "G"):
+                contains_G = True
+            if (t == "F_b"):
+                contains_F = True
+
+        self.assert_(not contains_Fred) # No Fred
+        self.assert_(not contains_F_b) # we should not have F_b in a tree
+        self.assert_(contains_G) # we should have G in a tree
+        
+        # check the trees
+        trees = obtain_trees(XML2)
+        expected_tree = "((A,B),(G,G_g));"
+        self.assert_(_trees_equal(expected_tree,trees['Hill_2011_1']))
 
     def test_delete_percent_taxa(self):
         tree = "(A%3, B, (C, D), E, F, G, (A%1, A%2));"
@@ -418,7 +538,7 @@ class TestSubs(unittest.TestCase):
         quote_taxa_tree = "(taxa_1, 'taxa_n=taxa_2', taxa_3, taxa_4);";
         original_trees = "((((Catharacta_maccormicki,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);";
         polytomy4 = "taxon_1,taxon_1,taxon_2,taxon_3"
-        tree3 = "((((taxon_1,taxon_2,taxon_3,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);"
+        tree3 = "(((((taxon_1,taxon_2,taxon_3),Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);"
         
         # checking for correct subbing of quoted taxa
         new_tree = _sub_taxa_in_tree(quote_taxa_tree,"'taxa_n=taxa_2'",'taxa_2')
@@ -447,7 +567,7 @@ class TestSubs(unittest.TestCase):
         polytomy5 = "taxon_n,'taxon_n+taxon_2',taxon_2,taxon_3"
         tree_in = "(taxa_n, 'taxa_n+taxa_2', 'taxa_3=taxa5', taxa_4);"
         new_tree = _sub_taxa_in_tree(tree_in,"taxa_4", polytomy5)
-        answer = "(taxa_n,'taxa_n+taxa_2','taxa_3=taxa5',taxon_n,'taxon_n+taxon_2',taxon_2,taxon_3);"
+        answer = "(taxa_n,'taxa_n+taxa_2','taxa_3=taxa5',(taxon_n,'taxon_n+taxon_2',taxon_2,taxon_3));"
         self.assert_(_trees_equal(new_tree, answer), "Dealt with double quoted taxa");
 
 

@@ -28,7 +28,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
+            <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,(F_b:1.00000,G_g:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">1</string_value>

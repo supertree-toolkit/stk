@@ -31,6 +31,10 @@ def main():
             default=False
             )
     parser.add_argument(
+            '--pref_db',
+            help="Preferred database. Need to be able to list avialable databases?"
+            )
+    parser.add_argument(
             'input_file', 
             metavar='input_file',
             nargs=1,
@@ -47,6 +51,7 @@ def main():
     verbose = args.verbose
     input_file = args.input_file[0]
     output_file = args.output_file[0]
+    pref_db = args.pref_db
 
     # grab taxa in dataset
     fileName, fileExtension = os.path.splitext(input_file)
@@ -96,13 +101,22 @@ def main():
             taxonomy[taxon] = {}
             continue
         TID = str(data['taxonConcepts'][0]['identifier']) # take first hit
+        currentdb = str(data['taxonConcepts'][0]['nameAccordingTo'])
+        # loop through and get preferred one if specified
         # now get taxonomy
+        if (not pref_db == None):
+            for db in data['taxonConcepts']:
+                currentdb = db['nameAccordingTo'].lower()
+                if (pref_db.lower() in currentdb):
+                    TID = str(db['identifier'])
+                    break
         URL="http://eol.org/api/hierarchy_entries/1.0/"+TID+".json"
         req = urllib2.Request(URL)
         opener = urllib2.build_opener()
         f = opener.open(req)
         data = json.load(f)
         this_taxonomy = {}
+        this_taxonomy['provider'] = currentdb
         for a in data['ancestors']:
             try:
                 this_taxonomy[a['taxonRank']] = a['scientificName']
@@ -232,6 +246,11 @@ def main():
                 kingdom = taxonomy[t]['kingdom']
             except KeyError:
                 kingdom = "-"
+            try:
+                provider = taxonomy[t]['provider']
+            except KeyError:
+                provider = "-"
+
 
             this_classification = [
                     species.encode('utf-8'),
@@ -249,7 +268,8 @@ def main():
                     superphylum.encode('utf-8'),
                     infrakingdom.encode('utf-8'),
                     subkingdom.encode('utf-8'),
-                    kingdom.encode('utf-8')]
+                    kingdom.encode('utf-8'),
+                    provider.encode('utf-8')]
             writer.writerow(this_classification)
             
     

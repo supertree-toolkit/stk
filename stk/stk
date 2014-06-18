@@ -21,8 +21,6 @@
 
 import os
 import sys
-import math
-import numpy 
 import argparse
 import traceback
 try:
@@ -35,7 +33,7 @@ if (not sys.platform.startswith("win")):
     stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir ,os.pardir)
     sys.path.insert(0, stk_path)
 else:
-  stk_path = os.getcwd()
+    stk_path = os.getcwd()
 import stk.supertree_toolkit as supertree_toolkit
 import stk.stk_import_export as supertree_import_export
 from stk.stk_exceptions import *
@@ -132,7 +130,14 @@ def main():
             help='The output phyml file')
     parser_cm.add_argument('-e',
             '--only_existing',
+            action='store_true',
+            default=False,
             help="Only substitute in taxa already in the dataset")
+    parser_cm.add_argument('-g',
+            '--generic',
+            action='store_true',
+            default=False,
+            help="When using only existing, matches to genera level are accepted as existing")
     parser_cm.add_argument('-s',
             '--subs', 
             help='A substitution file. See manual for format.')
@@ -276,7 +281,7 @@ def main():
     parser_cm.set_defaults(func=safe_taxonomic_reduction)
 
 
-    # Data summary command
+    # Independence check for source trees.
     parser_cm = subparsers.add_parser('data_ind',
             help='Check the independence of source trees within this dataset.')
     parser_cm.add_argument('input', 
@@ -814,6 +819,7 @@ def sub_taxa(args):
     overwrite = args.overwrite
     subs_file = args.subs
     only_existing = args.only_existing
+    generic = args.generic
     old_taxa = []
     new_taxa = []
     old_taxon = args.oldtaxon
@@ -851,7 +857,7 @@ def sub_taxa(args):
                 print e.msg
                 sys.exit(-1)
     
-    
+   
     # Does the input file exist
     if (not os.path.exists(input_file)):
         print "Input file cannot be found. Exiting"
@@ -883,13 +889,13 @@ def sub_taxa(args):
             sys.exit(-1)
     try:
         if (treefile):
-            new_trees_list = supertree_toolkit.substitute_taxa_in_trees(trees,old_taxa,new_taxa,only_existing=only_existing)
+            new_trees_list = supertree_toolkit.substitute_taxa_in_trees(trees,old_taxa,new_taxa,only_existing=only_existing,generic_match=generic)
             new_trees = {}
             i = 1
             for t in new_trees_list:
                 new_trees["tree_"+str(i)] = t
         else:
-            XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings,only_existing=only_existing)
+            XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings,only_existing=only_existing,generic_match=generic)
     except NotUniqueError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
@@ -1282,8 +1288,14 @@ def permute_trees(args):
 
         #save
         if (not output_string == ""):
-            new_output,ext = os.path.splitext(output_file)
-            new_output += "_"+t+ext
+            filename = os.path.basename(output_file)
+            dirname = os.path.dirname(output_file)
+            new_output = os.path.join(dirname,t,filename)
+            try: 
+               os.makedirs(os.path.join(dirname,t))
+            except OSError:
+                if not os.path.isdir(os.path.join(dirname,t)):
+                    raise
             f = open(new_output,'w')
             f.write(output_string)
             f.close
@@ -1425,7 +1437,7 @@ def convert_file(args):
         sys.exit(-1)
     data = f.read()
     data = data.lower()
-    if (not data.find('matrix') == -1 and data.find('tree') == -1):
+    if (not data.find('xread') == -1 or not data.find('matrix') == -1 and data.find('tree') == -1):
         matrix = True
     else:
         matrix = False

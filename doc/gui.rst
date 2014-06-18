@@ -348,6 +348,10 @@ the subs file should contain:
 
     A_a = A_f
 
+There are also options for substituting in only taxa already in the dataset. This can be a 
+match at species level or at genus level. This is useful when using a pre-existing subs file
+on a smaller dataset, e.g. a subset.
+
 Permute all trees
 *****************
 
@@ -359,7 +363,10 @@ To remove non-monophyletic taxa, the tree permutation function is
 used. This creates a number of trees per source tree, each with a different
 combination of the non-monophyletic taxa. Note that this
 produces a tree file containing the unique trees only or a matrix for each
-source tree in the dataset.
+source tree in the dataset. The output are stored in the given format, with each
+tree permuted stored in a seperate directory, given by the tree name (e.g. 
+Hill_etal_2001_1). The filename given is used, making it easy to script the 
+creation of the mini-supertrees.
 
 These trees or matrices can then be combined into a single tree using PAUP*, TNT
 or similar. The consensus of these trees then become the source tree for this

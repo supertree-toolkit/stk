@@ -43,6 +43,7 @@ import datetime
 from indent import *
 import unicodedata
 from stk_internals import *
+from copy import deepcopy
 
 #plt.ion()
 
@@ -1531,8 +1532,67 @@ def load_phyml(filename):
     parser = etree.XMLParser(remove_blank_text=True)
     return etree.tostring(etree.parse(filename,parser),pretty_print=True)
 
+def _sort_sub_taxa(old_taxa, new_taxa):
+    """
+    Sort out what the new and old taxa vars are and sort them out 
+    into the expected format
+    """
 
-def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWarnings=False, verbose=False, skip_existing=False):
+    # are the input values lists or simple strings?
+    if (isinstance(old_taxa,str)):
+        old_taxa = [old_taxa]
+    if (new_taxa and isinstance(new_taxa,str)):
+        new_taxa = [new_taxa]
+
+    # check they are same lengths now
+    if (new_taxa):
+        if (len(old_taxa) != len(new_taxa)):
+            print "Substitution failed. Old and new are different lengths"
+            return # need to raise exception here
+
+    return old_taxa, new_taxa
+
+def _sub_deal_with_existing_only(existing_taxa,old_taxa, new_taxa, generic_match):
+    import csv
+    corrected_taxa = []
+    if (generic_match):
+        generic = []
+        for t in existing_taxa:
+            gen = t.split("_")
+            if len(gen) == 2:
+                generic.append(gen[0])
+        generic = _uniquify(generic)
+    i = 0
+    for t in new_taxa:
+        if (not t == None):    
+            current_corrected_taxa = []
+            # remove duplicates in the new taxa
+            for row in csv.reader([t],delimiter=',', quotechar="'"):
+                current_new_taxa = row
+                for cnt in current_new_taxa:
+                    cnt = cnt.strip()
+                    cnt = cnt.strip('_')
+                    if (generic_match):
+                        if (cnt in generic):
+                            current_corrected_taxa.append(cnt)
+                    if (cnt in existing_taxa):
+                        current_corrected_taxa.append(cnt)
+           
+                if (len(current_corrected_taxa) == 0):
+                    # None of the incoming taxa are in the data already - we need to leave in the old taxa instead
+                    removed = old_taxa.pop(i)
+                    i = i-1
+                else:
+                    temp = ",".join(current_corrected_taxa)
+                    corrected_taxa.append(temp)
+        else:
+            corrected_taxa.append(None)
+        i += 1
+    new_taxa = corrected_taxa
+    return new_taxa
+
+
+def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWarnings=False, verbose=False, skip_existing=False, generic_match=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
@@ -1549,41 +1609,13 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
     if not ignoreWarnings:
         _check_data(XML)
 
-
-    # are the input values lists or simple strings?
-    if (isinstance(old_taxa,str)):
-        old_taxa = [old_taxa]
-    if (new_taxa and isinstance(new_taxa,str)):
-        new_taxa = [new_taxa]
-
-    # check they are same lengths now
-    if (new_taxa):
-        if (len(old_taxa) != len(new_taxa)):
-            print "Substitution failed. Old and new are different lengths"
-            return # need to raise exception here
+    
+    old_taxa, new_taxa = _sort_sub_taxa(old_taxa,new_taxa)
 
     # Sort incoming taxa
     if (only_existing):
-        import csv
-        
         existing_taxa = get_all_taxa(XML)
-        corrected_taxa = []
-        for t in new_taxa:
-            if (not t == None):    
-                # remove duplicates in the new taxa
-                for row in csv.reader([t],delimiter=',', quotechar="'"):
-                    current_new_taxa = row
-                current_corrected_taxa = []
-                for cnt in current_new_taxa:
-                    if (cnt in existing_taxa):
-                        current_corrected_taxa.append(t)
-                if (len(current_corrected_taxa) == 0):
-                    corrected_taxa.append(None)
-                else:
-                    corrected_taxa.append(",".join(current_corrected_taxa))
-            else:
-                corrected_taxa.append(None)
-        new_taxa = corrected_taxa
+        new_taxa = _sub_deal_with_existing_only(existing_taxa,old_taxa, new_taxa, generic_match)
 
     # need to check for uniquessness of souce names - error is not unique
     _check_uniqueness(XML)
@@ -1596,19 +1628,20 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
         new_tree = _sub_taxa_in_tree(tree,old_taxa,new_taxa,skip_existing=skip_existing)
         XML = _swap_tree_in_XML(XML,new_tree,name)
  
-
     # now loop over all taxon elements in the XML, and 
     # remove/sub as necessary
     i = 0
     xml_root = _parse_xml(XML)
     xml_taxa = []
+    xml_outgroup = []
     # grab all taxon elements and store
     # We're going to delete and we can't do that whilst
     # iterating over the XML. There lies chaos.
     for ele in xml_root.iter():
         if (ele.tag == "taxon"):
             xml_taxa.append(ele)
-
+        if (ele.tag == "outgroup"):
+            xml_outgroup.append(ele)
    
     i = 0
     for taxon in old_taxa:
@@ -1619,16 +1652,65 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
                     # You remove the element by getting the 
                     # deleting it from the parent
                     ele.getparent().remove(ele)
+            for ele in xml_outgroup:
+                if (taxon in ele.xpath("string_value")[0].text):
+                    outgroup = ele.xpath("string_value")[0].text
+                    outgroup_lines = [s.strip() for s in outgroup.splitlines()]
+                    outgroup_taxa = []
+                    for line in outgroup_lines:
+                        outgroup_taxa.extend(line.split(","))
+                    new_outgroup_taxa = []
+                    for t in outgroup_taxa:
+                        if not t == taxon:
+                            new_outgroup_taxa.append(t)
+                    if (len(new_outgroup_taxa) == 0):
+                        ele.getparent().remove(ele)
+                    else:
+                        ele.xpath("string_value")[0].text = ",".join(new_outgroup_taxa)
         else:
             for ele in xml_taxa:
+                new_taxa_info = []
                 if (ele.attrib['name'] == taxon):
-                    ele.attrib['name'] = new_taxa[i]
+                    nt = new_taxa[i].split(",") # incoming polytomy, maybe
+                    new_taxa_info.extend(nt)
+                    if (len(new_taxa_info) == 1):
+                        # straight swap
+                        ele.attrib['name'] = new_taxa_info[0]
+                    else:
+                        # we need to construct multiple taxa blocks!
+                        taxa_parent = ele.getparent()
+                        original_ele = deepcopy(ele)
+                        ele.getparent().remove(ele)
+                        for nt in new_taxa_info:
+                            temp_ele = deepcopy(original_ele)
+                            temp_ele.attrib['name'] = nt
+                            # add comment re: this was originally
+                            comment = etree.SubElement(temp_ele,"comment")
+                            comment.text = "Was originally "+taxon+" and was subbed"
+                            taxa_parent.append(temp_ele)
+
+            for ele in xml_outgroup:
+                if (taxon in ele.xpath("string_value")[0].text):
+                    outgroup = ele.xpath("string_value")[0].text
+                    outgroup_lines = [s.strip() for s in outgroup.splitlines()]
+                    outgroup_taxa = []
+                    for line in outgroup_lines:
+                        outgroup_taxa.extend(line.split(","))
+                    new_outgroup_taxa = []
+                    for t in outgroup_taxa:
+                        if t == taxon:
+                            nt = new_taxa[i].split(",") # incoming polytomy, maybe
+                            new_outgroup_taxa.extend(nt)
+                        else:
+                            new_outgroup_taxa.append(t)
+                    ele.xpath("string_value")[0].text = ",".join(new_outgroup_taxa)
+
         i = i+1
 
     return etree.tostring(xml_root,pretty_print=True)
 
 
-def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, only_existing = False, ignoreWarnings=False, verbose=False):
+def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, only_existing = False, ignoreWarnings=False, verbose=False,generic_match=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
     new_taxa array
@@ -1642,18 +1724,7 @@ def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, only_existing = Fal
     do something sensible with this infomation
     """
 
-    # are the input values lists or simple strings?
-    if (isinstance(old_taxa,str)):
-        old_taxa = [old_taxa]
-    if (new_taxa and isinstance(new_taxa,str)):
-        new_taxa = [new_taxa]
-
-    # check they are same lengths now
-    if (new_taxa):
-        if (len(old_taxa) != len(new_taxa)):
-            print "Substitution failed. Old and new are different lengths"
-            return # need to raise exception here
-    
+    old_taxa, new_taxa = _sort_sub_taxa(old_taxa,new_taxa)
 
     # Sort incoming taxa
     if (only_existing):
@@ -1661,21 +1732,7 @@ def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, only_existing = Fal
         for tree in trees:
             existing_taxa.extend(_getTaxaFromNewick(tree))
         existing_taxa = _uniquify(existing_taxa)
-        corrected_taxa = []
-        for t in new_taxa:
-            if (not t == None):
-                current_new_taxa = t.split(",")
-                current_corrected_taxa = []
-                for cnt in current_new_taxa:
-                    if (cnt in existing_taxa):
-                        current_corrected_taxa.append(t)
-                if (len(current_corrected_taxa) == 0):
-                    corrected_taxa.append(None)
-                else:
-                    corrected_taxa.append(",".join(current_corrected_taxa))
-            else:
-                corrected_taxa.append(None)
-        new_taxa = corrected_taxa
+        new_taxa = _sub_deal_with_existing_only(existing_taxa,old_taxa, new_taxa, generic_match)
     
     new_trees = []
     for tree in trees:
@@ -2027,11 +2084,6 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                 fig = plt.figure(dpi=90)
             else:
                 fig = plt.figure(dpi=270)
-            #Z = [[0,0],[0,0]]
-            #levels = plt.frange(0,max(colours)+1,(max(colours)+1)/256.)
-            #print levels
-            #CS3 = plt.contourf(Z,levels,cmap=custom)
-            #plt.clf()
             ax = fig.add_subplot(111)
             cs = nx.draw_networkx(G_relabelled,with_labels=True,ax=ax,node_color=colours,
                                   cmap=custom,edge_color='k',node_size=100,font_size=8,vmax=max(colours),vmin=0)
@@ -2975,6 +3027,8 @@ def _sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
                 taxa_in_tree[i] = "'"+taxa_in_tree[i]+"'" 
     
     # swap spaces for _, as we're dealing with Newick strings here
+    new_taxa = [s.strip() for s in new_taxon.split(",")]
+    new_taxon = ",".join(new_taxa)
     new_taxon = new_taxon.replace(" ","_")
 
     # remove duplicates in the new taxa
@@ -3006,6 +3060,8 @@ def _sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
 
     modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',tree)
     new_taxon = ",".join(new_taxa)
+    if (len(new_taxa) > 1):
+        new_taxon = "("+new_taxon+")"
 
     if (len(new_taxon) == 0):
         # we need to delete instead
@@ -3449,7 +3505,7 @@ def _create_matrix_string(matrix,taxa,charsets=None,names=None,
                 # The float for the weight cannot start with 0, even if it's 0.5
                 # so we strip of the 0 to make .5 instead (lstrip). TNT is weird with formats...
                 # We also strip off trailing zeros for neatness (rstrip)
-                matrix_string += "ccode +[/"+("%f"%uw).lstrip('0').rstrip('0')
+                matrix_string += "ccode +[/"+("%.3f"%uw).lstrip('0').rstrip('0')
                 i = 0
                 for w in weights:
                     if (w == uw):
