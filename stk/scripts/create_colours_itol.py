@@ -97,7 +97,7 @@ def main():
         index = 5
     elif (level == "Order"):
         index = 6
-    else (level == "Genus"):
+    elif (level == "Genus"):
         index = 1
 
     if (tree):
