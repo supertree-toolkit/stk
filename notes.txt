@@ -1,0 +1,38 @@
+Ideas:
+
+Collect data, remove paraphyletic
+
+Take taxonomy (from dbs), phyml, users knowledge (encoded as subs file) and information on synonyms (from dbs)
+to create a master subs file that takes the dat to species level
+
+User needs to be able to edit taxonomy - CSV file 
+
+User needs to choose database source - preferred source.
+
+
+Taxonomic name checker:
+
+ - use database to get synonyms and possible mispellings
+ - Gui is a 2 column table with green, yellow, red. User filles in red (or removes it), green is fine. Yellow - drop down list with alternatives.
+ - Use this to generate a two column CSV file
+ - On CLI, generate a three column CSV. Original name, new name (or blank for unknown) and a list of possibles. Warn user they *must* fill in the second column or remove the row or the taxa will be deleted.
+
+For colloqual names, user adds to column 1 of taxonomy csv and then adds the latin name in the approriate column of the database. The subs can then generate the species list.
+
+Use these two csv files to generate a subs file, including replacing higher taxa and genera to create a "to species" substtution (can also output this file for later)
+
+Generating data to any taxonomic level can happen later - need to check each species is accounted for in the taxonomy, with correct levels - may need another parse of the taxonomy csv
+
+
+Add data -> paraphyletic taxa -> taxonomy checker -> sub synonyms -> taxonomy generator -> create species level dataset
+
+New functions:
+ - taxonomic name checker (this might take a while when online for large dataset) - note that this should be a one for one substitution - seperate function so we can check this?
+ - Pull in taxonomy generator
+ - Add csv file to schema
+ - amaend manual with workflow
+ - warning on multiple subs in data in manual
+ - generate species level subsfile from taxonomy
+ - generate specified taxonomic level data
+
+
