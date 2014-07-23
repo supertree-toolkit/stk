@@ -10,6 +10,7 @@ from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tre
 from stk.supertree_toolkit import check_subs, _tree_contains, _correctly_quote_taxa, _remove_single_poly_taxa
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree, _delete_taxon
 from stk.supertree_toolkit import _collapse_nodes, import_tree, subs_from_csv, _getTaxaFromNewick, obtain_trees
+from stk.supertree_toolkit import generate_species_level_data, create_taxonomy
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -776,7 +777,14 @@ class TestSubs(unittest.TestCase):
         new_tree = _sub_taxa_in_tree(tree2,"Thereuopodina",sub_in,skip_existing=True);
         self.assert_(answer2, new_tree)
 
-        
+   
+    def test_auto_subs_taxonomy(self):
+        """test the automatic subs function with a simple test"""
+        XML = etree.tostring(etree.parse('data/input/auto_sub.phyml',parser),pretty_print=True)
+        taxonomy = create_taxonomy(XML) # what if there's no internet?
+        print taxonomy
+        XML = generate_species_level_data(XML, taxonomy)
+        print XML
 
 
 if __name__ == '__main__':
