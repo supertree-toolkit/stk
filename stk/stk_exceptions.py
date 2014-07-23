@@ -134,4 +134,12 @@ class EmptySourceError(Error):
     def __init__(self, msg):
         self.msg = msg
 
+class NoneCompleteTaxonomy(Error):
+    """Exception raised when a taxonomy is not complete for these data
+    Attributes:
+          msg -- explaination of error
+    """
+
+    def __init__(self, msg):
+        self.msg = msg
 
