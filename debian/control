@@ -9,7 +9,7 @@ XS-Python-Version: >= 2.5
 
 Package: supertree-toolkit
 Architecture: all
-Depends: python-tk, python-dxdiff, python-pygraphviz, python-lxml-dbg, python-lxml, python-gtk2, python-numpy, python-matplotlib, python-lxml, libxml2-utils, python, python-gtksourceview2, python-glade2, python-networkx
+Depends: python-tk, python-simplejson, python-dxdiff, python-pygraphviz, python-lxml-dbg, python-lxml, python-gtk2, python-numpy, python-matplotlib, python-lxml, libxml2-utils, python, python-gtksourceview2, python-glade2, python-networkx
 Recommends: python-psyco
 Suggests: 
 Conflicts: 

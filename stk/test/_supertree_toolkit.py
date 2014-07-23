@@ -7,11 +7,14 @@ from stk.supertree_toolkit import _check_uniqueness, parse_subs_file, _check_tax
 import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-from stk.supertree_toolkit import _check_uniqueness, _check_taxa, _check_data, get_all_characters, data_independence
-from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
-from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
-from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
-from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used, _trees_equal, get_weights
+from stk.supertree_toolkit import _check_uniqueness, _check_taxa, _check_data, get_all_characters
+from stk.supertree_toolkit import data_independence, get_character_numbers, get_analyses_used
+from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary
+from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data
+from stk.supertree_toolkit import obtain_trees, get_all_source_names, _swap_tree_in_XML, replace_genera
+from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources
+from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used
+from stk.supertree_toolkit import _trees_equal, get_weights, create_taxonomy
 from stk.supertree_toolkit import get_outgroup
 from lxml import etree
 from util import *
@@ -24,7 +27,7 @@ import re
 # Class to test all those loverly internal methods
 # or stuff that doesn't fit within the other tests
 
-class TestSetSourceNames(unittest.TestCase):
+class TestSTK(unittest.TestCase):
 
     def test_check_uniqueness(self):
         non_unique_names = etree.parse("data/input/non_unique_names.phyml")
@@ -557,6 +560,25 @@ class TestSetSourceNames(unittest.TestCase):
             self.assert_(c in expected_characters)
         self.assert_(len(characters) == len(expected_characters))
 
+    def test_create_taxonomy(self):
+        XML = etree.tostring(etree.parse('data/input/create_taxonomy.phyml',parser),pretty_print=True)
+        expected = {'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'subkingdom': 'Bilateria', 'subclass': 'Neoloricata', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'suborder': 'Ischnochitonina', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 
+                     'Gallus gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Gallus', 'order': 'Galliformes'}, 
+                      'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'infraphylum': 'Gnathostomata', 'superclass': 'Tetrapoda', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'order': 'Procellariiformes'}}
+        if (internet_on()):
+            taxonomy = create_taxonomy(XML) # what if there's no internet?
+            self.assertDictEqual(taxonomy, expected)
+        else:
+            print "WARNING: No internet connection found. Not check the create_taxonomy function"
+
+
+def internet_on():
+    import urllib2
+    try:
+        response=urllib2.urlopen('http://74.125.228.100',timeout=1)
+        return True
+    except urllib2.URLError as err: pass
+    return False
 
 
 if __name__ == '__main__':

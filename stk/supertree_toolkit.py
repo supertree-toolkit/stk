@@ -1943,10 +1943,9 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
     return output_string
 
 def taxonomic_checker(XML):
-    """ For each name in the database generate a database of the original name, possible synonyms
-        and if the taxon is not know, signal that. We do this by using the EoL API to grab synonyms
-        of each taxon.
-    """
+    """ For each name in the database generate a database of the original name,
+    possible synonyms and if the taxon is not know, signal that. We do this by
+    using the EoL API to grab synonyms of each taxon.  """
 
     # grab all taxa
 
@@ -1960,25 +1959,150 @@ def taxonomic_checker(XML):
     pass
 
 
-def create_taxonomy(XML, existing_taxonomy=None,pref_db=None):
-    """ Generates a taxonomy of the data from EoL data. This is stored as a dictionary of taxonomy for
-    each taxon in the dataset. Missing data are encoded as '' (blank string). It's up to the calling function
-    to store this data to file or display it.
-    """
+def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False):
+    """ Generates a taxonomy of the data from EoL data. This is stored as a
+    dictionary of taxonomy for each taxon in the dataset. Missing data are
+    encoded as '' (blank string). It's up to the calling function to store this
+    data to file or display it.  """
 
-    # copy from auxilary script. If existing taxonomy exists, skip
+    import urllib2
+    from urllib import quote_plus
+    import simplejson as json
 
-    # if taxonomic_check not done - warn
+    if (existing_taxonomy == None):
+        taxonomy = {}
+    else:
+        taxonomy = existing_taxonomy
+    # What we get from EOL
+    current_taxonomy_levels = ['species','genus','family','order','class','phylum','kingdom']
+    # And the extra ones from ITIS
+    extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
+    # all of them in order
+    taxonomy_levels = ['species','genus','family','superfamily','infraorder','suborder','order','superorder','subclass','class','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
+    taxa = get_all_taxa(XML)
 
-    pass
+    for taxon in taxa:
+        taxon = taxon.replace("_"," ")
+        try:
+            taxonomy[taxon] # skip if we already know about this taxon
+            continue
+        except KeyError:
+            pass
+        if (verbose):
+            print "Looking up ", taxon
+        # get the data from EOL on taxon
+        # What about synonyms?
+        taxonq = quote_plus(taxon)
+        URL = "http://eol.org/api/search/1.0.json?q="+taxonq
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        data = json.load(f)
+        # check if there's some data
+        if len(data['results']) == 0:
+            taxonomy[taxon] = {}
+            continue
+        ID = str(data['results'][0]['id']) # take first hit
+        # Now look for taxonomies
+        URL = "http://eol.org/api/pages/1.0/"+ID+".json"
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        data = json.load(f)
+        if len(data['taxonConcepts']) == 0:
+            taxonomy[taxon] = {}
+            continue
+        TID = str(data['taxonConcepts'][0]['identifier']) # take first hit
+        currentdb = str(data['taxonConcepts'][0]['nameAccordingTo'])
+        # loop through and get preferred one if specified
+        # now get taxonomy
+        if (not pref_db == None):
+            for db in data['taxonConcepts']:
+                currentdb = db['nameAccordingTo'].lower()
+                if (pref_db.lower() in currentdb):
+                    TID = str(db['identifier'])
+                    break
+        URL="http://eol.org/api/hierarchy_entries/1.0/"+TID+".json"
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        data = json.load(f)
+        this_taxonomy = {}
+        this_taxonomy['provider'] = currentdb
+        for a in data['ancestors']:
+            try:
+                # note the dump into ASCII
+                this_taxonomy[a['taxonRank'].encode("ascii","ignore")] = a['scientificName'].encode("ascii","ignore")
+            except KeyError:
+                continue
+        try:
+            if (not data['taxonRank'].lower() == 'species'):
+                # higher taxa, add it in to the taxonomy!
+                this_taxonomy[data['taxonRank'].lower()] = taxon
+        except KeyError:
+            continue
+        taxonomy[taxon] = this_taxonomy
+    
+    if (verbose):
+        print "Done basic taxonomy, getting more info from ITIS"
+    
+    # fill in the rest of the taxonomy
+    # get all genera
+    genera = []
+    for t in taxonomy:
+        try:
+            genera.append(taxonomy[t]['genus'])
+        except KeyError:
+            continue
+    
+    genera = _uniquify(genera)
+    for g in genera:
+        if (verbose):
+            print "Looking up ", g
+        try:
+            URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(g.strip())
+        except:
+            continue
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        string = unicode(f.read(),"ISO-8859-1")
+        data = json.loads(string)
+        if data['scientificNames'][0] == None:
+            continue
+        tsn = data["scientificNames"][0]["tsn"]
+        URL="http://www.itis.gov/ITISWebService/jsonservice/getFullHierarchyFromTSN?tsn="+str(tsn)
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        try:
+            string = unicode(f.read(),"ISO-8859-1")
+        except:
+            continue
+        data = json.loads(string)
+        this_taxonomy = {}
+        for level in data['hierarchyList']:
+            if not level['rankName'].lower() in current_taxonomy_levels:
+                # note the dump into ASCII                
+                this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
+
+        for t in taxonomy:
+            try:
+                if taxonomy[t]['genus'] == g:
+                    taxonomy[t].update(this_taxonomy)
+            except KeyError:
+                continue
+    
+    return taxonomy
 
 def generate_species_level_data(XML, taxonomy):
-    """ Based on a taxonomy data set, amend the data to be at species level as far as possible.
-    This function creates an internal 'subs file' and calls the standard substitution functions.
-    The internal subs are generated by looping over the taxa and if not at species-level, working
-    out which level they are at and then adding species already in the dataset to replace it via
-    a polytomy. This has to be done in one step to avoid adding spurious structure to the phylogenies
-    """
+    """ Based on a taxonomy data set, amend the data to be at species level as
+    far as possible.  This function creates an internal 'subs file' and calls
+    the standard substitution functions.  The internal subs are generated by
+    looping over the taxa and if not at species-level, working out which level
+    they are at and then adding species already in the dataset to replace it
+    via a polytomy. This has to be done in one step to avoid adding spurious
+    structure to the phylogenies """
 
     # if taxonomic checker not done, warn
 
