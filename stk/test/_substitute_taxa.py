@@ -10,7 +10,7 @@ from stk.supertree_toolkit import parse_subs_file, _check_data, _sub_taxa_in_tre
 from stk.supertree_toolkit import check_subs, _tree_contains, _correctly_quote_taxa, _remove_single_poly_taxa
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_all_taxa, _parse_tree, _delete_taxon
 from stk.supertree_toolkit import _collapse_nodes, import_tree, subs_from_csv, _getTaxaFromNewick, obtain_trees
-from stk.supertree_toolkit import generate_species_level_data, create_taxonomy
+from stk.supertree_toolkit import generate_species_level_data
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -781,8 +781,13 @@ class TestSubs(unittest.TestCase):
     def test_auto_subs_taxonomy(self):
         """test the automatic subs function with a simple test"""
         XML = etree.tostring(etree.parse('data/input/auto_sub.phyml',parser),pretty_print=True)
-        taxonomy = create_taxonomy(XML) # what if there's no internet?
-        print taxonomy
+        taxonomy = {'Ardea goliath': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Ecdysozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Ardea', 'order': 'Pelecaniformes', 'species': 'Ardea goliath'}, 
+                    'Pelecaniformes': {'kingdom': 'Animalia', 'phylum': 'Chordata', 'order': 'Pelecaniformes', 'class': 'Aves', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013'}, 'Gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Gallus', 'order': 'Galliformes'}, 
+                    'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'infraphylum': 'Gnathostomata', 'superclass': 'Tetrapoda', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'order': 'Procellariiformes', 'species': 'Thalassarche melanophris'}, 
+                    'Platalea leucorodia': {'kingdom': 'Animalia', 'subfamily': 'Plataleinae', 'family': 'Threskiornithidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'infraphylum': 'Gnathostomata', 'superclass': 'Tetrapoda', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Platalea', 'order': 'Pelecaniformes', 'species': 'Platalea leucorodia'}, 
+                    'Gallus lafayetii': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Gallus', 'order': 'Galliformes', 'species': 'Gallus lafayetii'}, 
+                    'Ardea humbloti': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Ecdysozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Ardea', 'order': 'Pelecaniformes', 'species': 'Ardea humbloti'}, 
+                    'Gallus varius': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Gallus', 'order': 'Galliformes', 'species': 'Gallus varius'}}
         XML = generate_species_level_data(XML, taxonomy)
         print XML
 
