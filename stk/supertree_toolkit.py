@@ -1975,10 +1975,21 @@ def taxonomic_checker(XML):
 
     # for each taxon, check the name on EoL - what if it's a synonym? Does EoL still return a result?
     # if not, is there another API function to do this?
+    # search for the taxon and grab the name - if you search for a recognised synonym on EoL then
+    # you get the original ('correct') name - shorten this to two words and you're done.
 
     # build up the output dictionary - original name is key, synonyms/missing is value
+    # if the original matches the 'correct', then it's green
+    # if we managed to get something anyway, then it's yellow and create a list of possible synonyms with the 
+    # 'correct' taxon at the top
+    # if our search was empty, then it's red.
+
+    # can we add the PDB here too?
 
     # up to the calling funciton to do something sensible with this
+    # we build a dictionary of names and then a list of synonyms or the original name, then a tag if it's green, yellow, red.
+
+    # can we make the CLI put colour? That would be cool
 
     pass
 
@@ -2010,7 +2021,6 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False):
         if (verbose):
             print "Looking up ", taxon
         # get the data from EOL on taxon
-        # What about synonyms?
         taxonq = quote_plus(taxon)
         URL = "http://eol.org/api/search/1.0.json?q="+taxonq
         req = urllib2.Request(URL)
@@ -2019,6 +2029,8 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False):
         data = json.load(f)
         # check if there's some data
         if len(data['results']) == 0:
+            # try PBDB as it might be a fossil
+            # TODO: ADD THIS
             taxonomy[taxon] = {}
             continue
         ID = str(data['results'][0]['id']) # take first hit
@@ -2074,6 +2086,8 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False):
             continue
     
     genera = _uniquify(genera)
+    # We then use ITIS to fill in missing info based on the genera only - that saves us a species level search
+    # and we can fill in most of the EoL missing data
     for g in genera:
         if (verbose):
             print "Looking up ", g
@@ -2167,9 +2181,6 @@ def generate_species_level_data(XML, taxonomy, ignoreWarnings=False, verbose=Fal
         if len(subs) > 0:
             old_taxa.append(t.replace(" ","_"))
             new_taxa.append(','.join(subs))
-
-    print old_taxa
-    print new_taxa
 
     # call the sub
     new_XML = substitute_taxa(XML, old_taxa, new_taxa, verbose=verbose)
