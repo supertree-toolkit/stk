@@ -2044,8 +2044,13 @@ def taxonomic_checker(XML,verbose=False):
 
     return equivalents
 
+def load_taxonomy(taxonomy_csv):
+    """Load in a taxonomy CSV file and convert to taxonomy Dict"""
 
-def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False):
+    pass
+
+
+def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
     """ Generates a taxonomy of the data from EoL data. This is stored as a
     dictionary of taxonomy for each taxon in the dataset. Missing data are
     encoded as '' (blank string). It's up to the calling function to store this
@@ -2054,6 +2059,9 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False):
     import urllib2
     from urllib import quote_plus
     import simplejson as json
+
+    if not ignoreWarnings:
+        _check_data(XML)
 
     if (existing_taxonomy == None):
         taxonomy = {}

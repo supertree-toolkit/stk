@@ -566,7 +566,7 @@ class TestSTK(unittest.TestCase):
                     'Gallus gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Gallus', 'order': 'Galliformes', 'species': 'Gallus gallus'}, 
                     'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'infraphylum': 'Gnathostomata', 'superclass': 'Tetrapoda', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'order': 'Procellariiformes', 'species': 'Thalassarche melanophris'}}
         if (internet_on()):
-            taxonomy = create_taxonomy(XML) # what if there's no internet?
+            taxonomy = create_taxonomy(XML)
             self.assertDictEqual(taxonomy, expected)
         else:
             print "WARNING: No internet connection found. Not check the create_taxonomy function"
