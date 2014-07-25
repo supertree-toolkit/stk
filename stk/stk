@@ -521,6 +521,28 @@ def main():
             help="Give a starting taxonomy file, e.g. one you ran earlier",)
     parser_cm.set_defaults(func=create_taxonomy)
 
+
+    # create taxonomy csv file
+    parser_cm = subparsers.add_parser('auto_subs',
+            help='Using a taxonomy, generate a species level version of your data in one go.'
+            )
+    parser_cm.add_argument('input',
+            help='The input Phyml')
+    parser_cm.add_argument('taxonomy',
+            help='Your taxnomy file',
+            )
+    parser_cm.add_argument('output', 
+            help='The output phyml')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing file without asking for confirmation")
+    #parser_cm.add_argument('--level',
+    #        choices=supertree_toolkit.taxonomy_levels,
+    #        help="Taxonomic level to output at",)
+    parser_cm.set_defaults(func=auto_subs)
+
+
     # before we let argparse work its magic, check for --version
     if "--version" in sys.argv:
         branch = d.get("branch_nick","<unknown branch>")
@@ -1814,6 +1836,60 @@ def create_taxonomy(args):
                     kingdom.encode('utf-8'),
                     provider.encode('utf-8')]
             writer.writerow(this_classification)
+
+def auto_subs(args):
+    """Get all OTUs to the same taxonomic level"""
+
+    
+    verbose = args.verbose
+    input_file = args.input
+    output_file = args.output
+    taxonomy = args.taxonomy
+    ignoreWarnings = args.ignoreWarnings
+
+    if (os.path.exists(output) and not overwrite):
+        print "Output Phyml file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+
+    XML = supertree_toolkit.load_phyml(input_file)
+    taxonomy = supertree_toolkit.load_taxonomy(taxonomy) # load it in and create the dictionary
+
+    try:
+        newXML = supertree_toolkit.generate_species_level_data(XML,taxonomy,verbose=verbose,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except:
+        # what about no internet conenction? What error do that throw?
+        msg = "***Error: failed to carry out auto subs due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit"
+        print msg
+        traceback.print_exc()
+        return
+
+    f = open(output,"w")
+    f.write(newXML)
+    f.close()
+
 
 if __name__ == "__main__":
     main()
