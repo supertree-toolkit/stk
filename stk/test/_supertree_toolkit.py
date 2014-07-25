@@ -15,7 +15,7 @@ from stk.supertree_toolkit import obtain_trees, get_all_source_names, _swap_tree
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources
 from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used
 from stk.supertree_toolkit import _trees_equal, get_weights, create_taxonomy
-from stk.supertree_toolkit import get_outgroup
+from stk.supertree_toolkit import get_outgroup, taxonomic_checker
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -570,6 +570,16 @@ class TestSTK(unittest.TestCase):
             self.assertDictEqual(taxonomy, expected)
         else:
             print "WARNING: No internet connection found. Not check the create_taxonomy function"
+        return
+    
+    def test_taxonomy_checker(self):
+        XML = etree.tostring(etree.parse('data/input/check_taxonomy.phyml',parser),pretty_print=True)
+        if (internet_on()):
+            equivs = taxonomic_checker(XML)
+            print equivs
+        else:
+            print "WARNING: No internet connection found. Not check the taxonomy_checker function"
+        return
 
 
 def internet_on():

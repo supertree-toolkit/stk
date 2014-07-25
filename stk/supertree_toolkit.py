@@ -1966,32 +1966,83 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
 
     return output_string
 
-def taxonomic_checker(XML):
+def taxonomic_checker(XML,verbose=False):
     """ For each name in the database generate a database of the original name,
     possible synonyms and if the taxon is not know, signal that. We do this by
     using the EoL API to grab synonyms of each taxon.  """
 
+    import urllib2
+    from urllib import quote_plus
+    import simplejson as json
+
     # grab all taxa
+    taxa = get_all_taxa(XML)
+
+    equivalents = {}
 
     # for each taxon, check the name on EoL - what if it's a synonym? Does EoL still return a result?
     # if not, is there another API function to do this?
     # search for the taxon and grab the name - if you search for a recognised synonym on EoL then
     # you get the original ('correct') name - shorten this to two words and you're done.
+    for t in taxa:
+        taxon = t.replace("_"," ")
+        if (verbose):
+            print "Looking up ", taxon
+        # get the data from EOL on taxon
+        taxonq = quote_plus(taxon)
+        URL = "http://eol.org/api/search/1.0.json?q="+taxonq
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        data = json.load(f)
+        # check if there's some data
+        if len(data['results']) == 0:
+            equivalents[t] = [[t],'red']
+            continue
+        ID = str(data['results'][0]['id']) # take first hit
+        URL = "http://eol.org/api/pages/1.0/"+ID+".json?images=2&videos=0&sounds=0&maps=0&text=2&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&vetted=0"       
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        data = json.load(f)
+        if len(data['scientificName']) == 0:
+            # not found a scientific name, so set as red
+            continue
+        correct_name = data['scientificName']
+        # we only want the first two bits of the name, not the original author and year if any
+        temp_name = correct_name.split(' ')
+        if (len(temp_name) > 2):
+            correct_name = ' '.join(temp_name[0:2])
+        correct_name = correct_name.replace(' ','_')
 
-    # build up the output dictionary - original name is key, synonyms/missing is value
-    # if the original matches the 'correct', then it's green
-    # if we managed to get something anyway, then it's yellow and create a list of possible synonyms with the 
-    # 'correct' taxon at the top
-    # if our search was empty, then it's red.
-
-    # can we add the PDB here too?
+        # build up the output dictionary - original name is key, synonyms/missing is value
+        if (correct_name == t):
+            # if the original matches the 'correct', then it's green
+            equivalents[t] = [[t], 'green']
+        else:
+            # if we managed to get something anyway, then it's yellow and create a list of possible synonyms with the 
+            # 'correct' taxon at the top
+            eol_synonyms = data['synonyms']
+            synonyms = []
+            for s in eol_synonyms:
+                ts = s['synonym']
+                temp_syn = ts.split(' ')
+                if (len(temp_syn) > 2):
+                    temp_syn = ' '.join(temp_syn[0:2])
+                    ts = temp_syn
+                if (s['relationship'] == "synonym"):
+                    ts = ts.replace(" ","_")
+                    synonyms.append(ts)
+            synonyms = _uniquify(synonyms)
+            # we need to put the correct name at the top of the list now
+            synonyms.insert(0, synonyms.pop(synonyms.index(correct_name)))
+            equivalents[t] = [synonyms,'yellow']
+        # if our search was empty, then it's red - see above
 
     # up to the calling funciton to do something sensible with this
     # we build a dictionary of names and then a list of synonyms or the original name, then a tag if it's green, yellow, red.
 
-    # can we make the CLI put colour? That would be cool
-
-    pass
+    return equivalents
 
 
 def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False):

@@ -23,6 +23,7 @@ import os
 import sys
 import argparse
 import traceback
+import argcomplete
 try:
     __file__
 except NameError:
@@ -488,7 +489,21 @@ def main():
     parser_cm.add_argument('subs',
             help='The subs file')
     parser_cm.set_defaults(func=check_subs)
-    
+   
+    # taxonomic name checker
+    parser_cm = subparsers.add_parser('check_taxonomy',
+            help='Check your OTUs against EoL.'
+            )
+    parser_cm.add_argument('input',
+            help='The input Phyml')
+    parser_cm.add_argument('output', 
+            help='The output CSV file. Taxon, synonyms, status')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing file without asking for confirmation")
+    parser_cm.set_defaults(func=check_taxonomy)
+
 
     # before we let argparse work its magic, check for --version
     if "--version" in sys.argv:
@@ -504,6 +519,7 @@ def main():
         sys.exit(1)
     
     # parse the arguments, and strip out the common options
+    argcomplete.autocomplete(parser)
     args = parser.parse_args()
     verbose = args.verbose
     version = args.version
@@ -1603,6 +1619,20 @@ def check_subs(args):
     print "This subs file looks good. No additional taxa will be added."
     print "**************************************************************\n"
 
+
+def check_taxonomy(args):
+    """check out the OTUs in the Phyml - are they considered valid?"""
+
+    verbose = args.verbose
+    input_file = args.input
+    output_file = args.output
+
+    XML = supertree_toolkit.load_phyml(input_file)
+    equivs = supertree_toolkit.taxonomic_checker(XML)
+    f = open(output_file,"w")
+    for taxon in sorted(equivs.keys()):
+        f.write(taxon+","+";".join(equivs[taxon][0])+","+equivs[taxon][1]+"\n")
+    f.close()
 
 
 if __name__ == "__main__":
