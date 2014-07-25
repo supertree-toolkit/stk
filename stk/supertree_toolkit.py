@@ -59,6 +59,8 @@ current_taxonomy_levels = ['species','genus','family','order','class','phylum','
 extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
 # all of them in order
 taxonomy_levels = ['species','genus','family','superfamily','infraorder','suborder','order','superorder','subclass','class','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
+# The NOTIN are not in the PBDB taxonomy - hopeully none of their results have NOTIN as a label!
+
 SPECIES = taxonomy_levels[0]
 GENUS = taxonomy_levels[1]
 FAMILY = taxonomy_levels[2]
@@ -2089,9 +2091,39 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
         # check if there's some data
         if len(data['results']) == 0:
             # try PBDB as it might be a fossil
-            # TODO: ADD THIS
-            taxonomy[taxon] = {}
-            continue
+            URL = "http://paleobiodb.org/data1.1/taxa/single.json?name="+taxonq+"&show=phylo&vocab=pbdb"
+            req = urllib2.Request(URL)
+            opener = urllib2.build_opener()
+            f = opener.open(req)
+            data = json.load(f)
+            if (len(data['records']) == 0):
+                # no idea!
+                taxonomy[taxon] = {}
+                continue
+            # otherwise, let's fill in info here - only if extinct!
+            if data['records'][0]['ext'] == 0:
+                this_taxonomy = {}
+                this_taxonomy['provider'] = 'PBDB'
+                for level in taxonomy_levels:
+                    try:
+                        pbdb_lev = data['records'][0][pbdb_taxonomy_levels[i]]
+                        temp_lev = pbdb_lev.split(" ")
+                        # they might have the author on the end, so strip it off
+                        if (level == 'species'):
+                            this_taxonomy[level] = ' '.join(temp_lev[0:2])
+                        else:
+                            this_taxonomy[level] = temp_lev[0]       
+                    except KeyError:
+                        continue
+                # add the taxon at right level too
+                try:
+                    current_level = data['records'][0]['rank']
+                    this_taxonomy[current_level] = data['records'][0][taxon_name]
+                except KeyError:
+                    continue
+            else:
+                # extant, but not in EoL - leave the user to sort this one out
+                taxonomy[taxon] = {}
         ID = str(data['results'][0]['id']) # take first hit
         # Now look for taxonomies
         URL = "http://eol.org/api/pages/1.0/"+ID+".json"
@@ -2121,13 +2153,25 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
         this_taxonomy['provider'] = currentdb
         for a in data['ancestors']:
             try:
-                # note the dump into ASCII
-                this_taxonomy[a['taxonRank'].encode("ascii","ignore")] = a['scientificName'].encode("ascii","ignore")
+                temp_level = a['taxonRank'].encode("ascii","ignore")
+                if (temp_level in taxonomy_levels):
+                    # note the dump into ASCII
+                    temp_name = a['scientificName'].encode("ascii","ignore")
+                    temp_name = temp_name.split(" ")
+                    if (temp_level == 'species'):
+                        this_taxonomy[temp_level] = temp_name[0:2]
+                    else:
+                        this_taxonomy[temp_level] = temp_name[0]  
             except KeyError:
                 continue
         try:
-            # higher taxa, add it in to the taxonomy!
-            this_taxonomy[data['taxonRank'].lower()] = taxon
+            # add taxonomy it in to the taxonomy!
+            # some issues here, so let's make sure it's OK
+            temp_name = taxon.split(" ")            
+            if not data['taxonRank'].lower() == 'species':
+                this_taxonomy[data['taxonRank'].lower()] = temp_name[0]
+            else:
+                this_taxonomy[data['taxonRank'].lower()] = ' '.join(temp_name[0:2])
         except KeyError:
             continue
         taxonomy[taxon] = this_taxonomy
@@ -2143,7 +2187,6 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
             genera.append(taxonomy[t][GENUS])
         except KeyError:
             continue
-    
     genera = _uniquify(genera)
     # We then use ITIS to fill in missing info based on the genera only - that saves us a species level search
     # and we can fill in most of the EoL missing data
@@ -2195,9 +2238,12 @@ def generate_species_level_data(XML, taxonomy, ignoreWarnings=False, verbose=Fal
     via a polytomy. This has to be done in one step to avoid adding spurious
     structure to the phylogenies """
 
+    if not ignoreWarnings:
+        _check_data(XML)
+
     # if taxonomic checker not done, warn
     if (not taxonomy):
-        raise NoneCompleteTaxonomy("Taxonomy is empty. Create a taoxnomy first. You'll probably need to hand edit the file to complete")
+        raise NoneCompleteTaxonomy("Taxonomy is empty. Create a taxonomy first. You'll probably need to hand edit the file to complete")
         return
 
     # if missing data in taxonomy, warn

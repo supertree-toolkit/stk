@@ -34,7 +34,7 @@
       <source_tree>
         <tree>
           <tree_string>
-            <string_value lines="1">(Gallus_gallus, (Thalassarche_melanophris, Egretta_tricolor));</string_value>
+              <string_value lines="1">(Archaeopteryx_lithographica, (Gallus_gallus, (Thalassarche_melanophris, Egretta_tricolor)));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>

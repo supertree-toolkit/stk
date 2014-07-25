@@ -1843,7 +1843,7 @@ def auto_subs(args):
     
     verbose = args.verbose
     input_file = args.input
-    output_file = args.output
+    output = args.output
     taxonomy = args.taxonomy
     ignoreWarnings = args.ignoreWarnings
 
@@ -1877,6 +1877,10 @@ def auto_subs(args):
         return
     except TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except NoneCompleteTaxonomy as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
         print msg
         return
     except:
