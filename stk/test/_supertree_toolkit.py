@@ -15,7 +15,7 @@ from stk.supertree_toolkit import obtain_trees, get_all_source_names, _swap_tree
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources
 from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used
 from stk.supertree_toolkit import _trees_equal, get_weights, create_taxonomy
-from stk.supertree_toolkit import get_outgroup, taxonomic_checker
+from stk.supertree_toolkit import get_outgroup, taxonomic_checker, load_taxonomy
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -565,7 +565,8 @@ class TestSTK(unittest.TestCase):
         expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'},
                     'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'subkingdom': 'Bilateria', 'subclass': 'Neoloricata', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'suborder': 'Ischnochitonina', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Egretta', 'order': 'Pelecaniformes', 'species': 'Egretta tricolor'}, 
                     'Gallus gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Gallus', 'order': 'Galliformes', 'species': 'Gallus gallus'}, 
-                    'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'infraphylum': 'Gnathostomata', 'superclass': 'Tetrapoda', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'order': 'Procellariiformes', 'species': 'Thalassarche melanophris'}}
+                    'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'infraphylum': 'Gnathostomata', 'superclass': 'Tetrapoda', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'order': 'Procellariiformes', 'species': 'Thalassarche melanophris'},
+                    'Jeletzkytes criptonodosus': {'kingdom': 'Metazoa', 'family': 'Scaphitidae', 'order': 'Ammonoidea', 'phylum': 'Mollusca', 'provider': 'PBDB', 'species': 'Jeletzkytes criptonodosus', 'class': 'Cephalopoda'}}
         if (internet_on()):
             taxonomy = create_taxonomy(XML)
             self.maxDiff = None
@@ -582,6 +583,18 @@ class TestSTK(unittest.TestCase):
         else:
             print "WARNING: No internet connection found. Not check the taxonomy_checker function"
         return
+
+    def test_load_taxonomy(self):
+        csv_file = "data/input/create_taxonomy.csv"
+        expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'},
+                    'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'subkingdom': 'Bilateria', 'subclass': 'Neoloricata', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'suborder': 'Ischnochitonina', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Egretta', 'order': 'Pelecaniformes', 'species': 'Egretta tricolor'}, 
+                    'Gallus gallus': {'kingdom': 'Animalia', 'infrakingdom': 'Protostomia', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'genus': 'Gallus', 'order': 'Galliformes', 'species': 'Gallus gallus'}, 
+                    'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'order': 'Procellariiformes', 'species': 'Thalassarche melanophris'},
+                    'Jeletzkytes criptonodosus': {'kingdom': 'Metazoa', 'family': 'Scaphitidae', 'order': 'Ammonoidea', 'phylum': 'Mollusca', 'provider': 'PBDB', 'species': 'Jeletzkytes criptonodosus', 'class': 'Cephalopoda'}}
+        taxonomy = load_taxonomy(csv_file)
+        self.maxDiff = None
+
+        self.assertDictEqual(taxonomy, expected)
 
 
 def internet_on():

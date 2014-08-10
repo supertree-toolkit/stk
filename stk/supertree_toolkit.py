@@ -2005,12 +2005,18 @@ def taxonomic_checker(XML,verbose=False):
         URL = "http://eol.org/api/pages/1.0/"+ID+".json?images=2&videos=0&sounds=0&maps=0&text=2&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&vetted=0"       
         req = urllib2.Request(URL)
         opener = urllib2.build_opener()
-        f = opener.open(req)
+        
+        try:
+            f = opener.open(req)
+        except urllib2.HTTPError:
+            equivalents[t] = [[t],'red'] 
+            continue
         data = json.load(f)
         if len(data['scientificName']) == 0:
             # not found a scientific name, so set as red
+            equivalents[t] = [[t],'red']            
             continue
-        correct_name = data['scientificName']
+        correct_name = data['scientificName'].encode("ascii","ignore")
         # we only want the first two bits of the name, not the original author and year if any
         temp_name = correct_name.split(' ')
         if (len(temp_name) > 2):
@@ -2027,7 +2033,7 @@ def taxonomic_checker(XML,verbose=False):
             eol_synonyms = data['synonyms']
             synonyms = []
             for s in eol_synonyms:
-                ts = s['synonym']
+                ts = s['synonym'].encode("ascii","ignore")
                 temp_syn = ts.split(' ')
                 if (len(temp_syn) > 2):
                     temp_syn = ' '.join(temp_syn[0:2])
@@ -2037,7 +2043,10 @@ def taxonomic_checker(XML,verbose=False):
                     synonyms.append(ts)
             synonyms = _uniquify(synonyms)
             # we need to put the correct name at the top of the list now
-            synonyms.insert(0, synonyms.pop(synonyms.index(correct_name)))
+            if (correct_name in synonyms):
+                synonyms.insert(0, synonyms.pop(synonyms.index(correct_name)))
+            elif len(synonyms) == 0:
+                synonyms.append(correct_name)
             equivalents[t] = [synonyms,'yellow']
         # if our search was empty, then it's red - see above
 
@@ -2046,10 +2055,29 @@ def taxonomic_checker(XML,verbose=False):
 
     return equivalents
 
+
 def load_taxonomy(taxonomy_csv):
     """Load in a taxonomy CSV file and convert to taxonomy Dict"""
+    
+    import csv
 
-    pass
+    taxonomy = {}
+
+    with open(taxonomy_csv, 'rU') as csvfile:
+        tax_reader = csv.reader(csvfile, delimiter=',')
+        tax_reader.next()
+        for row in tax_reader:
+            current_taxonomy = {}
+            i = 1
+            for t in taxonomy_levels:
+                if not row[i] == '-':
+                    current_taxonomy[t] = row[i]
+                i = i+ 1
+
+            current_taxonomy['provider'] = row[17] # data source
+            taxonomy[row[0]] = current_taxonomy
+    
+    return taxonomy
 
 
 def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
@@ -2101,12 +2129,12 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
                 taxonomy[taxon] = {}
                 continue
             # otherwise, let's fill in info here - only if extinct!
-            if data['records'][0]['ext'] == 0:
+            if data['records'][0]['is_extant'] == 0:
                 this_taxonomy = {}
                 this_taxonomy['provider'] = 'PBDB'
                 for level in taxonomy_levels:
                     try:
-                        pbdb_lev = data['records'][0][pbdb_taxonomy_levels[i]]
+                        pbdb_lev = data['records'][0][level]
                         temp_lev = pbdb_lev.split(" ")
                         # they might have the author on the end, so strip it off
                         if (level == 'species'):
@@ -2116,11 +2144,13 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
                     except KeyError:
                         continue
                 # add the taxon at right level too
-                try:
-                    current_level = data['records'][0]['rank']
-                    this_taxonomy[current_level] = data['records'][0][taxon_name]
-                except KeyError:
-                    continue
+                #try:
+                current_level = data['records'][0]['rank']
+                this_taxonomy[current_level] = data['records'][0]['taxon_name']
+                #except KeyError:
+                #    continue
+                taxonomy[taxon] = this_taxonomy
+                continue
             else:
                 # extant, but not in EoL - leave the user to sort this one out
                 taxonomy[taxon] = {}
@@ -2129,7 +2159,11 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
         URL = "http://eol.org/api/pages/1.0/"+ID+".json"
         req = urllib2.Request(URL)
         opener = urllib2.build_opener()
-        f = opener.open(req)
+        try:
+            f = opener.open(req)
+        except urllib2.HTTPError:
+            taxonomy[taxon] = this_taxonomy
+            continue
         data = json.load(f)
         if len(data['taxonConcepts']) == 0:
             taxonomy[taxon] = {}
@@ -2199,7 +2233,10 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
             continue
         req = urllib2.Request(URL)
         opener = urllib2.build_opener()
-        f = opener.open(req)
+        try:
+            f = opener.open(req)
+        except urllib2.HTTPError:
+            continue
         string = unicode(f.read(),"ISO-8859-1")
         data = json.loads(string)
         if data['scientificNames'][0] == None:

@@ -1667,7 +1667,7 @@ def check_otus(args):
 
     XML = supertree_toolkit.load_phyml(input_file)
     try:
-        equivs = supertree_toolkit.taxonomic_checker(XML)
+        equivs = supertree_toolkit.taxonomic_checker(XML, verbose=verbose)
     except NotUniqueError as detail:
         msg = "***Error: Failed to check OTUs.\n"+detail.msg
         print msg
