@@ -1379,6 +1379,38 @@ def amalgamate_trees(XML,format="nexus",anonymous=False,ignoreWarnings=False):
 
     return _amalgamate_trees(trees,format,anonymous)
         
+#TODO verify and test
+def get_taxa_from_tree(tree, pretty=False, ignoreErrors=False):
+    """Returns a list of all taxa available for the tree passed as argument.
+
+    :param tree: string with the data for the tree in Newick format.
+    :type tree: string
+    :param pretty: defines if '_' in taxa names should be replaced with spaces. 
+    :type pretty: boolean
+    :param ignoreErrors: should execution continue on error?
+    :type ignoreErrors: boolean
+    :returns: list of strings with the taxa names, sorted alphabetically
+    :rtype: list
+    """
+    taxa_list = []
+
+    try:
+        taxa_list.extend(_getTaxaFromNewick(tree))
+    except TreeParseError as detail:
+        if (ignoreErrors):
+            pass
+        else:
+            raise TreeParseError( detail.msg )
+
+    # now uniquify the list of taxa
+    taxa_list = _uniquify(taxa_list)
+    taxa_list.sort()
+
+    if (pretty):
+        taxa_list = [x.replace('_', ' ') for x in taxa_list]
+
+    return taxa_list
+
 
 def get_all_taxa(XML, pretty=False, ignoreErrors=False):
     """ Produce a taxa list by scanning all trees within 
@@ -1403,17 +1435,12 @@ def get_all_taxa(XML, pretty=False, ignoreErrors=False):
             else:
                 raise TreeParseError( detail.msg )
 
-
-
     # now uniquify the list of taxa
     taxa_list = _uniquify(taxa_list)
     taxa_list.sort()
 
     if (pretty):
-        unpretty_tl = taxa_list
-        taxa_list = []
-        for t in unpretty_tl:
-            taxa_list.append(t.replace('_',' '))
+        taxa_list = [x.replace('_', ' ') for x in taxa_list]
 
     return taxa_list
 
@@ -2051,6 +2078,13 @@ def load_taxonomy(taxonomy_csv):
 
     pass
 
+def create_taxonomy_from_taxa():
+
+    return
+
+def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
+    
+    return
 
 def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
     """ Generates a taxonomy of the data from EoL data. This is stored as a
