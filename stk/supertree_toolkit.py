@@ -1380,7 +1380,7 @@ def amalgamate_trees(XML,format="nexus",anonymous=False,ignoreWarnings=False):
     return _amalgamate_trees(trees,format,anonymous)
         
 #TODO verify and test
-def get_taxa_from_tree(tree, pretty=False, ignoreErrors=False):
+def get_taxa_from_tree_for_taxonomy(tree, pretty=False, ignoreErrors=False):
     """Returns a list of all taxa available for the tree passed as argument.
 
     :param tree: string with the data for the tree in Newick format.
@@ -2078,14 +2078,174 @@ def load_taxonomy(taxonomy_csv):
 
     pass
 
-def create_taxonomy_from_taxa():
+import Queue
+import threading
+import urllib2
+from urllib import quote_plus
+import simplejson as json
 
-    return
+class TaxonomyFetcher(threading.Thread):
+    """Thread for getting taxonony data from different sources in internet."""
+
+    def __init__(self, taxonomy, lock, queue, id, pref_db=None, verbose=False, ignoreWarnings=False):
+        """ """
+        threading.Thread.__init__(self)
+        self.taxonomy = taxonomy
+        self.lock = lock
+        self.queue = queue
+        self.id = id
+        self.verbose = verbose
+        self.pref_db = pref_db
+        self.ignoreWarnings = ignoreWarnings
+
+    #TODO Enclose in big try to prevent locking the taxonomy forever when there is an error. 
+    def run(self):
+        """Get the taxonomy from internet resources."""
+        while True :
+            #get taxon from queue
+            taxon = self.queue.get()
+
+            print("Starting {} {}".format(taxon,str(self.id)))
+            
+            #Lock access to the taxonomy
+            self.lock.acquire()
+            if not taxon in self.taxonomy: # is a new taxon, not previously in the taxonomy
+                #Release access to the taxonomy
+                self.lock.release()
+                if (self.verbose):
+                    print "Looking up ", taxon
+                # get the data from EOL on taxon
+                taxonq = quote_plus(taxon)
+                URL = "http://eol.org/api/search/1.0.json?q="+taxonq
+                req = urllib2.Request(URL)
+                opener = urllib2.build_opener()
+                f = opener.open(req)
+                data = json.load(f)
+                # check if there's some data
+                if len(data['results']) == 0:
+                    # try PBDB as it might be a fossil
+                    URL = "http://paleobiodb.org/data1.1/taxa/single.json?name="+taxonq+"&show=phylo&vocab=pbdb"
+                    req = urllib2.Request(URL)
+                    opener = urllib2.build_opener()
+                    f = opener.open(req)
+                    data = json.load(f)
+                    if (len(data['records']) == 0):
+                        # no idea!
+                        with self.lock:
+                            self.taxonomy[taxon] = {}
+                        continue
+                    # otherwise, let's fill in info here - only if extinct!
+                    if data['records'][0]['ext'] == 0:
+                        this_taxonomy = {}
+                        this_taxonomy['provider'] = 'PBDB'
+                        for level in taxonomy_levels:
+                            try:
+                                pbdb_lev = data['records'][0][pbdb_taxonomy_levels[i]]
+                                temp_lev = pbdb_lev.split(" ")
+                                # they might have the author on the end, so strip it off
+                                if (level == 'species'):
+                                    this_taxonomy[level] = ' '.join(temp_lev[0:2])
+                                else:
+                                    this_taxonomy[level] = temp_lev[0]       
+                            except KeyError:
+                                continue
+                        # add the taxon at right level too
+                        try:
+                            current_level = data['records'][0]['rank']
+                            this_taxonomy[current_level] = data['records'][0][taxon_name]
+                        except KeyError:
+                            continue
+                    else:
+                        # extant, but not in EoL - leave the user to sort this one out
+                        with self.lock:
+                            self.taxonomy[taxon] = {}
+                ID = str(data['results'][0]['id']) # take first hit
+                # Now look for taxonomies
+                URL = "http://eol.org/api/pages/1.0/"+ID+".json"
+                req = urllib2.Request(URL)
+                opener = urllib2.build_opener()
+                f = opener.open(req)
+                data = json.load(f)
+                if len(data['taxonConcepts']) == 0:
+                    with self.lock:
+                        self.taxonomy[taxon] = {}
+                    continue
+                TID = str(data['taxonConcepts'][0]['identifier']) # take first hit
+                currentdb = str(data['taxonConcepts'][0]['nameAccordingTo'])
+                # loop through and get preferred one if specified
+                # now get taxonomy
+                if (not self.pref_db is None):
+                    for db in data['taxonConcepts']:
+                        currentdb = db['nameAccordingTo'].lower()
+                        if (self.pref_db.lower() in currentdb):
+                            TID = str(db['identifier'])
+                            break
+                URL="http://eol.org/api/hierarchy_entries/1.0/"+TID+".json"
+                req = urllib2.Request(URL)
+                opener = urllib2.build_opener()
+                f = opener.open(req)
+                data = json.load(f)
+                this_taxonomy = {}
+                this_taxonomy['provider'] = currentdb
+                for a in data['ancestors']:
+                    try:
+                        temp_level = a['taxonRank'].encode("ascii","ignore")
+                        if (temp_level in taxonomy_levels):
+                            # note the dump into ASCII
+                            temp_name = a['scientificName'].encode("ascii","ignore")
+                            temp_name = temp_name.split(" ")
+                            if (temp_level == 'species'):
+                                this_taxonomy[temp_level] = temp_name[0:2]
+                            else:
+                                this_taxonomy[temp_level] = temp_name[0]  
+                    except KeyError:
+                        continue
+                try:
+                    # add taxonomy it in to the taxonomy!
+                    # some issues here, so let's make sure it's OK
+                    temp_name = taxon.split(" ")            
+                    if not data['taxonRank'].lower() == 'species':
+                        this_taxonomy[data['taxonRank'].lower()] = temp_name[0]
+                    else:
+                        this_taxonomy[data['taxonRank'].lower()] = ' '.join(temp_name[0:2])
+                except KeyError:
+                    continue
+                with self.lock:
+                    #Send result to dictionary
+                    self.taxonomy[taxon] = this_taxonomy
+            else :
+                #Nothing to do release the lock on taxonomy
+                self.lock.release()
+            #Mark task as done
+            self.queue.task_done()
+
+#TODO
+def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
+    """ """
+    if taxonomy is None:
+        taxonomy = {}
+
+    lock = threading.Lock()
+    queue = Queue.Queue()
+
+    #Starting a few threads as daemons checking the queue
+    for i in range(4) :
+        t = TaxonomyFetcher(taxonomy, lock, queue, i, pref_db, verbose, ignoreWarnings)
+        t.setDaemon(True)
+        t.start()
+   
+    print("Will process: {}".format(str(len(taxa)),))
+    #Popoluate the queue with the taxa.
+    for taxon in taxa :
+        queue.put(taxon)
+    
+    #Wait till everyone finishes
+    queue.join()
 
 def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
-    
+        
     return
-
+#TODO
 def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
     """ Generates a taxonomy of the data from EoL data. This is stored as a
     dictionary of taxonomy for each taxon in the dataset. Missing data are
@@ -2096,120 +2256,20 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
     from urllib import quote_plus
     import simplejson as json
 
+    print("Starting taxonomy")
+
     if not ignoreWarnings:
         _check_data(XML)
 
-    if (existing_taxonomy == None):
+    if (existing_taxonomy is None):
         taxonomy = {}
     else:
         taxonomy = existing_taxonomy
 
-    taxa = get_all_taxa(XML)
-
-    for taxon in taxa:
-        taxon = taxon.replace("_"," ")
-        try:
-            taxonomy[taxon] # skip if we already know about this taxon
-            continue
-        except KeyError:
-            pass
-        if (verbose):
-            print "Looking up ", taxon
-        # get the data from EOL on taxon
-        taxonq = quote_plus(taxon)
-        URL = "http://eol.org/api/search/1.0.json?q="+taxonq
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
-        f = opener.open(req)
-        data = json.load(f)
-        # check if there's some data
-        if len(data['results']) == 0:
-            # try PBDB as it might be a fossil
-            URL = "http://paleobiodb.org/data1.1/taxa/single.json?name="+taxonq+"&show=phylo&vocab=pbdb"
-            req = urllib2.Request(URL)
-            opener = urllib2.build_opener()
-            f = opener.open(req)
-            data = json.load(f)
-            if (len(data['records']) == 0):
-                # no idea!
-                taxonomy[taxon] = {}
-                continue
-            # otherwise, let's fill in info here - only if extinct!
-            if data['records'][0]['ext'] == 0:
-                this_taxonomy = {}
-                this_taxonomy['provider'] = 'PBDB'
-                for level in taxonomy_levels:
-                    try:
-                        pbdb_lev = data['records'][0][pbdb_taxonomy_levels[i]]
-                        temp_lev = pbdb_lev.split(" ")
-                        # they might have the author on the end, so strip it off
-                        if (level == 'species'):
-                            this_taxonomy[level] = ' '.join(temp_lev[0:2])
-                        else:
-                            this_taxonomy[level] = temp_lev[0]       
-                    except KeyError:
-                        continue
-                # add the taxon at right level too
-                try:
-                    current_level = data['records'][0]['rank']
-                    this_taxonomy[current_level] = data['records'][0][taxon_name]
-                except KeyError:
-                    continue
-            else:
-                # extant, but not in EoL - leave the user to sort this one out
-                taxonomy[taxon] = {}
-        ID = str(data['results'][0]['id']) # take first hit
-        # Now look for taxonomies
-        URL = "http://eol.org/api/pages/1.0/"+ID+".json"
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
-        f = opener.open(req)
-        data = json.load(f)
-        if len(data['taxonConcepts']) == 0:
-            taxonomy[taxon] = {}
-            continue
-        TID = str(data['taxonConcepts'][0]['identifier']) # take first hit
-        currentdb = str(data['taxonConcepts'][0]['nameAccordingTo'])
-        # loop through and get preferred one if specified
-        # now get taxonomy
-        if (not pref_db == None):
-            for db in data['taxonConcepts']:
-                currentdb = db['nameAccordingTo'].lower()
-                if (pref_db.lower() in currentdb):
-                    TID = str(db['identifier'])
-                    break
-        URL="http://eol.org/api/hierarchy_entries/1.0/"+TID+".json"
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
-        f = opener.open(req)
-        data = json.load(f)
-        this_taxonomy = {}
-        this_taxonomy['provider'] = currentdb
-        for a in data['ancestors']:
-            try:
-                temp_level = a['taxonRank'].encode("ascii","ignore")
-                if (temp_level in taxonomy_levels):
-                    # note the dump into ASCII
-                    temp_name = a['scientificName'].encode("ascii","ignore")
-                    temp_name = temp_name.split(" ")
-                    if (temp_level == 'species'):
-                        this_taxonomy[temp_level] = temp_name[0:2]
-                    else:
-                        this_taxonomy[temp_level] = temp_name[0]  
-            except KeyError:
-                continue
-        try:
-            # add taxonomy it in to the taxonomy!
-            # some issues here, so let's make sure it's OK
-            temp_name = taxon.split(" ")            
-            if not data['taxonRank'].lower() == 'species':
-                this_taxonomy[data['taxonRank'].lower()] = temp_name[0]
-            else:
-                this_taxonomy[data['taxonRank'].lower()] = ' '.join(temp_name[0:2])
-        except KeyError:
-            continue
-        taxonomy[taxon] = this_taxonomy
+    taxa = get_all_taxa(XML, pretty=True)
     
+    create_taxonomy_from_taxa(taxa, taxonomy)
+
     if (verbose):
         print "Done basic taxonomy, getting more info from ITIS"
     
