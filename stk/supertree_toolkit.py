@@ -44,6 +44,12 @@ from indent import *
 import unicodedata
 from stk_internals import *
 from copy import deepcopy
+import Queue
+import threading
+import urllib2
+from urllib import quote_plus
+import simplejson as json
+import time
 
 #plt.ion()
 
@@ -2078,12 +2084,6 @@ def load_taxonomy(taxonomy_csv):
 
     pass
 
-import Queue
-import threading
-import urllib2
-from urllib import quote_plus
-import simplejson as json
-import time
 
 class TaxonomyFetcher(threading.Thread):
     """Thread for getting taxonony data from different sources in internet."""
@@ -2231,7 +2231,7 @@ class TaxonomyFetcher(threading.Thread):
             self.queue.task_done()
 
 #TODO
-def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
+def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, threadNumber=10):
     """ """
     if taxonomy is None:
         taxonomy = {}
@@ -2240,7 +2240,7 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, 
     queue = Queue.Queue()
 
     #Starting a few threads as daemons checking the queue
-    for i in range(20) :
+    for i in range(threadNumber) :
         t = TaxonomyFetcher(taxonomy, lock, queue, i, pref_db, verbose, ignoreWarnings)
         t.setDaemon(True)
         t.start()
