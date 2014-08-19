@@ -2092,10 +2092,27 @@ def load_taxonomy(taxonomy_csv):
 
 
 class TaxonomyFetcher(threading.Thread):
-    """Thread for getting taxonony data from different sources in internet."""
+    """ Class to provide the taxonomy fetching functionality as a threaded function to be used individually or working with a pool.
+    """
 
-    def __init__(self, taxonomy, lock, queue, id, pref_db=None, verbose=False, ignoreWarnings=False):
-        """ """
+    def __init__(self, taxonomy, lock, queue, id=0, pref_db=None, verbose=False, ignoreWarnings=False):
+        """ Constructor for the threaded model.
+        :param taxonomy: previous taxonomy available (if available) or an empty dictionary to store the results .
+        :type taxonomy: dictionary
+        :param lock: lock to keep the taxonomy threadsafe.
+        :type lock: Lock
+        :param queue: queue where the taxa are kept to be processed.
+        :type queue: Queue of strings
+        :param id: id for the thread to use if messages need to be printed.
+        :type id: int 
+        :param pref_db: Gives priority to database. Seems it is unused.
+        :type pref_db: string 
+        :param verbose: Show verbose messages during execution, will also define level of logging. True will set logging level to INFO.
+        :type verbose: boolean
+        :param ignoreWarnings: Ignore warnings and errors during execution? Errors will be logged with ERROR level on the logging output.
+        :type ignoreWarnings: boolean 
+        """
+
         threading.Thread.__init__(self)
         self.taxonomy = taxonomy
         self.lock = lock
@@ -2105,14 +2122,15 @@ class TaxonomyFetcher(threading.Thread):
         self.pref_db = pref_db
         self.ignoreWarnings = ignoreWarnings
 
-    #TODO Enclose in big try to prevent locking the taxonomy forever when there is an error. 
     def run(self):
-        """Get the taxonomy from internet resources."""
+        """ Gets and processes a taxon from the queue to get its taxonomy."""
         while True :
+            if self.verbose :
+                logging.getLogger().setLevel(logging.INFO)
             #get taxon from queue
             taxon = self.queue.get()
 
-            print("Starting {} {} remaining ~{}".format(taxon,str(self.id),str(self.queue.qsize())))
+            logging.debug("Starting {} with thread #{} remaining ~{}".format(taxon,str(self.id),str(self.queue.qsize())))
              
             #Lock access to the taxonomy
             self.lock.acquire()
@@ -2121,7 +2139,7 @@ class TaxonomyFetcher(threading.Thread):
                 self.lock.release()
                 if (self.verbose):
                     print "Looking up ", taxon
-                
+                    logging.info("Loolking up taxon: {}".format(str(taxon)))
                 try:
                     # get the data from EOL on taxon
                     taxonq = quote_plus(taxon)
@@ -2157,14 +2175,16 @@ class TaxonomyFetcher(threading.Thread):
                                         this_taxonomy[level] = ' '.join(temp_lev[0:2])
                                     else:
                                         this_taxonomy[level] = temp_lev[0]       
-                                except KeyError:
+                                except KeyError, e:
+                                    logging.error(str(e))
                                     continue
                             # add the taxon at right level too
                             try:
                                 current_level = data['records'][0]['rank']
                                 this_taxonomy[current_level] = data['records'][0][taxon_name]
-                            except KeyError:
+                            except KeyError, e:
                                 self.queue.task_done()
+                                logging.error(str(e))
                                 continue
                         else:
                             # extant, but not in EoL - leave the user to sort this one out
@@ -2210,10 +2230,11 @@ class TaxonomyFetcher(threading.Thread):
                                     this_taxonomy[temp_level] = temp_name[0:2]
                                 else:
                                     this_taxonomy[temp_level] = temp_name[0]  
-                        except KeyError:
+                        except KeyError, e:
+                            logging.error(str(e))
                             continue
                     try:
-                        # add taxonomy it in to the taxonomy!
+                        # add taxonomy in to the taxonomy!
                         # some issues here, so let's make sure it's OK
                         temp_name = taxon.split(" ")            
                         if not data['taxonRank'].lower() == 'species':
@@ -2222,12 +2243,14 @@ class TaxonomyFetcher(threading.Thread):
                             this_taxonomy[data['taxonRank'].lower()] = ' '.join(temp_name[0:2])
                     except KeyError:
                         self.queue.task_done()
+                        logging.error(str(e))
                         continue
                     with self.lock:
                         #Send result to dictionary
                         self.taxonomy[taxon] = this_taxonomy
                 except urllib2.HTTPError:
                     print("Network error when processing {} ".format(taxon,))
+                    logging.info("Network error when processing {} ".format(taxon,))
                     self.queue.task_done()
                     continue
             else :
@@ -2240,28 +2263,28 @@ class TaxonomyFetcher(threading.Thread):
 def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, threadNumber=10):
     """Uses the taxa provided to generate a taxonomy for all the taxon available. 
 
-    :param taxa: .
-    :type taxa : string
-    :param pref_db
-    :type pref_db :
-    :param taxonomy: .
-    :type taxonomy : dictionary
-    :param verbose:
-    :type boolean :
-    :param inoreWarnings:
-    :type boolean :
-    :param threadNumber:
-    :type int :
-
-
-
-    :param ignoreErrors: should execution continue on error?
-    :type ignoreErrors: boolean
-    :returns: dictionary with 
-    :rtype: list
+    :param taxa: list of the taxa.
+    :type taxa : list 
+    :param taxonomy: previous taxonomy available (if available) or an empty 
+    dictionary to store the results. If None will be init to an empty dictionary
+    :type taxonomy: dictionary
+    :param pref_db: Gives priority to database. Seems it is unused.
+    :type pref_db: string 
+    :param verbose: Show verbose messages during execution, will also define 
+    level of logging. True will set logging level to INFO.
+    :type verbose: boolean
+    :param ignoreWarnings: Ignore warnings and errors during execution? Errors 
+    will be logged with ERROR level on the logging output.
+    :type ignoreWarnings: boolean 
+    :param ignoreWarnings: should execution continue on error?
+    :type ignoreWarnings: boolean
+    :param threadNumber: Maximum number of threads to use for taxonomy processing.
+    :type threadNumber: int
+    :returns: dictionary with resulting taxonomy for each taxon (keys) 
+    :rtype: dictionary 
     """
     if verbose :
-        logger.setLevel(logging.DEBUG)
+        logging.getLogger().setLevel(logging.INFO)
     if taxonomy is None:
         taxonomy = {}
 
@@ -2281,7 +2304,7 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, 
     
     #Wait till everyone finishes
     queue.join()
-    logger.setLevel(logging.WARNING)
+    logging.getLogger().setLevel(logging.WARNING)
 
 def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
     return
