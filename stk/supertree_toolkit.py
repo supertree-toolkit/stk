@@ -58,6 +58,10 @@ IDENTICAL = 0
 SUBSET = 1
 PLATFORM = sys.platform
 
+#Logging
+import logging
+logging.basicConfig(filename='supertreetoolkit.log', level=logging.WARNING, format='%(asctime)s %(levelname)s:%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+
 # taxonomy levels
 # What we get from EOL
 current_taxonomy_levels = ['species','genus','family','order','class','phylum','kingdom']
@@ -1404,6 +1408,7 @@ def get_taxa_from_tree_for_taxonomy(tree, pretty=False, ignoreErrors=False):
         taxa_list.extend(_getTaxaFromNewick(tree))
     except TreeParseError as detail:
         if (ignoreErrors):
+            logging.warning(detail.msg)
             pass
         else:
             raise TreeParseError( detail.msg )
@@ -1437,6 +1442,7 @@ def get_all_taxa(XML, pretty=False, ignoreErrors=False):
             taxa_list.extend(_getTaxaFromNewick(t))
         except TreeParseError as detail:
             if (ignoreErrors):
+                logging.warning(detail.msg)
                 pass
             else:
                 raise TreeParseError( detail.msg )
@@ -1445,7 +1451,7 @@ def get_all_taxa(XML, pretty=False, ignoreErrors=False):
     taxa_list = _uniquify(taxa_list)
     taxa_list.sort()
 
-    if (pretty):
+    if (pretty): #Remove underscores from names
         taxa_list = [x.replace('_', ' ') for x in taxa_list]
 
     return taxa_list
@@ -2232,7 +2238,30 @@ class TaxonomyFetcher(threading.Thread):
 
 #TODO
 def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, threadNumber=10):
-    """ """
+    """Uses the taxa provided to generate a taxonomy for all the taxon available. 
+
+    :param taxa: .
+    :type taxa : string
+    :param pref_db
+    :type pref_db :
+    :param taxonomy: .
+    :type taxonomy : dictionary
+    :param verbose:
+    :type boolean :
+    :param inoreWarnings:
+    :type boolean :
+    :param threadNumber:
+    :type int :
+
+
+
+    :param ignoreErrors: should execution continue on error?
+    :type ignoreErrors: boolean
+    :returns: dictionary with 
+    :rtype: list
+    """
+    if verbose :
+        logger.setLevel(logging.DEBUG)
     if taxonomy is None:
         taxonomy = {}
 
@@ -2252,10 +2281,11 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, 
     
     #Wait till everyone finishes
     queue.join()
+    logger.setLevel(logging.WARNING)
 
 def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
-        
     return
+
 #TODO
 def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
     """ Generates a taxonomy of the data from EoL data. This is stored as a
@@ -2279,22 +2309,23 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
     create_taxonomy_from_taxa(taxa, taxonomy)
 
     if (verbose):
+        logging.info('Done basic taxonomy, getting more info from ITIS')
         print("Time elapsed {}".format(str(time.time() - starttime)))
         print "Done basic taxonomy, getting more info from ITIS"
     # fill in the rest of the taxonomy
     # get all genera
     genera = []
     for t in taxonomy:
-        try:
-            genera.append(taxonomy[t][GENUS])
-        except KeyError:
-            continue
+        if t in taxonomy:
+            if GENUS in taxonomy[t]:
+                genera.append(taxonomy[t][GENUS])
     genera = _uniquify(genera)
     # We then use ITIS to fill in missing info based on the genera only - that saves us a species level search
     # and we can fill in most of the EoL missing data
     for g in genera:
         if (verbose):
             print "Looking up ", g
+            logging.info("Looking up {}".format(str(g)))
         try:
             URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(g.strip())
         except:
@@ -2323,12 +2354,11 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
                 this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
 
         for t in taxonomy:
-            try:
-                if taxonomy[t][GENUS] == g:
-                    taxonomy[t].update(this_taxonomy)
-            except KeyError:
-                continue
-    
+            if t in taxonomy:
+                if GENUS in taxonomy[t]:
+                    if taxonomy[t][GENUS] == g:
+                        taxonomy[t].update(this_taxonomy)
+
     return taxonomy
 
 def generate_species_level_data(XML, taxonomy, ignoreWarnings=False, verbose=False):
