@@ -2326,6 +2326,7 @@ def generate_species_level_data(XML, taxonomy, ignoreWarnings=False, verbose=Fal
 
     # call the sub
     new_XML = substitute_taxa(XML, old_taxa, new_taxa, verbose=verbose)
+    new_XML = clean_data(new_XMl)
     
     return new_XML
 
