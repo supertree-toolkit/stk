@@ -789,7 +789,11 @@ class TestSubs(unittest.TestCase):
                     'Ardea humbloti': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Ecdysozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Ardea', 'order': 'Pelecaniformes', 'species': 'Ardea humbloti'}, 
                     'Gallus varius': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Gallus', 'order': 'Galliformes', 'species': 'Gallus varius'}}
         XML = generate_species_level_data(XML, taxonomy)
-        print XML
+        expected_XML = etree.tostring(etree.parse('data/output/one_click_subs_output.phyml',parser),pretty_print=True)
+        trees = obtain_trees(XML) 
+        expected_trees = obtain_trees(expected_XML)
+        for t in trees:
+            self.assert_(_trees_equal(trees[t], expected_trees[t]))
 
 
 if __name__ == '__main__':
