@@ -2276,8 +2276,6 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, 
     :param ignoreWarnings: Ignore warnings and errors during execution? Errors 
     will be logged with ERROR level on the logging output.
     :type ignoreWarnings: boolean 
-    :param ignoreWarnings: should execution continue on error?
-    :type ignoreWarnings: boolean
     :param threadNumber: Maximum number of threads to use for taxonomy processing.
     :type threadNumber: int
     :returns: dictionary with resulting taxonomy for each taxon (keys) 
@@ -2306,17 +2304,45 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, 
     queue.join()
     logging.getLogger().setLevel(logging.WARNING)
 
+#TODO 
 def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
-    return
+    """
+    :param tree: list of the taxa.
+    :type tree : list 
+    :param existing_taxonomy: list of the taxa.
+    :type existing_taxonomy: list 
+    :param pref_db: Gives priority to database. Seems it is unused.
+    :type pref_db: string 
+    :param verbose: Flag for verbosity.
+    :type verbose: boolean
+    :param ignoreWarnings: Flag for exception processing.
+    :type ignoreWarnings: boolean
+    :returns: the modified taxonomy
+    :rtype: dictionary
+    """
+    print("Starting taxonomy (tree)")
+    starttime = time.time()
+
+    if(existing_taxonomy is None) :
+        taxonomy = {}
+    else :
+        taxonomy = existing_taxonomy
+
+    taxa = get_taxa_from_tree_for_taxonomy(tree, pretty=True)
+    
+    create_taxonomy_from_taxa(taxa, taxonomy)
+    
+    taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings)
+    
+    return taxonomy
 
 #TODO
 def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
-    """ Generates a taxonomy of the data from EoL data. This is stored as a
+    """Generates a taxonomy of the data from EoL data. This is stored as a
     dictionary of taxonomy for each taxon in the dataset. Missing data are
     encoded as '' (blank string). It's up to the calling function to store this
-    data to file or display it.  """
-
-    print("Starting taxonomy ")
+    data to file or display it."""
+    print("Starting taxonomy (XML)")
     starttime = time.time()
 
     if not ignoreWarnings:
@@ -2326,11 +2352,26 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
         taxonomy = {}
     else:
         taxonomy = existing_taxonomy
-
     taxa = get_all_taxa(XML, pretty=True)
-    
     create_taxonomy_from_taxa(taxa, taxonomy)
+    taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings)
+    return taxonomy
 
+#TODO check and comment
+def create_extended_taxonomy(taxonomy, starttime, verbose=False, ignoreWarnings=False):
+    """Bring extra taxonomy terms from other databases, shared method for completing the taxonomy
+    both for trees comming from XML or directly from trees.
+    :param taxonomy: Dictionary with the relationship for taxa and taxonomy terms.
+    :type taxonomy: dictionary
+    :param starttime: time to keep track of processing time.
+    :type starttime: long
+    :param verbose: Flag for verbosity.
+    :type verbose: boolean
+    :param ignoreWarnings: Flag for exception processing.
+    :type ignoreWarnings: boolean
+    :returns: the modified taxonomy
+    :rtype: dictionary
+    """
     if (verbose):
         logging.info('Done basic taxonomy, getting more info from ITIS')
         print("Time elapsed {}".format(str(time.time() - starttime)))
