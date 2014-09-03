@@ -2259,10 +2259,8 @@ class TaxonomyFetcher(threading.Thread):
             #Mark task as done
             self.queue.task_done()
 
-#TODO
 def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, threadNumber=10):
     """Uses the taxa provided to generate a taxonomy for all the taxon available. 
-
     :param taxa: list of the taxa.
     :type taxa : list 
     :param taxonomy: previous taxonomy available (if available) or an empty 
@@ -2304,9 +2302,8 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, 
     queue.join()
     logging.getLogger().setLevel(logging.WARNING)
 
-#TODO 
 def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
-    """
+    """ Generates the taxonomy from a tree. Uses a similar method to the XML version but works directly on a string with the tree.
     :param tree: list of the taxa.
     :type tree : list 
     :param existing_taxonomy: list of the taxa.
@@ -2336,7 +2333,6 @@ def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbos
     
     return taxonomy
 
-#TODO
 def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
     """Generates a taxonomy of the data from EoL data. This is stored as a
     dictionary of taxonomy for each taxon in the dataset. Missing data are
@@ -2357,7 +2353,6 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
     taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings)
     return taxonomy
 
-#TODO check and comment
 def create_extended_taxonomy(taxonomy, starttime, verbose=False, ignoreWarnings=False):
     """Bring extra taxonomy terms from other databases, shared method for completing the taxonomy
     both for trees comming from XML or directly from trees.
