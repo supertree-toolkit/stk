@@ -14,7 +14,7 @@ from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str,
 from stk.supertree_toolkit import obtain_trees, get_all_source_names, _swap_tree_in_XML, replace_genera
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources
 from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used
-from stk.supertree_toolkit import _trees_equal, get_weights, create_taxonomy
+from stk.supertree_toolkit import _trees_equal, get_weights, create_taxonomy, create_taxonomy_from_tree
 from stk.supertree_toolkit import get_outgroup, taxonomic_checker
 from lxml import etree
 from util import *
@@ -568,6 +568,20 @@ class TestSTK(unittest.TestCase):
                     'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'infraphylum': 'Gnathostomata', 'superclass': 'Tetrapoda', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'order': 'Procellariiformes', 'species': 'Thalassarche melanophris'}}
         if (internet_on()):
             taxonomy = create_taxonomy(XML)
+            self.maxDiff = None
+            self.assertDictEqual(taxonomy, expected)
+        else:
+            print "WARNING: No internet connection found. Not check the create_taxonomy function"
+        return
+    
+    def test_create_taxonomy_from_tree(self):
+        expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'},
+                    'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'subkingdom': 'Bilateria', 'subclass': 'Neoloricata', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'suborder': 'Ischnochitonina', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Egretta', 'order': 'Pelecaniformes', 'species': 'Egretta tricolor'}, 
+                    'Gallus gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Gallus', 'order': 'Galliformes', 'species': 'Gallus gallus'}, 
+                    'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'infraphylum': 'Gnathostomata', 'superclass': 'Tetrapoda', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'order': 'Procellariiformes', 'species': 'Thalassarche melanophris'}}
+        tree = "(Archaeopteryx_lithographica, (Gallus_gallus, (Thalassarche_melanophris, Egretta_tricolor)));"
+        if (internet_on()):
+            taxonomy = create_taxonomy_from_tree(tree)
             self.maxDiff = None
             self.assertDictEqual(taxonomy, expected)
         else:
