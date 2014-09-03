@@ -1389,10 +1389,8 @@ def amalgamate_trees(XML,format="nexus",anonymous=False,ignoreWarnings=False):
 
     return _amalgamate_trees(trees,format,anonymous)
         
-#TODO verify and test
 def get_taxa_from_tree_for_taxonomy(tree, pretty=False, ignoreErrors=False):
     """Returns a list of all taxa available for the tree passed as argument.
-
     :param tree: string with the data for the tree in Newick format.
     :type tree: string
     :param pretty: defines if '_' in taxa names should be replaced with spaces. 
@@ -1421,7 +1419,6 @@ def get_taxa_from_tree_for_taxonomy(tree, pretty=False, ignoreErrors=False):
         taxa_list = [x.replace('_', ' ') for x in taxa_list]
 
     return taxa_list
-
 
 def get_all_taxa(XML, pretty=False, ignoreErrors=False):
     """ Produce a taxa list by scanning all trees within 
