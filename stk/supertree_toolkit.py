@@ -60,7 +60,7 @@ PLATFORM = sys.platform
 
 #Logging
 import logging
-logging.basicConfig(filename='supertreetoolkit.log', level=logging.WARNING, format='%(asctime)s %(levelname)s:%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(filename='supertreetoolkit.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 # taxonomy levels
 # What we get from EOL
@@ -2165,23 +2165,25 @@ class TaxonomyFetcher(threading.Thread):
                             this_taxonomy['provider'] = 'PBDB'
                             for level in taxonomy_levels:
                                 try:
-                                    pbdb_lev = data['records'][0][pbdb_taxonomy_levels[i]]
-                                    temp_lev = pbdb_lev.split(" ")
-                                    # they might have the author on the end, so strip it off
-                                    if (level == 'species'):
-                                        this_taxonomy[level] = ' '.join(temp_lev[0:2])
-                                    else:
-                                        this_taxonomy[level] = temp_lev[0]       
-                                except KeyError, e:
-                                    logging.error(str(e))
+                                    if data.has_key('records'):
+                                        pbdb_lev = data['records'][0][pbdb_taxonomy_levels[i]]
+                                        temp_lev = pbdb_lev.split(" ")
+                                        # they might have the author on the end, so strip it off
+                                        if (level == 'species'):
+                                            this_taxonomy[level] = ' '.join(temp_lev[0:2])
+                                        else:
+                                            this_taxonomy[level] = temp_lev[0]       
+                                except KeyError as e:
+                                    logging.exception("Key not found records")
                                     continue
                             # add the taxon at right level too
                             try:
-                                current_level = data['records'][0]['rank']
-                                this_taxonomy[current_level] = data['records'][0][taxon_name]
-                            except KeyError, e:
+                                if data.has_key('records'):
+                                    current_level = data['records'][0]['rank']
+                                    this_taxonomy[current_level] = data['records'][0][taxon_name]
+                            except KeyError as e:
                                 self.queue.task_done()
-                                logging.error(str(e))
+                                logging.exception("Key not found records")
                                 continue
                         else:
                             # extant, but not in EoL - leave the user to sort this one out
@@ -2218,29 +2220,31 @@ class TaxonomyFetcher(threading.Thread):
                     this_taxonomy['provider'] = currentdb
                     for a in data['ancestors']:
                         try:
-                            temp_level = a['taxonRank'].encode("ascii","ignore")
-                            if (temp_level in taxonomy_levels):
-                                # note the dump into ASCII
-                                temp_name = a['scientificName'].encode("ascii","ignore")
-                                temp_name = temp_name.split(" ")
-                                if (temp_level == 'species'):
-                                    this_taxonomy[temp_level] = temp_name[0:2]
-                                else:
-                                    this_taxonomy[temp_level] = temp_name[0]  
-                        except KeyError, e:
-                            logging.error(str(e))
+                            if a.has_key('taxonRank') :
+                                temp_level = a['taxonRank'].encode("ascii","ignore")
+                                if (temp_level in taxonomy_levels):
+                                    # note the dump into ASCII
+                                    temp_name = a['scientificName'].encode("ascii","ignore")
+                                    temp_name = temp_name.split(" ")
+                                    if (temp_level == 'species'):
+                                        this_taxonomy[temp_level] = temp_name[0:2]
+                                    else:
+                                        this_taxonomy[temp_level] = temp_name[0]  
+                        except KeyError as e:
+                            logging.exception("Key not found: taxonRank")
                             continue
                     try:
                         # add taxonomy in to the taxonomy!
                         # some issues here, so let's make sure it's OK
                         temp_name = taxon.split(" ")            
-                        if not data['taxonRank'].lower() == 'species':
-                            this_taxonomy[data['taxonRank'].lower()] = temp_name[0]
-                        else:
-                            this_taxonomy[data['taxonRank'].lower()] = ' '.join(temp_name[0:2])
-                    except KeyError:
+                        if data.has_key('taxonRank') :
+                            if not data['taxonRank'].lower() == 'species':
+                                this_taxonomy[data['taxonRank'].lower()] = temp_name[0]
+                            else:
+                                this_taxonomy[data['taxonRank'].lower()] = ' '.join(temp_name[0:2])
+                    except KeyError as e:
                         self.queue.task_done()
-                        logging.error(str(e))
+                        logging.exception("Key not found: taxonRank")
                         continue
                     with self.lock:
                         #Send result to dictionary
