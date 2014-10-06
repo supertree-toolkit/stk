@@ -522,7 +522,7 @@ def main():
     parser_cm.set_defaults(func=create_taxonomy)
 
 
-    # create taxonomy csv file
+    # do the subs in a one go using taxonomy
     parser_cm = subparsers.add_parser('auto_subs',
             help='Using a taxonomy, generate a species level version of your data in one go.'
             )
@@ -541,6 +541,23 @@ def main():
     #        choices=supertree_toolkit.taxonomy_levels,
     #        help="Taxonomic level to output at",)
     parser_cm.set_defaults(func=auto_subs)
+
+    # attempt to process the data into a matrix all automatically
+    parser_cm = subparsers.add_parser('process',
+            help='Generate a species-level matrix, and do all the checks and processing automatically. Note this creates a taxonomy and does all the processing, but may not be perfect (as taxonomies are not perfect)'
+            )
+    parser_cm.add_argument('input',
+            help='The input Phyml')
+    parser_cm.add_argument('output', 
+            help='The output matrix')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing file without asking for confirmation")
+    parser_cm.add_argument('--no_store',
+            choices=supertree_toolkit.taxonomy_levels,
+            help="Do not store intermediate files (not recommended)",)
+    parser_cm.set_defaults(func=process)
 
 
     # before we let argparse work its magic, check for --version
@@ -656,7 +673,7 @@ def data_ind(args):
     # check if output files are there
     if (output_file and os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -666,7 +683,7 @@ def data_ind(args):
                 break
     if (not newphyml == None and os.path.exists(newphyml) and not overwrite):
         print "Output Phyml file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -816,7 +833,7 @@ def create_matrix(args):
     # Does the output file already exist?
     if (os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -921,7 +938,7 @@ def sub_taxa(args):
     # Does the output file already exist?
     if (os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1008,7 +1025,7 @@ def import_data(args):
 
     if (os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1186,7 +1203,7 @@ def export_trees(args):
     # check if output files are there
     if (output_file and os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1245,7 +1262,7 @@ def export_bib(args):
     # check if output files are there
     if (output_file and os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1372,7 +1389,7 @@ def clean_data(args):
     # check if output files are there
     if (os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1429,7 +1446,7 @@ def replace_genera(args):
     # check if output files are there
     if (os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1524,7 +1541,7 @@ def convert_file(args):
     # check if output files are there
     if (os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1561,7 +1578,7 @@ def create_subset(args):
     # check if output files are there
     if (os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1849,7 +1866,7 @@ def auto_subs(args):
 
     if (os.path.exists(output) and not overwrite):
         print "Output Phyml file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1893,6 +1910,27 @@ def auto_subs(args):
     f = open(output,"w")
     f.write(newXML)
     f.close()
+
+def process(args):
+
+    verbose = args.verbose
+    input_file = args.input
+    output = args.output
+    no_store = args.no_store
+    ignoreWarnings = args.ignoreWarnings
+
+    if (os.path.exists(output) and not overwrite):
+        print "Output matrix file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue and overwrite the file anyway? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+
+    return
 
 
 if __name__ == "__main__":
