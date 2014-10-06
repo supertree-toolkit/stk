@@ -1470,7 +1470,6 @@ class Diamond:
     f = StringIO.StringIO()
     self.tree.write(f)
     XML = f.getvalue()
-    all_trees = stk.obtain_trees(XML)
     # get all trees
     tree_list = stk._find_trees_for_permuting(XML)
 

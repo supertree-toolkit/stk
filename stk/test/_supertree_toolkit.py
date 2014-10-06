@@ -591,9 +591,12 @@ class TestSTK(unittest.TestCase):
         return
     
     def test_taxonomy_checker(self):
+        expected = {'Thalassarche_melanophrys': [['Thalassarche_melanophris', 'Thalassarche_melanophrys', 'Diomedea_melanophris', 'Thalassarche_[melanophrys', 'Diomedea_melanophrys'], 'yellow'], 'Egretta_tricolor': [['Egretta_tricolor'], 'green'], 'Gallus_gallus': [['Gallus_gallus'], 'green']}
         XML = etree.tostring(etree.parse('data/input/check_taxonomy.phyml',parser),pretty_print=True)
         if (internet_on()):
             equivs = taxonomic_checker(XML)
+            self.maxDiff = None
+            self.assertDictEqual(equivs, expected)
         else:
             print "WARNING: No internet connection found. Not check the taxonomy_checker function"
         return

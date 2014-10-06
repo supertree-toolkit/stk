@@ -94,6 +94,17 @@ KINGDOM = taxonomy_levels[15]
 # All functions take XML and a list of other arguments, process the data and return
 # it back to the user interface handler to save it somewhere
 
+
+def get_project_name(XML):
+    """
+    Get the name of the dataset currently being worked on
+    """
+
+    xml_root = _parse_xml(XML)
+
+    return xml_root.xpath('/phylo_storage/project_name/string_value')[0].text 
+
+
 def create_name(authors, year, append=''):
     """ 
     Construct a sensible from a list of authors and a year for a 
@@ -1940,7 +1951,7 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
         _check_data(XML)
 
     xml_root = _parse_xml(XML)
-    proj_name = xml_root.xpath('/phylo_storage/project_name/string_value')[0].text
+    proj_name = get_project_name(XML)
 
     output_string  = "======================\n"
     output_string += " Data summary of: " + proj_name + "\n" 
@@ -2532,7 +2543,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
     If filename is None, no graphic is generated. Otherwise a simple
     graphic is generated showing the number of cluster. If detailed is set to
     true, a graphic is generated showing *all* trees. For data containing >200
-    source tres this could be very big and take along time. More likely, you'll run
+    source trees this could be very big and take along time. More likely, you'll run
     out of memory.
     """
     import matplotlib
@@ -3163,7 +3174,7 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
         s.getparent().remove(s)
 
     # edit name (append _subset)
-    proj_name = xml_root.xpath('/phylo_storage/project_name/string_value')[0].text
+    proj_name = get_project_name(XML)
     proj_name += "_subset"
     xml_root.xpath('/phylo_storage/project_name/string_value')[0].text = proj_name
 
