@@ -2103,6 +2103,7 @@ class Diamond:
         taxa = stk.get_all_taxa(XML)
     except TreeParseError as e:
         dialogs.error(self.main_window,e.msg)
+        return
     except:
         msg = "Failed to parse XML and obtain taxa. You probably have an unfinished dataset"
         dialogs.error(self.main_window,msg)

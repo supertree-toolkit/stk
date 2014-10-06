@@ -39,7 +39,7 @@ def main():
             )
     parser.add_argument(
             '--level',
-            choices=['Family','Superfamily','Infraorder','Suborder','Order'],
+            choices=['Genus','Family','Superfamily','Infraorder','Suborder','Order'],
             default='Family',
             help="Which taxonomic level to colour at. Note that not all will return data. Family and Order will always work."
             )
@@ -97,6 +97,8 @@ def main():
         index = 5
     elif (level == "Order"):
         index = 6
+    elif (level == "Genus"):
+        index = 1
 
     if (tree):
         tree_data = stk.import_tree(input_file)
