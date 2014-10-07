@@ -208,6 +208,50 @@ def set_unique_names(XML):
 
     return XML
 
+def create_tree_name(XML,source_tree_element):
+
+    """
+    Creates a tree name for a given source
+    Simply the source_name with a number added
+    source_tree_element is the element that contains the source tree, 
+    i.e. sources/source/source_tree
+    """
+
+    xml_root = _parse_xml(XML)
+    source = source_tree_element.getparent()
+    # count current trees
+    tree_count = 0
+    for t in source.xpath("source_tree/tree/tree_string"):
+        if 'name' in source.xpath('source_tree')[0].attrib:
+            tree_count += 1
+
+    tree_name = source.attrib['name'] + "_" + str(tree_count+1)
+
+    return tree_name
+
+def set_all_tree_names(XML):
+
+    """Set all *unset* tree names
+    """
+
+    xml_root = _parse_xml(XML)
+
+    # Find all "source" trees
+    sources = []
+    for ele in xml_root.iter():
+        if (ele.tag == "source"):
+            sources.append(ele)
+
+    for s in sources:
+        for st in s.xpath("source_tree"):
+            if not 'name' in st.attrib:
+                tree_name = create_tree_name(XML,st)
+                st.attrib['name'] = tree_name
+   
+    XML = etree.tostring(xml_root,pretty_print=True)    
+    return XML
+
+
 
 def import_bibliography(XML, bibfile, skip=False):
     """
@@ -1313,21 +1357,20 @@ def obtain_trees(XML):
     # within that source and construct a unique name
     find = etree.XPath("//source")
     sources = find(xml_root)
-
     trees = {}
 
     # loop through all sources
     for s in sources:
-        # for each source, get source name
-        name = s.attrib['name']
-        # get trees
-        tree_no = 1
         for t in s.xpath("source_tree/tree/tree_string"):
-            t_name = name+"_"+str(tree_no)
+            try:
+                t_name = t.getparent().getparent().attrib['name']
+            except KeyError:
+                # no name, so make one!
+                t_name = create_tree_name(XML,t.getparent().getparent())
+                t.getparent().getparent().attrib['name'] = t_name
             # append to dictionary, with source_name_tree_no = tree_string
             if (not t.xpath("string_value")[0].text == None):
                 trees[t_name] = t.xpath("string_value")[0].text
-                tree_no += 1
 
     return trees
 
@@ -3248,14 +3291,18 @@ def _check_taxa(XML,delete=False):
         this_source = _parse_xml(etree.tostring(s))
         trees = obtain_trees(etree.tostring(this_source))
         s_name = s.attrib['name']
+        taxa_ele = []
         for name in trees.iterkeys():
             tree_no = 1
-            for t in s.xpath("source_tree/tree/tree_string"):
-                t_name = s_name+"_"+str(tree_no)
-                tree_no += 1
+            for t in s.xpath("source_tree"):
+                try:
+                    t_name = t.attrib['name']
+                except KeyError:
+                    message = message + "Tree in "+s_name+" is not named. Run the name_trees function"+"\n"
+                    continue
                 if (t_name == name):
                     find = etree.XPath(".//taxon")
-                    taxa_ele = find(t.getparent().getparent())
+                    taxa_ele = find(t)
 
             tree = trees[name]
             # are the XML taxa in the tree?
