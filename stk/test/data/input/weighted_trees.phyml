@@ -55,7 +55,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="Baker_etal_2007_1">
         <tree>
           <tree_string>
             <string_value lines="1">(Jacana_jacana, (Nycticryphes_semicollaris, (Rostratula_australis, Rostratula_benghalensis)));</string_value>
@@ -126,7 +126,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="Baptista_Visser_1999_1">
         <tree>
           <tree_string>
             <string_value lines="1">(((Lonchura_griseicapilla, (Lonchura_cucullata, (Lonchura_bicolor, Lonchura_fringilloides))), ((Lonchura_cantans, (Padda_fuscata, (Lonchura_castaneothorax, Lonchura_leucogastroides, Lonchura_maja, Lonchura_punctulata, Lonchura_quinticolor, Lonchura_spectabilis, Lonchura_striata))), (Taeniopygia_guttata, (Taeniopygia_bichenovii, Poephila_cincta)))), ((Amadina_fasciata, Pytilia_melba), (Ortygospiza_atricollis, (Uraeginthus_bengalus, Uraeginthus_cyanocephalus))));</string_value>
@@ -163,7 +163,7 @@ Uraeginthus cyanocephalus</string_value>
           <character type="behavioural" name="Breeding"/>
         </character_data>
       </source_tree>
-      <source_tree>
+      <source_tree name="Baptista_Visser_1999_2">
         <tree>
           <tree_string>
             <string_value lines="1">(((Lonchura_griseicapilla, (Lonchura_cucullata, (Lonchura_bicolor, Lonchura_fringilloides))), ((Lonchura_cantans, (Padda_fuscata, (Lonchura_castaneothorax, Lonchura_leucogastroides, Lonchura_maja, Lonchura_punctulata, Lonchura_quinticolor, Lonchura_spectabilis, Lonchura_striata))), (Taeniopygia_guttata, (Taeniopygia_bichenovii, Poephila_cincta)))), ((Amadina_fasciata, Pytilia_melba), (Ortygospiza_atricollis, (Uraeginthus_bengalus, Uraeginthus_cyanocephalus))));</string_value>

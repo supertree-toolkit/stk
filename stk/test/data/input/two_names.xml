@@ -29,7 +29,7 @@
         </year>
       </article>
     </bibliographic_information>
-    <source_tree>
+    <source_tree name="test2_1">
       <tree>
         <tree_string>
           <string_value lines="1">Add your tree here</string_value>
@@ -82,7 +82,7 @@
         </year>
       </article>
     </bibliographic_information>
-    <source_tree>
+    <source_tree name="test2_1">
       <tree>
         <tree_string>
           <string_value lines="1">Add your tree here</string_value>

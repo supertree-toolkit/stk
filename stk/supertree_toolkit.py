@@ -113,7 +113,7 @@ def single_sourcename(XML,append=''):
     # Return the XML stub with the correct name
     return XML
 
-def all_sourcenames(XML):
+def all_sourcenames(XML, trees=False):
     """
     Create a sensible sourcename for all sources in the current
     dataset. This includes appending a, b, etc for duplicate names.
@@ -139,6 +139,8 @@ def all_sourcenames(XML):
     XML = string.replace(XML,"</source><source ", "</source>\n    <source ")
     XML = string.replace(XML,"</source></sources", "</source>\n  </sources") 
     XML = set_unique_names(XML)
+    if (trees):
+        XML = set_all_tree_names(XML,overwrite=True)
     
     return XML
 
@@ -220,16 +222,16 @@ def create_tree_name(XML,source_tree_element):
     xml_root = _parse_xml(XML)
     source = source_tree_element.getparent()
     # count current trees
-    tree_count = 0
-    for t in source.xpath("source_tree/tree/tree_string"):
-        if 'name' in source.xpath('source_tree')[0].attrib:
-            tree_count += 1
+    tree_count = 1
+    for t in source.xpath("source_tree"):
+        if 'name' in t.attrib and not t.attrib['name'] == "":
+                tree_count += 1
 
-    tree_name = source.attrib['name'] + "_" + str(tree_count+1)
+    tree_name = source.attrib['name'] + "_" + str(tree_count)
 
     return tree_name
 
-def set_all_tree_names(XML):
+def set_all_tree_names(XML,overwrite=False):
 
     """Set all *unset* tree names
     """
@@ -244,7 +246,7 @@ def set_all_tree_names(XML):
 
     for s in sources:
         for st in s.xpath("source_tree"):
-            if not 'name' in st.attrib:
+            if overwrite or not 'name' in st.attrib:
                 tree_name = create_tree_name(XML,st)
                 st.attrib['name'] = tree_name
    
@@ -2352,10 +2354,12 @@ def clean_data(XML):
     # unpermutable trees
     permutable_trees = _find_trees_for_permuting(XML)
     all_trees = obtain_trees(XML)
+    print all_trees
     for t in permutable_trees:
         new_tree = permutable_trees[t]
         for i in range(10): # do at most 10 iterations
             new_tree = _collapse_nodes(new_tree)
+            print new_tree
         
         if (not _trees_equal(new_tree,permutable_trees[t])):
            XML = _swap_tree_in_XML(XML,new_tree,t) 
