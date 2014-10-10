@@ -31,7 +31,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="Hill_2011_1">
         <tree>
           <tree_string>
             <string_value lines="1">((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
@@ -44,7 +44,7 @@
           </figure_number>
           <page_number>
             <string_value lines="1">1</string_value>
-			</page_number>
+          </page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>

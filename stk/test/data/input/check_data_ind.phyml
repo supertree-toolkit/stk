@@ -25,7 +25,7 @@
           </year>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="Hill_2011_1">
         <tree>
           <tree_string>
             <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000,C:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
@@ -38,7 +38,7 @@
           </figure_number>
           <page_number>
             <string_value lines="1">0</string_value>
-			</page_number>
+          </page_number>
           <tree_inference>
             <optimality_criterion name="Bayesian"/>
           </tree_inference>
@@ -55,7 +55,7 @@
           <character type="morphological" name="feathers"/>
         </character_data>
       </source_tree>
-      <source_tree>
+      <source_tree name="Hill_2011_2">
         <tree>
           <tree_string>
             <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
@@ -68,7 +68,7 @@
           </figure_number>
           <page_number>
             <string_value lines="1">0</string_value>
-			</page_number>
+          </page_number>
           <tree_inference>
             <optimality_criterion name="Bayesian"/>
           </tree_inference>
@@ -108,7 +108,7 @@
           </year>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="Davis_2011_1">
         <tree>
           <tree_string>
             <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,(C:1.00000,D:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
@@ -121,7 +121,7 @@
           </figure_number>
           <page_number>
             <string_value lines="1">0</string_value>
-			</page_number>
+          </page_number>
           <tree_inference>
             <optimality_criterion name="Bayesian"/>
           </tree_inference>
@@ -175,7 +175,7 @@
           </year>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="Hill_Davis_2011_1">
         <tree>
           <tree_string>
             <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,F:1.00000,E:1.00000,(G:1.00000,H:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
@@ -188,7 +188,7 @@
           </figure_number>
           <page_number>
             <string_value lines="1">0</string_value>
-			</page_number>
+          </page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
@@ -212,7 +212,7 @@
           <character type="molecular" name="12S"/>
         </character_data>
       </source_tree>
-      <source_tree>
+      <source_tree name="Hill_Davis_2011_2">
         <tree>
           <tree_string>
             <string_value lines="1">((A:1.00000,B:1.00000)0.00000:0.00000,F:1.00000,E:1.00000,(G:1.00000,H:1.00000)0.00000:0.00000)0.00000:0.00000;</string_value>
@@ -225,7 +225,7 @@
           </figure_number>
           <page_number>
             <string_value lines="1">0</string_value>
-			</page_number>
+          </page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>

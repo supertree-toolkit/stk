@@ -7,15 +7,12 @@ from stk.supertree_toolkit import _check_uniqueness, parse_subs_file, _check_tax
 import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-from stk.supertree_toolkit import _check_uniqueness, _check_taxa, _check_data, get_all_characters
-from stk.supertree_toolkit import data_independence, get_character_numbers, get_analyses_used
-from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary
-from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data
-from stk.supertree_toolkit import obtain_trees, get_all_source_names, _swap_tree_in_XML, replace_genera
-from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources
-from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used
-from stk.supertree_toolkit import _trees_equal, get_weights, create_taxonomy, create_taxonomy_from_tree
-from stk.supertree_toolkit import get_outgroup, taxonomic_checker, load_taxonomy
+from stk.supertree_toolkit import _check_uniqueness, _check_taxa, _check_data, get_all_characters, data_independence
+from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
+from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
+from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
+from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used, _trees_equal, get_weights
+from stk.supertree_toolkit import get_outgroup, set_all_tree_names, create_tree_name, taxonomic_checker, load_taxonomy
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -440,7 +437,7 @@ class TestSTK(unittest.TestCase):
         XML = clean_data(XML)
         trees = obtain_trees(XML)
         self.assert_(len(trees) == 2)
-        expected_trees = {'Hill_2011_2': '(A,B,(C,D,E));', 'Hill_2011_1': '(A, B, C, (D, E, F));'}
+        expected_trees = {'Hill_2011_4': '(A,B,(C,D,E));', 'Hill_2011_2': '(A, B, C, (D, E, F));'}
         for t in trees:
             self.assert_(_trees_equal(trees[t],expected_trees[t]))
 
@@ -587,7 +584,7 @@ class TestSTK(unittest.TestCase):
             self.maxDiff = None
             self.assertDictEqual(taxonomy, expected)
         else:
-            print "WARNING: No internet connection found. Not check the create_taxonomy function"
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the create_taxonomy function"
         return
     
     def test_taxonomy_checker(self):
@@ -598,7 +595,7 @@ class TestSTK(unittest.TestCase):
             self.maxDiff = None
             self.assertDictEqual(equivs, expected)
         else:
-            print "WARNING: No internet connection found. Not check the taxonomy_checker function"
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
         return
 
     def test_load_taxonomy(self):
@@ -614,6 +611,20 @@ class TestSTK(unittest.TestCase):
         self.assertDictEqual(taxonomy, expected)
 
 
+    def test_name_tree(self):
+        XML = etree.tostring(etree.parse('data/input/single_source_no_names.phyml',parser),pretty_print=True)
+        xml_root = _parse_xml(XML)
+        source_tree_element = xml_root.xpath('/phylo_storage/sources/source/source_tree')[0]
+        tree_name = create_tree_name(XML, source_tree_element)
+        self.assert_(tree_name == 'Hill_2011_1')
+
+    def test_all_name_tree(self):
+        XML = etree.tostring(etree.parse('data/input/single_source_no_names.phyml',parser),pretty_print=True)
+        new_xml = set_all_tree_names(XML)
+        XML = etree.tostring(etree.parse('data/input/single_source.phyml',parser),pretty_print=True)
+        self.assert_(isEqualXML(new_xml,XML))
+
+
 def internet_on():
     import urllib2
     try:
@@ -621,6 +632,8 @@ def internet_on():
         return True
     except urllib2.URLError as err: pass
     return False
+    
+
 
 
 if __name__ == '__main__':

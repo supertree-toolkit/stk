@@ -39,6 +39,7 @@ def handle_click(xml, xpath, path=None):
     except TreeParseError as detail:
         msg = "Failed to import tree - can't parse tree.\n"+detail.msg
         dialogs.error(self.main_window,msg)
+    tree_name = stk.create_tree_name(xml,element.get_parent().get_parent())
     element[0].text = tree
     
     stk_gui.interface.plugin_xml = etree.tostring(xml_root)

@@ -1937,6 +1937,17 @@
                       </widget>
                     </child>
                     <child>
+                      <widget class="GtkMenuItem" id="stndTreeNames">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Add tree names.</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Add tree names</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_name_trees" />
+                      </widget>
+                    </child>
+                    <child>
                       <widget class="GtkMenuItem" id="clean_data1">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
