@@ -437,8 +437,7 @@ class TestSTK(unittest.TestCase):
         XML = clean_data(XML)
         trees = obtain_trees(XML)
         self.assert_(len(trees) == 2)
-        expected_trees = {'Hill_2011_2': '(A,B,(C,D,E));', 'Hill_2011_4': '(A, B, C, (D, E, F));'}
-        print trees
+        expected_trees = {'Hill_2011_4': '(A,B,(C,D,E));', 'Hill_2011_2': '(A, B, C, (D, E, F));'}
         for t in trees:
             self.assert_(_trees_equal(trees[t],expected_trees[t]))
 

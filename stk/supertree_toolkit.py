@@ -2354,12 +2354,10 @@ def clean_data(XML):
     # unpermutable trees
     permutable_trees = _find_trees_for_permuting(XML)
     all_trees = obtain_trees(XML)
-    print all_trees
     for t in permutable_trees:
         new_tree = permutable_trees[t]
         for i in range(10): # do at most 10 iterations
             new_tree = _collapse_nodes(new_tree)
-            print new_tree
         
         if (not _trees_equal(new_tree,permutable_trees[t])):
            XML = _swap_tree_in_XML(XML,new_tree,t) 
@@ -3247,30 +3245,27 @@ def _swap_tree_in_XML(XML, tree, name, delete=False):
     # By getting source, we can then loop over each source_tree
     find = etree.XPath("//source")
     sources = find(xml_root)
-    if (tree == None):
-        delete_me = []
     # loop through all sources
     for s in sources:
         # for each source, get source name
-        name = s.attrib['name']
-        if source_name == name:
+        s_name = s.attrib['name']
+        if source_name == s_name:
             # found the bugger!
-            tree_no = 1
-            for t in s.xpath("source_tree/tree/tree_string"):
-                if tree_no == number:
+            for t in s.xpath("source_tree"):
+                tree_name = t.attrib['name']
+                if (tree_name == name):
                     if (not tree == None): 
-                        t.xpath("string_value")[0].text = tree
+                        t.xpath("tree/tree_string/string_value")[0].text = tree
                         # We can return as we're only replacing one tree
                         return etree.tostring(xml_root,pretty_print=True)
                     else:
-                        s.remove(t.getparent().getparent())
+                        s.remove(t)
                         if (delete):
                             # we now need to check the source to check if there are
                             # any trees in this source now, if not, remove
-                            if (len(s.xpath("source_tree/tree/tree_string")) == 0):
+                            if (len(s.xpath("source_tree")) == 0):
                                 s.getparent().remove(s)
                         return etree.tostring(xml_root,pretty_print=True)
-                tree_no += 1
 
     return XML
 
