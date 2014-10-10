@@ -93,8 +93,9 @@ JabRef, but your mileage with other reference managers may vary.
 Once you have a Bibtex file you can import it using the File->Import from
 bibliography and import your file. This should import all the papers in that
 bibtex file and create a source for each one (Fig. :num:`#img-stk-source`). These
-are then named in a sensible way and sorted alphabetically. You can then start
-editing your data.
+are then named in a sensible way and sorted alphabetically. The standard source
+name is the author followed by year. Once the sources are created, 
+you can then start editing your data.
 
 .. _img-stk-source:
 
@@ -122,7 +123,9 @@ button will then appear in the status bar, in the lower left of the GUI (Fig.
 
     The import tree button. Click to import a tree into a source.
 
-Once done, your tree string will appear in the data panel.
+Once done, your tree string will appear in the data panel. This will also name the tree in the STK. The names
+follow a standard pattern of "Source_name_d" where d is a number starting from 1. You can manually
+edit the tree name if you wish. 
 
 .. warning:: Avoid non-standard characters in taxa names. Your names *must* not contain commas, 
     parentheses, colons, asterisks, hyphens, slashes or percentage signs (percentage signs are allowed for non-monophyletic taxa - see later).
@@ -192,8 +195,8 @@ number of trees in the dataset, the taxa list, character list, and years (Fig.
 required. This can be used to **carefully** check the taxa list for
 user errors, for example
 
-.. note:: Incomplete data (with blue elements) may not produce a data summary.
-
+.. note:: Incomplete data (with blue elements) may not produce a sensible data summary.
+    
 .. note:: See the tutorial for more information on how nomenclature and taxonomy should be standardised.
 
 .. _img-stk-data-summary:
@@ -208,8 +211,12 @@ user errors, for example
 
 Two other functions can also be useful to check the data (and prevent errors
 when using other functions). *Clean Data* removes non-informative trees.
+
+.. warning:: Do not use Clean Data on partial datasets. It will delete empty sources
+    for example, which may not be what you wish to happen.
+
 *Standardise source names* ensures all source names are unique and will re-sort
-the sources alphabetically.
+the sources alphabetically. It will also stnadardise all tree names.
 
 Processing data
 ---------------
@@ -258,7 +265,10 @@ the level of overlap (default is 2), which is the number of taxa trees should
 have in common to be considered connected. The two graphic check boxes will show
 a window with the result as a graphic. There are two options; the normal graphic
 (Fig :num:`#img-stk-data-overlap-simple`) and detailed graphic (Fig
-:num:`#img-stk-data-overlap-detailed`). 
+:num:`#img-stk-data-overlap-detailed`). All graphics show each tree or group
+of trees as a circle, labelled by a number. The window also contains a list which
+maps the number to a tree name, allowing you to delete any trees that don't
+sufficently overlap.
 
 .. _img-stk-data-overlap-gui:
 
