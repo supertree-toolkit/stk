@@ -556,8 +556,9 @@ def main():
             default=False,
             help="Overwrite the existing file without asking for confirmation")
     parser_cm.add_argument('--no_store',
-            choices=supertree_toolkit.taxonomy_levels,
-            help="Do not store intermediate files (not recommended)",)
+            action="store_true",
+            default=False,
+            help="Do not store intermediate files -- not recommended")
     parser_cm.set_defaults(func=process)
 
 
@@ -1969,16 +1970,16 @@ def process(args):
     # save the equivalents for later (as CSV and as sub file)
     data_string_csv = _equivalents_to_csv(equivalents)
     data_string_subs = _equivalents_to_subs(equivalents)
-    f = open(os.path.join(dirname,project_name+"_taxonomy_checker.csv", "w")
+    f = open(os.path.join(dirname,project_name+"_taxonomy_checker.csv", "w"))
     f.write(data_string_csv)
     f.close()
-    f = open(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat", "w")
+    f = open(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat", "w"))
     f.write(data_string_subs)
     f.close()
     # now do the replacements - we use the subs file :)
     print "Swapping in the corrected taxa names"    
     try:
-        old_taxa, new_taxa = supertree_toolkit.parse_subs_file(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat")
+        old_taxa, new_taxa = supertree_toolkit.parse_subs_file(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat"))
     except UnableToParseSubsFile as e:
         print e.msg
         sys.exit(-1)
@@ -2006,7 +2007,7 @@ def process(args):
         traceback.print_exc()
         return 
     # save phyml as intermediate step
-    f = open(os.path.join(dirname,project_name+"_taxonomy_checked.phyml", "w")
+    f = open(os.path.join(dirname,project_name+"_taxonomy_checked.phyml", "w"))
     f.write(phyml)
     f.close()
 
@@ -2015,7 +2016,7 @@ def process(args):
     taxonomy = supertree_toolkit.create_taxonomy(phyml)
     # save the taxonomy for later
     # Now create the CSV output
-    with open(os.path.join(dirname,project_name+"_taxonomy.csv", 'w') as f:
+    with open(os.path.join(dirname,project_name+"_taxonomy.csv", 'w')) as f:
         writer = csv.writer(f)
         headers = []
         headers.append("OTU")
@@ -2145,7 +2146,7 @@ def process(args):
         traceback.print_exc()
         return
     # save the phyml as intermediate step
-    f = open(os.path.join(dirname,project_name+"_species_level.phyml", "w")
+    f = open(os.path.join(dirname,project_name+"_species_level.phyml", "w"))
     f.write(phyml)
     f.close()
     
@@ -2184,7 +2185,7 @@ def process(args):
     except TreeParseError as e:
         dialogs.error(self.main_window,"Error permuting trees." + e.msg)
     # save intermediate phyml
-    f = open(os.path.join(dirname,project_name+"_nonmonophyl_removed.phyml", "w")
+    f = open(os.path.join(dirname,project_name+"_nonmonophyl_removed.phyml", "w"))
     f.write(phyml)
     f.close()
 
@@ -2194,20 +2195,32 @@ def process(args):
     # 6) Data independance
     data_ind,phyml = supertree_toolkit.data_independence(phyml,make_new_xml=True)
     # save phyml
-    f = open(os.path.join(dirname,project_name+"_data_ind.phyml", "w")
+    f = open(os.path.join(dirname,project_name+"_data_ind.phyml", "w"))
     f.write(phyml)
     f.close()
 
     # 7) Data overlap
     sufficient_overlap, key_list = supertree_toolkit.data_overlap(phyml)
     # process the key_list to remove the unconnected trees
-
+    if not sufficient_overlap:
+        # we don't, have enough, then remove all but the largest group.
+        # the key contains a list, with the largest group first (thanks networkX!)
+        # we can therefore just remove trees from everything but the first in the list
+        delete_me = []
+        for t in key_list[1::]: # skip 0
+            delete_me.extend(t)
+        for tree in delete_me:
+            XML = supertree_toolkit._swap_tree_in_XML(XML, None, tree, delete=True) # delete the tree and clean the data as we go 
 
     # save phyml
+    f = open(os.path.join(dirname,project_name+"_data_tax_overlap.phyml", "w"))
+    f.write(phyml)
+    f.close()
+
 
     # 8) Create matrix
     try:
-        matrix = supertree_toolkit.create_matrix(XML,format=f_format,quote=quote,taxonomy=taxonomy,
+        matrix = supertree_toolkit.create_matrix(XML,format=f_format,quote=quote,taxonomy=taxonomy, \
                                                  outgroups=remove_outgroups,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
         msg = "***Error: Failed to create matrix.\n"+detail.msg
@@ -2242,7 +2255,7 @@ def _equivalents_to_csv(equivalents):
 
     output_string = ""
     for taxon in equivalents:
-        output_string += taxon + "," + ';'.join(equivalents[taxon][0] + "," + equivalents[taxon][1] + "\n"
+        output_string += taxon + "," + ';'.join(equivalents[taxon][0]) + "," + equivalents[taxon][1] + "\n"
 
     return output_string
 

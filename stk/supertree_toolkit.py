@@ -2665,6 +2665,8 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
         sufficient_overlap = True
 
     # The above list actually contains which components are seperate from each other
+    key_list = connected_components
+    print key_list
 
     if (not filename == None or show):
         if (verbose):
