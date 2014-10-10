@@ -43,6 +43,7 @@ import string
 import stk.p4 as p4
 import lxml
 import csv
+from subprocess import call
 import stk.bzr_version as bzr_version
 d = bzr_version.version_info
 build = d.get('revno','<unknown revno>')
@@ -2006,7 +2007,7 @@ def process(args):
         return 
     # save phyml as intermediate step
     f = open(os.path.join(dirname,project_name+"_taxonomy_checked.phyml", "w")
-    f.write(data_string_csv)
+    f.write(phyml)
     f.close()
 
     print "Creating taxonomic information"    
@@ -2114,10 +2115,43 @@ def process(args):
             writer.writerow(this_classification)
 
     # 3) create species level dataset
-    phyml = supertree_toolkit.generate_species_level_data(phyml,taxonomy)
+    print "Converting data to species level"
+    try:
+        phyml = supertree_toolkit.generate_species_level_data(phyml,taxonomy)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except NoneCompleteTaxonomy as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except:
+        # what about no internet conenction? What error do that throw?
+        msg = "***Error: failed to carry out auto subs due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit"
+        print msg
+        traceback.print_exc()
+        return
     # save the phyml as intermediate step
+    f = open(os.path.join(dirname,project_name+"_species_level.phyml", "w")
+    f.write(phyml)
+    f.close()
+    
 
     # 4) Remove non-monophyletic taxa (requires TNT to be installed)
+    print "Removing non-monophyletic taxa via mini-supertree method"
     tree_list = stk._find_trees_for_permuting(phyml)
     try:
         for t in tree_list:
@@ -2139,23 +2173,35 @@ def process(args):
                 f.close
 
             # now create the tnt command to deal with this
-
+            # create a tmp file for the output tree
+            temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tnt")
+            tnt_command = "tnt run "+new_output+",ienum,taxname=,nelsen*,tsave *"+temp_file+",save /,quit"
             # run tnt, grab the output and store back in the data
+            call([tnt_command])
+            new_tree = supertree_toolkit._parse_tree(temp_file)
+            phyml = supertree_toolkit._swap_tree_in_XML(phyml,new_tree,t)
 
     except TreeParseError as e:
         dialogs.error(self.main_window,"Error permuting trees." + e.msg)
     # save intermediate phyml
+    f = open(os.path.join(dirname,project_name+"_nonmonophyl_removed.phyml", "w")
+    f.write(phyml)
+    f.close()
 
     # 5) Remove common names
     # no function to do this yet...
 
     # 6) Data independance
-    phyml = supertree_toolkit.data_independence(phyml,make_new_xml=True)
+    data_ind,phyml = supertree_toolkit.data_independence(phyml,make_new_xml=True)
     # save phyml
+    f = open(os.path.join(dirname,project_name+"_data_ind.phyml", "w")
+    f.write(phyml)
+    f.close()
 
     # 7) Data overlap
     sufficient_overlap, key_list = supertree_toolkit.data_overlap(phyml)
     # process the key_list to remove the unconnected trees
+
 
     # save phyml
 
