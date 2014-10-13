@@ -2397,7 +2397,7 @@ class Diamond:
      self.tree.write(f)
      XML = f.getvalue() 
      try:
-        XML = stk.all_sourcenames(XML)
+        XML = stk.all_sourcenames(XML,trees=True)
      except NoAuthors as detail:
         dialogs.error(self.main_window,detail.msg)
         return 
