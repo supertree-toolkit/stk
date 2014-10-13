@@ -216,7 +216,7 @@ when using other functions). *Clean Data* removes non-informative trees.
     for example, which may not be what you wish to happen.
 
 *Standardise source names* ensures all source names are unique and will re-sort
-the sources alphabetically. It will also stnadardise all tree names.
+the sources alphabetically. It will also standardise all tree names.
 
 Processing data
 ---------------
@@ -268,7 +268,7 @@ a window with the result as a graphic. There are two options; the normal graphic
 :num:`#img-stk-data-overlap-detailed`). All graphics show each tree or group
 of trees as a circle, labelled by a number. The window also contains a list which
 maps the number to a tree name, allowing you to delete any trees that don't
-sufficently overlap.
+sufficiently overlap.
 
 .. _img-stk-data-overlap-gui:
 
@@ -374,7 +374,7 @@ used. This creates a number of trees per source tree, each with a different
 combination of the non-monophyletic taxa. Note that this
 produces a tree file containing the unique trees only or a matrix for each
 source tree in the dataset. The output are stored in the given format, with each
-tree permuted stored in a seperate directory, given by the tree name (e.g. 
+tree permuted stored in a separate directory, given by the tree name (e.g. 
 Hill_etal_2001_1). The filename given is used, making it easy to script the 
 creation of the mini-supertrees.
 
