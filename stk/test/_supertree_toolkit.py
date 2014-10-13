@@ -12,7 +12,7 @@ from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_s
 from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
 from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used, _trees_equal, get_weights
-from stk.supertree_toolkit import get_outgroup, set_all_tree_names, create_tree_name, taxonomic_checker, load_taxonomy
+from stk.supertree_toolkit import get_outgroup, set_all_tree_names, create_tree_name, taxonomic_checker, load_taxonomy, load_equivalents
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -609,6 +609,17 @@ class TestSTK(unittest.TestCase):
         self.maxDiff = None
 
         self.assertDictEqual(taxonomy, expected)
+
+
+    def test_load_equivalents(self):
+        csv_file = "data/input/equivalents.csv"
+        expected = {'Turnix_sylvatica': [['Turnix_sylvaticus','Tetrao_sylvaticus','Tetrao_sylvatica','Turnix_sylvatica'],'yellow'],
+                    'Xiphorhynchus_pardalotus':[['Xiphorhynchus_pardalotus'],'green'],
+                    'Phaenicophaeus_curvirostris':[['Zanclostomus_curvirostris','Rhamphococcyx_curvirostris','Phaenicophaeus_curvirostris','Rhamphococcyx_curvirostr'],'yellow'],
+                    'Megalapteryx_benhami':[['Megalapteryx_benhami'],'red']
+                    }
+        equivalents = load_equivalents(csv_file)
+        self.assertDictEqual(equivalents, expected)
 
 
     def test_name_tree(self):

@@ -552,9 +552,9 @@ def main():
     parser_cm.add_argument('output', 
             help='The output matrix')
     parser_cm.add_argument('--taxonomy_file',
-            help='Existing taxonomy file to prevent redownloading data. Any taxa not in here will be checked online, so partial files are allowed.')
-    parser_cm.add_argument('--name_file',
-            help="Exiting name check file to prevent fetching the data again from online. New taxa will be checked online still.")
+            help='Existing taxonomy file to prevent redownloading data. Any taxa not in the file will be checked online, so partial complete file are OK.')
+    parser_cm.add_argument('--equivalents_file',
+            help='Existing equivalents file from a taxonomic name check. Any taxa not in the file will be checked online, so partially complete files are OK.')
     parser_cm.add_argument('--overwrite',
             action='store_true',
             default=False,
@@ -1925,7 +1925,7 @@ def process(args):
     no_store = args.no_store
     ignoreWarnings = args.ignoreWarnings
     taxonomy_file = args.taxonomy_file
-    check_file = args.name_file
+    equivalents_file = args.equivalents_file
 
     if (os.path.exists(output) and not overwrite):
         print "Output matrix file exists. Either remove the file or use the --overwrite flag."
@@ -1965,32 +1965,38 @@ def process(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to create matrix due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        msg = "***Error: Failed to load input due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
         print msg
         traceback.print_exc()
         return 
 
     print "Checking taxa againt online databases"
     # 1) taxonomy checker with autoreplace
-    equivalents = supertree_toolkit.taxonomic_checker(phyml)    
+    # Load existing data is any:
+    if (not equivalents_file == None):
+        equivalents = supertree_toolkit.load_equivalents(equivalents_file)
+    else:
+        equivalents = None
+    equivalents = supertree_toolkit.taxonomic_checker(phyml,existing_data=equivalents,verbose=verbose)    
     # save the equivalents for later (as CSV and as sub file)
     data_string_csv = _equivalents_to_csv(equivalents)
     data_string_subs = _equivalents_to_subs(equivalents)
-    f = open(os.path.join(dirname,project_name+"_taxonomy_checker.csv", "w"))
+    f = open(os.path.join(dirname,project_name+"_taxonomy_checker.csv"), "w")
     f.write(data_string_csv)
     f.close()
-    f = open(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat", "w"))
+    f = open(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat"), "w")
     f.write(data_string_subs)
     f.close()
     # now do the replacements - we use the subs file :)
     print "Swapping in the corrected taxa names"    
     try:
         old_taxa, new_taxa = supertree_toolkit.parse_subs_file(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat"))
+        print old_taxa, new_taxa
     except UnableToParseSubsFile as e:
         print e.msg
         sys.exit(-1)
     try:
-        phyml = supertree_toolkit.substitute_taxa(phyml,old_taxa,new_taxa,only_existing=False)
+        phyml = supertree_toolkit.substitute_taxa(phyml,old_taxa,new_taxa,only_existing=False,verbose=verbose)
     except NotUniqueError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
@@ -2013,16 +2019,20 @@ def process(args):
         traceback.print_exc()
         return 
     # save phyml as intermediate step
-    f = open(os.path.join(dirname,project_name+"_taxonomy_checked.phyml", "w"))
+    f = open(os.path.join(dirname,project_name+"_taxonomy_checked.phyml"), "w")
     f.write(phyml)
     f.close()
 
     print "Creating taxonomic information"    
     # 2) create taxonomy
-    taxonomy = supertree_toolkit.create_taxonomy(phyml)
+    if (not taxonomy_file == None):
+        taxonomy = supertree_toolkit.load_taxonomy(taxonomy_file)
+    else:
+        taxonomy = None
+    taxonomy = supertree_toolkit.create_taxonomy(phyml,existing_taxonomy=taxonomy,verbose=verbose)
     # save the taxonomy for later
     # Now create the CSV output
-    with open(os.path.join(dirname,project_name+"_taxonomy.csv", 'w')) as f:
+    with open(os.path.join(dirname,project_name+"_taxonomy.csv"), 'w') as f:
         writer = csv.writer(f)
         headers = []
         headers.append("OTU")
@@ -2124,7 +2134,7 @@ def process(args):
     # 3) create species level dataset
     print "Converting data to species level"
     try:
-        phyml = supertree_toolkit.generate_species_level_data(phyml,taxonomy)
+        phyml = supertree_toolkit.generate_species_level_data(phyml,taxonomy,verbose=verbose)
     except NotUniqueError as detail:
         msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
         print msg
@@ -2152,18 +2162,18 @@ def process(args):
         traceback.print_exc()
         return
     # save the phyml as intermediate step
-    f = open(os.path.join(dirname,project_name+"_species_level.phyml", "w"))
+    f = open(os.path.join(dirname,project_name+"_species_level.phyml"), "w")
     f.write(phyml)
     f.close()
     
 
     # 4) Remove non-monophyletic taxa (requires TNT to be installed)
     print "Removing non-monophyletic taxa via mini-supertree method"
-    tree_list = stk._find_trees_for_permuting(phyml)
+    tree_list = supertree_toolkit._find_trees_for_permuting(phyml)
     try:
         for t in tree_list:
             # permute
-            output_string = supertree_toolkit.permute_tree(tree_list[t],matrix='tnt',treefile=None)
+            output_string = supertree_toolkit.permute_tree(tree_list[t],matrix='tnt',treefile=None,verbose=verbose)
 
             #save
             if (not output_string == ""):
@@ -2191,7 +2201,7 @@ def process(args):
     except TreeParseError as e:
         dialogs.error(self.main_window,"Error permuting trees." + e.msg)
     # save intermediate phyml
-    f = open(os.path.join(dirname,project_name+"_nonmonophyl_removed.phyml", "w"))
+    f = open(os.path.join(dirname,project_name+"_nonmonophyl_removed.phyml"), "w")
     f.write(phyml)
     f.close()
 
@@ -2201,12 +2211,12 @@ def process(args):
     # 6) Data independance
     data_ind,phyml = supertree_toolkit.data_independence(phyml,make_new_xml=True)
     # save phyml
-    f = open(os.path.join(dirname,project_name+"_data_ind.phyml", "w"))
+    f = open(os.path.join(dirname,project_name+"_data_ind.phyml"), "w")
     f.write(phyml)
     f.close()
 
     # 7) Data overlap
-    sufficient_overlap, key_list = supertree_toolkit.data_overlap(phyml)
+    sufficient_overlap, key_list = supertree_toolkit.data_overlap(phyml,verbose=verbose)
     # process the key_list to remove the unconnected trees
     if not sufficient_overlap:
         # we don't, have enough, then remove all but the largest group.
@@ -2216,18 +2226,17 @@ def process(args):
         for t in key_list[1::]: # skip 0
             delete_me.extend(t)
         for tree in delete_me:
-            XML = supertree_toolkit._swap_tree_in_XML(XML, None, tree, delete=True) # delete the tree and clean the data as we go 
+            phyml = supertree_toolkit._swap_tree_in_XML(phyml, None, tree, delete=True) # delete the tree and clean the data as we go 
 
     # save phyml
-    f = open(os.path.join(dirname,project_name+"_data_tax_overlap.phyml", "w"))
+    f = open(os.path.join(dirname,project_name+"_data_tax_overlap.phyml"), "w")
     f.write(phyml)
     f.close()
 
 
     # 8) Create matrix
     try:
-        matrix = supertree_toolkit.create_matrix(XML,format=f_format,quote=quote,taxonomy=taxonomy, \
-                                                 outgroups=remove_outgroups,ignoreWarnings=ignoreWarnings)
+        matrix = supertree_toolkit.create_matrix(phyml)
     except NotUniqueError as detail:
         msg = "***Error: Failed to create matrix.\n"+detail.msg
         print msg
@@ -2250,7 +2259,7 @@ def process(args):
         traceback.print_exc()
         return 
 
-    f = open(output_file, "w")
+    f = open(output, "w")
     f.write(matrix)
     f.close()
 
@@ -2259,8 +2268,9 @@ def process(args):
 
 def _equivalents_to_csv(equivalents):
 
-    output_string = ""
-    for taxon in equivalents:
+    output_string = 'Taxa,Equivalents,Status\n'
+
+    for taxon in sorted(equivalents):
         output_string += taxon + "," + ';'.join(equivalents[taxon][0]) + "," + equivalents[taxon][1] + "\n"
 
     return output_string
@@ -2270,10 +2280,10 @@ def _equivalents_to_subs(equivalents):
     """Only corrects the yellow ones. Red and green are left alone"""
 
     output_string = ""
-    for taxon in equivalents:
+    for taxon in sorted(equivalents):
         if (equivalents[taxon][1] == 'yellow'):
             # the first name is always the correct one
-            output_string += taxon + "="+equivalents[taxon][0][0]+"\n"
+            output_string += taxon + " = "+equivalents[taxon][0][0]+"\n"
     return output_string
 
 if __name__ == "__main__":

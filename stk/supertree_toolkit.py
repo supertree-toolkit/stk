@@ -2153,6 +2153,28 @@ def taxonomic_checker(XML,existing_data=None,verbose=False):
     return equivalents
 
 
+def load_equivalents(equiv_csv):
+    """Load equivalents data from a csv and convert to a equivalents Dict.
+        Structure is key, with a list that is array of synonyms, followed by status ('green',
+        'yellow' or 'red').
+
+    """
+
+    import csv
+
+    equivalents = {}
+
+    with open(equiv_csv, 'rU') as csvfile:
+        equiv_reader = csv.reader(csvfile, delimiter=',')
+        equiv_reader.next() # skip header
+        for row in equiv_reader:
+            i = 1
+            equivalents[row[0]] = [row[1].split(';'),row[2]]
+    
+    return equivalents
+
+
+
 def load_taxonomy(taxonomy_csv):
     """Load in a taxonomy CSV file and convert to taxonomy Dict"""
     
@@ -2446,7 +2468,7 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
         taxonomy = existing_taxonomy
     taxa = get_all_taxa(XML, pretty=True)
     create_taxonomy_from_taxa(taxa, taxonomy)
-    taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings)
+    #taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings)
     return taxonomy
 
 def create_extended_taxonomy(taxonomy, starttime, verbose=False, ignoreWarnings=False):
@@ -3105,6 +3127,8 @@ def parse_subs_file(filename):
         n_t = n_t.replace(', ', ',')
         n_t = n_t.replace(" ","_")
         new_taxa.append(n_t.strip())
+
+    print old_taxa, new_taxa
 
     if (len(old_taxa) != len(new_taxa)):
         raise UnableToParseSubsFile("Output arrays are not same length. File incorrectly formatted")
