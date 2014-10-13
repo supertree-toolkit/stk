@@ -2060,7 +2060,7 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
 
     return output_string
 
-def taxonomic_checker(XML,verbose=False):
+def taxonomic_checker(XML,existing_data=None,verbose=False):
     """ For each name in the database generate a database of the original name,
     possible synonyms and if the taxon is not know, signal that. We do this by
     using the EoL API to grab synonyms of each taxon.  """
@@ -2072,13 +2072,18 @@ def taxonomic_checker(XML,verbose=False):
     # grab all taxa
     taxa = get_all_taxa(XML)
 
-    equivalents = {}
+    if existing_data == None:
+        equivalents = {}
+    else:
+        equivalents = existing_data
 
     # for each taxon, check the name on EoL - what if it's a synonym? Does EoL still return a result?
     # if not, is there another API function to do this?
     # search for the taxon and grab the name - if you search for a recognised synonym on EoL then
     # you get the original ('correct') name - shorten this to two words and you're done.
     for t in taxa:
+        if t in equivalents:
+            continue
         taxon = t.replace("_"," ")
         if (verbose):
             print "Looking up ", taxon

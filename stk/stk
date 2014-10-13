@@ -551,6 +551,10 @@ def main():
             help='The input Phyml')
     parser_cm.add_argument('output', 
             help='The output matrix')
+    parser_cm.add_argument('--taxonomy_file',
+            help='Existing taxonomy file to prevent redownloading data. Any taxa not in here will be checked online, so partial files are allowed.')
+    parser_cm.add_argument('--name_file',
+            help="Exiting name check file to prevent fetching the data again from online. New taxa will be checked online still.")
     parser_cm.add_argument('--overwrite',
             action='store_true',
             default=False,
@@ -1920,6 +1924,8 @@ def process(args):
     output = args.output
     no_store = args.no_store
     ignoreWarnings = args.ignoreWarnings
+    taxonomy_file = args.taxonomy_file
+    check_file = args.name_file
 
     if (os.path.exists(output) and not overwrite):
         print "Output matrix file exists. Either remove the file or use the --overwrite flag."
