@@ -71,6 +71,8 @@ class TestImportExport(unittest.TestCase):
                         len(optionErrors[phyml_file][0])+len(optionErrors[phyml_file][2])+len(optionErrors[phyml_file][3]) == 0):
                     continue
                 failures.append(phyml_file)
+        if (len(failures) > 0):
+            print failures
         self.assert_(len(failures) == 0)
         os.remove(temp_file)
         

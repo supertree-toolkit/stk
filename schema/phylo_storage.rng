@@ -61,7 +61,7 @@ data to the file.</a:documentation>
           <ref name="person"/>
           <optional>
             <element name="institution">
-              <data type="string" datatypeLibrary=""/>
+              <ref name="anystring"/>
             </element>
           </optional>
         </element>
@@ -77,11 +77,9 @@ to read in a bibtex file and populate all your bibliographic data</a:documentati
       <oneOrMore>
         <element name="source_tree">
           <a:documentation>This is a source tree and associated meta-data</a:documentation>
-          <oneOrMore>
-            <attribute name="name">
-              <data type="string" datatypeLibrary=""/>
-            </attribute>
-          </oneOrMore>
+          <attribute name="name">
+            <data type="string" datatypeLibrary=""/>
+          </attribute>
           <element name="tree">
             <element name="tree_string">
               <a:documentation>The tree string. This is a Newick/Nexus formatted tree string. You can import
@@ -107,7 +105,6 @@ paste a string. Tested using Meqsuite, Treeview, Dendroscope to generate trees.<
 the this tree?</a:documentation>
                 </ref>
               </oneOrMore>
-              <ref name="comment"/>
               <optional>
                 <ref name="software">
                   <a:documentation>Which software was used?</a:documentation>
@@ -215,7 +212,6 @@ If fossil and extant, which taxa are fossil taxa.</a:documentation>
               </element>
             </choice>
           </element>
-          <ref name="comment"/>
           <element name="character_data">
             <a:documentation>This stores the character data used to construct the 
 source tree(s).</a:documentation>
@@ -228,6 +224,7 @@ source tree(s).</a:documentation>
           </ref>
         </element>
       </oneOrMore>
+      <ref name="comment"/>
     </group>
   </define>
   <define name="publication">
@@ -522,8 +519,8 @@ source tree(s).</a:documentation>
       <attribute name="version">
         <data type="string" datatypeLibrary=""/>
       </attribute>
+      <ref name="comment"/>
     </element>
-    <ref name="comment"/>
   </define>
   <!--
     Any value in the xml file can be accompanied by a comment

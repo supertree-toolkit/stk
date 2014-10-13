@@ -12,7 +12,7 @@ from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_s
 from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
 from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used, _trees_equal, get_weights
-from stk.supertree_toolkit import get_outgroup
+from stk.supertree_toolkit import get_outgroup, set_all_tree_names, create_tree_name
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -24,7 +24,7 @@ import re
 # Class to test all those loverly internal methods
 # or stuff that doesn't fit within the other tests
 
-class TestSetSourceNames(unittest.TestCase):
+class TestSTK(unittest.TestCase):
 
     def test_check_uniqueness(self):
         non_unique_names = etree.parse("data/input/non_unique_names.phyml")
@@ -437,7 +437,7 @@ class TestSetSourceNames(unittest.TestCase):
         XML = clean_data(XML)
         trees = obtain_trees(XML)
         self.assert_(len(trees) == 2)
-        expected_trees = {'Hill_2011_2': '(A,B,(C,D,E));', 'Hill_2011_1': '(A, B, C, (D, E, F));'}
+        expected_trees = {'Hill_2011_4': '(A,B,(C,D,E));', 'Hill_2011_2': '(A, B, C, (D, E, F));'}
         for t in trees:
             self.assert_(_trees_equal(trees[t],expected_trees[t]))
 
@@ -557,6 +557,18 @@ class TestSetSourceNames(unittest.TestCase):
             self.assert_(c in expected_characters)
         self.assert_(len(characters) == len(expected_characters))
 
+    def test_name_tree(self):
+        XML = etree.tostring(etree.parse('data/input/single_source_no_names.phyml',parser),pretty_print=True)
+        xml_root = _parse_xml(XML)
+        source_tree_element = xml_root.xpath('/phylo_storage/sources/source/source_tree')[0]
+        tree_name = create_tree_name(XML, source_tree_element)
+        self.assert_(tree_name == 'Hill_2011_1')
+
+    def test_all_name_tree(self):
+        XML = etree.tostring(etree.parse('data/input/single_source_no_names.phyml',parser),pretty_print=True)
+        new_xml = set_all_tree_names(XML)
+        XML = etree.tostring(etree.parse('data/input/single_source.phyml',parser),pretty_print=True)
+        self.assert_(isEqualXML(new_xml,XML))
 
 
 if __name__ == '__main__':

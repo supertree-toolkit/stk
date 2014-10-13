@@ -25,7 +25,7 @@
           </year>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="test1_1">
         <tree>
           <tree_string>
             <string_value lines="1">Add your tree here</string_value>
@@ -38,7 +38,7 @@
           </figure_number>
           <page_number>
             <string_value lines="1">1</string_value>
-			</page_number>
+          </page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
@@ -93,7 +93,7 @@
           </year>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="test2_1">
         <tree>
           <tree_string>
             <string_value lines="1">Add your tree here</string_value>
@@ -106,7 +106,7 @@
           </figure_number>
           <page_number>
             <string_value lines="1">1</string_value>
-			</page_number>
+          </page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
@@ -153,7 +153,7 @@
           </year>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="test3_1">
         <tree>
           <tree_string>
             <string_value lines="1">Add your tree here</string_value>
@@ -166,7 +166,7 @@
           </figure_number>
           <page_number>
             <string_value lines="1">1</string_value>
-			</page_number>
+          </page_number>
           <tree_inference>
             <optimality_criterion name="Maximum Parsimony"/>
           </tree_inference>
