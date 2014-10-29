@@ -8,8 +8,8 @@
     <property name="title" translatable="yes">Create matrix</property>
     <property name="resizable">False</property>
     <property name="type_hint">dialog</property>
-    <signal name="close" handler="on_create_matrix_dialog_close" />
-    <signal name="destroy" handler="on_create_matrix_dialog_close" />
+    <signal name="close" handler="on_create_matrix_dialog_close" swapped="no"/>
+    <signal name="destroy" handler="on_create_matrix_dialog_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox2">
         <property name="visible">True</property>
@@ -27,7 +27,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_create_matrix_clicked" />
+                <signal name="clicked" handler="on_create_matrix_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -42,7 +42,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_create_matrix_cancel_clicked" />
+                <signal name="clicked" handler="on_create_matrix_cancel_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -148,7 +148,7 @@
                     <property name="use_action_appearance">False</property>
                     <property name="use_stock">True</property>
                     <property name="image_position">right</property>
-                    <signal name="clicked" handler="on_create_matrix_browse_clicked" />
+                    <signal name="clicked" handler="on_create_matrix_browse_clicked" swapped="no"/>
                   </widget>
                   <packing>
                     <property name="expand">True</property>
@@ -162,7 +162,7 @@
                 <property name="fill">True</property>
                 <property name="position">4</property>
               </packing>
-          </child>
+            </child>
             <child>
               <widget class="GtkLabel" id="create_matrix_taxonomy_label">
                 <property name="visible">True</property>
@@ -204,7 +204,7 @@
                     <property name="use_action_appearance">False</property>
                     <property name="use_stock">True</property>
                     <property name="image_position">right</property>
-                    <signal name="clicked" handler="on_create_matrix_browse2_clicked" />
+                    <signal name="clicked" handler="on_create_matrix_browse2_clicked" swapped="no"/>
                   </widget>
                   <packing>
                     <property name="expand">True</property>
@@ -279,7 +279,7 @@
     <property name="height_request">400</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Data independence</property>
-    <signal name="destroy" handler="on_data_ind_dialog_close" />
+    <signal name="destroy" handler="on_data_ind_dialog_close" swapped="no"/>
     <child>
       <widget class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
@@ -355,7 +355,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_save_ind_data" />
+                <signal name="clicked" handler="on_save_ind_data" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -370,7 +370,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_save_ind_data_phyml" />
+                <signal name="clicked" handler="on_save_ind_data_phyml" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -385,7 +385,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_data_ind_close" />
+                <signal name="clicked" handler="on_data_ind_close" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -409,8 +409,8 @@
     <property name="title" translatable="yes">Check Data Overlap</property>
     <property name="resizable">False</property>
     <property name="type_hint">dialog</property>
-    <signal name="close" handler="on_data_overlap_dialog_close" />
-    <signal name="destroy" handler="on_data_overlap_dialog_close" />
+    <signal name="close" handler="on_data_overlap_dialog_close" swapped="no"/>
+    <signal name="destroy" handler="on_data_overlap_dialog_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox2">
         <property name="visible">True</property>
@@ -428,7 +428,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_data_overlap_dialog_clicked" />
+                <signal name="clicked" handler="on_data_overlap_dialog_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -443,7 +443,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_data_overlap_dialog_cancel_clicked" />
+                <signal name="clicked" handler="on_data_overlap_dialog_cancel_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -593,7 +593,7 @@
                     <property name="use_action_appearance">False</property>
                     <property name="use_stock">True</property>
                     <property name="image_position">right</property>
-                    <signal name="clicked" handler="on_data_overlap_dialog_browse_clicked" />
+                    <signal name="clicked" handler="on_data_overlap_dialog_browse_clicked" swapped="no"/>
                   </widget>
                   <packing>
                     <property name="expand">True</property>
@@ -642,8 +642,8 @@
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Check Data Overlap</property>
     <property name="type_hint">dialog</property>
-    <signal name="close" handler="on_data_overlap_show_dialog_close" />
-    <signal name="destroy" handler="on_data_overlap_show_dialog_close" />
+    <signal name="close" handler="on_data_overlap_show_dialog_close" swapped="no"/>
+    <signal name="destroy" handler="on_data_overlap_show_dialog_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox1">
         <property name="can_focus">False</property>
@@ -779,8 +779,8 @@
     <property name="default_width">500</property>
     <property name="default_height">500</property>
     <property name="type_hint">dialog</property>
-    <signal name="close" handler="data_summary_output_close" />
-    <signal name="destroy" handler="data_summary_output_close" />
+    <signal name="close" handler="data_summary_output_close" swapped="no"/>
+    <signal name="destroy" handler="data_summary_output_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox2">
         <property name="can_focus">False</property>
@@ -813,7 +813,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="data_summary_save_clicked" />
+                <signal name="clicked" handler="data_summary_save_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -828,7 +828,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="data_summary_output_close" />
+                <signal name="clicked" handler="data_summary_output_close" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -852,8 +852,8 @@
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Export bibliographic information</property>
     <property name="type_hint">dialog</property>
-    <signal name="destroy" handler="on_export_bib_close" />
-    <signal name="close" handler="on_export_bib_close" />
+    <signal name="destroy" handler="on_export_bib_close" swapped="no"/>
+    <signal name="close" handler="on_export_bib_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox9">
         <property name="visible">True</property>
@@ -871,7 +871,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_export_bib_clicked" />
+                <signal name="clicked" handler="on_export_bib_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -886,7 +886,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_export_bib_cancelled_clicked" />
+                <signal name="clicked" handler="on_export_bib_cancelled_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -951,8 +951,8 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkRadioButton" id="file_format_short_chooser">
-                        <property name="label" translatable="yes">Text (short)</property>
+                      <widget class="GtkRadioButton" id="file_format_html_chooser">
+                        <property name="label" translatable="yes">HTML</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -985,8 +985,8 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkRadioButton" id="file_format_html_chooser">
-                        <property name="label" translatable="yes">HTML</property>
+                      <widget class="GtkRadioButton" id="file_format_short_chooser">
+                        <property name="label" translatable="yes">Text (short)</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -1032,8 +1032,8 @@
     <property name="title" translatable="yes">Export data</property>
     <property name="resizable">False</property>
     <property name="type_hint">dialog</property>
-    <signal name="close" handler="on_export_dialog_close" />
-    <signal name="destroy" handler="on_export_dialog_close" />
+    <signal name="close" handler="on_export_dialog_close" swapped="no"/>
+    <signal name="destroy" handler="on_export_dialog_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox7">
         <property name="visible">True</property>
@@ -1051,7 +1051,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_export_button_clicked" />
+                <signal name="clicked" handler="on_export_button_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -1066,7 +1066,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_export_cancel_clicked" />
+                <signal name="clicked" handler="on_export_cancel_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -1128,7 +1128,7 @@
                     <property name="use_action_appearance">False</property>
                     <property name="use_stock">True</property>
                     <property name="image_position">right</property>
-                    <signal name="clicked" handler="on_export_browse_clicked" />
+                    <signal name="clicked" handler="on_export_browse_clicked" swapped="no"/>
                   </widget>
                   <packing>
                     <property name="expand">True</property>
@@ -1187,8 +1187,8 @@
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Export trees</property>
     <property name="type_hint">dialog</property>
-    <signal name="destroy" handler="on_export_trees_close" />
-    <signal name="close" handler="on_export_trees_close" />
+    <signal name="destroy" handler="on_export_trees_close" swapped="no"/>
+    <signal name="close" handler="on_export_trees_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox9">
         <property name="visible">True</property>
@@ -1206,7 +1206,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_export_trees_clicked" />
+                <signal name="clicked" handler="on_export_trees_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -1221,7 +1221,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_export_trees_cancelled_clicked" />
+                <signal name="clicked" handler="on_export_trees_cancelled_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -1347,8 +1347,8 @@
     <property name="title" translatable="yes">Find</property>
     <property name="resizable">False</property>
     <property name="type_hint">dialog</property>
-    <signal name="destroy" handler="on_find_dialog_close" />
-    <signal name="close" handler="on_find_dialog_close" />
+    <signal name="destroy" handler="on_find_dialog_close" swapped="no"/>
+    <signal name="close" handler="on_find_dialog_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
@@ -1368,7 +1368,7 @@
                 <property name="receives_default">False</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_close_clicked" />
+                <signal name="clicked" handler="on_close_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -1385,7 +1385,7 @@
                 <property name="receives_default">False</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_find_clicked" />
+                <signal name="clicked" handler="on_find_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -1439,7 +1439,7 @@
                   </widget>
                   <packing>
                     <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
+                    <property name="y_options"/>
                   </packing>
                 </child>
               </widget>
@@ -1497,8 +1497,8 @@
     <property name="title" translatable="yes">Import data</property>
     <property name="resizable">False</property>
     <property name="type_hint">dialog</property>
-    <signal name="close" handler="on_import_dialog_close" />
-    <signal name="destroy" handler="on_import_dialog_close" />
+    <signal name="close" handler="on_import_dialog_close" swapped="no"/>
+    <signal name="destroy" handler="on_import_dialog_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox5">
         <property name="visible">True</property>
@@ -1516,7 +1516,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_import_button_clicked" />
+                <signal name="clicked" handler="on_import_button_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -1531,7 +1531,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_import_cancel_clicked" />
+                <signal name="clicked" handler="on_import_cancel_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -1593,7 +1593,7 @@
                     <property name="use_action_appearance">False</property>
                     <property name="use_stock">True</property>
                     <property name="image_position">right</property>
-                    <signal name="clicked" handler="on_import_browse_clicked" />
+                    <signal name="clicked" handler="on_import_browse_clicked" swapped="no"/>
                   </widget>
                   <packing>
                     <property name="expand">True</property>
@@ -1635,7 +1635,7 @@
     <property name="title" translatable="yes">Supertree Toolkit</property>
     <property name="default_width">900</property>
     <property name="default_height">600</property>
-    <signal name="destroy" handler="on_quit" />
+    <signal name="destroy" handler="on_quit" swapped="no"/>
     <child>
       <widget class="GtkVBox" id="mainVbox">
         <property name="visible">True</property>
@@ -1663,7 +1663,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_new" />
+                        <signal name="activate" handler="on_new" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1674,7 +1674,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_open" />
+                        <signal name="activate" handler="on_open" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1685,7 +1685,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Open schema</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_open_schema" />
+                        <signal name="activate" handler="on_open_schema" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1696,7 +1696,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_save" />
+                        <signal name="activate" handler="on_save" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1707,7 +1707,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_save_as" />
+                        <signal name="activate" handler="on_save_as" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1725,7 +1725,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Import from bibliography</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_import_bib" />
+                        <signal name="activate" handler="on_import_bib" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1737,7 +1737,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Export bibliography</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_export_bib" />
+                        <signal name="activate" handler="on_export_bib" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1749,7 +1749,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Export trees</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_export_trees" />
+                        <signal name="activate" handler="on_export_trees" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1760,7 +1760,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Export to old STK</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_export" />
+                        <signal name="activate" handler="on_export" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1771,7 +1771,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Import from old STK</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_import" />
+                        <signal name="activate" handler="on_import" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1788,7 +1788,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_quit" />
+                        <signal name="activate" handler="on_quit" swapped="no"/>
                       </widget>
                     </child>
                   </widget>
@@ -1814,7 +1814,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_find" />
+                        <signal name="activate" handler="on_find" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1825,7 +1825,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Copy spud path</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_copy_spud_path" />
+                        <signal name="activate" handler="on_copy_spud_path" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1837,7 +1837,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Copy</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_copy" />
+                        <signal name="activate" handler="on_copy" swapped="no"/>
                         <accelerator key="C" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
@@ -1850,7 +1850,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Paste</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_paste" />
+                        <signal name="activate" handler="on_paste" swapped="no"/>
                         <accelerator key="V" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
@@ -1860,7 +1860,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Group</property>
-                        <signal name="activate" handler="on_group" />
+                        <signal name="activate" handler="on_group" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1868,7 +1868,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Ungroup</property>
-                        <signal name="activate" handler="on_ungroup" />
+                        <signal name="activate" handler="on_ungroup" swapped="no"/>
                       </widget>
                     </child>
                   </widget>
@@ -1894,7 +1894,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Expand all</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_expand_all" />
+                        <signal name="activate" handler="on_expand_all" swapped="no"/>
                         <accelerator key="equal" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
@@ -1907,7 +1907,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Collapse all</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_collapse_all" />
+                        <signal name="activate" handler="on_collapse_all" swapped="no"/>
                         <accelerator key="minus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
@@ -1933,7 +1933,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Standardise source names</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_standardise_names" />
+                        <signal name="activate" handler="on_standardise_names" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1944,7 +1944,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Add tree names</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_name_trees" />
+                        <signal name="activate" handler="on_name_trees" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1955,7 +1955,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Clean Data</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_clean_data" />
+                        <signal name="activate" handler="on_clean_data" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1966,7 +1966,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Data Summary</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_data_summary" />
+                        <signal name="activate" handler="on_data_summary" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1977,7 +1977,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Permute all trees</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_permute_all_trees" />
+                        <signal name="activate" handler="on_permute_all_trees" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1988,7 +1988,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Sub taxa</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_sub_taxa" />
+                        <signal name="activate" handler="on_sub_taxa" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -1999,7 +1999,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Replace genera</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_replace_genera" />
+                        <signal name="activate" handler="on_replace_genera" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -2010,7 +2010,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Data independence check</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_data_ind" />
+                        <signal name="activate" handler="on_data_ind" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -2021,7 +2021,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Data Overlap</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_data_overlap" />
+                        <signal name="activate" handler="on_data_overlap" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -2032,7 +2032,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">STR</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_str" />
+                        <signal name="activate" handler="on_str" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -2043,7 +2043,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Create Matrix</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_create_matrix" />
+                        <signal name="activate" handler="on_create_matrix" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -2054,7 +2054,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Create subset</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_create_subset" />
+                        <signal name="activate" handler="on_create_subset" swapped="no"/>
                       </widget>
                     </child>
                   </widget>
@@ -2079,7 +2079,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Validate XML</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_validate" />
+                        <signal name="activate" handler="on_validate" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -2090,7 +2090,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Validate Schematron</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_validate_schematron" />
+                        <signal name="activate" handler="on_validate_schematron" swapped="no"/>
                       </widget>
                     </child>
                   </widget>
@@ -2114,7 +2114,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Diff</property>
-                        <signal name="activate" handler="on_diff" />
+                        <signal name="activate" handler="on_diff" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -2123,7 +2123,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Diff against last save</property>
-                        <signal name="activate" handler="on_diffsave" />
+                        <signal name="activate" handler="on_diffsave" swapped="no"/>
                       </widget>
                     </child>
                     <child>
@@ -2135,7 +2135,7 @@
                         <property name="label" translatable="yes">Display properties</property>
                         <property name="use_underline">True</property>
                         <property name="active">True</property>
-                        <signal name="toggled" handler="on_display_properties_toggled" />
+                        <signal name="toggled" handler="on_display_properties_toggled" swapped="no"/>
                         <accelerator key="p" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
@@ -2161,7 +2161,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_about" />
+                        <signal name="activate" handler="on_about" swapped="no"/>
                       </widget>
                     </child>
                   </widget>
@@ -2250,9 +2250,13 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkStatusbar" id="statusBar">
+          <widget class="GtkHButtonBox" id="plugin_buttonbox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="layout_style">start</property>
+            <child>
+              <placeholder/>
+            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -2261,13 +2265,9 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkHButtonBox" id="plugin_buttonbox">
+          <widget class="GtkStatusbar" id="statusBar">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="layout_style">start</property>
-            <child>
-              <placeholder/>
-            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -2284,8 +2284,8 @@
     <property name="title" translatable="yes">Permute trees</property>
     <property name="resizable">False</property>
     <property name="type_hint">dialog</property>
-    <signal name="close" handler="on_create_matrix_dialog_close" />
-    <signal name="destroy" handler="on_create_matrix_dialog_close" />
+    <signal name="close" handler="on_create_matrix_dialog_close" swapped="no"/>
+    <signal name="destroy" handler="on_create_matrix_dialog_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox12">
         <property name="visible">True</property>
@@ -2303,7 +2303,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_permute_trees_clicked" />
+                <signal name="clicked" handler="on_permute_trees_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -2318,7 +2318,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_permute_trees_cancel_clicked" />
+                <signal name="clicked" handler="on_permute_trees_cancel_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -2477,7 +2477,7 @@
                     <property name="use_action_appearance">False</property>
                     <property name="use_stock">True</property>
                     <property name="image_position">right</property>
-                    <signal name="clicked" handler="on_permute_trees_browse_clicked" />
+                    <signal name="clicked" handler="on_permute_trees_browse_clicked" swapped="no"/>
                   </widget>
                   <packing>
                     <property name="expand">True</property>
@@ -2524,7 +2524,7 @@
         <property name="use_action_appearance">False</property>
         <property name="label" translatable="yes">Copy</property>
         <property name="use_underline">True</property>
-        <signal name="activate" handler="on_copy" />
+        <signal name="activate" handler="on_copy" swapped="no"/>
       </widget>
     </child>
     <child>
@@ -2534,7 +2534,7 @@
         <property name="use_action_appearance">False</property>
         <property name="label" translatable="yes">Paste</property>
         <property name="use_underline">True</property>
-        <signal name="activate" handler="on_paste" />
+        <signal name="activate" handler="on_paste" swapped="no"/>
       </widget>
     </child>
     <child>
@@ -2544,7 +2544,7 @@
         <property name="use_action_appearance">False</property>
         <property name="label" translatable="yes">Slice</property>
         <property name="use_underline">True</property>
-        <signal name="activate" handler="on_slice" />
+        <signal name="activate" handler="on_slice" swapped="no"/>
       </widget>
     </child>
     <child>
@@ -2553,7 +2553,7 @@
         <property name="can_focus">False</property>
         <property name="use_action_appearance">False</property>
         <property name="label" translatable="yes">Group</property>
-        <signal name="activate" handler="on_group" />
+        <signal name="activate" handler="on_group" swapped="no"/>
       </widget>
     </child>
     <child>
@@ -2561,7 +2561,7 @@
         <property name="can_focus">False</property>
         <property name="use_action_appearance">False</property>
         <property name="label" translatable="yes">Ungroup</property>
-        <signal name="activate" handler="on_ungroup" />
+        <signal name="activate" handler="on_ungroup" swapped="no"/>
       </widget>
     </child>
   </widget>
@@ -2571,8 +2571,8 @@
     <property name="title" translatable="yes">Replace Genera</property>
     <property name="resizable">False</property>
     <property name="type_hint">dialog</property>
-    <signal name="close" handler="on_replace_genera_dialog_close" />
-    <signal name="destroy" handler="on_replace_genera_dialog_close" />
+    <signal name="close" handler="on_replace_genera_dialog_close" swapped="no"/>
+    <signal name="destroy" handler="on_replace_genera_dialog_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox14">
         <property name="visible">True</property>
@@ -2590,7 +2590,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_replace_genera_button_clicked" />
+                <signal name="clicked" handler="on_replace_genera_button_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -2605,7 +2605,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_replace_genera_cancel_clicked" />
+                <signal name="clicked" handler="on_replace_genera_cancel_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -2678,7 +2678,7 @@
                             <property name="use_action_appearance">False</property>
                             <property name="use_stock">True</property>
                             <property name="image_position">right</property>
-                            <signal name="clicked" handler="on_replace_genera_phyml_browse_clicked" />
+                            <signal name="clicked" handler="on_replace_genera_phyml_browse_clicked" swapped="no"/>
                           </widget>
                           <packing>
                             <property name="expand">True</property>
@@ -2755,7 +2755,7 @@
                             <property name="use_action_appearance">False</property>
                             <property name="use_stock">True</property>
                             <property name="image_position">right</property>
-                            <signal name="clicked" handler="on_replace_genera_subs_browse_clicked" />
+                            <signal name="clicked" handler="on_replace_genera_subs_browse_clicked" swapped="no"/>
                           </widget>
                           <packing>
                             <property name="expand">True</property>
@@ -2812,8 +2812,8 @@
     <property name="title" translatable="yes">Safe Taxonomic Redcution</property>
     <property name="resizable">False</property>
     <property name="type_hint">dialog</property>
-    <signal name="close" handler="on_str_dialog_close" />
-    <signal name="destroy" handler="on_str_dialog_close" />
+    <signal name="close" handler="on_str_dialog_close" swapped="no"/>
+    <signal name="destroy" handler="on_str_dialog_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox2">
         <property name="visible">True</property>
@@ -2831,7 +2831,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_str_clicked" />
+                <signal name="clicked" handler="on_str_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -2846,7 +2846,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_str_cancel_clicked" />
+                <signal name="clicked" handler="on_str_cancel_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -2908,7 +2908,7 @@
                     <property name="use_action_appearance">False</property>
                     <property name="use_stock">True</property>
                     <property name="image_position">right</property>
-                    <signal name="clicked" handler="on_str_browse_clicked" />
+                    <signal name="clicked" handler="on_str_browse_clicked" swapped="no"/>
                   </widget>
                   <packing>
                     <property name="expand">True</property>
@@ -3023,8 +3023,8 @@
     <property name="default_width">600</property>
     <property name="default_height">800</property>
     <property name="type_hint">dialog</property>
-    <signal name="close" handler="on_sub_taxa_dialog_close" />
-    <signal name="destroy" handler="on_sub_taxa_dialog_close" />
+    <signal name="close" handler="on_sub_taxa_dialog_close" swapped="no"/>
+    <signal name="destroy" handler="on_sub_taxa_dialog_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox4">
         <property name="visible">True</property>
@@ -3042,7 +3042,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_sub_taxa_clicked" />
+                <signal name="clicked" handler="on_sub_taxa_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -3057,7 +3057,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_sub_taxa_cancel_clicked" />
+                <signal name="clicked" handler="on_sub_taxa_cancel_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -3111,7 +3111,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
-                        <signal name="clicked" handler="on_move_to_subs_clicked" />
+                        <signal name="clicked" handler="on_move_to_subs_clicked" swapped="no"/>
                       </widget>
                       <packing>
                         <property name="expand">True</property>
@@ -3126,7 +3126,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
-                        <signal name="clicked" handler="on_remove_from_subs_clicked" />
+                        <signal name="clicked" handler="on_remove_from_subs_clicked" swapped="no"/>
                       </widget>
                       <packing>
                         <property name="expand">True</property>
@@ -3178,7 +3178,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_reset_clicked" />
+                    <signal name="clicked" handler="on_reset_clicked" swapped="no"/>
                   </widget>
                   <packing>
                     <property name="expand">True</property>
@@ -3193,7 +3193,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_import_subs_clicked" />
+                    <signal name="clicked" handler="on_import_subs_clicked" swapped="no"/>
                   </widget>
                   <packing>
                     <property name="expand">True</property>
@@ -3208,7 +3208,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_export_subs_clicked" />
+                    <signal name="clicked" handler="on_export_subs_clicked" swapped="no"/>
                   </widget>
                   <packing>
                     <property name="expand">True</property>
@@ -3224,23 +3224,6 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
-                <property name="label" translatable="yes">Ignore Warnings</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="has_tooltip">True</property>
-                <property name="tooltip" translatable="yes">Ignore warnings regarding data quality</property>
-                <property name="use_action_appearance">False</property>
-                <property name="draw_indicator">True</property>
-             </widget>
-             <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
               <widget class="GtkCheckButton" id="onlyexisting_checkbutton">
                 <property name="label" translatable="yes">Only sub existing taxa</property>
                 <property name="visible">True</property>
@@ -3250,8 +3233,25 @@
                 <property name="tooltip" translatable="yes">Only insert taxa that already occur in the dataset</property>
                 <property name="use_action_appearance">False</property>
                 <property name="draw_indicator">True</property>
-                <signal name="clicked" handler="on_onlyexisting_clicked" />
-             </widget>
+                <signal name="clicked" handler="on_onlyexisting_clicked" swapped="no"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
+                <property name="label" translatable="yes">Ignore Warnings</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="has_tooltip">True</property>
+                <property name="tooltip" translatable="yes">Ignore warnings regarding data quality</property>
+                <property name="use_action_appearance">False</property>
+                <property name="draw_indicator">True</property>
+              </widget>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
@@ -3268,7 +3268,7 @@
                 <property name="tooltip" translatable="yes">When subbing in existing taxa only, consider matches at genus level</property>
                 <property name="use_action_appearance">False</property>
                 <property name="draw_indicator">True</property>
-             </widget>
+              </widget>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
@@ -3292,8 +3292,8 @@
     <property name="default_width">600</property>
     <property name="default_height">600</property>
     <property name="type_hint">dialog</property>
-    <signal name="close" handler="on_subset_dialog_close" />
-    <signal name="destroy" handler="on_subset_dialog_close" />
+    <signal name="close" handler="on_subset_dialog_close" swapped="no"/>
+    <signal name="destroy" handler="on_subset_dialog_close" swapped="no"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox15">
         <property name="visible">True</property>
@@ -3311,7 +3311,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_subset_clicked" />
+                <signal name="clicked" handler="on_subset_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -3326,7 +3326,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_subset_cancel_clicked" />
+                <signal name="clicked" handler="on_subset_cancel_clicked" swapped="no"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -3382,7 +3382,7 @@
                         <property name="tooltip" translatable="yes">Add a new search term</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_stock">True</property>
-                        <signal name="clicked" handler="on_subset_add_clicked" />
+                        <signal name="clicked" handler="on_subset_add_clicked" swapped="no"/>
                       </widget>
                       <packing>
                         <property name="expand">True</property>
@@ -3399,7 +3399,7 @@
                         <property name="tooltip" translatable="yes">Remove selected search term</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_stock">True</property>
-                        <signal name="clicked" handler="on_subset_remove_clicked" />
+                        <signal name="clicked" handler="on_subset_remove_clicked" swapped="no"/>
                       </widget>
                       <packing>
                         <property name="expand">True</property>
@@ -3485,6 +3485,114 @@
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkWindow" id="taxonomy_checker">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Check names</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="default_width">440</property>
+    <property name="default_height">500</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="skip_pager_hint">True</property>
+    <property name="urgency_hint">True</property>
+    <child>
+      <widget class="GtkVBox" id="vbox1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <widget class="GtkScrolledWindow" id="scrolledwindow1">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="vscrollbar_policy">automatic</property>
+            <child>
+              <placeholder/>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkHBox" id="hbox1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <widget class="GtkButton" id="button1">
+                <property name="label" translatable="yes">Store as sub file</property>
+                <property name="width_request">120</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="padding">2</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkButton" id="button2">
+                <property name="label" translatable="yes">Export data</property>
+                <property name="width_request">120</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="padding">2</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkButton" id="button3">
+                <property name="label" translatable="yes">Do subs</property>
+                <property name="width_request">60</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="padding">2</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkButton" id="button4">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="width_request">60</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="padding">2</property>
+                <property name="pack_type">end</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
             <property name="position">1</property>
           </packing>
         </child>

@@ -2281,6 +2281,7 @@ class TaxonomyFetcher(threading.Thread):
                                         temp_lev = pbdb_lev.split(" ")
                                         # they might have the author on the end, so strip it off
                                         if (level == 'species'):
+                                            print temp_lev, '_'.join(temp_lev[0:2])
                                             this_taxonomy[level] = ' '.join(temp_lev[0:2])
                                         else:
                                             this_taxonomy[level] = temp_lev[0]       
@@ -2347,6 +2348,8 @@ class TaxonomyFetcher(threading.Thread):
                                     temp_name = temp_name.split(" ")
                                     if (temp_level == 'species'):
                                         this_taxonomy[temp_level] = temp_name[0:2]
+                                        print temp_name, '_'.join(temp_name[0:2])
+                                        
                                     else:
                                         this_taxonomy[temp_level] = temp_name[0]  
                         except KeyError as e:
@@ -2373,13 +2376,18 @@ class TaxonomyFetcher(threading.Thread):
                     logging.info("Network error when processing {} ".format(taxon,))
                     self.queue.task_done()
                     continue
+                except urllib2.URLError:
+                    print("Network error when processing {} ".format(taxon,))
+                    logging.info("Network error when processing {} ".format(taxon,))
+                    self.queue.task_done()
+                    continue
             else :
                 #Nothing to do release the lock on taxonomy
                 self.lock.release()
             #Mark task as done
             self.queue.task_done()
 
-def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, threadNumber=10):
+def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, threadNumber=5):
     """Uses the taxa provided to generate a taxonomy for all the taxon available. 
     :param taxa: list of the taxa.
     :type taxa : list 
@@ -2531,8 +2539,11 @@ def create_extended_taxonomy(taxonomy, starttime, verbose=False, ignoreWarnings=
         this_taxonomy = {}
         for level in data['hierarchyList']:
             if not level['rankName'].lower() in current_taxonomy_levels:
-                # note the dump into ASCII                
-                this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
+                # note the dump into ASCII            
+                if level.lower() == 'species':
+                    this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = ' '.join.level['taxonName'][0:2].encode("ascii","ignore")
+                else:
+                    this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
 
         for t in taxonomy:
             if t in taxonomy:
