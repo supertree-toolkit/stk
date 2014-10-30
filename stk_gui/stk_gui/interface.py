@@ -1950,9 +1950,9 @@ class Diamond:
       ignoreWarnings = self.export_trees_gui.get_widget("ignoreWarnings_checkbutton").get_active()
 
       if (format_radio_1.get_active()):
-          format = 'Nexus'
+          format = 'nexus'
       elif (format_radio_2.get_active()):
-          format = 'Newick'
+          format = 'newick'
       elif (format_radio_3.get_active()):
           format = 'tnt'
       else:
@@ -1968,7 +1968,7 @@ class Diamond:
       self.tree.write(f)
       XML = f.getvalue()
       try:
-        self.output_string = stk.amalgamate_trees(XML,format=format,anonymous=anonymous,ignoreWarnings=ignoreWarnings)
+            output_string = stk.amalgamate_trees(XML,format=format,anonymous=anonymous,ignoreWarnings=False)
       except NotUniqueError as detail:
             msg = "Failed to export trees.\n"+detail.msg
             dialogs.error(self.main_window,msg)
@@ -1986,7 +1986,8 @@ class Diamond:
             dialogs.error(self.main_window,msg)
             return 
       except:
-            msg = "Failed to export trees due to an unknown error. Check the console output"
+            msg = "Failed to export trees due to an unknown error. Please report this a bug"
+            msg += "\n" + traceback.format_exc()
             dialogs.error(self.main_window,msg)
             return 
 
@@ -1995,8 +1996,10 @@ class Diamond:
       # open file dialog
       filename = dialogs.get_filename(title = "Choose output trees fle", action = gtk.FILE_CHOOSER_ACTION_SAVE, filter_names_and_patterns = filter_names_and_patterns, folder_uri = self.file_path)
 
+      if (filename == None):
+          return # user cancelled save
       f = open(filename,"w")
-      f.write(self.output_string)
+      f.write(output_string)
       f.close()
 
       XML = stk.add_historical_event(XML, "Tree exported to: "+filename)
@@ -2106,6 +2109,7 @@ class Diamond:
         return
     except:
         msg = "Failed to parse XML and obtain taxa. You probably have an unfinished dataset"
+        msg += "\n" + traceback.format_exc()
         dialogs.error(self.main_window,msg)
         return 
 
@@ -2306,7 +2310,8 @@ class Diamond:
         dialogs.error(self.main_window,msg)
         return 
     except:
-        msg = "Failed to substitute taxa due to an unknown error. Check the console output"
+        msg = "Failed to substitute taxa due to an unknown error. Possibly a bug. PLease report on Launchpad."
+        msg += "\n" + traceback.format_exc()
         dialogs.error(self.main_window,msg)
         return 
 
@@ -2444,8 +2449,8 @@ class Diamond:
         dialogs.error(self.main_window,msg)
         return 
      except:
-        msg = "Failed to clean data due to an unknown error. Check the console output"
-        traceback.print_exc()         
+        msg = "Failed to clean data due to an unknown error. Possibly a bug. Please report on Launchpad"
+        msg += "\n" + traceback.format_exc()     
         dialogs.error(self.main_window,msg)
         return 
 
@@ -2509,8 +2514,8 @@ class Diamond:
         dialogs.error(self.main_window,msg)
         return 
      except:
-        msg = "Failed to replace generic taxa due to an unknown error. Check the console output"
-        traceback.print_exc()                 
+        msg = "Failed to replace generic taxa due to an unknown error. Possibly a bug. Please report on Launchpad"
+        msg += "\n" + traceback.format_exc()     
         dialogs.error(self.main_window,msg)
         return 
 
@@ -2721,8 +2726,8 @@ class Diamond:
         dialogs.error(self.main_window,msg)
         return 
      except:
-        msg = "Failed to create subset due to an unknown error. Check the console output"
-        traceback.print_exc()     
+        msg = "Failed to create subset due to an unknown error. Possibly a bug. Please report on Launchpad"
+        msg += "\n" + traceback.format_exc()     
         dialogs.error(self.main_window,msg)
         return 
   
@@ -2767,7 +2772,8 @@ class Diamond:
             dialogs.error(self.main_window,msg)
             return 
      except:
-            msg = "Failed to name trees due to an unknown error. Check the console output"
+            msg = "Failed to name trees due to an unknown error. Possibly a bug. Please report on Launchpad"
+            msg += "\n" + traceback.format_exc()     
             dialogs.error(self.main_window,msg)
             return 
          
