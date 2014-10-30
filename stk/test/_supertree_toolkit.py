@@ -598,6 +598,18 @@ class TestSTK(unittest.TestCase):
             print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
         return
 
+    def test_taxonomy_checker2(self):
+        XML = etree.tostring(etree.parse('data/input/check_taxonomy_fixes.phyml',parser),pretty_print=True)
+        if (internet_on()):
+            equivs = taxonomic_checker(XML)
+            self.maxDiff = None
+            self.assert_(equivs['Agathamera_crassa'][0][0] == 'Agathemera_crassa')
+            self.assert_(equivs['Celatoblatta_brunni'][0][0] == 'Maoriblatta_brunni')
+        else:
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
+        return
+
+
     def test_load_taxonomy(self):
         csv_file = "data/input/create_taxonomy.csv"
         expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'},

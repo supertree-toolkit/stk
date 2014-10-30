@@ -2147,6 +2147,9 @@ def taxonomic_checker(XML,existing_data=None,verbose=False):
                 synonyms.insert(0, synonyms.pop(synonyms.index(correct_name)))
             elif len(synonyms) == 0:
                 synonyms.append(correct_name)
+            else:
+                synonyms.insert(0,correct_name)
+
             equivalents[t] = [synonyms,'yellow']
         # if our search was empty, then it's red - see above
 
