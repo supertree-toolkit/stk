@@ -226,8 +226,11 @@ def create_tree_name(XML,source_tree_element):
     for t in source.xpath("source_tree"):
         if 'name' in t.attrib and not t.attrib['name'] == "":
                 tree_count += 1
-
-    tree_name = source.attrib['name'] + "_" + str(tree_count)
+    try:
+        tree_name = source.attrib['name'] + "_" + str(tree_count)
+    except KeyError:
+        # no name set for source
+        tree_name = str(tree_count)
 
     return tree_name
 
