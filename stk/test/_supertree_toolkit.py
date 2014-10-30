@@ -605,6 +605,7 @@ class TestSTK(unittest.TestCase):
             self.maxDiff = None
             self.assert_(equivs['Agathamera_crassa'][0][0] == 'Agathemera_crassa')
             self.assert_(equivs['Celatoblatta_brunni'][0][0] == 'Maoriblatta_brunni')
+            self.assert_(equivs['Blatta_lateralis'][1] == 'amber')
         else:
             print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
         return

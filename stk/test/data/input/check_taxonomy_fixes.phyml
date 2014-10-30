@@ -277,6 +277,102 @@ are haplotype designations.</string_value>
         </character_data>
       </source_tree>
     </source>
+    <source name="Inward_etal_2007b">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Inward</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">D. J.</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Vogler</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A. P.</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Eggleton</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">P.</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">A comprehensive phylogenetic analysis of termites (Isoptera) illuminates key aspects of their evolutionary biology.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2007</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Molecular Phylogenetics and Evolution</string_value>
+          </journal>
+          <volume>
+            <string_value lines="1">44</string_value>
+          </volume>
+          <pages>
+            <string_value lines="1">953-967</string_value>
+          </pages>
+          <issue>
+            <string_value lines="1">3</string_value>
+          </issue>
+          <doi>
+            <string_value lines="1">10.1016/j.ympev.2007.05.014</string_value>
+          </doi>
+          <url>
+            <string_value lines="1">http://www.ncbi.nlm.nih.gov/pubmed/17625919</string_value>
+          </url>
+        </article>
+      </bibliographic_information>
+      <source_tree name="Inward_etal_2007b_1">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Miomantis_sp., ((Periplaneta_australae, Blatta_lateralis), (Cryptocercus_punctulatus, (Mastotermes_darwiniensis, ((Zootermopsis_angusticollis, Archotermopsis_wroughtoni), ((Hodotermopsis_sjoestedti, (Anacanthotermes_ochraeus, (Hodotermes_mossambicus, Microhodotermes_viator))), ((Stolotermes_inopinus, Porotermes_quadricollis), ((Kalotermes_flavicollis, (Epicalotermes_sp., (Bifiditermes_improbus, (Postelectrotermes_sp., Cryptocercus_secundus)))), (((Dolichorhinotermes_longilabius, Rhinotermes_sp.), (Parrhinotermes_microdentiformis, (Schedorhinotermes_medioobscurus, (Schedorhinotermes_laminianus, Schedorhinotermes_putorius)))), ((Termitogeton_planus, Serritermes_serrifer), ((Prorhinotermes_tibiaoensiformis, (Psammotermes_voeltzhowi, Psammotermes_allocerus)), (Reticulitermes_grassei, ((Coptotermes_sjoestedti, (Coptotermes_acinaciformis, (Coptotermes_testaceus, Coptotermes_niger))), (Heterotermes_tenuior, (Heterotermes_platycephalus, Heterotermes_tenuis)))))))))))))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">The phylogeny of Isoptera inferred from simultaneous analysis of molecular and morphological data. The tree shown is based on the preferred Clustal alignment, as a strict consensus of the 187,300 equally parsimonious trees. Numbers on the branches represent Bremer support values. The existing classification is indicated by coloured species names. With few exceptions, the preferred tree represents very well the consensus of key relationships recovered by the different analyses (Table 4). The trees are cladograms and so the branch lengths shown are arbitrary. Leaves without species names are generally undescribed species, which have been given a code according to where they were collected. Termitidae tree continued in Fig. 2. (For interpretation of the references to colors in this figure legend, the reader is referred to the web version of this paper.)
+
+Fig. 2. Tree covering Termitidae from Macrotermitinae to the Termes-group. Features as in Fig. 1. Black arrow, acquisition of asymmetrical snapping mandibles in the soldiers. Sub-group 1 continued in Fig. 3. (For interpretation of the references to colors in this figure legend, the reader is referred to the web version of this paper.)
+
+Fig. 3. Tree covering the rest of Termitidae. Features as in Fig. 1. Black arrow, acquisition of asymmetrical snapping mandibles in the soldiers. Orange arrows, acquisition of a nasus. (For interpretation of the references to colour in this figure legend, the reader is referred to the web version of this paper.)</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1, 2, 3</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">960</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">Miomantis sp.
+Periplaneta australasiae
+Blatta lateralis
+Cryptocercus punctulatus</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="morphological" name="Worker_Morphology"/>
+          <character type="molecular" name="mitochondrially encoded cytochrome c oxidase II"/>
+          <character type="molecular" name="mitochondrially encoded 12S RNA"/>
+          <character type="molecular" name="RNA, 28S ribosomal"/>
+        </character_data>
+      </source_tree>
+    </source>
   </sources>
   <history/>
 </phylo_storage>

@@ -2101,6 +2101,12 @@ def taxonomic_checker(XML,existing_data=None,verbose=False):
         if len(data['results']) == 0:
             equivalents[t] = [[t],'red']
             continue
+        amber = False
+        if len(data['results']) > 1:
+            # this is not great - we have multiple hits for this taxon - needs the user to go back and warn about this
+            # for automatic processing we'll just take the first one though
+            # colour is amber in this case
+            amber = True
         ID = str(data['results'][0]['id']) # take first hit
         URL = "http://eol.org/api/pages/1.0/"+ID+".json?images=2&videos=0&sounds=0&maps=0&text=2&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&vetted=0"       
         req = urllib2.Request(URL)
@@ -2150,11 +2156,15 @@ def taxonomic_checker(XML,existing_data=None,verbose=False):
             else:
                 synonyms.insert(0,correct_name)
 
-            equivalents[t] = [synonyms,'yellow']
+            if (amber):
+                equivalents[t] = [synonyms,'amber']
+            else:
+                equivalents[t] = [synonyms,'yellow']
         # if our search was empty, then it's red - see above
 
     # up to the calling funciton to do something sensible with this
     # we build a dictionary of names and then a list of synonyms or the original name, then a tag if it's green, yellow, red.
+    # Amber means we found synonyms and multilpe hits. User def needs to sort these!
 
     return equivalents
 
