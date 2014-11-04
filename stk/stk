@@ -1849,7 +1849,8 @@ def create_taxonomy(args):
             except KeyError:
                 provider = "-"
 
-            print species
+            if (isinstance(species, list)):
+                species = " ".join(species)
             this_classification = [
                     otu.encode('utf-8'),
                     species.encode('utf-8'),
