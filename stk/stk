@@ -23,7 +23,6 @@ import os
 import sys
 import argparse
 import traceback
-import argcomplete
 try:
     __file__
 except NameError:
@@ -497,7 +496,7 @@ def main():
             help='Check your OTUs against EoL.'
             )
     parser_cm.add_argument('input',
-            help='The input Phyml')
+            help='The input Phyml. Also accepts tree files or a simple list')
     parser_cm.add_argument('output', 
             help='The output CSV file. Taxon, synonyms, status')
     parser_cm.add_argument('--overwrite',
@@ -511,7 +510,7 @@ def main():
             help='Create a taxonomy file in CSV for you to then augment.'
             )
     parser_cm.add_argument('input',
-            help='The input Phyml')
+            help='The input Phyml. Also accepts tree files or a simple list')
     parser_cm.add_argument('output', 
             help='The output CSV file. Name, followed by classification and source')
     parser_cm.add_argument('--overwrite',
@@ -580,7 +579,6 @@ def main():
         sys.exit(1)
     
     # parse the arguments, and strip out the common options
-    argcomplete.autocomplete(parser)
     args = parser.parse_args()
     verbose = args.verbose
     version = args.version
@@ -1688,31 +1686,43 @@ def check_otus(args):
     input_file = args.input
     output_file = args.output
 
-    XML = supertree_toolkit.load_phyml(input_file)
-    try:
-        equivs = supertree_toolkit.taxonomic_checker(XML, verbose=verbose)
-    except NotUniqueError as detail:
-        msg = "***Error: Failed to check OTUs.\n"+detail.msg
-        print msg
-        return
-    except InvalidSTKData as detail:
-        msg = "***Error: Failed to check OTUs.\n"+detail.msg
-        print msg
-        return
-    except UninformativeTreeError as detail:
-        msg = "***Error: Failed to check OTUs.\n"+detail.msg
-        print msg
-        return
-    except TreeParseError as detail:
-        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
-        print msg
-        return
-    except:
-        # what about no internet conenction? What error do that throw?
-        msg = "***Error: failed to create OTUs due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit"
-        print msg
-        traceback.print_exc()
-        return
+    print input_file
+    if (input_file.endswith(".phyml")):
+        XML = supertree_toolkit.load_phyml(input_file)
+        try:
+            equivs = supertree_toolkit.taxonomic_checker(XML, verbose=verbose)
+        except NotUniqueError as detail:
+            msg = "***Error: Failed to check OTUs.\n"+detail.msg
+            print msg
+            return
+        except InvalidSTKData as detail:
+            msg = "***Error: Failed to check OTUs.\n"+detail.msg
+            print msg
+            return
+        except UninformativeTreeError as detail:
+            msg = "***Error: Failed to check OTUs.\n"+detail.msg
+            print msg
+            return
+        except TreeParseError as detail:
+            msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+            print msg
+            return
+        except:
+            # what about no internet conenction? What error do that throw?
+            msg = "***Error: failed to create OTUs due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit"
+            print msg
+            traceback.print_exc()
+            return
+    elif (input_file.endswith(".txt") or input_file.endswith('.dat')):
+        # read file - assume one taxa per line
+        with open(input_file,'r') as f:
+            lines = f.read().splitlines()        
+        equivs = supertree_toolkit.taxonomic_checker_list(lines, verbose=verbose)
+    else:
+        # assume a tree!
+        equivs = supertree_toolkit.taxonomic_checker_tree(input_file, verbose=verbose)
+
+
 
     f = open(output_file,"w")
     for taxon in sorted(equivs.keys()):

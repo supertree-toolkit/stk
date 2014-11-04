@@ -2063,7 +2063,7 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
 
     return output_string
 
-def taxonomic_checker(XML,existing_data=None,verbose=False):
+def taxonomic_checker_list(name_list,existing_data=None,verbose=False):
     """ For each name in the database generate a database of the original name,
     possible synonyms and if the taxon is not know, signal that. We do this by
     using the EoL API to grab synonyms of each taxon.  """
@@ -2071,9 +2071,6 @@ def taxonomic_checker(XML,existing_data=None,verbose=False):
     import urllib2
     from urllib import quote_plus
     import simplejson as json
-
-    # grab all taxa
-    taxa = get_all_taxa(XML)
 
     if existing_data == None:
         equivalents = {}
@@ -2084,7 +2081,7 @@ def taxonomic_checker(XML,existing_data=None,verbose=False):
     # if not, is there another API function to do this?
     # search for the taxon and grab the name - if you search for a recognised synonym on EoL then
     # you get the original ('correct') name - shorten this to two words and you're done.
-    for t in taxa:
+    for t in name_list:
         if t in equivalents:
             continue
         taxon = t.replace("_"," ")
@@ -2166,6 +2163,38 @@ def taxonomic_checker(XML,existing_data=None,verbose=False):
     # we build a dictionary of names and then a list of synonyms or the original name, then a tag if it's green, yellow, red.
     # Amber means we found synonyms and multilpe hits. User def needs to sort these!
 
+    return equivalents
+
+def taxonomic_checker_tree(tree_file,existing_data=None,verbose=False):
+    """ For each name in the database generate a database of the original name,
+    possible synonyms and if the taxon is not know, signal that. We do this by
+    using the EoL API to grab synonyms of each taxon.  """
+
+    tree = import_tree(tree_file)
+    p4tree = _parse_tree(tree) 
+    taxa = p4tree.getAllLeafNames(p4tree.root) 
+    if existing_data == None:
+        equivalents = {}
+    else:
+        equivalents = existing_data
+
+    equivalents = taxonomic_checker_list(taxa,existing_data,verbose)
+    return equivalents
+
+def taxonomic_checker(XML,existing_data=None,verbose=False):
+    """ For each name in the database generate a database of the original name,
+    possible synonyms and if the taxon is not know, signal that. We do this by
+    using the EoL API to grab synonyms of each taxon.  """
+
+    # grab all taxa
+    taxa = get_all_taxa(XML)
+
+    if existing_data == None:
+        equivalents = {}
+    else:
+        equivalents = existing_data
+
+    equivalents = taxonomic_checker_list(taxa,existing_data,verbose)
     return equivalents
 
 
