@@ -2990,7 +2990,10 @@ def _tree_contains(taxon,tree):
     """
 
     taxon = taxon.replace(" ","_")
-    tree = _parse_tree(tree) 
+    try:
+        tree = _parse_tree(tree) 
+    except TreeParseError:
+        return False
     terminals = tree.getAllLeafNames(tree.root)
     # p4 strips off ', so we need to do so for the input taxon
     taxon = taxon.replace("'","")
@@ -3176,8 +3179,12 @@ def _collapse_nodes(in_tree):
         taxon, denoted by taxon1, taxon2, etc
     """
 
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)   
-    tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)  
+    try:
+        tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
+    except TreeParseError:
+        tree = ""
+        return tree
     taxa = tree.getAllLeafNames(0)
     
     for t in taxa:
@@ -3209,7 +3216,10 @@ def _collapse_nodes(in_tree):
 def _remove_single_poly_taxa(tree):
     """ Count the numbers after % in taxa names """
 
-    taxa = _getTaxaFromNewick(tree)
+    try:
+        taxa = _getTaxaFromNewick(tree)
+    except TreeParseError:
+        return tree
 
     numbers = {}
     for t in taxa:
