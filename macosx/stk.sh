@@ -62,4 +62,4 @@ fi
 
 #Note that we're calling $PYTHON here to override the version in
 #pygtk-demo's shebang.
-$EXEC $PYTHON "$bundle_contents/MacOS/stk-bin"
+$EXEC $PYTHON "$bundle_contents/MacOS/stk-bin" $@
