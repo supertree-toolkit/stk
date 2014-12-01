@@ -1127,7 +1127,7 @@ class Diamond:
             dialogs.error(self.main_window,msg)
             return
         except:
-            msg = "Failed to calculate overlap due to unknown error. Check the console output.\n"+detail.msg
+            msg = "Failed to calculate overlap due to unknown error. Check the console output.\n"
             traceback.print_exc()         
             dialogs.error(self.main_window,msg)
             return
@@ -1170,7 +1170,7 @@ class Diamond:
             dialogs.error(self.main_window,msg)
             return
         except:
-            msg = "Failed to calculate overlap due to unknown error. Check the console output.\n"+detail.msg
+            msg = "Failed to calculate overlap due to unknown error. Check the console output.\n"
             traceback.print_exc()         
             dialogs.error(self.main_window,msg)
             return

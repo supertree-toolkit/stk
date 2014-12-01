@@ -44,6 +44,7 @@ from indent import *
 import unicodedata
 from stk_internals import *
 from copy import deepcopy
+import types
 
 #plt.ion()
 
@@ -2072,6 +2073,8 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
 
     # That's out graph set up. Dead easy to test all nodes are connected - we can even get the number of seperate connected parts
     connected_components = nx.connected_components(G)
+    if isinstance(connected_components, types.GeneratorType):
+        connected_components = list(connected_components)
     if len(connected_components) == 1:
         sufficient_overlap = True
 
@@ -2155,6 +2158,8 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             key_list = connected_components
             # Summary graph - here we just graph the connected bits
             Hs = nx.connected_component_subgraphs(G)
+            if isinstance(Hs, types.GeneratorType):
+                Hs = list(Hs)
             G_new = nx.Graph()
             # Add nodes (no edges this time)
             G_new.add_nodes_from(Hs)
