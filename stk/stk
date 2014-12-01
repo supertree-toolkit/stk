@@ -1462,8 +1462,12 @@ def convert_file(args):
                 new_trees['tree_'+str(i)] = t
                 i += 1
             output = supertree_toolkit._amalgamate_trees(new_trees,format=output_format)
+        except TreeParseError as detail:
+            print detail.msg
+            sys.exit(-1)
         except:
-            print "Error saving tree"
+            print "Error converting tree"
+            traceback.print_exc()
             sys.exit(-1)
 
 

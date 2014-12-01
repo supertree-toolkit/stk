@@ -1022,7 +1022,6 @@ def import_trees(filename):
         content += "\nend;"
 
     treedata = content
-   
     trees = _parse_trees(treedata)
     r_trees = []
     for t in trees:
