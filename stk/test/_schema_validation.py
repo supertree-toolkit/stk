@@ -53,6 +53,7 @@ ignore_list = ["data/input/start_up.phyml", # contains only a stub
                "data/output/bib_import_utf8.phyml", # contains only a valid bibliography
                "data/input/old_stk_input_data_summary_test.phyml", # partial data set
                "data/input/bib_export_no_pages.phyml",# invalid data
+               "data/input/single_source_no_names.phyml", # no tree names
               ]
 
 
@@ -74,7 +75,8 @@ class TestSchema(unittest.TestCase):
         for filename in optionErrors.keys():
             if not filename in ignore_list:
                 failures.append(filename)
-                print filename, optionErrors[filename]
+        if (len(failures) > 0):
+            print failures
         self.assert_(len(failures) == 0)
 
     def test_validation_output_phyml(self):
@@ -86,6 +88,8 @@ class TestSchema(unittest.TestCase):
         for filename in optionErrors.keys():
             if not filename in ignore_list:
                 failures.append(filename)
+        if (len(failures) > 0):
+            print failures
         self.assert_(len(failures) == 0)
 
     def test_validation_input_stubs(self):
@@ -97,6 +101,8 @@ class TestSchema(unittest.TestCase):
         for filename in optionErrors.keys():
             if not filename in ignore_list:
                 failures.append(filename)
+        if (len(failures) > 0):
+            print failures
         self.assert_(len(failures) == 0)
     
     def test_validation_output_stubs(self):
@@ -108,6 +114,8 @@ class TestSchema(unittest.TestCase):
         for filename in optionErrors.keys():
             if not filename in ignore_list:
                 failures.append(filename)
+        if (len(failures) > 0):
+            print failures
         self.assert_(len(failures) == 0)
 
     def test_validation_output_phyml_partials(self):
@@ -126,6 +134,8 @@ class TestSchema(unittest.TestCase):
         failures = []
         for filename in optionErrors.keys():
             failures.append(filename)
+        if (len(failures) > 0):
+            print failures
         self.assert_(len(failures) == 0)
 
 

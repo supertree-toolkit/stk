@@ -63,4 +63,4 @@ fi
 
 #Note that we're calling $PYTHON here to override the version in
 #pygtk-demo's shebang.
-$EXEC $PYTHON "$bundle_res/bin/stk_cli"
+$EXEC $PYTHON "$bundle_res/bin/stk_cli" $@

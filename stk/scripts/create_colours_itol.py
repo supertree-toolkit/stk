@@ -39,7 +39,7 @@ def main():
             )
     parser.add_argument(
             '--level',
-            choices=['Family','Superfamily','Infraorder','Suborder','Order'],
+            choices=['Genus','Family','Superfamily','Infraorder','Suborder','Order'],
             default='Family',
             help="Which taxonomic level to colour at. Note that not all will return data. Family and Order will always work."
             )
@@ -97,6 +97,8 @@ def main():
         index = 5
     elif (level == "Order"):
         index = 6
+    elif (level == "Genus"):
+        index = 1
 
     if (tree):
         tree_data = stk.import_tree(input_file)
@@ -110,7 +112,8 @@ def main():
     else:
         # grab taxa in dataset - ignore if tree
         fileName, fileExtension = os.path.splitext(input_file)
-        if (fileExtension == 'phyml'):
+        if (fileExtension == '.phyml'):
+            print "Parsing PHYML"            
             XML = stk.load_phyml(input_file)
             taxa = stk.get_all_taxa(XML)
         else:
@@ -151,7 +154,7 @@ def main():
             else:
                 f.write(t+",#"+output_colours[taxonomy[tt]]+","+taxonomy[tt]+"\n")
         except KeyError:
-            print "Couldn't find "+tt
+            #print "Couldn't find "+tt
             f.write(t+",#000000\n")
 
     f.close()

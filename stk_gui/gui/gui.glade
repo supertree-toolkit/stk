@@ -1338,7 +1338,23 @@
             <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
-        </child>
+       </child>
+       <child>
+        <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
+            <property name="label" translatable="yes">Ignore Warnings</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
+            <property name="draw_indicator">True</property>
+          </widget>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+
+       </child>
       </widget>
     </child>
   </widget>
@@ -1934,6 +1950,17 @@
                         <property name="label" translatable="yes">Standardise source names</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_standardise_names" />
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="stndTreeNames">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Add tree names.</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Add tree names</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_name_trees" />
                       </widget>
                     </child>
                     <child>

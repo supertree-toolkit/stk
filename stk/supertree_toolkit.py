@@ -44,6 +44,7 @@ from indent import *
 import unicodedata
 from stk_internals import *
 from copy import deepcopy
+import types
 
 #plt.ion()
 
@@ -113,7 +114,7 @@ def single_sourcename(XML,append=''):
     # Return the XML stub with the correct name
     return XML
 
-def all_sourcenames(XML):
+def all_sourcenames(XML, trees=False):
     """
     Create a sensible sourcename for all sources in the current
     dataset. This includes appending a, b, etc for duplicate names.
@@ -139,6 +140,8 @@ def all_sourcenames(XML):
     XML = string.replace(XML,"</source><source ", "</source>\n    <source ")
     XML = string.replace(XML,"</source></sources", "</source>\n  </sources") 
     XML = set_unique_names(XML)
+    if (trees):
+        XML = set_all_tree_names(XML,overwrite=True)
     
     return XML
 
@@ -207,6 +210,53 @@ def set_unique_names(XML):
     XML = etree.tostring(xml_root,pretty_print=True)
 
     return XML
+
+def create_tree_name(XML,source_tree_element):
+
+    """
+    Creates a tree name for a given source
+    Simply the source_name with a number added
+    source_tree_element is the element that contains the source tree, 
+    i.e. sources/source/source_tree
+    """
+
+    xml_root = _parse_xml(XML)
+    source = source_tree_element.getparent()
+    # count current trees
+    tree_count = 1
+    for t in source.xpath("source_tree"):
+        if 'name' in t.attrib and not t.attrib['name'] == "":
+                tree_count += 1
+    try:
+        tree_name = source.attrib['name'] + "_" + str(tree_count)
+    except KeyError:
+        # no name set for source
+        tree_name = str(tree_count)
+
+    return tree_name
+
+def set_all_tree_names(XML,overwrite=False):
+
+    """Set all *unset* tree names
+    """
+
+    xml_root = _parse_xml(XML)
+
+    # Find all "source" trees
+    sources = []
+    for ele in xml_root.iter():
+        if (ele.tag == "source"):
+            sources.append(ele)
+
+    for s in sources:
+        for st in s.xpath("source_tree"):
+            if overwrite or not 'name' in st.attrib:
+                tree_name = create_tree_name(XML,st)
+                st.attrib['name'] = tree_name
+   
+    XML = etree.tostring(xml_root,pretty_print=True)    
+    return XML
+
 
 
 def import_bibliography(XML, bibfile, skip=False):
@@ -972,7 +1022,6 @@ def import_trees(filename):
         content += "\nend;"
 
     treedata = content
-   
     trees = _parse_trees(treedata)
     r_trees = []
     for t in trees:
@@ -1313,21 +1362,20 @@ def obtain_trees(XML):
     # within that source and construct a unique name
     find = etree.XPath("//source")
     sources = find(xml_root)
-
     trees = {}
 
     # loop through all sources
     for s in sources:
-        # for each source, get source name
-        name = s.attrib['name']
-        # get trees
-        tree_no = 1
         for t in s.xpath("source_tree/tree/tree_string"):
-            t_name = name+"_"+str(tree_no)
+            try:
+                t_name = t.getparent().getparent().attrib['name']
+            except KeyError:
+                # no name, so make one!
+                t_name = create_tree_name(XML,t.getparent().getparent())
+                t.getparent().getparent().attrib['name'] = t_name
             # append to dictionary, with source_name_tree_no = tree_string
             if (not t.xpath("string_value")[0].text == None):
                 trees[t_name] = t.xpath("string_value")[0].text
-                tree_no += 1
 
     return trees
 
@@ -2024,6 +2072,8 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
 
     # That's out graph set up. Dead easy to test all nodes are connected - we can even get the number of seperate connected parts
     connected_components = nx.connected_components(G)
+    if isinstance(connected_components, types.GeneratorType):
+        connected_components = list(connected_components)
     if len(connected_components) == 1:
         sufficient_overlap = True
 
@@ -2107,6 +2157,8 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             key_list = connected_components
             # Summary graph - here we just graph the connected bits
             Hs = nx.connected_component_subgraphs(G)
+            if isinstance(Hs, types.GeneratorType):
+                Hs = list(Hs)
             G_new = nx.Graph()
             # Add nodes (no edges this time)
             G_new.add_nodes_from(Hs)
@@ -2942,7 +2994,10 @@ def _tree_contains(taxon,tree):
     """
 
     taxon = taxon.replace(" ","_")
-    tree = _parse_tree(tree) 
+    try:
+        tree = _parse_tree(tree) 
+    except TreeParseError:
+        return False
     terminals = tree.getAllLeafNames(tree.root)
     # p4 strips off ', so we need to do so for the input taxon
     taxon = taxon.replace("'","")
@@ -3128,8 +3183,12 @@ def _collapse_nodes(in_tree):
         taxon, denoted by taxon1, taxon2, etc
     """
 
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)   
-    tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)  
+    try:
+        tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
+    except TreeParseError:
+        tree = ""
+        return tree
     taxa = tree.getAllLeafNames(0)
     
     for t in taxa:
@@ -3161,7 +3220,10 @@ def _collapse_nodes(in_tree):
 def _remove_single_poly_taxa(tree):
     """ Count the numbers after % in taxa names """
 
-    taxa = _getTaxaFromNewick(tree)
+    try:
+        taxa = _getTaxaFromNewick(tree)
+    except TreeParseError:
+        return tree
 
     numbers = {}
     for t in taxa:
@@ -3200,30 +3262,27 @@ def _swap_tree_in_XML(XML, tree, name, delete=False):
     # By getting source, we can then loop over each source_tree
     find = etree.XPath("//source")
     sources = find(xml_root)
-    if (tree == None):
-        delete_me = []
     # loop through all sources
     for s in sources:
         # for each source, get source name
-        name = s.attrib['name']
-        if source_name == name:
+        s_name = s.attrib['name']
+        if source_name == s_name:
             # found the bugger!
-            tree_no = 1
-            for t in s.xpath("source_tree/tree/tree_string"):
-                if tree_no == number:
+            for t in s.xpath("source_tree"):
+                tree_name = t.attrib['name']
+                if (tree_name == name):
                     if (not tree == None): 
-                        t.xpath("string_value")[0].text = tree
+                        t.xpath("tree/tree_string/string_value")[0].text = tree
                         # We can return as we're only replacing one tree
                         return etree.tostring(xml_root,pretty_print=True)
                     else:
-                        s.remove(t.getparent().getparent())
+                        s.remove(t)
                         if (delete):
                             # we now need to check the source to check if there are
                             # any trees in this source now, if not, remove
-                            if (len(s.xpath("source_tree/tree/tree_string")) == 0):
+                            if (len(s.xpath("source_tree")) == 0):
                                 s.getparent().remove(s)
                         return etree.tostring(xml_root,pretty_print=True)
-                tree_no += 1
 
     return XML
 
@@ -3248,14 +3307,18 @@ def _check_taxa(XML,delete=False):
         this_source = _parse_xml(etree.tostring(s))
         trees = obtain_trees(etree.tostring(this_source))
         s_name = s.attrib['name']
+        taxa_ele = []
         for name in trees.iterkeys():
             tree_no = 1
-            for t in s.xpath("source_tree/tree/tree_string"):
-                t_name = s_name+"_"+str(tree_no)
-                tree_no += 1
+            for t in s.xpath("source_tree"):
+                try:
+                    t_name = t.attrib['name']
+                except KeyError:
+                    message = message + "Tree in "+s_name+" is not named. Run the name_trees function"+"\n"
+                    continue
                 if (t_name == name):
                     find = etree.XPath(".//taxon")
-                    taxa_ele = find(t.getparent().getparent())
+                    taxa_ele = find(t)
 
             tree = trees[name]
             # are the XML taxa in the tree?
@@ -3706,7 +3769,7 @@ def _parse_trees(tree_block):
         p4.var.warnReadNoFile = True
         p4.var.doRepairDupedTaxonNames = 0
     except p4.Glitch as detail:
-        raise TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree_block )
+        raise TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree_block[0:128] )
     trees = p4.var.trees
     p4.var.trees = []
     return trees
@@ -3727,7 +3790,7 @@ def _parse_tree(tree,fixDuplicateTaxa=False):
         if (fixDuplicateTaxa):
             p4.var.doRepairDupedTaxonNames = 0
     except p4.Glitch as detail:
-        raise TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree )
+        raise TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree[0:128] )
 
     t = p4.var.trees[0]
     p4.var.trees = []

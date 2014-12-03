@@ -67,7 +67,7 @@ source=
     },
     ## This is a source tree and associated meta-data
     element source_tree {
-        attribute name { string }+,
+        attribute name { string },
         element tree {
             ## The tree string. This is a Newick/Nexus formatted tree string. You can import
             ## a file using the "Import tree" button below or copy 
@@ -391,7 +391,7 @@ software=
         attribute name {string},
         attribute version {string},
         comment
-    },
+    }
 )
 
 # Any value in the xml file can be accompanied by a comment

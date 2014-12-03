@@ -166,6 +166,7 @@ def import_old_data(input_dir, verbose=False):
 
     # create all sourcenames
     phyml = supertree_toolkit.all_sourcenames(etree.tostring(xml_root))
+    phyml = supertree_toolkit.set_all_tree_names(phyml)
 
     return phyml
 
