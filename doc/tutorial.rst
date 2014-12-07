@@ -331,27 +331,27 @@ Create a matrix using either :menuselection:`STK Functions --> Permute all trees
 
 The above command will create a matrix for each permutable tree (in this case
 one matrix) which will be called
-:file:`anomura_poly_cunningham_etal_1992_1.tnt`. 
+:file:`cunningham_etal_1992_1/anomura_poly.tnt`. 
 
 Run this matrix in TNT to generate a mini-supertree. The commands below are
 suggestions for how to do this in TNT. 
 
 .. code-block:: none
 
-    run anomura_poly_cunningham_etal_1992_1.tnt;
+    run cunningham_etal_1992_1/anomura_poly.tnt;
     ienum;
     taxname=;
-    tsave *permuted_cunningham_etal_1992.tnt;
+    tsave *cunningham_etal_1992_1/permuted.tnt;
     save;
     tsave /;
     nelsen*;
-    tsave *permuted_cunningham_etal_1992_strict.tnt;
+    tsave cunningham_etal_1992_1/permuted_strict.tnt;
     save /;
     tsave /;
     quit;
 
 You can then re-import this tree into your dataset, replacing the original tree
-with the strict consensus :file:`permuted_cunningham_etal_1992_strict.tnt`.
+with the strict consensus :file:`cunningham_etal_1992_1/permuted_strict.tnt`.
 Navigate to Cunningham_et_al_1992 and replace the tree with the % symbols in the
 taxa name by clicking :menuselection:`Import tree`. Now :menuselection:`File --> Save as` to
 filename :file:`Anomura_poly.phyml`.
