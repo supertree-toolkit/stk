@@ -1567,7 +1567,7 @@ def create_matrix_from_trees(trees,format="hennig"):
         tree = _parse_tree(trees[t])
         terminals = tree.getAllLeafNames(tree.root)
         for term in terminals:
-            taxa_list.append(str(term))
+            taxa.append(str(term))
     
 
     return _create_matrix(trees, taxa, format=format)
