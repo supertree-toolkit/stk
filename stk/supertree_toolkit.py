@@ -1569,6 +1569,7 @@ def create_matrix_from_trees(trees,format="hennig"):
         for term in terminals:
             taxa.append(str(term))
     
+    taxa = _uniquify(taxa)
 
     return _create_matrix(trees, taxa, format=format)
 
