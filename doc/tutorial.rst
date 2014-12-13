@@ -162,32 +162,6 @@ Now save your Phyml using the :menuselection:`File --> Save As` and type in a na
     safe. When you extend or alter the data later, you should begin with this
     file.
 
-It is worth noting at this point that non-monophyletic taxa  need some special attention. The STK allows
-you to *permute* the positions of these taxa and generate a tree with all possible combination of
-places of the taxa. These permuted trees can then be dealt with later. However, you must be aware of
-this when digitising trees. To indicate a taxon is non-monophyletic append a '%d' on the end of the name
-where d is an integer. For example, Fig. :num:`#img-tut-poly-tree` can be encoded as: 
-
-.. _img-tut-poly-tree:
-
-.. figure:: images/poly_tree.pdf  
-    :align: center
-    :scale: 75 %
-    :alt: A non-monophyletic tree
-    :figclass: align-center
-
-    Non-monophyletic clades can be denoted with %n in the name as above.
-
-.. code-block:: bash
-
-        (Artemia_salina, (((Pagurus_pollicaris, Pagurus_longicarpus%1), 
-        ((Labidochirus_splendescens, (Elassochirus_tenuimanus, (Pagurus_bernhardus,
-        Pagurus_acadianus, Pagurus_longicarpus%2))), (Lithodes_aequispinus, 
-        Paralithodes_camtschaticus))), (Clibanarius_vittatus, Coenobita_sp.)));
-
-You can see such a tree in the tutorial dataset in Cunningham et al 1992. We will
-see how to permute these trees later in the tutorial.
-
 At this point it's worth creating a data summary -- this will allow you to spot
 data input errors: typos, copy and paste errors, etc. Execute the data summary
 command using the GUI or command line:
@@ -229,12 +203,88 @@ have been recorded, along with the date and time. This enables you to track what
 commands have been run on this Phyml dataset.
 
 
-Standardising Nomenclature
---------------------------
+Standardising Terminals
+-----------------------
 
 .. warning:: From this point on we will create a new file for each step of the process. This is good
     practice in case of user or software errors. Take note of the filename changes as we process the
     data.
+    
+Removing non-monophyletic taxa
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Non-monophyletic taxa need some special attention. The STK allows
+you to *permute* the positions of these taxa and generate a tree with all possible combination of
+places of the taxa. These permuted trees can then be dealt with later. However, you must be aware of
+this when digitising trees. To indicate a taxon is non-monophyletic append a '%d' on the end of the name
+where d is an integer. For example, Fig. :num:`#img-tut-poly-tree` can be encoded as: 
+
+.. _img-tut-poly-tree:
+
+.. figure:: images/poly_tree.pdf  
+    :align: center
+    :scale: 75 %
+    :alt: A non-monophyletic tree
+    :figclass: align-center
+
+    Non-monophyletic clades can be denoted with %n in the name as above.
+
+.. code-block:: bash
+
+        (Artemia_salina, (((Pagurus_pollicaris, Pagurus_longicarpus%1), 
+        ((Labidochirus_splendescens, (Elassochirus_tenuimanus, (Pagurus_bernhardus,
+        Pagurus_acadianus, Pagurus_longicarpus%2))), (Lithodes_aequispinus, 
+        Paralithodes_camtschaticus))), (Clibanarius_vittatus, Coenobita_sp.)));
+
+You can see such a tree in the tutorial dataset in Cunningham et al 1992. We will
+see how to permute these trees later in the tutorial.
+
+To remove non-monophyletic taxa, the tree permutation function is
+used. As mentioned above, non-monophyletic taxa are dealt with separately and
+denoted with a '%n' in the taxon name where n is an integer. We deal with these
+taxa by permuting every possible location of these taxa. This creates a number
+of trees per source tree, each with a different combination of the non-monophyletic
+taxa. Note that this produces unique trees only.
+These can then be output in a single tree file or as matrix. You
+take this and create a 'mini-supertree' which becomes your single source tree.
+For example load into PAUP* or TNT and get the tree required with a
+branch-and-bound search or heuristic search for larger trees.
+
+There is one tree in our test dataset that requires removal of non-monophyletic taxa.
+Create a matrix using either :menuselection:`STK Functions --> Permute all trees`
+(call the output :file:`anomura_poly.tnt` and use Hennig format) or use the command:
+
+:command:`stk permute_trees -c hennig Anomura_subbed.phyml Anomura_poly.tnt`
+
+The above command will create a matrix for each permutable tree (in this case
+one matrix) which will be called
+:file:`cunningham_etal_1992_1/anomura_poly.tnt`. 
+
+Run this matrix in TNT to generate a mini-supertree. The commands below are
+suggestions for how to do this in TNT. 
+
+.. code-block:: none
+
+    run cunningham_etal_1992_1/anomura_poly.tnt;
+    ienum;
+    taxname=;
+    tsave *cunningham_etal_1992_1/permuted.tnt;
+    save;
+    tsave /;
+    nelsen*;
+    tsave cunningham_etal_1992_1/permuted_strict.tnt;
+    save /;
+    tsave /;
+    quit;
+
+You can then re-import this tree into your dataset, replacing the original tree
+with the strict consensus :file:`cunningham_etal_1992_1/permuted_strict.tnt`.
+Navigate to Cunningham_et_al_1992 and replace the tree with the % symbols in the
+taxa name by clicking :menuselection:`Import tree`. Now :menuselection:`File --> Save as` to
+filename :file:`Anomura_poly.phyml`.
+
+Standardising Nomenclature
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The next stage is to standardise the taxa - removing synonyms and higher taxa.
 
@@ -308,53 +358,6 @@ successfully carried out and saved to a new file. Now save the currently open fi
 details of the substitution. You now have *two* files: your original with an additional
 history event detailing the substitutions done (:file:`Anomura.phyml`), and a new file where the substitutions have taken
 place, including a history event stating how the file was created (:file:`Anomura_subbed.phyml` or whichever name you saved as).
-
-Removing non-monophyletic taxa
--------------------------------
-
-To remove non-monophyletic taxa, the tree permutation function is
-used. As mentioned above, non-monophyletic taxa are dealt with separately and
-denoted with a '%n' in the taxon name where n is an integer. We deal with these
-taxa by permuting every possible location of these taxa. This creates a number
-of trees per source tree, each with a different combination of the non-monophyletic
-taxa. Note that this produces unique trees only.
-These can then be output in a single tree file or as matrix. You
-take this and create a 'mini-supertree' which becomes your single source tree.
-For example load into PAUP* or TNT and get the tree required with a
-branch-and-bound search or heuristic search for larger trees.
-
-There is one tree in our test dataset that requires removal of non-monophyletic taxa.
-Create a matrix using either :menuselection:`STK Functions --> Permute all trees`
-(call the output :file:`anomura_poly.tnt` and use Hennig format) or use the command:
-
-:command:`stk permute_trees -c hennig Anomura_subbed.phyml Anomura_poly.tnt`
-
-The above command will create a matrix for each permutable tree (in this case
-one matrix) which will be called
-:file:`cunningham_etal_1992_1/anomura_poly.tnt`. 
-
-Run this matrix in TNT to generate a mini-supertree. The commands below are
-suggestions for how to do this in TNT. 
-
-.. code-block:: none
-
-    run cunningham_etal_1992_1/anomura_poly.tnt;
-    ienum;
-    taxname=;
-    tsave *cunningham_etal_1992_1/permuted.tnt;
-    save;
-    tsave /;
-    nelsen*;
-    tsave cunningham_etal_1992_1/permuted_strict.tnt;
-    save /;
-    tsave /;
-    quit;
-
-You can then re-import this tree into your dataset, replacing the original tree
-with the strict consensus :file:`cunningham_etal_1992_1/permuted_strict.tnt`.
-Navigate to Cunningham_et_al_1992 and replace the tree with the % symbols in the
-taxa name by clicking :menuselection:`Import tree`. Now :menuselection:`File --> Save as` to
-filename :file:`Anomura_poly.phyml`.
 
 
 Remove higher taxa
