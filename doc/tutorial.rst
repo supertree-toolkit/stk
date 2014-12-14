@@ -134,7 +134,7 @@ The tree missing from the dataset is shown below - duplicate this using your tre
 
     This is the tree missing from the dataset
 
-First, import the bibliographic data. This can be found in :file:`tutorial/Section_5.3_data/additional_reference.bib`. Importing additional bibliographic data does not overwrite existing ones and all duplicates
+First, import the bibliographic data. This can be found in :file:`tutorial/5.3_DataEntry/additional_reference.bib`. Importing additional bibliographic data does not overwrite existing ones and all duplicates
 are imported. You would have to remove duplicates by hand.
 
 You now need to read the paper and fill in the missing meta data, such as what characters were used,
@@ -144,7 +144,7 @@ fill in this information.
 We know need to import the tree. Drill down to reach the
 tree_string entry (again, the only blue one). On the lower left of the GUI,
 click :menuselection:`Import tree` and navigate to the tree file
-:file:`tutorial/Section_5.3_data/HallThatje_2009.tre` (or use your own digitised tree). 
+:file:`tutorial/5.3_DataEntry/HallThatje_2009.tre` (or use your own digitised tree). 
 This will place the tree file into the GUI.
 
 .. _img-tut-import-missing-tree:
@@ -206,8 +206,8 @@ have been recorded, along with the date and time. This enables you to track what
 commands have been run on this Phyml dataset.
 
 You can compare your final data file to the one distributed in the tutorial data set:
-:file:`tutorial/Section_5.3_data/2.starting_data_with_Hall_2009.phyml` and the data summary
-of those data :file:`tutorial/Section_5.3_data/2.data_summary.txt` .
+:file:`tutorial/5.3_DataEntry/5.3_2.finish.phyml` and the data summary
+of those data :file:`tutorial/5.3_DataEntry/5.3_2.data_summaryFinish.txt` .
 
 
 Standardising Terminals
@@ -291,9 +291,7 @@ Navigate to Cunningham_et_al_1992 and replace the tree with the % symbols in the
 taxa name by clicking :menuselection:`Import tree`. Now :menuselection:`File --> Save as` to
 filename :file:`Anomura_poly.phyml`.
 
-.. note:: You will need to change the tree name back to cunningham_etal_1992_1
-
-You can compare to the expected data, which is in :file:`tutorial/Section_5.4.1_data/3.non-monophyly_removed.phyml`.
+You can compare to the expected data, which is in :file:`tutorial/5.4.1_NonMonophyleticTaxa/5.4.1_2.non-monophyly_removed.phyml`.
 
 Standardising Nomenclature
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -472,18 +470,8 @@ In the GUI, use :menuselection:`STK Functions --> Replace genera`. Get the STK t
 create a new Phyml for you, named :file:`Anomura_species.phyml`
 
 
-.. note:: This is the "standard" data - *keep this* as this is what gets updated
-    when new trees are added to the dataset. Your substitution files can also be kept.
-
-*The next few steps need doing each time you need to generate a supertree after
-adding more source data and have re-standardised the taxa*
-
-
 Data independence
------------------
-
-This is the first step that is needed each time a tree is generated. We need to
-check for data independence, check overlap and create the matrix. 
+----------------- 
 
 The data independence check is done via the data independence function. The function
 checks if any source meets the following conditions: 
