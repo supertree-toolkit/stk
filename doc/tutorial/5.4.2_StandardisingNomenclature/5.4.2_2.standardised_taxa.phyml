@@ -1,4 +1,3 @@
-<?xml version='1.0' encoding='utf-8'?>
 <phylo_storage>
   <project_name>
     <string_value lines="1">STK_tutorial</string_value>
@@ -386,7 +385,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree name="cunningham_etal_1992_2">
+      <source_tree name="cunningham_etal_1992_1">
         <tree>
           <tree_string>
             <string_value lines="1">(MRP_Outgroup, (Artemia_salina, ((Pagurus_pollicaris, Elassochirus_tenuimanus, Pagurus_longicarpus, Labidochirus_splendescens, (Pagurus_acadianus, Pagurus_bernhardus), (Paralithodes_camtschaticus, Lithodes_aequispinus)), (Clibanarius_vittatus, Coenobita_sp.))));</string_value>
@@ -1259,12 +1258,7 @@
         <string_value lines="1">Data independence checked.</string_value>
       </action>
     </event>
-    <event>
-      <datetime>
-        <string_value lines="1">2014-12-13 19:50</string_value>
-      </datetime>
-      <action>
-        <string_value lines="1">Taxa substitution from 
+  <event><datetime><string_value lines="1">2014-12-13 19:50</string_value></datetime><action><string_value lines="1">Taxa substitution from 
 	Aegla denticulata denticulata to Aegla_denticulata
 	Acanthephyra eximea to Acanthephyra_eximia
 	Aegla denticulata lacustris to Aegla_denticulata
@@ -1363,33 +1357,5 @@
 	Trizocheles spinosus bathamae to Trizocheles_spinosus
 	Trizocheles spinosus spinosus to Trizocheles_spinosus
 	Uroptychus nitida to Uroptychus_nitidus
-via GUI</string_value>
-      </action>
-    </event>
-    <event>
-      <datetime>
-        <string_value lines="1">2014-12-13 19:53</string_value>
-      </datetime>
-      <action>
-        <string_value lines="1">Taxa substitution from 
-	Aeglidae to Aegla
-	Blepharipodidae to Blepharipoda,Lophomastix,Bythiopagurus,Catapagurus,Discorsopagurus,Elassochirus,Icelopagurus,Labidochirus,Lithopagurus,Michelopagurus,Nematopagurus,Pagurodofleinia,Pagurus,Phimochirus,Porcellanopagurus,Propagurus,Pylopagurus,Spiropagurus,Xylopagurus
-	Chirostylidae to Chirostylus,Gastroptychus,Uroptychus
-	Coenobitidae to Birgus,Coenobita
-	Diogenidae to Aniculus,Areopaguristes,Calcinus,Cancellus,Ciliopagurus,Clibanarius,Dardanus,Diogenes,Isocheles,Loxopagurus,Paguristes,Petrochirus,Pseudopaguristes,Strigopagurus
-	Dromiidae to Conchoecetes,Lauridromia
-	Galatheidae to Alainius,Allogalathea,Galathea,Janetogalathea
-	Hapalogastrinae to Dermaturus,Hapalogaster,Oedignathus
-	Hippidae to Emerita,Hippa
-	Kiwaidae to Kiwa
-	Lithodinae to Lithodes,Lopholithodes,Neolithodes,Paralithodes,Paralomis,Phyllolithodes,Glyptolithodes,Cryptolithodes
-	Lomisidae to Lomis
-	Paguridae to None
-	Parapaguridae to Oncopagurus,Paragiopagurus,Parapagurus,Probeebei,Strobopagurus,Sympagurus
-	Porcellanidae to Aliaporcellana,Allopetrolisthes,Clastotoechus,Euceramus,Liopetrolisthes,Lissoporcellana,Megalobrachium,Neopetrolisthes,Neopisosoma,Novorostrum,Pachycheles,Parapetrolisthes,Petrocheles,Petrolisthes,Pisidia,Polyonyx,Porcellana,Porcellanella
-	Pylochelidae to Pomatocheles,Parapylocheles,Mixtopagurus,Cancellocheles,Forestocheles,Bathycheles,Cheiroplatea,Pylocheles,Xylocheles
-via GUI. Saved to /home/jhill1/work/software/supertree-toolkit/workshop/doc/tutorial/Section_5.4.3_data/5.higher_taxa_removed.phyml</string_value>
-      </action>
-    </event>
-  </history>
+via GUI</string_value></action></event></history>
 </phylo_storage>

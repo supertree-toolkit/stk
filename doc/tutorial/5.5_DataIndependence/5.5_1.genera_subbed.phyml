@@ -1,4 +1,3 @@
-<?xml version='1.0' encoding='utf-8'?>
 <phylo_storage>
   <project_name>
     <string_value lines="1">STK_tutorial</string_value>
@@ -89,9 +88,6 @@
               <string_value lines="1">NA</string_value>
             </outgroup>
           </topology>
-          <weight>
-            <real_value rank="0">0.5</real_value>
-          </weight>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -124,9 +120,6 @@
               <string_value lines="1">NA</string_value>
             </outgroup>
           </topology>
-          <weight>
-            <real_value rank="0">0.5</real_value>
-          </weight>
         </tree>
         <taxa_data>
           <all_extant/>
@@ -207,6 +200,145 @@
         </character_data>
       </source_tree>
     </source>
+    <source name="cabezas_etal_2009">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">cabezas</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Cabezas</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">macpherson</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Macpherson</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">machordom</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Machordom</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Morphological and molecular description of new species of squat lobster (Crustacea: Decapoda: Galatheidae) from the Solomon and Fiji Islands (South-West Pacific)</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2009</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Zoological Journal of the Linnean Society</string_value>
+          </journal>
+          <volume>
+            <string_value lines="1">1</string_value>
+          </volume>
+          <pages>
+            <string_value lines="1">465493</string_value>
+          </pages>
+        </article>
+      </bibliographic_information>
+      <source_tree name="cabezas_etal_2009_1">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Onconida_alaini, ((Paramunida_granulata, ((Paramunida_pronoe, ((Paramunida_thalie, (Paramunida_pictura, Paramunida_labis)), (Paramunida_luminata, (Paramunida_belone, (Paramunida_salai, Paramunida_lophia))))), (Paramunida_stichas, Paramunida_proxima))), (Plesionida_concava, Plesionida_aliena)));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">0</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">1</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Neighbour Joining"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">NA</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="16S"/>
+          <character type="molecular" name="COI"/>
+        </character_data>
+      </source_tree>
+      <source_tree name="cabezas_etal_2009_2">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Eumunida_sternomaculata, ((((Munida_mendagnai, (Munida_stia, ((Munida_acantha, (Munida_clinata, ((Munida_leagora, (Munida_taenia, Munida_armilla)), (Munida_distiza, Munida_guttata)))), ((Munida_tyche, (Munida_notata, (Munida_caeli, (Munida_parca, Munida_lailai)))), (Munida_spilota, Munida_proto))))), ((((Munida_zebra, Munida_thoe), (Munida_ommata, (Munida_psylla, Munida_rufiantennulata))), (Munida_tiresias, (Munida_alonsoi, Munida_psamathe))), (Munida_pagesi, (((Munida_rhodonia, Munida_congesta), (Munida_compressa, Munida_rubridigitalis)), (Munida_eclepsis, (Munida_militaris, Munida_rosula)))))), (Munida_gordoae, Munida_leptosyne)), (Munida_rugosa, (Munida_devestiva, (Munida_delicata, Munida_oblongata)))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">0</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">1</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Neighbour Joining"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">NA</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="16S"/>
+        </character_data>
+      </source_tree>
+      <source_tree name="cabezas_etal_2009_3">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Crosnierita_dicata, ((Agononida_sphecia, Alainius_crosnieri), (Agononida_incerta, (Agononida_marini, (Agononida_procera, (Agononida_isabelensis, Agononida_similis))))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">0</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">1</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Neighbour Joining"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">NA</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="16S"/>
+          <character type="molecular" name="COI"/>
+        </character_data>
+      </source_tree>
+    </source>
     <source name="cunningham_etal_1992">
       <bibliographic_information>
         <article>
@@ -253,7 +385,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree name="cunningham_etal_1992_2">
+      <source_tree name="cunningham_etal_1992_1">
         <tree>
           <tree_string>
             <string_value lines="1">(Artemia_salina, ((Pagurus_pollicaris, Elassochirus_tenuimanus, Pagurus_longicarpus, Labidochirus_splendescens, (Pagurus_acadianus, Pagurus_bernhardus), (Paralithodes_camtschaticus, Lithodes_aequispinus)), (Clibanarius_vittatus, Coenobita_sp.)));</string_value>
@@ -1039,6 +1171,83 @@
         </character_data>
       </source_tree>
     </source>
+    <source name="werding_etal_2001">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">werding</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Werding</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">hiller</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Hiller</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">misof</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Misof</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Evidence of paraphyly in the neotropical Porcellanid genus Neopisosoma (Crustacea : Anomura : Porcellanidae) based on molecular characters</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2001</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Hydrobiologia</string_value>
+          </journal>
+          <volume>
+            <string_value lines="1">1</string_value>
+          </volume>
+          <pages>
+            <string_value lines="1">105-110</string_value>
+          </pages>
+        </article>
+      </bibliographic_information>
+      <source_tree name="werding_etal_2001_1">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(((((Porcellana_platycheles, (Neopisosoma_angustifrons, Pachycheles_serratus)), (Clastotoechus_nodosus, Clastotoechus_vanderhorsti)), ((Neopisosoma_neglectum, (Petrolisthes_magdalenensis, (Petrolisthes_jugosus, Petrolisthes_cinctipes))), Petrolisthes_tonsorius)), Petrolisthes_galathinus), Pagurus_longicarpus);</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">0</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">1</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">NA</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="COI"/>
+        </character_data>
+      </source_tree>
+    </source>
   </sources>
   <history>
     <event>
@@ -1191,30 +1400,6 @@ via GUI. Saved to /home/jhill1/work/software/supertree-toolkit/workshop/doc/tuto
 	Albuneidae to Albunea,Austrolepidopa,Harryhausenia
 	MRP_Outgroup to None
 via GUI</string_value>
-      </action>
-    </event>
-    <event>
-      <datetime>
-        <string_value lines="1">2014-12-13 21:40</string_value>
-      </datetime>
-      <action>
-        <string_value lines="1">Data independence checked. Phyml saved to: /home/jhill1/work/software/supertree-toolkit/workshop/doc/tutorial/Section_5.5_data/7.ind_data_auto.phyml.</string_value>
-      </action>
-    </event>
-    <event>
-      <datetime>
-        <string_value lines="1">2014-12-13 21:46</string_value>
-      </datetime>
-      <action>
-        <string_value lines="1">Data overlap carried out on data. Result is: False with overlap of 2</string_value>
-      </action>
-    </event>
-    <event>
-      <datetime>
-        <string_value lines="1">2014-12-13 21:47</string_value>
-      </datetime>
-      <action>
-        <string_value lines="1">Data overlap carried out on data. Result is: False with overlap of 2</string_value>
       </action>
     </event>
   </history>

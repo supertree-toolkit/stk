@@ -131,6 +131,75 @@
         </character_data>
       </source_tree>
     </source>
+    <source name="boyko_harvey_2009">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">boyko</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Boyko</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">harvey</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Harvey</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Phylogenetic systematics and biogeography of the sand crab families Albuneidae and Blepharipodidae Crustacea: Anomura: Hippoidea)</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2009</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Invertebrate Systematics</string_value>
+          </journal>
+          <volume>
+            <string_value lines="1">1</string_value>
+          </volume>
+          <pages>
+            <string_value lines="1">118</string_value>
+          </pages>
+        </article>
+      </bibliographic_information>
+      <source_tree name="boyko_harvey_2009_1">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Aegla_uruguayana, (Uroptychus_occidentalis, ((Lomis_hirta, ((Squillalbunea_scutelloides, ((Stemonopa_insignis, (Italialbunea_lutetiana, (Paralbunea_intermedia, ((Leucolepidopa_sunda, ((((Lepidopa_luciae, ((Lepidopa_esposa, (Lepidopa_chilensis, (Lepidopa_dexterae, Lepidopa_venusta, Lepidopa_websteri))), (Lepidopa_mexicana, Lepidopa_wollebaeki))), (Lepidopa_californica, (Lepidopa_haigae, ((Lepidopa_benedicti, Lepidopa_deamae), (Lepidopa_mearnsi, Lepidopa_richmondi))))), (Paraleucolepidopa_distincta, Paraleucolepidopa_myops)), (Austrolepidopa_schmitti, (Austrolepidopa_caledonia, Austrolepidopa_trigonops)))), (Paralbunea_manihinei, (Paralbunea_dayriti, Paralbunea_paradoxa)))))), (Albunea_hahnae, (Albunea_cuisiana, ((Albunea_galapagensis, (Albunea_speciosa, ((Albunea_occulta, (Albunea_elegans, Albunea_steinitzi, ((Albunea_holthuisi, (Albunea_marquisiana, (Albunea_symmysta, Albunea_groeningi))), (Albunea_catherinae, (Albunea_lucasia, Albunea_paretii))))), (Albunea_gibbesii, Albunea_thurstoni)))), (Albunea_bulla, (Albunea_carabus, Albunea_danai)), (Albunea_elioti, Albunea_microps)))))), (Zygopa_michaelis, Zygopa_nortoni))), (Hippa_testudinaria, Emerita_talpoida))), (Galathea_squamifera, ((Blepharipoda_doelloi, Blepharipoda_liberata, Blepharipoda_occidentalis, Blepharipoda_spinosa), (Lophomastix_japonica, (Lophomastix_antiqua, Lophomastix_diomedeae)))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">0</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">1</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">NA</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="morphological" name="Adult morphology"/>
+        </character_data>
+      </source_tree>
+    </source>
     <source name="cabezas_etal_2009">
       <bibliographic_information>
         <article>
@@ -316,7 +385,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree name="cunningham_etal_1992_2">
+      <source_tree name="cunningham_etal_1992_1">
         <tree>
           <tree_string>
             <string_value lines="1">(Artemia_salina, ((Pagurus_pollicaris, Elassochirus_tenuimanus, Pagurus_longicarpus, Labidochirus_splendescens, (Pagurus_acadianus, Pagurus_bernhardus), (Paralithodes_camtschaticus, Lithodes_aequispinus)), (Clibanarius_vittatus, Coenobita_sp.)));</string_value>
@@ -459,7 +528,7 @@
       <source_tree name="hiller_werding_2007_1">
         <tree>
           <tree_string>
-            <string_value lines="1">(((Albunea_lucasia, Albunea_microps, Albunea_symmysta, Albunea_steinitzi, Albunea_bulla, Albunea_marquisiana, Albunea_danai, Albunea_thurstoni, Albunea_gibbesii, Albunea_cuisiana, Albunea_paretii, Albunea_occulta, Albunea_catherinae, Albunea_groeningi, Albunea_galapagensis, Albunea_elioti, Albunea_carabus, Albunea_speciosa, Albunea_elegans, Albunea_hahnae, Albunea_holthuisi), (Austrolepidopa_schmitti, Austrolepidopa_trigonops, Austrolepidopa_caledonia)), (Petrolisthes_armatus, (Petrolisthes_edwardsii, Petrolisthes_donadio)));</string_value>
+            <string_value lines="1">((Albunea, Austrolepidopa), (Petrolisthes_armatus, (Petrolisthes_edwardsii, Petrolisthes_donadio)));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -722,7 +791,7 @@
       <source_tree name="morrison_etal_2002_1">
         <tree>
           <tree_string>
-            <string_value lines="1">(Procambarus_clarkii, ((((((Aegla_uruguayana, Lomis_hirta), ((Eumunida_sternomaculata, Munida_quadrispina), (Pachycheles_rudis, Petrolisthes_armatus))), (((Isocheles_pilosus, (Clibanarius_albidigitus, (Calcinus_obscurus, (Birgus_latro, Coenobita_compressa)))), (Paguristes_turgidus, (Pagurus_longicarpus, (Cryptolithodes_typicus, Discorsopagurus_schmitti)))), (Blepharipoda_occidentalis, (Emerita_analoga, (Lepidopa_wollebaeki, Lepidopa_haigae, Lepidopa_venusta, Lepidopa_benedicti, Lepidopa_richmondi, Lepidopa_deamae, Lepidopa_mearnsi, Lepidopa_esposa, Lepidopa_chilensis, Lepidopa_luciae, Lepidopa_dexterae, Lepidopa_mexicana, Lepidopa_websteri, Lepidopa_californica))))), (Upogebia_affinis, (Jaxea_nocturna, Panulirus_argus))), (Hepatus_epheliticus, Raninoides_louisianensis)), (Callichirus_major, Neotrypaea_californiensis)));</string_value>
+            <string_value lines="1">(Procambarus_clarkii, ((((((Aegla_uruguayana, Lomis_hirta), ((Eumunida_sternomaculata, Munida_quadrispina), (Pachycheles_rudis, Petrolisthes_armatus))), (((Isocheles_pilosus, (Clibanarius_albidigitus, (Calcinus_obscurus, (Birgus_latro, Coenobita_compressa)))), (Paguristes_turgidus, (Pagurus_longicarpus, (Cryptolithodes_typicus, Discorsopagurus_schmitti)))), (Blepharipoda_occidentalis, (Emerita_analoga, Lepidopa)))), (Upogebia_affinis, (Jaxea_nocturna, Panulirus_argus))), (Hepatus_epheliticus, Raninoides_louisianensis)), (Callichirus_major, Neotrypaea_californiensis)));</string_value>
             <comment>Has a genus level taxon in: Lepidopa.</comment>
           </tree_string>
           <figure_legend>
@@ -803,7 +872,7 @@
       <source_tree name="porter_etal_2005_1">
         <tree>
           <tree_string>
-            <string_value lines="1">((((((((((((Astacus_astacus, Pacifastacus_leniusculus), Cambaroides_japonicus), ((Orconectes_virilis, Cambarus_maculatus), Cambarellus_shufeldtii)), (Astacopsis_gouldi, Cherax_glaber)), ((((Homarus_gammarus, Homarus_americanus), Nephrops_norvegicus), Nephropsis_aculeata), Acanthacaris_caeca)), (((Lepidophthalmus_louisianensis, Sergio_guassutinga), Callichirus_major), (Callianassa_subterranea, Biffarius_arenosus))), ((Panulirus_regius, Scyllarus_arctus), Jasus_edwardsii)), ((((Munida_gregaria, Uroptychus_parvulus), Lithodes_santolla), (Lomis_hirta, (Aegla_neuquensis, Aegla_violacea, Aegla_alacalufi, Aegla_uruguayana, Aegla_sp.))), Emerita_brasiliensis)), ((((Pachygrapsus_marmoratus, Geothelphusa_sp.), Cancer_pagurus), (Carcinus_maenas, Necora_puber)), Maja_squinado)), ((((((Macrobrachium_sp., Macrobrachium_potiuna), Cryphiops_caementarius), Creaseria_morleyi), (Palaemonetes_paludosus, Macrobrachium_sintangense)), (Lysmata_debelius, Lysmata_wurdemanni)), (Atyoida_bisulcata, Typhlatya_pearsei))), Stenopus_hispidus), Penaeus_semisulcatus);</string_value>
+            <string_value lines="1">((((((((((((Astacus_astacus, Pacifastacus_leniusculus), Cambaroides_japonicus), ((Orconectes_virilis, Cambarus_maculatus), Cambarellus_shufeldtii)), (Astacopsis_gouldi, Cherax_glaber)), ((((Homarus_gammarus, Homarus_americanus), Nephrops_norvegicus), Nephropsis_aculeata), Acanthacaris_caeca)), (((Lepidophthalmus_louisianensis, Sergio_guassutinga), Callichirus_major), (Callianassa_subterranea, Biffarius_arenosus))), ((Panulirus_regius, Scyllarus_arctus), Jasus_edwardsii)), ((((Munida_gregaria, Uroptychus_parvulus), Lithodes_santolla), (Lomis_hirta, Aegla)), Emerita_brasiliensis)), ((((Pachygrapsus_marmoratus, Geothelphusa_sp.), Cancer_pagurus), (Carcinus_maenas, Necora_puber)), Maja_squinado)), ((((((Macrobrachium_sp., Macrobrachium_potiuna), Cryphiops_caementarius), Creaseria_morleyi), (Palaemonetes_paludosus, Macrobrachium_sintangense)), (Lysmata_debelius, Lysmata_wurdemanni)), (Atyoida_bisulcata, Typhlatya_pearsei))), Stenopus_hispidus), Penaeus_semisulcatus);</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -1321,17 +1390,9 @@ via GUI</string_value>
 via GUI. Saved to /home/jhill1/work/software/supertree-toolkit/workshop/doc/tutorial/Section_5.4.3_data/5.higher_taxa_removed.phyml</string_value>
       </action>
     </event>
-    <event>
-      <datetime>
-        <string_value lines="1">2014-12-13 21:06</string_value>
-      </datetime>
-      <action>
-        <string_value lines="1">Taxa substitution from 
+  <event><datetime><string_value lines="1">2014-12-13 21:06</string_value></datetime><action><string_value lines="1">Taxa substitution from 
 	Aeglidae to Aegla
 	Albuneidae to Albunea,Austrolepidopa,Harryhausenia
 	MRP_Outgroup to None
-via GUI</string_value>
-      </action>
-    </event>
-  </history>
+via GUI</string_value></action></event></history>
 </phylo_storage>

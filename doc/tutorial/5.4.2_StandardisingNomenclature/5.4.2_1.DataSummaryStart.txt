@@ -1,0 +1,460 @@
+======================
+ Data summary of: STK_tutorial
+======================
+
+Number of taxa: 384
+Number of characters: 15
+Number of character types: 2
+Number of trees: 17
+Number of fossil taxa: 0
+Number of analyses: 4
+Data spans: 1992 - 2011
+
+Publication years:
+----------------------
+    1992: 1
+    1993: 0
+    1994: 0
+    1995: 0
+    1996: 0
+    1997: 0
+    1998: 0
+    1999: 0
+    2000: 0
+    2001: 1
+    2002: 1
+    2003: 0
+    2004: 0
+    2005: 1
+    2006: 1
+    2007: 2
+    2008: 1
+    2009: 4
+    2010: 1
+    2011: 1
+----------------------
+
+
+Character Type List:
+----------------------
+     morphological    
+     molecular    
+----------------------
+
+
+Analyses Used:
+----------------------
+     Bayesian
+     Maximum Likelihood
+     Maximum Parsimony
+     Neighbour Joining
+----------------------
+
+
+Character List:
+----------------------
+     16S    8(47.0588235294%)
+     18S    4(23.5294117647%)
+     28S    5(29.4117647059%)
+     AK    1(5.88235294118%)
+     Adult morphology    2(11.7647058824%)
+     COI    5(29.4117647059%)
+     COII    1(5.88235294118%)
+     DIB    1(5.88235294118%)
+     GAPDH    1(5.88235294118%)
+     H3    1(5.88235294118%)
+     LSU_rRNA    1(5.88235294118%)
+     NaK    2(11.7647058824%)
+     PEPCK    2(11.7647058824%)
+     enolase    1(5.88235294118%)
+     spermatozoal    1(5.88235294118%)
+----------------------
+
+
+Taxa List:
+----------------------
+     Acanthacaris_caeca
+     Acanthephyra_eximia
+     Aegla_alacalufi
+     Aegla_neuquensis
+     Aegla_sp.
+     Aegla_uruguayana
+     Aegla_uruguyana
+     Aegla_violacea
+     Aeglidae
+     Agononida_incerta
+     Agononida_isabelensis
+     Agononida_longipes
+     Agononida_marini
+     Agononida_procera
+     Agononida_similis
+     Agononida_sphecia
+     Alainius_crosnieri
+     Albunea_bulla
+     Albunea_carabus
+     Albunea_catherinae
+     Albunea_cuisiana
+     Albunea_danai
+     Albunea_elegans
+     Albunea_elioti
+     Albunea_galapagensis
+     Albunea_gibbesii
+     Albunea_groeningi
+     Albunea_hahnae
+     Albunea_holthuisi
+     Albunea_lucasia
+     Albunea_marquisiana
+     Albunea_microps
+     Albunea_occulta
+     Albunea_paretii
+     Albunea_speciosa
+     Albunea_steinitzi
+     Albunea_symmysta
+     Albunea_thurstoni
+     Albuneidae
+     Allogalathea_elegans
+     Anatolikos_japonicus
+     Aristeus_virilis
+     Artemia_salina
+     Astacopsis_gouldi
+     Astacus_astacus
+     Atyoida_bisulcata
+     Austinogebia_edulis
+     Austrolepidopa_caledonia
+     Austrolepidopa_schmitti
+     Austrolepidopa_trigonops
+     Biffarius_arenosus
+     Birgus_latro
+     Blepharipoda_doelloi
+     Blepharipoda_liberata
+     Blepharipoda_occidentalis
+     Blepharipoda_spinosa
+     Bythiopagurus_macrocolus
+     Calappa_philargius
+     Calastacus_crosnieri
+     Calaxius_manningi
+     Calcinus_gaimardii
+     Calcinus_laevimanus
+     Calcinus_minutus
+     Calcinus_obscurus
+     Calcinus_tubularis
+     Callianassa_subterranea
+     Callichirus_major
+     Calocarides_chani
+     Cambarellus_shufeldtii
+     Cambaroides_japonicus
+     Cambarus_maculatus
+     Cancellus_sp.
+     Cancer_pagurus
+     Carcinoplax_longimana
+     Carcinus_maenas
+     Cervimunida_johni
+     Cervimunida_princeps
+     Cherax_glaber
+     Cherax_quadricarinatus
+     Chirostylus_novaecaledoniae
+     Clastotoechus_nodosus
+     Clastotoechus_vanderhorsti
+     Clibanarius_albidigitus
+     Clibanarius_antillensis
+     Clibanarius_corallinus
+     Clibanarius_englaucus
+     Clibanarius_erythropus
+     Clibanarius_humilis
+     Clibanarius_longitarsus
+     Clibanarius_taeniatus
+     Clibanarius_virescens
+     Clibanarius_vittatus
+     Coenobita_compressa
+     Coenobita_rugosus
+     Coenobita_sp.
+     Coenobita_violascens
+     Conchoecetes_artificiosus
+     Creaseria_morleyi
+     Crosnierita_dicata
+     Cryphiops_caementarius
+     Cryptolithodes_sitchensis
+     Cryptolithodes_typicus
+     Cryptopodia_fornicata
+     Dardanus_arrosor
+     Dardanus_crassimanus
+     Dardanus_impressus
+     Dardanus_insignis
+     Dardanus_lagopodes
+     Dardanus_scutellatus
+     Dardanus_setifer
+     Dardanus_venosus
+     Diogenes_custos
+     Diogenes_pallescens
+     Diogenes_pugilator
+     Discorsopagurus_schmitti
+     Eduarctus_martensii
+     Eiconaxius_indica
+     Elassochirus_tenuimanus
+     Emerita_analoga
+     Emerita_brasiliensis
+     Emerita_emeritus
+     Emerita_talpoida
+     Enoplometopus_debelius
+     Eplumula_phalangium
+     Eriocheir_japonica
+     Eumunida_funambulus
+     Eumunida_sternomaculata
+     Galacantha_rostrata
+     Galathea_sp.
+     Galathea_squamifera
+     Gastroptychus_novaezelandiae
+     Geothelphusa_sp.
+     Gilvossius_setimanus
+     Glyphocrangon_perplexa
+     Glyptolithodes_cristatipes
+     Gnathophyllum_americanum
+     Hapalogaster_dentata
+     Hapalogaster_mertensii
+     Hepatus_epheliticus
+     Heterocarpus_gibbosus
+     Hippa_adactyla
+     Hippa_testudinaria
+     Homarus_americanus
+     Homarus_gammarus
+     Hymenocera_picta
+     Ibacus_novemdentatus
+     Icelopagurus_crosnieri
+     Isocheles_pilosus
+     Isocheles_sawayai
+     Isocheles_wurdemanni
+     Italialbunea_lutetiana
+     Jasus_edwardsii
+     Jaxea_nocturna
+     Jonas_distinctus
+     Kiwa_hirsuta
+     Labidochirus_splendescens
+     Lauridromia_dehaani
+     Leiogalathea_laevirostris
+     Lepidopa
+     Lepidopa_benedicti
+     Lepidopa_californica
+     Lepidopa_chilensis
+     Lepidopa_deamae
+     Lepidopa_dexterae
+     Lepidopa_esposa
+     Lepidopa_haigae
+     Lepidopa_luciae
+     Lepidopa_mearnsi
+     Lepidopa_mexicana
+     Lepidopa_richmondi
+     Lepidopa_venusta
+     Lepidopa_websteri
+     Lepidopa_wollebaeki
+     Lepidophthalmus_louisianensis
+     Leucolepidopa_sunda
+     Linuparus_trigonus
+     Lithodes_aequispinus
+     Lithodes_confundens
+     Lithodes_ferox
+     Lithodes_maja
+     Lithodes_santolla
+     Lithodes_turritus
+     Lomis_hirta
+     Lopholithodes_mandtii
+     Lophomastix_antiqua
+     Lophomastix_diomedeae
+     Lophomastix_japonica
+     Loxopagurus_loxochelis
+     Lysmata_debelius
+     Lysmata_wurdemanni
+     MRP_Outgroup
+     Macrobrachium_potiuna
+     Macrobrachium_rosenbergii
+     Macrobrachium_sintangense
+     Macrobrachium_sp.
+     Maja_squinado
+     Michelopagurus_limatulus
+     Mictyris_longicarpus
+     Munida_acantha
+     Munida_albiapicula
+     Munida_alonsoi
+     Munida_armilla
+     Munida_caeli
+     Munida_clinata
+     Munida_compressa
+     Munida_congesta
+     Munida_delicata
+     Munida_devestiva
+     Munida_distiza
+     Munida_eclepsis
+     Munida_gordoae
+     Munida_gregaria
+     Munida_guttata
+     Munida_lailai
+     Munida_leagora
+     Munida_leptosyne
+     Munida_mendagnai
+     Munida_militaris
+     Munida_notata
+     Munida_oblongata
+     Munida_ommata
+     Munida_pagesi
+     Munida_parca
+     Munida_proto
+     Munida_psamathe
+     Munida_psylla
+     Munida_quadrispina
+     Munida_rhodonia
+     Munida_rosula
+     Munida_rubridigitalis
+     Munida_rufiantennulata
+     Munida_rugosa
+     Munida_spilota
+     Munida_stia
+     Munida_taenia
+     Munida_thoe
+     Munida_tiresias
+     Munida_tyche
+     Munida_zebra
+     Munidopsis_bairdii
+     Munidopsis_formosa
+     Necora_puber
+     Neoglyphea_inopinata
+     Neolithodes_brodiei
+     Neolithodes_nipponensis
+     Neopetrolisthes_maculatus
+     Neopisosoma_angustifrons
+     Neopisosoma_neglectum
+     Neotrypaea_californiensis
+     Nephropides_caribaeus
+     Nephrops_norvegicus
+     Nephropsis_aculeata
+     Nephropsis_stewarti
+     Novorostrum_indicum
+     Nupalirus_japonicus
+     Oedignathus_inermis
+     Onconida_alaini
+     Oncopagurus_orientalis
+     Orconectes_virilis
+     Ovalipes_punctatus
+     Pachycheles_laevidactylus
+     Pachycheles_rudis
+     Pachycheles_serratus
+     Pachygrapsus_marmoratus
+     Pacifastacus_leniusculus
+     Paguristes_eremita
+     Paguristes_erythrops
+     Paguristes_robustus
+     Paguristes_seminudus
+     Paguristes_tortugae
+     Paguristes_turgidus
+     Pagurodofleinia_doederleini
+     Pagurus_acadianus
+     Pagurus_angustus
+     Pagurus_bernhardus
+     Pagurus_brevidactylus
+     Pagurus_criniticornis
+     Pagurus_hirsutiusculus
+     Pagurus_leptonyx
+     Pagurus_longicarpus
+     Pagurus_pollicaris
+     Pagurus_sp.
+     Palaemonetes_paludosus
+     Palinurus_elephas
+     Panulirus_argus
+     Panulirus_longipes
+     Panulirus_polyphagus
+     Panulirus_regius
+     Panulirus_versicolor
+     Paradorippe_granulata
+     Paragiopagurus_acutus
+     Paragiopagurus_boletifer
+     Paragiopagurus_ventilatus
+     Paralbunea_dayriti
+     Paralbunea_intermedia
+     Paralbunea_manihinei
+     Paralbunea_paradoxa
+     Paraleucolepidopa_distincta
+     Paraleucolepidopa_myops
+     Paralithodes_brevipes
+     Paralithodes_camtschaticus
+     Paralomis_arae
+     Paralomis_dofleini
+     Paralomis_formosa
+     Paralomis_spinosissima
+     Paramunida_belone
+     Paramunida_granulata
+     Paramunida_labis
+     Paramunida_lophia
+     Paramunida_luminata
+     Paramunida_pictura
+     Paramunida_pronoe
+     Paramunida_proxima
+     Paramunida_salai
+     Paramunida_scabra
+     Paramunida_stichas
+     Paramunida_thalie
+     Paramunida_tricarinata
+     Parapagurus_latimanus
+     Paromola_japonica
+     Penaeus_monodon
+     Penaeus_semisulcatus
+     Petrochirus_diogenes
+     Petrolisthes_armatus
+     Petrolisthes_cinctipes
+     Petrolisthes_donadio
+     Petrolisthes_edwardsii
+     Petrolisthes_galathinus
+     Petrolisthes_japonicus
+     Petrolisthes_jugosus
+     Petrolisthes_magdalenensis
+     Petrolisthes_tonsorius
+     Phyllolithodes_papillosus
+     Platymaia_remifera
+     Plesionida_aliena
+     Plesionida_concava
+     Plesionika_hsuehyui
+     Pleuroncodes_monodon
+     Polycheles_amemiyai
+     Porcellana_platycheles
+     Porcellanella_triloba
+     Procambarus_clarkii
+     Projasus_bahamondei
+     Propagurus_obtusifrons
+     Pseudomunida_fragilis
+     Pseudopaguristes_calliopsis
+     Puerulus_angulatus
+     Pugettia_nipponensis
+     Pylocheles_mortensenii
+     Ranina_ranina
+     Raninoides_louisianensis
+     Rhynchocinetes_durbanensis
+     Sadayoshia_sp.
+     Scyllarus_arctus
+     Sergia_maxima
+     Sergio_guassutinga
+     Shinkaia_crosnieri
+     Sicyonia_lancifer
+     Solenocera_melantho
+     Spiropagurus_profundorum
+     Squillalbunea_scutelloides
+     Stemonopa_insignis
+     Stenopus_hispidus
+     Strigopagurus_boreonotus
+     Strobopagurus_gracilipes
+     Sympagurus_burkenroadi
+     Sympagurus_dimorphus
+     Thalassina_anomala
+     Thaumastocheles_dochmiodon
+     Tokoyo_eburnea
+     Trizocheles_brachyops
+     Trizocheles_sakaii
+     Trizocheles_spinosus
+     Typhlatya_pearsei
+     Uca_crassipes
+     Upogebia_affinis
+     Uroptychodes_grandirostris
+     Uroptychus_nitidus
+     Uroptychus_occidentalis
+     Uroptychus_parvulus
+     Uroptychus_scambus
+     Xylocheles_macrops
+     Zygopa_michaelis
+     Zygopa_nortoni
+----------------------

@@ -392,7 +392,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree name="cunningham_etal_1992_2">
+      <source_tree name="cunningham_etal_1992_1">
         <tree>
           <tree_string>
             <string_value lines="1">(Artemia_salina, ((Pagurus_pollicaris, Elassochirus_tenuimanus, Pagurus_longicarpus, Labidochirus_splendescens, (Pagurus_acadianus, Pagurus_bernhardus), (Paralithodes_camtschaticus, Lithodes_aequispinus)), (Clibanarius_vittatus, Coenobita_sp.)));</string_value>
