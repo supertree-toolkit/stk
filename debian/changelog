@@ -1,3 +1,11 @@
+supertree-toolkit (2.14) precise; urgency=medium
+
+  * New funcitonality to create matrix from trees via command line
+  * New tutorial material based on workshop
+  * Minor bug fixes 
+
+ -- Jon Hill <jh1889@tethys>  Thu, 18 Dec 2014 10:05:08 +0000
+
 supertree-toolkit (2.13) precise; urgency=low
 
   * Trees now have names to make it easier to identify
