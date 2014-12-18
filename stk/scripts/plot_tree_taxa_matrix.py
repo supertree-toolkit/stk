@@ -6,6 +6,9 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir 
 sys.path.insert(0, stk_path)
 import supertree_toolkit as stk
 from lxml import etree
+import matplotlib
+if (sys.platform == "darwin"):
+    matplotlib.use('GTKAgg')
 from pylab import *
 from collections import Counter
 

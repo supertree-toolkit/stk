@@ -330,6 +330,7 @@ class TestSTK(unittest.TestCase):
         #9,data/input/old_stk_test/Barhoum_Burns_2002/Tree 1/Barhoum_Burns_2002_corr.tre
         # So that's 10 clusters
         self.assert_(len(keys) == 10)
+        keys = sorted(keys, key = len, reverse=True)
         # the keys should be ordered from large to small, so
         self.assert_(len(keys[0]) == 6) # same as node 7 above
         self.assert_(len(keys[1]) == 4) # same as node 8 above
