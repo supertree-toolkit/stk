@@ -845,35 +845,65 @@ def create_matrix(args):
                 sys.exit(0)
             if k.lower() == 'y':
                 break
-
-    XML = supertree_toolkit.load_phyml(input_file)
-    if (not taxonomy == None):
-        taxonomy_tree = None
-        taxonomy_tree = supertree_toolkit._parse_tree(taxonomy)
     try:
-        matrix = supertree_toolkit.create_matrix(XML,format=f_format,quote=quote,taxonomy=taxonomy,
-                                                 outgroups=remove_outgroups,ignoreWarnings=ignoreWarnings)
-    except NotUniqueError as detail:
-        msg = "***Error: Failed to create matrix.\n"+detail.msg
-        print msg
-        return
-    except InvalidSTKData as detail:
-        msg = "***Error: Failed to create matrix.\n"+detail.msg
-        print msg
-        return
-    except UninformativeTreeError as detail:
-        msg = "***Error: Failed to create matrix.\n"+detail.msg
-        print msg
-        return
-    except TreeParseError as detail:
-        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
-        print msg
-        return
-    except: 
-        msg = "***Error: Failed to create matrix due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
-        print msg
-        traceback.print_exc()
-        return 
+
+        XML = supertree_toolkit.load_phyml(input_file)
+        input_is_xml = True
+    except:
+        input_is_xml = False
+
+    if (input_is_xml):
+        XML = supertree_toolkit.load_phyml(input_file)
+        if (not taxonomy == None):
+            taxonomy_tree = None
+            taxonomy_tree = supertree_toolkit._parse_tree(taxonomy)
+        try:
+            matrix = supertree_toolkit.create_matrix(XML,format=f_format,quote=quote,taxonomy=taxonomy,
+                                                     outgroups=remove_outgroups,ignoreWarnings=ignoreWarnings)
+        except NotUniqueError as detail:
+            msg = "***Error: Failed to create matrix.\n"+detail.msg
+            print msg
+            return
+        except InvalidSTKData as detail:
+            msg = "***Error: Failed to create matrix.\n"+detail.msg
+            print msg
+            return
+        except UninformativeTreeError as detail:
+            msg = "***Error: Failed to create matrix.\n"+detail.msg
+            print msg
+            return
+        except TreeParseError as detail:
+            msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+            print msg
+            return
+        except: 
+            msg = "***Error: Failed to create matrix due to unknown error.\n"
+            print msg
+            traceback.print_exc()
+            return 
+    else:
+        # try trees!
+        try:
+            tree_list = supertree_toolkit.import_trees(input_file)
+            trees = {}
+            i = 0
+            for t in tree_list:
+                trees['tree_'+str(i)] = t
+                i += 1
+            matrix = supertree_toolkit.create_matrix_from_trees(trees,format=f_format)
+        except UninformativeTreeError as detail:
+            msg = "***Error: Failed to create matrix.\n"+detail.msg
+            print msg
+            return
+        except TreeParseError as detail:
+            msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+            print msg
+            return
+        except: 
+            msg = "***Error: Failed to create matrix due to unknown error.\n"
+            print msg
+            traceback.print_exc()
+            return 
 
     f = open(output_file, "w")
     f.write(matrix)
@@ -1537,8 +1567,12 @@ def convert_file(args):
                 new_trees['tree_'+str(i)] = t
                 i += 1
             output = supertree_toolkit._amalgamate_trees(new_trees,format=output_format)
+        except TreeParseError as detail:
+            print detail.msg
+            sys.exit(-1)
         except:
-            print "Error saving tree"
+            print "Error converting tree"
+            traceback.print_exc()
             sys.exit(-1)
 
 

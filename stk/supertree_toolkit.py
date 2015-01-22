@@ -50,6 +50,7 @@ import urllib2
 from urllib import quote_plus
 import simplejson as json
 import time
+import types
 
 #plt.ion()
 
@@ -1068,7 +1069,6 @@ def import_trees(filename):
         content += "\nend;"
 
     treedata = content
-   
     trees = _parse_trees(treedata)
     r_trees = []
     for t in trees:
@@ -1640,8 +1640,9 @@ def create_matrix_from_trees(trees,format="hennig"):
         tree = _parse_tree(trees[t])
         terminals = tree.getAllLeafNames(tree.root)
         for term in terminals:
-            taxa_list.append(str(term))
+            taxa.append(str(term))
     
+    taxa = _uniquify(taxa)
 
     return _create_matrix(trees, taxa, format=format)
 
@@ -2744,6 +2745,8 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
 
     # That's out graph set up. Dead easy to test all nodes are connected - we can even get the number of seperate connected parts
     connected_components = nx.connected_components(G)
+    if isinstance(connected_components, types.GeneratorType):
+        connected_components = list(connected_components)
     if len(connected_components) == 1:
         sufficient_overlap = True
 
@@ -2829,6 +2832,8 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             key_list = connected_components
             # Summary graph - here we just graph the connected bits
             Hs = nx.connected_component_subgraphs(G)
+            if isinstance(Hs, types.GeneratorType):
+                Hs = list(Hs)
             G_new = nx.Graph()
             # Add nodes (no edges this time)
             G_new.add_nodes_from(Hs)
@@ -3666,7 +3671,10 @@ def _tree_contains(taxon,tree):
     """
 
     taxon = taxon.replace(" ","_")
-    tree = _parse_tree(tree) 
+    try:
+        tree = _parse_tree(tree) 
+    except TreeParseError:
+        return False
     terminals = tree.getAllLeafNames(tree.root)
     # p4 strips off ', so we need to do so for the input taxon
     taxon = taxon.replace("'","")
@@ -3852,8 +3860,12 @@ def _collapse_nodes(in_tree):
         taxon, denoted by taxon1, taxon2, etc
     """
 
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)   
-    tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)  
+    try:
+        tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
+    except TreeParseError:
+        tree = ""
+        return tree
     taxa = tree.getAllLeafNames(0)
     
     for t in taxa:
@@ -3885,7 +3897,10 @@ def _collapse_nodes(in_tree):
 def _remove_single_poly_taxa(tree):
     """ Count the numbers after % in taxa names """
 
-    taxa = _getTaxaFromNewick(tree)
+    try:
+        taxa = _getTaxaFromNewick(tree)
+    except TreeParseError:
+        return tree
 
     numbers = {}
     for t in taxa:

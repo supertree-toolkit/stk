@@ -50,16 +50,16 @@
 
   <!-- Add STK data to bundle -->
 
-  <data dest="${bundle}/Contents/share/schemata/stk/phylo_storage.rng">
+  <data dest="${bundle}/Contents/schema/phylo_storage.rng">
     ${project}/../schema/phylo_storage.rng
   </data>
-  <data dest="${bundle}/Contents/share/schemata/stk/analyses.rng">
+  <data dest="${bundle}/Contents/schema/analyses.rng">
     ${project}/../schema/analyses.rng
   </data>  
-  <data dest="${bundle}/Contents/share/schemata/stk/characters.rng">
+  <data dest="${bundle}/Contents/schema/characters.rng">
     ${project}/../schema/characters.rng
   </data>  
-  <data dest="${bundle}/Contents/Resources">
+  <data dest="${bundle}/Contents/">
     ${project}/../stk_gui/gui/gui.glade
   </data>
   <data dest="${bundle}/Contents/Resources/lib/python2.7/site-packages/plugins">

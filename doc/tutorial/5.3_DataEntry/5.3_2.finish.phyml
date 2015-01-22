@@ -67,10 +67,10 @@
           </editors>
         </in_book>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="Ahyong_etal_2009_1">
         <tree>
           <tree_string>
-            <string_value lines="1">((Lauridromia_dehaani, Paromola_japonica), ((Blepharipoda_occidentalis, (Emerita_emeritus, Lepidopa_californica)), (Xylocheles_macrops, ((Bythiopagurus_macrocolus, ((Discorsopagurus_schmitti, (Oedignathus_inermis, Lithodes_santolla)), (Pagurus_bernhardus, Pagurus_longicarpus))), ((Trizocheles_spinosus, (Sympagurus_dimorphus, Parapagurus_latimanus)), ((Lomis_hirta, (Kiwa_hirsuta, (Pseudomunida_fragilis, (Eumunida_sternomaculata, ((Chirostylus_novaecaledoniae, Gastroptychus_novaezelandiae), (Uroptychus_nitidus, Uroptychus_scambus)))))), (Aegla_uruguayana, Aegla_violacea))))), (Clibanarius_albidigitus, Isocheles_pilosus, (Coenobita_compressa, Calcinus_obscurus)), ((Leiogalathea_laevirostris, (Shinkaia_crosnieri, (Munidopsis_bairdii, Galacantha_rostrata))), ((Sadayoshia_sp., ((Agononida_longipes, Agononida_procera), ((Munida_gregaria, Cervimunida_johni), (Munida_quadrispina, Pleuroncodes_monodon)))), ((Galathea_sp., Allogalathea_elegans), (Porcellanella_triloba, (Pachycheles_rudis, Petrolisthes_armatus)))))));</string_value>
+            <string_value lines="1">((Lauridromia_dehaani, Paromola_japonica), ((Blepharipoda_occidentalis, (Emerita_emeritus, Lepidopa_californica)), (Xylocheles_macrops, ((Bythiopagurus_macrocolus, ((Discorsopagurus_schmitti, (Oedignathus_inermis, Lithodes_santolla)), (Pagurus_bernhardus, Pagurus_longicarpus))), ((Trizocheles_spinosus, (Sympagurus_dimorphus, Parapagurus_latimanus)), ((Lomis_hirta, (Kiwa_hirsuta, (Pseudomunida_fragilis, (Eumunida_sternomaculata, ((Chirostylus_novaecaledoniae, Gastroptychus_novaezelandiae), (Uroptychus_nitidus, Uroptychus_scambus)))))), (Aegla_uruguyana, Aegla_violacea))))), (Clibanarius_albidigitus, Isocheles_pilosus, (Coenobita_compressa, Calcinus_obscurus)), ((Leiogalathea_laevirostris, (Shinkaia_crosnieri, (Munidopsis_bairdii, Galacantha_rostrata))), ((Sadayoshia_sp., ((Agononida_longipes, Agononida_procera), ((Munida_gregaria, Cervimunida_johni), (Munida_quadrispina, Pleuroncodes_monodon)))), ((Galathea_sp., Allogalathea_elegans), (Porcellanella_triloba, (Pachycheles_rudis, Petrolisthes_armatus)))))));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -99,7 +99,7 @@
           <character type="molecular" name="28S"/>
         </character_data>
       </source_tree>
-      <source_tree>
+      <source_tree name="Ahyong_etal_2009_2">
         <tree>
           <tree_string>
             <string_value lines="1">(Lauridromia_dehaani, Paromola_japonica, ((Blepharipoda_occidentalis, (Emerita_emeritus, Lepidopa_californica)), ((Xylocheles_macrops, (Bythiopagurus_macrocolus, ((Discorsopagurus_schmitti, (Oedignathus_inermis, Lithodes_santolla)), (Pagurus_bernhardus, Pagurus_longicarpus)))), ((((Trizocheles_spinosus, (Sympagurus_dimorphus, Parapagurus_latimanus)), (Lomis_hirta, (Aegla_uruguayana, Aegla_violacea))), (Pseudomunida_fragilis, (Kiwa_hirsuta, (Eumunida_sternomaculata, (Chirostylus_novaecaledoniae, (Gastroptychus_novaezelandiae, (Uroptychus_nitidus, Uroptychus_scambus))))))), ((Coenobita_compressa, (Clibanarius_albidigitus, (Isocheles_pilosus, Calcinus_obscurus))), ((Leiogalathea_laevirostris, (Munidopsis_bairdii, (Galacantha_rostrata, Shinkaia_crosnieri))), ((Sadayoshia_sp., ((Agononida_longipes, Agononida_procera), ((Munida_gregaria, Cervimunida_johni), (Munida_quadrispina, Pleuroncodes_monodon)))), ((Galathea_sp., Allogalathea_elegans), (Porcellanella_triloba, (Pachycheles_rudis, Petrolisthes_armatus))))))))));</string_value>
@@ -170,10 +170,10 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="boyko_harvey_2009_1">
         <tree>
           <tree_string>
-            <string_value lines="1">(Aegla_uruguayana, (Uroptychus_occidentalis, ((Lomis_hirta, ((Squillalbunea_scutelloides, ((Stemonopa_insignis, (Italialbunea_lutetiana, (Paralbunea_intermedia, ((Leucolepidopa_sunda, ((((Lepidopa_luciae, ((Lepidopa_esposa, (Lepidopa_chilensis, (Lepidopa_dexterae, Lepidopa_venusta, Lepidopa_websteri))), (Lepidopa_mexicana, Lepidopa_wollebaeki))), (Lepidopa_californica, (Lepidopa_haigae, ((Lepidopa_benedicti, Lepidopa_deamae), (Lepidopa_mearnsi, Lepidopa_richmondi))))), (Paraleucolepidopa_distincta, Paraleucolepidopa_myops)), (Austrolepidopa_schmitti, (Austrolepidopa_caledonia, Austrolepidopa_trigonops)))), (Paralbunea_manihinei, (Paralbunea_dayriti, Paralbunea_paradoxa)))))), (Albunea_hahnae, (Albunea_cuisiana, ((Albunea_galapagensis, (Albunea_speciosa, ((Albunea_occulta, (Albunea_elegans, Albunea_steinitzi, ((Albunea_holthuisi, (Albunea_marquisiana, (Albunea_symmysta, Albunea_groeningi))), (Albunea_catherinae, (Albunea_lucasia, Albunea_paretii))))), (Albunea_gibbesii, Albunea_thurstoni)))), (Albunea_bulla, (Albunea_carabus, Albunea_danai)), (Albunea_elioti, Albunea_microps)))))), (Zygopa_michaelis, Zygopa_nortoni))), (Hippa_testudinaria, Emerita_talpoida))), (Galathea_squamifera, ((Blepharipoda_doelloi, Blepharipoda_liberata, Blepharipoda_occidentalis, Blepharipoda_spinosa), (Lophomastix_japonica, (Lophomastix_antiqua, Lophomastix_diomedeae)))));</string_value>
+            <string_value lines="1">(Aegla_uruguyana, (Uroptychus_occidentalis, ((Lomis_hirta, ((Squillalbunea_scutelloides, ((Stemonopa_insignis, (Italialbunea_lutetiana, (Paralbunea_intermedia, ((Leucolepidopa_sunda, ((((Lepidopa_luciae, ((Lepidopa_esposa, (Lepidopa_chilensis, (Lepidopa_dexterae, Lepidopa_venusta, Lepidopa_websteri))), (Lepidopa_mexicana, Lepidopa_wollebaeki))), (Lepidopa_californica, (Lepidopa_haigae, ((Lepidopa_benedicti, Lepidopa_deamae), (Lepidopa_mearnsi, Lepidopa_richmondi))))), (Paraleucolepidopa_distincta, Paraleucolepidopa_myops)), (Austrolepidopa_schmitti, (Austrolepidopa_caledonia, Austrolepidopa_trigonops)))), (Paralbunea_manihinei, (Paralbunea_dayriti, Paralbunea_paradoxa)))))), (Albunea_hahnae, (Albunea_cuisiana, ((Albunea_galapagensis, (Albunea_speciosa, ((Albunea_occulta, (Albunea_elegans, Albunea_steinitzi, ((Albunea_holthuisi, (Albunea_marquisiana, (Albunea_symmysta, Albunea_groeningi))), (Albunea_catherinae, (Albunea_lucasia, Albunea_paretii))))), (Albunea_gibbesii, Albunea_thurstoni)))), (Albunea_bulla, (Albunea_carabus, Albunea_danai)), (Albunea_elioti, Albunea_microps)))))), (Zygopa_michaelis, Zygopa_nortoni))), (Hippa_testudinaria, Emerita_talpoida))), (Galathea_squamifera, ((Blepharipoda_doelloi, Blepharipoda_liberata, Blepharipoda_occidentalis, Blepharipoda_spinosa), (Lophomastix_japonica, (Lophomastix_antiqua, Lophomastix_diomedeae)))));</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -247,7 +247,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="cabezas_etal_2009_1">
         <tree>
           <tree_string>
             <string_value lines="1">(Onconida_alaini, ((Paramunida_granulata, ((Paramunida_pronoe, ((Paramunida_thalie, (Paramunida_pictura, Paramunida_labis)), (Paramunida_luminata, (Paramunida_belone, (Paramunida_salai, Paramunida_lophia))))), (Paramunida_stichas, Paramunida_proxima))), (Plesionida_concava, Plesionida_aliena)));</string_value>
@@ -278,7 +278,7 @@
           <character type="molecular" name="COI"/>
         </character_data>
       </source_tree>
-      <source_tree>
+      <source_tree name="cabezas_etal_2009_2">
         <tree>
           <tree_string>
             <string_value lines="1">(Eumunida_sternomaculata, ((((Munida_mendagnai, (Munida_stia, ((Munida_acantha, (Munida_clinata, ((Munida_leagora, (Munida_taenia, Munida_armilla)), (Munida_distiza, Munida_guttata)))), ((Munida_tyche, (Munida_notata, (Munida_caeli, (Munida_parca, Munida_lailai)))), (Munida_spilota, Munida_proto))))), ((((Munida_zebra, Munida_thoe), (Munida_ommata, (Munida_psylla, Munida_rufiantennulata))), (Munida_tiresias, (Munida_alonsoi, Munida_psamathe))), (Munida_pagesi, (((Munida_rhodonia, Munida_congesta), (Munida_compressa, Munida_rubridigitalis)), (Munida_eclepsis, (Munida_militaris, Munida_rosula)))))), (Munida_gordoae, Munida_leptosyne)), (Munida_rugosa, (Munida_devestiva, (Munida_delicata, Munida_oblongata)))));</string_value>
@@ -308,7 +308,7 @@
           <character type="molecular" name="16S"/>
         </character_data>
       </source_tree>
-      <source_tree>
+      <source_tree name="cabezas_etal_2009_3">
         <tree>
           <tree_string>
             <string_value lines="1">(Crosnierita_dicata, ((Agononida_sphecia, Alainius_crosnieri), (Agononida_incerta, (Agononida_marini, (Agononida_procera, (Agononida_isabelensis, Agononida_similis))))));</string_value>
@@ -386,7 +386,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="cunningham_etal_1992_1">
         <tree>
           <tree_string>
             <string_value lines="1">(Artemia_salina, (((Pagurus_pollicaris, Pagurus_longicarpus%1), ((Labidochirus_splendescens, (Elassochirus_tenuimanus, (Pagurus_bernhardus, Pagurus_acadianus, Pagurus_longicarpus%2))), (Lithodes_aequispinus, Paralithodes_camtschaticus))), (Clibanarius_vittatus, Coenobita_sp.)));</string_value>
@@ -455,7 +455,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="hall_thatje_2009_1">
         <tree>
           <tree_string>
             <string_value lines="1">((Aegla_sp., (Pagurus_bernhardus, Pagurus_hirsutiusculus)), (((Cryptolithodes_sitchensis, Cryptolithodes_typicus), (Phyllolithodes_papillosus, (Lopholithodes_mandtii, (Glyptolithodes_cristatipes, (Paralomis_formosa, Paralomis_spinosissima))), (Neolithodes_brodiei, (Paralithodes_camtschaticus, Paralithodes_brevipes), (Lithodes_confundens, Lithodes_ferox)))), (Oedignathus_inermis, (Hapalogaster_dentata, Hapalogaster_mertensii))));</string_value>
@@ -526,7 +526,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="hiller_werding_2007_1">
         <tree>
           <tree_string>
             <string_value lines="1">(Albuneidae,(Petrolisthes_armatus, (Petrolisthes_edwardsii, Petrolisthes_donadio)));</string_value>
@@ -611,7 +611,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="mantelatto_etal_2006_1">
         <tree>
           <tree_string>
             <string_value lines="1">(((((((Calcinus_obscurus, Gilvossius_setimanus), (Loxopagurus_loxochelis, (Isocheles_wurdemanni, (Isocheles_pilosus, Isocheles_sawayai)))), (Clibanarius_albidigitus, Clibanarius_antillensis)), (Coenobita_compressa, (Petrochirus_diogenes, (Dardanus_insignis, Dardanus_venosus)))), (Paguristes_erythrops, (Paguristes_tortugae, (Paguristes_robustus, Pseudopaguristes_calliopsis)))), ((Lithodes_santolla, (Lithodes_aequispinus, Lithodes_maja)), (Pagurus_brevidactylus, (Pagurus_criniticornis, Pagurus_leptonyx)))), (Pachycheles_laevidactylus, Petrolisthes_armatus));</string_value>
@@ -688,7 +688,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="mclaughlin_etal_2007_1">
         <tree>
           <tree_string>
             <string_value lines="1">(Neoglyphea_inopinata, (Petrolisthes_edwardsii, Petrolisthes_donadio, (Aegla_uruguayana, (Uroptychus_occidentalis, ((Lomis_hirta, ((Squillalbunea_scutelloides, ((Stemonopa_insignis, (Italialbunea_lutetiana, (Paralbunea_intermedia, ((Leucolepidopa_sunda, ((((Lepidopa_luciae, ((Lepidopa_esposa, (Lepidopa_chilensis, (Lepidopa_dexterae, Lepidopa_venusta, Lepidopa_websteri))), (Lepidopa_mexicana, Lepidopa_wollebaeki))), (Lepidopa_californica, (Lepidopa_haigae, ((Lepidopa_benedicti, Lepidopa_deamae), (Lepidopa_mearnsi, Lepidopa_richmondi))))), (Paraleucolepidopa_distincta, Paraleucolepidopa_myops)), (Austrolepidopa_schmitti, (Austrolepidopa_caledonia, Austrolepidopa_trigonops)))), (Paralbunea_manihinei, (Paralbunea_dayriti, Paralbunea_paradoxa)))))), (Albunea_hahnae, (Albunea_cuisiana, ((Albunea_galapagensis, (Albunea_speciosa, ((Albunea_occulta, (Albunea_elegans, Albunea_steinitzi, ((Albunea_holthuisi, (Albunea_marquisiana, (Albunea_symmysta, Albunea_groeningi))), (Albunea_catherinae, (Albunea_lucasia, Albunea_paretii))))), (Albunea_gibbesii, Albunea_thurstoni)))), (Albunea_bulla, (Albunea_carabus, Albunea_danai)), (Albunea_elioti, Albunea_microps)))))), (Zygopa_michaelis, Zygopa_nortoni))), (Hippa_testudinaria, Emerita_talpoida))), (Galathea_squamifera, ((Blepharipoda_doelloi, Blepharipoda_liberata, Blepharipoda_occidentalis, Blepharipoda_spinosa), (Lophomastix_japonica, (Lophomastix_antiqua, Lophomastix_diomedeae)))))));</string_value>
@@ -789,12 +789,11 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="morrison_etal_2002_1">
         <tree>
           <tree_string>
             <string_value lines="1">(Procambarus_clarkii, ((((((Aegla_uruguayana, Lomis_hirta), ((Eumunida_sternomaculata, Munida_quadrispina), (Pachycheles_rudis, Petrolisthes_armatus))), (((Isocheles_pilosus, (Clibanarius_albidigitus, (Calcinus_obscurus, (Birgus_latro, Coenobita_compressa)))), (Paguristes_turgidus, (Pagurus_longicarpus, (Cryptolithodes_typicus, Discorsopagurus_schmitti)))), (Blepharipoda_occidentalis, (Emerita_analoga, Lepidopa)))), (Upogebia_affinis, (Jaxea_nocturna, Panulirus_argus))), (Hepatus_epheliticus, Raninoides_louisianensis)), (Callichirus_major, Neotrypaea_californiensis)));</string_value>
-            <comment>Has a genus level taxon in: Lepidopa.
-</comment>
+            <comment>Has a genus level taxon in: Lepidopa.</comment>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -871,10 +870,10 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="porter_etal_2005_1">
         <tree>
           <tree_string>
-            <string_value lines="1">((((((((((((Astacus_astacus, Pacifastacus_leniusculus), Cambaroides_japonicus), ((Orconectes_virilis, Cambarus_maculatus), Cambarellus_shufeldtii)), (Astacopsis_gouldi, Cherax_glaber)), ((((Homarus_gammarus, Homarus_americanus), Nephrops_norvegicus), Nephropsis_aculeata), Acanthacaris_caeca)), (((Lepidophthalmus_louisianensis, Sergio_guassutinga), Callichirus_major), (Callianassa_subterranea, Biffarius_arenosus))), ((Panulirus_regius, Scyllarus_arctus), Jasus_edwardsii)), ((((Munida_gregaria, Uroptychus_parvulus), Lithodes_santolla), (Lomis_hirta, Aegla_abtao)), Emerita_brasiliensis)), ((((Pachygrapsus_marmoratus, Geothelphusa_sp.), Cancer_pagurus), (Carcinus_maenas, Necora_puber)), Maja_squinado)), ((((((Macrobrachium_sp., Macrobrachium_potiuna), Cryphiops_caementarius), Creaseria_morleyi), (Palaemonetes_paludosus, Macrobrachium_sintangense)), (Lysmata_debelius, Lysmata_wurdemanni)), (Atyoida_bisulcata, Typhlatya_pearsei))), Stenopus_hispidus), Penaeus_semisulcatus);</string_value>
+            <string_value lines="1">((((((((((((Astacus_astacus, Pacifastacus_leniusculus), Cambaroides_japonicus), ((Orconectes_virilis, Cambarus_maculatus), Cambarellus_shufeldtii)), (Astacopsis_gouldi, Cherax_glaber)), ((((Homarus_gammarus, Homarus_americanus), Nephrops_norvegicus), Nephropsis_aculeata), Acanthacaris_caeca)), (((Lepidophthalmus_louisianensis, Sergio_guassutinga), Callichirus_major), (Callianassa_subterranea, Biffarius_arenosus))), ((Panulirus_regius, Scyllarus_arctus), Jasus_edwardsii)), ((((Munida_gregaria, Uroptychus_parvulus), Lithodes_santolla), (Lomis_hirta, Aeglidae)), Emerita_brasiliensis)), ((((Pachygrapsus_marmoratus, Geothelphusa_sp.), Cancer_pagurus), (Carcinus_maenas, Necora_puber)), Maja_squinado)), ((((((Macrobrachium_sp., Macrobrachium_potiuna), Cryphiops_caementarius), Creaseria_morleyi), (Palaemonetes_paludosus, Macrobrachium_sintangense)), (Lysmata_debelius, Lysmata_wurdemanni)), (Atyoida_bisulcata, Typhlatya_pearsei))), Stenopus_hispidus), Penaeus_semisulcatus);</string_value>
           </tree_string>
           <figure_legend>
             <string_value lines="1">NA</string_value>
@@ -959,7 +958,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="tirelli_etal_2010_1">
         <tree>
           <tree_string>
             <string_value lines="1">(Pagurus_bernhardus, (((((Calcinus_gaimardii, Calcinus_laevimanus, Calcinus_minutus, Calcinus_tubularis), Strigopagurus_boreonotus, Loxopagurus_loxochelis), ((((Dardanus_arrosor, Dardanus_crassimanus, Dardanus_lagopodes), Dardanus_scutellatus), (Diogenes_pallescens, Diogenes_custos)), Diogenes_pugilator, Cancellus_sp.)), Paguristes_eremita), (((Clibanarius_corallinus, Clibanarius_longitarsus, Clibanarius_taeniatus, Clibanarius_virescens), Clibanarius_erythropus), Clibanarius_vittatus)));</string_value>
@@ -1052,7 +1051,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="tsang_etal_2008_1">
         <tree>
           <tree_string>
             <string_value lines="1">((Sergia_maxima, ((Solenocera_melantho, Aristeus_virilis), (Sicyonia_lancifer, Penaeus_monodon))), ((((((Plesionika_hsuehyui, Heterocarpus_gibbosus), Glyphocrangon_perplexa), (Macrobrachium_rosenbergii, (Gnathophyllum_americanum, Hymenocera_picta))), (Acanthephyra_eximia, Rhynchocinetes_durbanensis)), Stenopus_hispidus), (((((Calastacus_crosnieri, Eiconaxius_indica), Calaxius_manningi), Calocarides_chani), (((Procambarus_clarkii, Cherax_quadricarinatus), (((Nephropsis_stewarti, Nephropides_caribaeus), (Thaumastocheles_dochmiodon, Homarus_gammarus)), Enoplometopus_debelius)), (((((Panulirus_versicolor, Panulirus_polyphagus), Panulirus_longipes), ((Linuparus_trigonus, Nupalirus_japonicus), (Puerulus_angulatus, Palinurus_elephas))), ((Jasus_edwardsii, Projasus_bahamondei), (Eduarctus_martensii, Ibacus_novemdentatus))), Polycheles_amemiyai))), (Austinogebia_edulis, (Thalassina_anomala, (((((((Paramunida_scabra, Munida_albiapicula), Petrolisthes_japonicus), Xylocheles_macrops), ((((Coenobita_violascens, Coenobita_rugosus), Dardanus_impressus), Paguristes_seminudus), (Propagurus_obtusifrons, (Pagurodofleinia_doederleini, Neolithodes_nipponensis)))), Lomis_hirta), Albunea_holthuisi), (((Eplumula_phalangium, Ranina_ranina), (Conchoecetes_artificiosus, Lauridromia_dehaani)), ((((((((Anatolikos_japonicus, Paradorippe_granulata), Carcinoplax_longimana), (Ovalipes_punctatus, Tokoyo_eburnea)), Calappa_philargius), Cryptopodia_fornicata), (Platymaia_remifera, Pugettia_nipponensis)), Jonas_distinctus), ((Eriocheir_japonica, Mictyris_longicarpus), Uca_crassipes)))))))));</string_value>
@@ -1138,7 +1137,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="tsang_etal_2011_1">
         <tree>
           <tree_string>
             <string_value lines="1">(((((((((((Lithodes_turritus, (Paralomis_arae, Paralomis_dofleini)), Neolithodes_nipponensis), ((Pagurus_sp., Pagurus_angustus), (Pagurodofleinia_doederleini, Pagurus_bernhardus))), (Icelopagurus_crosnieri, (Spiropagurus_profundorum, Propagurus_obtusifrons))), Michelopagurus_limatulus), ((((Coenobita_rugosus, Coenobita_violascens), (Clibanarius_virescens, (Clibanarius_humilis, Clibanarius_englaucus))), Calcinus_laevimanus), (Dardanus_setifer, Dardanus_impressus))), ((Trizocheles_sakaii, Trizocheles_brachyops), ((((Paragiopagurus_ventilatus, (Paragiopagurus_acutus, Oncopagurus_orientalis)), Paragiopagurus_boletifer), (Sympagurus_burkenroadi, Strobopagurus_gracilipes)), (((Aegla_alacalufi, Aegla_neuquensis), Lomis_hirta), ((Eumunida_funambulus, Kiwa_hirsuta), Uroptychodes_grandirostris))))), ((((Cervimunida_princeps, (Paramunida_tricarinata, Munida_albiapicula)), (Shinkaia_crosnieri, Munidopsis_formosa)), ((Petrolisthes_japonicus, Neopetrolisthes_maculatus), Novorostrum_indicum)), (Xylocheles_macrops, Pylocheles_mortensenii))), (Hippa_adactyla, Albunea_occulta)), ((Anatolikos_japonicus, Eriocheir_japonica), Conchoecetes_artificiosus)), Austinogebia_edulis);</string_value>
@@ -1219,7 +1218,7 @@
           </pages>
         </article>
       </bibliographic_information>
-      <source_tree>
+      <source_tree name="werding_etal_2001_1">
         <tree>
           <tree_string>
             <string_value lines="1">(((((Porcellana_platycheles, (Neopisosoma_angustifrons, Pachycheles_serratus)), (Clastotoechus_nodosus, Clastotoechus_vanderhorsti)), ((Neopisosoma_neglectum, (Petrolisthes_magdalenensis, (Petrolisthes_jugosus, Petrolisthes_cinctipes))), Petrolisthes_tonsorius)), Petrolisthes_galathinus), Pagurus_longicarpus);</string_value>

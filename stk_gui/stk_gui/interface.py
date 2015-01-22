@@ -1036,6 +1036,7 @@ class Diamond:
             return
         except:
             msg = "Failed to summarise data. Sorry!\n"
+            msg += traceback.format_exc()
             dialogs.error_tb(self.main_window,msg)
             return
 
@@ -1127,8 +1128,8 @@ class Diamond:
             dialogs.error(self.main_window,msg)
             return
         except:
-            msg = "Failed to calculate overlap due to unknown error. Check the console output.\n"+detail.msg
-            traceback.print_exc()         
+            msg = "Failed to calculate overlap due to unknown error.\n"
+            msg += traceback.format_exc()         
             dialogs.error(self.main_window,msg)
             return
 
@@ -1170,8 +1171,8 @@ class Diamond:
             dialogs.error(self.main_window,msg)
             return
         except:
-            msg = "Failed to calculate overlap due to unknown error. Check the console output.\n"+detail.msg
-            traceback.print_exc()         
+            msg = "Failed to calculate overlap due to unknown error.\n"
+            msg += traceback.format_exc()         
             dialogs.error(self.main_window,msg)
             return
 
@@ -1299,8 +1300,8 @@ class Diamond:
         dialogs.error(self.main_window,msg)
         return 
     except:
-        msg = "Failed to check data independence. Probably due to incomplete data, but check the console output\n"
-        traceback.print_exc() 
+        msg = "Failed to check data independence. Probably due to incomplete data, but possibly a bug.\n"
+        msg += traceback.format_exc() 
         dialogs.error_tb(self.main_window,msg)
         return
 
@@ -1735,8 +1736,8 @@ class Diamond:
         dialogs.error(self.main_window,msg)
         return 
     except:
-        msg = "Failed to create matrix due to an unknown error. Check the console output"
-        traceback.print_exc() 
+        msg = "Failed to create matrix due to an unknown error.\n"
+        msg += traceback.format_exc() 
         dialogs.error(self.main_window,msg)
         return 
 
@@ -1835,8 +1836,8 @@ class Diamond:
         dialogs.error(self.main_window,msg)
         return 
     except:
-        msg = "Failed to export data due to an unknown error. Check the console output"
-        traceback.print_exc()         
+        msg = "Failed to export data due to an unknown error."
+        msg += traceback.format_exc()         
         dialogs.error(self.main_window,msg)
         return 
     
@@ -2310,7 +2311,7 @@ class Diamond:
         dialogs.error(self.main_window,msg)
         return 
     except:
-        msg = "Failed to substitute taxa due to an unknown error. Possibly a bug. PLease report on Launchpad."
+        msg = "Failed to substitute taxa due to an unknown error. Possibly a bug. Please report on Launchpad."
         msg += "\n" + traceback.format_exc()
         dialogs.error(self.main_window,msg)
         return 
@@ -2380,7 +2381,7 @@ class Diamond:
             dialogs.error_tb(self.main_window,"Sorry, completely failed.\n")
             return
      except:
-         dialogs.error_tb(self.main_window,"Error importing bib file\n")
+         dialogs.error_tb(self.main_window,"Error importing bib file. Check you bibtex file.\n")
          return
      
      try:

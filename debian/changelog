@@ -1,4 +1,22 @@
-supertree-toolkit (12) precise; urgency=low
+supertree-toolkit (2.14) precise; urgency=medium
+
+  * New funcitonality to create matrix from trees via command line
+  * New tutorial material based on workshop
+  * Minor bug fixes 
+
+ -- Jon Hill <jh1889@tethys>  Thu, 18 Dec 2014 10:05:08 +0000
+
+supertree-toolkit (2.13) precise; urgency=low
+
+  * Trees now have names to make it easier to identify
+  * Clearer error messages when parsing trees
+  * A number of minor bug fixes
+  * Fixes to import and export trees
+  * Fixes to the mac port to allow command line interaction
+
+ -- Jon Hill <jon.hill@york.ac.uk>  Wed, 03 Dec 2014 08:14:13 +0000
+
+supertree-toolkit (2.12) precise; urgency=low
 
   * Bug fixes to substitutions
   * New option on subs to match taxa at genera level
