@@ -13,6 +13,7 @@ from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str,
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
 from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used, _trees_equal, get_weights
 from stk.supertree_toolkit import get_outgroup, set_all_tree_names, create_tree_name, taxonomic_checker, load_taxonomy, load_equivalents
+from stk.supertree_toolkit import create_taxonomy, create_taxonomy_from_tree
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -561,10 +562,10 @@ class TestSTK(unittest.TestCase):
     def test_create_taxonomy(self):
         XML = etree.tostring(etree.parse('data/input/create_taxonomy.phyml',parser),pretty_print=True)
         expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'},
-                    'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'subkingdom': 'Bilateria', 'subclass': 'Neoloricata', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'suborder': 'Ischnochitonina', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Egretta', 'order': 'Pelecaniformes', 'species': 'Egretta tricolor'}, 
-                    'Gallus gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Gallus', 'order': 'Galliformes', 'species': 'Gallus gallus'}, 
-                    'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'infraphylum': 'Gnathostomata', 'superclass': 'Tetrapoda', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'order': 'Procellariiformes', 'species': 'Thalassarche melanophris'},
-                    'Jeletzkytes criptonodosus': {'kingdom': 'Metazoa', 'family': 'Scaphitidae', 'order': 'Ammonoidea', 'phylum': 'Mollusca', 'provider': 'PBDB', 'species': 'Jeletzkytes criptonodosus', 'class': 'Cephalopoda'}}
+                    'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Egretta tricolor', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 
+                    'Gallus gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Gallus gallus', 'genus': 'Gallus', 'order': 'Galliformes'}, 
+                    'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Thalassarche melanophris', 'genus': 'Thalassarche', 'order': 'Procellariiformes'},
+                    'Jeletzkytes criptonodosus': {'superfamily': 'Scaphitoidea', 'family': 'Scaphitidae', 'subkingdom': 'Metazoa', 'subclass': 'Ammonoidea', 'species': 'Jeletzkytes criptonodosus', 'phylum': 'Mollusca', 'suborder': 'Ancyloceratina', 'provider': 'Paleobiology Database', 'genus': 'Jeletzkytes', 'class': 'Cephalopoda'}}
         if (internet_on()):
             taxonomy = create_taxonomy(XML)
             self.maxDiff = None
@@ -589,7 +590,7 @@ class TestSTK(unittest.TestCase):
         return
     
     def test_taxonomy_checker(self):
-        expected = {'Thalassarche_melanophrys': [['Thalassarche_melanophris', 'Thalassarche_melanophrys', 'Diomedea_melanophris', 'Thalassarche_[melanophrys', 'Diomedea_melanophrys'], 'yellow'], 'Egretta_tricolor': [['Egretta_tricolor'], 'green'], 'Gallus_gallus': [['Gallus_gallus'], 'green']}
+        expected = {'Thalassarche_melanophrys': [['Thalassarche_melanophris', 'Thalassarche_melanophrys', 'Diomedea_melanophris', 'Thalassarche_[melanophrys', 'Diomedea_melanophrys'], 'amber'], 'Egretta_tricolor': [['Egretta_tricolor'], 'green'], 'Gallus_gallus': [['Gallus_gallus'], 'green']}
         XML = etree.tostring(etree.parse('data/input/check_taxonomy.phyml',parser),pretty_print=True)
         if (internet_on()):
             equivs = taxonomic_checker(XML)

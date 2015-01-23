@@ -1583,7 +1583,7 @@ def get_outgroup(XML):
     return outgroups
 
 
-def create_matrix(XML,format="hennig",quote=False,taxonomy=None,outgroups=False,ignoreWarnings=False):
+def create_matrix(XML,format="hennig",quote=False,taxonomy=None,outgroups=False,ignoreWarnings=False, verbose=False):
     """ From all trees in the XML, create a matrix
     """
 
@@ -1628,7 +1628,7 @@ def create_matrix(XML,format="hennig",quote=False,taxonomy=None,outgroups=False,
         taxa.sort()
     taxa.insert(0,"MRP_Outgroup")
         
-    return _create_matrix(trees, taxa, format=format, quote=quote, weights=weights)
+    return _create_matrix(trees, taxa, format=format, quote=quote, weights=weights,verbose=verbose)
 
 
 def create_matrix_from_trees(trees,format="hennig"):
@@ -2327,7 +2327,6 @@ class TaxonomyFetcher(threading.Thread):
                                         temp_lev = pbdb_lev.split(" ")
                                         # they might have the author on the end, so strip it off
                                         if (level == 'species'):
-                                            print temp_lev, '_'.join(temp_lev[0:2])
                                             this_taxonomy[level] = ' '.join(temp_lev[0:2])
                                         else:
                                             this_taxonomy[level] = temp_lev[0]       
@@ -2394,7 +2393,6 @@ class TaxonomyFetcher(threading.Thread):
                                     temp_name = temp_name.split(" ")
                                     if (temp_level == 'species'):
                                         this_taxonomy[temp_level] = temp_name[0:2]
-                                        print temp_name, '_'.join(temp_name[0:2])
                                         
                                     else:
                                         this_taxonomy[temp_level] = temp_name[0]  
@@ -2586,7 +2584,7 @@ def create_extended_taxonomy(taxonomy, starttime, verbose=False, ignoreWarnings=
         for level in data['hierarchyList']:
             if not level['rankName'].lower() in current_taxonomy_levels:
                 # note the dump into ASCII            
-                if level.lower() == 'species':
+                if level['rankName'].lower() == 'species':
                     this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = ' '.join.level['taxonName'][0:2].encode("ascii","ignore")
                 else:
                     this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
@@ -2752,7 +2750,6 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
 
     # The above list actually contains which components are seperate from each other
     key_list = connected_components
-    print key_list
 
     if (not filename == None or show):
         if (verbose):
@@ -3189,8 +3186,6 @@ def parse_subs_file(filename):
         n_t = n_t.replace(" ","_")
         new_taxa.append(n_t.strip())
 
-    print old_taxa, new_taxa
-
     if (len(old_taxa) != len(new_taxa)):
         raise UnableToParseSubsFile("Output arrays are not same length. File incorrectly formatted")
     if (len(old_taxa) == 0):
@@ -3581,7 +3576,7 @@ def _check_uniqueness(XML):
     return
 
 
-def _assemble_tree_matrix(tree_string):
+def _assemble_tree_matrix(tree_string, verbose=False):
     """ Assembles the MRP matrix for an individual tree
 
         returns: matrix (2D numpy array: taxa on i, nodes on j)
@@ -3609,7 +3604,7 @@ def _assemble_tree_matrix(tree_string):
         for i in range(0,len(names)):
             adjmat.append([1])
         adjmat = numpy.array(adjmat)
-
+    if verbose:
         print "Warning: Found uninformative tree in data. Including it in the matrix anyway"
 
     return adjmat, names
@@ -4164,7 +4159,7 @@ def _find_trees_for_permuting(XML):
 
     return permute_trees
 
-def _create_matrix(trees, taxa, format="hennig", quote=False, weights=None):
+def _create_matrix(trees, taxa, format="hennig", quote=False, weights=None, verbose=False):
     """
     Does the hard work on creating a matrix
     """
@@ -4185,7 +4180,7 @@ def _create_matrix(trees, taxa, format="hennig", quote=False, weights=None):
         if (not weights == None):
             weight = weights[key]
         names.append(key)
-        submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
+        submatrix, tree_taxa = _assemble_tree_matrix(trees[key], verbose=verbose)
         nChars = len(submatrix[0,:])
         # loop over characters in the submatrix
         for i in range(1,nChars):
