@@ -6,7 +6,7 @@ sys.path.insert(0,"../../")
 from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon,_tree_contains
 from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_taxa_from_tree, get_characters_from_tree, amalgamate_trees, _uniquify
 from stk.supertree_toolkit import import_trees, import_tree, _trees_equal, _find_trees_for_permuting, permute_tree, get_all_source_names, _getTaxaFromNewick
-
+from stk.supertree_toolkit import get_mrca
 import os
 from lxml import etree
 from util import *
@@ -208,6 +208,12 @@ class TestImportExportTree(unittest.TestCase):
 
 
 class TestTreeManipulation(unittest.TestCase): 
+
+    
+    def test_get_mrca(self):
+        tree = "(B,(C,(D,(E,((A,F),((I,(G,H)),(J,(K,L))))))));"
+        mrca = get_mrca(tree,["A","I", "L"])
+        self.assert_(mrca == 8)
 
     def test_get_all_trees(self):
         XML = etree.tostring(etree.parse(single_source_input,parser),pretty_print=True)
