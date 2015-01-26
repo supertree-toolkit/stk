@@ -88,17 +88,17 @@ def main():
         saturation=0.25
         value=0.8
 
-    index = 3 # family
+    index = 4 # family
     if (level == "Superfamily"):
-        index = 4
-    elif (level == "Infraorder"):
         index = 5
-    elif (level == "Suborder"):
+    elif (level == "Infraorder"):
         index = 6
-    elif (level == "Order"):
+    elif (level == "Suborder"):
         index = 7
+    elif (level == "Order"):
+        index = 8
     elif (level == "Genus"):
-        index = 2
+        index = 9
 
     if (tree):
         tree_data = stk.import_tree(input_file)
