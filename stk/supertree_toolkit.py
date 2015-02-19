@@ -2852,6 +2852,58 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
 
     return XML
 
+def get_mrca(tree,taxa_list):
+    """Return the node number for the MRCA of the list of given taxa
+       This node number must be used in conjection with a p4 tree object, along
+       the lines of:
+       treeobj = _parse_tree(tree_string)
+       treeobj.node(mrca).parent 
+    """
+
+    # find MRCA of all taxa within this clade, already in the tree
+    node_ids = []
+    # get the nodes of the taxa in question
+    node_id_for_taxa = []
+    treeobj = _parse_tree(tree)
+    for t in taxa_list:
+        node_id_for_taxa.append(treeobj.node(t).nodeNum)
+    # for each, get all parents to root
+    for n in node_id_for_taxa:
+        nodes = []
+        nodes.append(treeobj.node(n).parent.nodeNum)
+        while 1:
+            nn = treeobj.node(nodes[-1]).parent
+            if nn == None:
+                break
+            else:
+                nodes.append(nn.nodeNum)
+        node_ids.append(nodes)
+    # in the shortest list, loop through the values, check they exist in all lists. If it does, 
+    # that node is your MRCA
+    big = sys.maxsize
+    node_ids
+    shortest = 0
+    for n in node_ids:
+        if len(n) < big:
+            big = len(n)
+            shortest = n
+    mrca = -1
+    for s in shortest:
+        found = True
+        for n in node_ids:
+            if not s in n:
+                found = False
+                break # move to next s
+        # if we get here, we have the MRCA
+        if (found):
+            mrca = s
+            break
+    if mrca == -1:
+        # something went wrong!
+        raise InvalidSTKData("Error finding MRCA of: "+" ".join(taxa_list))
+
+    return mrca
+
 ################ PRIVATE FUNCTIONS ########################
 
 def _uniquify(l):
