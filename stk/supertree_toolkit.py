@@ -1991,6 +1991,32 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
 
     return output_string
 
+
+
+def load_taxonomy(taxonomy_csv):
+    """Load in a taxonomy CSV file and convert to taxonomy Dict"""
+    
+    import csv
+
+    taxonomy = {}
+
+    with open(taxonomy_csv, 'rU') as csvfile:
+        tax_reader = csv.reader(csvfile, delimiter=',')
+        tax_reader.next()
+        for row in tax_reader:
+            current_taxonomy = {}
+            i = 1
+            for t in taxonomy_levels:
+                if not row[i] == '-':
+                    current_taxonomy[t] = row[i]
+                i = i+ 1
+
+            current_taxonomy['provider'] = row[17] # data source
+            taxonomy[row[0]] = current_taxonomy
+    
+    return taxonomy
+
+
 def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=False, verbose=False, ignoreWarnings=False):
     """ Calculate the amount of taxonomic overlap between source trees.
     The output is a True/False by default, but you can specify an 

@@ -81,8 +81,6 @@ def get_taxonomy_worms(taxonomy, start_otu):
             classification = wsdlObjectWoRMS.getAphiaClassificationByID(ID)
             taxon = this_item.scientificname
             if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
-                print "Looking up ", taxon
-
                 # construct array
                 tax_array = {}
                 # classification is a nested dictionary, so we need to iterate down it
@@ -152,6 +150,10 @@ def main():
             help='Use a downloaded taxonomy database from the chosen database, rather than online. Much quicker for large datasets. Give the filename',
             )
     parser.add_argument(
+            '--tree_taxonomy',
+            help="Supply a STK taxonomy file for taxa in the tree. If not, one will be created from the database being used here."
+            )
+    parser.add_argument(
             'top_level', 
             nargs=1,
             help="The top level group to look in, e.g. Arthropoda, Decapoda. Must match the database."
@@ -175,6 +177,7 @@ def main():
     output_file = args.output_file[0]
     top_level = args.top_level[0]
     save_taxonomy_file = args.save_taxonomy
+    tree_taxonomy = args.tree_taxonomy
     pref_db = args.pref_db
     if (save_taxonomy_file == None):
         save_taxonomy = False
@@ -184,7 +187,6 @@ def main():
     # grab taxa in tree
     tree = stk.import_tree(input_file)
     taxa_list = stk._getTaxaFromNewick(tree)
-    print len(taxa_list)
 
     taxonomy = {}
 
@@ -201,12 +203,14 @@ def main():
         pass
     elif (pref_db == 'worms'):
         # get tree taxonomy from worms
-        tree_taxonomy = {}
-        for t in taxa_list:
-            from SOAPpy import WSDL    
-            wsdlObjectWoRMS = WSDL.Proxy('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
-            tree_taxonomy[t] = get_tree_taxa_taxonomy(t,wsdlObjectWoRMS)
-        print tree_taxonomy
+        if (tree_taxonomy == None):
+            tree_taxonomy = {}
+            for t in taxa_list:
+                from SOAPpy import WSDL    
+                wsdlObjectWoRMS = WSDL.Proxy('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
+                tree_taxonomy[t] = get_tree_taxa_taxonomy(t,wsdlObjectWoRMS)
+        else:
+            tree_taxonomy = stk.load_taxonomy(tree_taxonomy)
         # get taxonomy from worms
         taxonomy, start_level = get_taxonomy_worms(taxonomy,top_level)
 
@@ -223,84 +227,146 @@ def main():
         taxon = taxon.replace('_',' ')        
         del taxonomy[taxon]
 
-    # stick stuff on according to genus - remember to delete as we go!
-    # grab unique genera from taxonomy
-    genera = []
-    for t in taxonomy:
-        # some have odd data, so skip - we've assumed complete taxonomy...
-        if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
-            genera.append(taxonomy[t]['genus'])
-    genera = _uniquify(genera)
-    for g in genera:
-        # now we find all taxa in this genus
-        taxa_to_add = []
-        taxa_in_clade = []
+    # step up the taxonomy levels from genus, adding taxa to the correct node
+    # as a polytomy
+    for level in taxonomy_levels[1::]: # skip species....
+        new_taxa = []
         for t in taxonomy:
+            # skip odd ones that should be in there
             if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
-                if taxonomy[t]['genus'] == g:
-                    taxa_to_add.append(t.replace(' ','_'))
-        # clean up taxonomy
-        for t in taxa_list:
-            if t.startswith(g+"_"):
-                taxa_in_clade.append(t)
-        if len(taxa_in_clade) > 0:
-            tree = add_taxa(tree, taxa_to_add, taxa_in_clade)
-            for t in taxa_to_add:
-                del taxonomy[t.replace('_',' ')]
+                try:
+                    new_taxa.append(taxonomy[t][level])
+                except KeyError:
+                    continue # don't have this info
+        new_taxa = _uniquify(new_taxa)
+        for nt in new_taxa:
+            taxa_to_add = []
+            taxa_in_clade = []
+            for t in taxonomy:
+                if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
+                    try:
+                        if taxonomy[t][level] == nt:
+                            taxa_to_add.append(t.replace(' ','_'))
+                    except KeyError:
+                        continue
+            # add to tree
+            for t in taxa_list:
+                if level in tree_taxonomy[t] and tree_taxonomy[t][level] == nt:
+                    taxa_in_clade.append(t)
+            if len(taxa_in_clade) > 0:
+                tree = add_taxa(tree, taxa_to_add, taxa_in_clade)
+                for t in taxa_to_add: # clean up taxonomy
+                    del taxonomy[t.replace('_',' ')]
 
-    # stick stuff on according to family - remember to delete as we go!
-    # grab unique families  from taxonomy
-    families = []
-    for t in taxonomy:
-        # some have odd data, so skip - we've assumed complete taxonomy...
-        if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
-            families.append(taxonomy[t]['family'])
-    families = _uniquify(families)
-    for f in families:
-        # now we find all taxa in this family
-        taxa_to_add = []
-        taxa_in_clade = []
-        for t in taxonomy:
-            if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
-                if taxonomy[t]['family'] == f:
-                    taxa_to_add.append(t.replace(' ','_'))
-        # clean up taxonomy
-        for t in taxa_list:
-            if 'family' in tree_taxonomy[t] and tree_taxonomy[t]['family'] == f:
-                taxa_in_clade.append(t)
-        if len(taxa_in_clade) > 0:
-            tree = add_taxa(tree, taxa_to_add, taxa_in_clade)
-            for t in taxa_to_add:
-                del taxonomy[t.replace('_',' ')]
 
-    # stick stuff on according to superfamily - remember to delete as we go!
-    # grab unique superfamilies  from taxonomy
-    families = []
-    for t in taxonomy:
-        # some have odd data, so skip - we've assumed complete taxonomy...
-        if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
-            families.append(taxonomy[t]['superfamily'])
-    families = _uniquify(families)
-    for f in families:
-        # now we find all taxa in this genus
-        taxa_to_add = []
-        taxa_in_clade = []
-        for t in taxonomy:
-            if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
-                if taxonomy[t]['superfamily'] == f:
-                    taxa_to_add.append(t.replace(' ','_'))
-        # clean up taxonomy
-        for t in taxa_list:
-            if 'superfamily' in tree_taxonomy[t] and  tree_taxonomy[t]['superfamily'] == f:
-                taxa_in_clade.append(t)
-        if len(taxa_in_clade) > 0:
-            tree = add_taxa(tree, taxa_to_add, taxa_in_clade)
-            for t in taxa_to_add:
-                del taxonomy[t.replace('_',' ')]
+    trees = {}
+    trees['tree_1'] = tree
+    output = stk._amalgamate_trees(trees,format='nexus')
+    f = open(output_file, "w")
+    f.write(output)
+    f.close()
 
-    print tree
-    print taxonomy
+    if not save_taxonomy_file == None:
+        with open(save_taxonomy_file, 'w') as f:
+            writer = csv.writer(f)
+            headers = []
+            headers.append("OTU")
+            headers.extend(taxonomy_levels)
+            headers.append("Data source")
+            writer.writerow(headers)
+            for t in taxonomy:
+                otu = t
+                try:
+                    species = taxonomy[t]['species']
+                except KeyError:
+                    species = "-"
+                try:
+                    genus = taxonomy[t]['genus']
+                except KeyError:
+                    genus = "-"
+                try:
+                    family = taxonomy[t]['family']
+                except KeyError:
+                    family = "-"
+                try:
+                    superfamily = taxonomy[t]['superfamily']
+                except KeyError:
+                    superfamily = "-"
+                try:
+                    infraorder = taxonomy[t]['infraorder']
+                except KeyError:
+                    infraorder = "-"
+                try:
+                    suborder = taxonomy[t]['suborder']
+                except KeyError:
+                    suborder = "-"
+                try:
+                    order = taxonomy[t]['order']
+                except KeyError:
+                    order = "-"
+                try:
+                    superorder = taxonomy[t]['superorder']
+                except KeyError:
+                    superorder = "-"
+                try:
+                    subclass = taxonomy[t]['subclass']
+                except KeyError:
+                    subclass = "-"
+                try:
+                    tclass = taxonomy[t]['class']
+                except KeyError:
+                    tclass = "-"
+                try:
+                    subphylum = taxonomy[t]['subphylum']
+                except KeyError:
+                    subphylum = "-"
+                try:
+                    phylum = taxonomy[t]['phylum']
+                except KeyError:
+                    phylum = "-"
+                try:
+                    superphylum = taxonomy[t]['superphylum']
+                except KeyError:
+                    superphylum = "-"
+                try:
+                    infrakingdom = taxonomy[t]['infrakingdom']
+                except:
+                    infrakingdom = "-"
+                try:
+                    subkingdom = taxonomy[t]['subkingdom']
+                except:
+                    subkingdom = "-"
+                try:
+                    kingdom = taxonomy[t]['kingdom']
+                except KeyError:
+                    kingdom = "-"
+                try:
+                    provider = taxonomy[t]['provider']
+                except KeyError:
+                    provider = "-"
 
+                if (isinstance(species, list)):
+                    species = " ".join(species)
+                this_classification = [
+                        otu.encode('utf-8'),
+                        species.encode('utf-8'),
+                        genus.encode('utf-8'),
+                        family.encode('utf-8'),
+                        superfamily.encode('utf-8'),
+                        infraorder.encode('utf-8'),
+                        suborder.encode('utf-8'),
+                        order.encode('utf-8'),
+                        superorder.encode('utf-8'),
+                        subclass.encode('utf-8'),
+                        tclass.encode('utf-8'),
+                        subphylum.encode('utf-8'),
+                        phylum.encode('utf-8'),
+                        superphylum.encode('utf-8'),
+                        infrakingdom.encode('utf-8'),
+                        subkingdom.encode('utf-8'),
+                        kingdom.encode('utf-8'),
+                        provider.encode('utf-8')]
+                writer.writerow(this_classification)
 
 
 def _uniquify(l):
