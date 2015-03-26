@@ -2065,7 +2065,6 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
 
     return output_string
 
-<<<<<<< TREE
 def taxonomic_checker_list(name_list,existing_data=None,verbose=False):
     """ For each name in the database generate a database of the original name,
     possible synonyms and if the taxon is not know, signal that. We do this by
