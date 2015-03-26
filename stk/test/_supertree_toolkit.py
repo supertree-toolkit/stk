@@ -559,6 +559,7 @@ class TestSTK(unittest.TestCase):
             self.assert_(c in expected_characters)
         self.assert_(len(characters) == len(expected_characters))
 
+<<<<<<< TREE
     def test_create_taxonomy(self):
         XML = etree.tostring(etree.parse('data/input/create_taxonomy.phyml',parser),pretty_print=True)
         expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'},
@@ -613,6 +614,8 @@ class TestSTK(unittest.TestCase):
         return
 
 
+=======
+>>>>>>> MERGE-SOURCE
     def test_load_taxonomy(self):
         csv_file = "data/input/create_taxonomy.csv"
         expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'},
@@ -625,6 +628,7 @@ class TestSTK(unittest.TestCase):
 
         self.assertDictEqual(taxonomy, expected)
 
+<<<<<<< TREE
 
     def test_load_equivalents(self):
         csv_file = "data/input/equivalents.csv"
@@ -637,6 +641,8 @@ class TestSTK(unittest.TestCase):
         self.assertDictEqual(equivalents, expected)
 
 
+=======
+>>>>>>> MERGE-SOURCE
     def test_name_tree(self):
         XML = etree.tostring(etree.parse('data/input/single_source_no_names.phyml',parser),pretty_print=True)
         xml_root = _parse_xml(XML)

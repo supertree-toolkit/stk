@@ -769,7 +769,7 @@ def addNodeBetweenNodes(self, specifier1, specifier2):
     else:
         gm.append("The 2 specified nodes should have a parent-child relationship")
         raise Glitch, gm
-
+    
     if var.usePfAndNumpy:
         self.deleteCStuff()
 
