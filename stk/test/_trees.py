@@ -33,8 +33,8 @@ class TestImportExportTree(unittest.TestCase):
         self.assert_(e_tree == tree)
 
     def test_import_tutorial_tree(self):
-        test_file = "../../doc/tutorial/Cebezas_etal_tree1.tre"
-        e_tree = "(Onconida_alaini, ((Paramunida_granulata, ((Paramunida_pronoe, ((Paramunida_thalie, (Paramunida_pictura, Paramunida_labis)), (Paramunida_luminata, (Paramunida_belone, (Paramunida_salai, Paramunida_lophia))))), (Paramunida_stichas, Paramunida_proxima))), (Plesionida_concava, Plesionida_aliena)));"
+        test_file = "../../doc/tutorial/5.3_DataEntry/HallThatje_2009.tre"
+        e_tree = "((Aegla_sp., (Pagurus_bernhardus, Pagurus_hirsutiusculus)), (((Cryptolithodes_sitchensis, Cryptolithodes_typicus), (Phyllolithodes_papillosus, (Lopholithodes_mandtii, (Glyptolithodes_cristatipes, (Paralomis_formosa, Paralomis_spinosissima))), (Neolithodes_brodiei, (Paralithodes_camtschaticus, Paralithodes_brevipes), (Lithodes_confundens, Lithodes_ferox)))), (Oedignathus_inermis, (Hapalogaster_dentata, Hapalogaster_mertensii))));"
         tree = import_tree(test_file)
         self.assert_(e_tree == tree)
 

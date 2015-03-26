@@ -52,6 +52,7 @@ import types
 IDENTICAL = 0
 SUBSET = 1
 PLATFORM = sys.platform
+taxonomy_levels = ['species','genus','family','superfamily','infraorder','suborder','order','superorder','subclass','class','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
