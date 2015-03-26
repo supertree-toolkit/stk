@@ -42,7 +42,7 @@ import string
 import stk.p4 as p4
 import lxml
 import csv
-from subprocess import call
+from subprocess import check_call
 import stk.bzr_version as bzr_version
 d = bzr_version.version_info
 build = d.get('revno','<unknown revno>')
@@ -529,7 +529,7 @@ def main():
     parser_cm.add_argument('input',
             help='The input Phyml')
     parser_cm.add_argument('taxonomy',
-            help='Your taxnomy file',
+            help='Your taxonomy file',
             )
     parser_cm.add_argument('output', 
             help='The output phyml')
@@ -542,9 +542,10 @@ def main():
     #        help="Taxonomic level to output at",)
     parser_cm.set_defaults(func=auto_subs)
 
+
     # attempt to process the data into a matrix all automatically
     parser_cm = subparsers.add_parser('process',
-            help='Generate a species-level matrix, and do all the checks and processing automatically. Note this creates a taxonomy and does all the processing, but may not be perfect (as taxonomies are not perfect)'
+            help='Generate a species-level matrix, and do all the checks and processing automatically. Note this creates a taxonomy and does all the processing, but will not be perfect (as taxonomies are not perfect)'
             )
     parser_cm.add_argument('input',
             help='The input Phyml')
@@ -1983,12 +1984,12 @@ def process(args):
                 sys.exit(0)
             if k.lower() == 'y':
                 break
-    # these will need wrapping in their own try blocks as we'll want to ignore some errors
 
     filename = os.path.basename(input_file)
     dirname = os.path.dirname(input_file)
 
-    print "Loading and checking your data"
+    if verbose:
+        print "Loading and checking your data"
     # 0) load and check data
     try:
         phyml = supertree_toolkit.load_phyml(input_file)
@@ -2016,9 +2017,10 @@ def process(args):
         traceback.print_exc()
         return 
 
-    print "Checking taxa againt online databases"
+    if verbose:
+        print "Checking taxa againt online databases"
     # 1) taxonomy checker with autoreplace
-    # Load existing data is any:
+    # Load existing data if any:
     if (not equivalents_file == None):
         equivalents = supertree_toolkit.load_equivalents(equivalents_file)
     else:
@@ -2033,11 +2035,12 @@ def process(args):
     f = open(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat"), "w")
     f.write(data_string_subs)
     f.close()
+    
     # now do the replacements - we use the subs file :)
-    print "Swapping in the corrected taxa names"    
+    if verbose:
+        print "Swapping in the corrected taxa names"    
     try:
         old_taxa, new_taxa = supertree_toolkit.parse_subs_file(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat"))
-        print old_taxa, new_taxa
     except UnableToParseSubsFile as e:
         print e.msg
         sys.exit(-1)
@@ -2069,7 +2072,9 @@ def process(args):
     f.write(phyml)
     f.close()
 
-    print "Creating taxonomic information"    
+    
+    if verbose:
+        print "Creating taxonomic information"    
     # 2) create taxonomy
     if (not taxonomy_file == None):
         taxonomy = supertree_toolkit.load_taxonomy(taxonomy_file)
@@ -2077,7 +2082,7 @@ def process(args):
         taxonomy = None
     taxonomy = supertree_toolkit.create_taxonomy(phyml,existing_taxonomy=taxonomy,verbose=verbose)
     # save the taxonomy for later
-    # Now create the CSV output
+    # Now create the CSV output - seperate out into function in STK (used several times)
     with open(os.path.join(dirname,project_name+"_taxonomy.csv"), 'w') as f:
         writer = csv.writer(f)
         headers = []
@@ -2178,7 +2183,8 @@ def process(args):
             writer.writerow(this_classification)
 
     # 3) create species level dataset
-    print "Converting data to species level"
+    if verbose:
+        print "Converting data to species level"
     try:
         phyml = supertree_toolkit.generate_species_level_data(phyml,taxonomy,verbose=verbose)
     except NotUniqueError as detail:
@@ -2214,7 +2220,8 @@ def process(args):
     
 
     # 4) Remove non-monophyletic taxa (requires TNT to be installed)
-    print "Removing non-monophyletic taxa via mini-supertree method"
+    if verbose:
+        print "Removing non-monophyletic taxa via mini-supertree method"
     tree_list = supertree_toolkit._find_trees_for_permuting(phyml)
     try:
         for t in tree_list:
@@ -2240,12 +2247,20 @@ def process(args):
             temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tnt")
             tnt_command = "tnt run "+new_output+",ienum,taxname=,nelsen*,tsave *"+temp_file+",save /,quit"
             # run tnt, grab the output and store back in the data
-            call([tnt_command])
+            try:
+                check_call([tnt_command])
+            except subprocess.CalledProcessError as e:
+                msg = "***Error: Failed to run TNT. Is it installed correctl?.\n"+e.msg
+                print msg
+                return
+
             new_tree = supertree_toolkit._parse_tree(temp_file)
             phyml = supertree_toolkit._swap_tree_in_XML(phyml,new_tree,t)
 
     except TreeParseError as e:
-        dialogs.error(self.main_window,"Error permuting trees." + e.msg)
+        msg = "***Error permuting trees.\n"+e.msg
+        print msg
+        return
     # save intermediate phyml
     f = open(os.path.join(dirname,project_name+"_nonmonophyl_removed.phyml"), "w")
     f.write(phyml)
@@ -2255,6 +2270,8 @@ def process(args):
     # no function to do this yet...
 
     # 6) Data independance
+    if verbose:
+        print "Checking data independence"
     data_ind,phyml = supertree_toolkit.data_independence(phyml,make_new_xml=True)
     # save phyml
     f = open(os.path.join(dirname,project_name+"_data_ind.phyml"), "w")
@@ -2262,6 +2279,8 @@ def process(args):
     f.close()
 
     # 7) Data overlap
+    if verbose:
+        print "Checking data overlap"
     sufficient_overlap, key_list = supertree_toolkit.data_overlap(phyml,verbose=verbose)
     # process the key_list to remove the unconnected trees
     if not sufficient_overlap:
@@ -2273,7 +2292,6 @@ def process(args):
             delete_me.extend(t)
         for tree in delete_me:
             phyml = supertree_toolkit._swap_tree_in_XML(phyml, None, tree, delete=True) # delete the tree and clean the data as we go 
-
     # save phyml
     f = open(os.path.join(dirname,project_name+"_data_tax_overlap.phyml"), "w")
     f.write(phyml)
@@ -2281,6 +2299,8 @@ def process(args):
 
 
     # 8) Create matrix
+    if verbose:
+        print "Creating matrix"
     try:
         matrix = supertree_toolkit.create_matrix(phyml)
     except NotUniqueError as detail:
