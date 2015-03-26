@@ -12,7 +12,7 @@ from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_s
 from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
 from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used, _trees_equal, get_weights
-from stk.supertree_toolkit import get_outgroup, set_all_tree_names, create_tree_name
+from stk.supertree_toolkit import get_outgroup, set_all_tree_names, create_tree_name, load_taxonomy
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -557,6 +557,18 @@ class TestSTK(unittest.TestCase):
         for c in characters:
             self.assert_(c in expected_characters)
         self.assert_(len(characters) == len(expected_characters))
+
+    def test_load_taxonomy(self):
+        csv_file = "data/input/create_taxonomy.csv"
+        expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'},
+                    'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'subkingdom': 'Bilateria', 'subclass': 'Neoloricata', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'suborder': 'Ischnochitonina', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Egretta', 'order': 'Pelecaniformes', 'species': 'Egretta tricolor'}, 
+                    'Gallus gallus': {'kingdom': 'Animalia', 'infrakingdom': 'Protostomia', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'genus': 'Gallus', 'order': 'Galliformes', 'species': 'Gallus gallus'}, 
+                    'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'order': 'Procellariiformes', 'species': 'Thalassarche melanophris'},
+                    'Jeletzkytes criptonodosus': {'kingdom': 'Metazoa', 'family': 'Scaphitidae', 'order': 'Ammonoidea', 'phylum': 'Mollusca', 'provider': 'PBDB', 'species': 'Jeletzkytes criptonodosus', 'class': 'Cephalopoda'}}
+        taxonomy = load_taxonomy(csv_file)
+        self.maxDiff = None
+
+        self.assertDictEqual(taxonomy, expected)
 
     def test_name_tree(self):
         XML = etree.tostring(etree.parse('data/input/single_source_no_names.phyml',parser),pretty_print=True)
