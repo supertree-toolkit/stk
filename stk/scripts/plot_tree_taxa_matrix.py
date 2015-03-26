@@ -43,6 +43,18 @@ def main():
             default=False
             )
     parser.add_argument(
+            '-t', 
+            '--taxonomy', 
+            help="Use taxonomy to sort the taxa on the axis. Supply a STK taxonomy file",
+            )
+    parser.add_argument(
+            '--level',
+            choices=['family','superfamily','infraorder','suborder','order'],
+            default='family',
+            help="""What level to group the taxonomy at. Default is family. 
+                    Note data for a particular levelmay be missing in taxonomy."""
+            )
+    parser.add_argument(
             'input_file', 
             metavar='input_file',
             nargs=1,
@@ -60,13 +72,57 @@ def main():
     verbose = args.verbose
     input_file = args.input_file[0]
     output_file = args.output_file[0]
+    taxonomy = args.taxonomy
+    level = args.level
 
     XML = stk.load_phyml(input_file)
+    if not taxonomy == None:
+        taxonomy = stk.load_taxonomy(taxonomy)
+
     all_taxa = stk.get_all_taxa(XML)
 
     taxa_tree_matrix = {}
     for t in all_taxa:
         taxa_tree_matrix[t] = []
+        
+    if not taxonomy == None:
+        tax_data = {}
+        new_all_taxa = []
+        for t in all_taxa:
+            taxon = t.replace("_"," ")
+            try:
+                if taxonomy[taxon][level] == "":
+                    # skip this
+                    continue
+                tax_data[t] = taxonomy[taxon][level]
+            except KeyError:
+                print "Couldn't find "+t+" in taxonomy. Adding as null data"
+                tax_data[t] = 'zzzzz' # it's at the end...
+
+        from sets import Set
+        unique = set(tax_data.values())
+        unique = list(unique)
+        unique.sort()
+        print "Groups are:"
+        print unique
+        counts = []
+        for u in unique:
+            count = 0
+            for t in tax_data:
+                if tax_data[t] == u:
+                    count += 1
+                    new_all_taxa.append(t)
+            counts.append(count)
+
+        all_taxa = new_all_taxa
+        # cumulate counts
+        count_cumulate = []
+        count_cumulate.append(counts[0])
+        for c in counts[1::]:
+            count_cumulate.append(c+count_cumulate[-1])
+
+        print count_cumulate
+
 
     trees = stk.obtain_trees(XML)
     i = 0

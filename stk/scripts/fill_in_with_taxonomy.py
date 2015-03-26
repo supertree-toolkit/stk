@@ -29,79 +29,99 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir 
 sys.path.insert(0, stk_path)
 import supertree_toolkit as stk
 import csv
-from SOAPpy import WSDL
 
-class TaxonomyFetcherWorms(threading.Thread):            
-    """ Class to provide the taxonomy fetching from WORMS
-    """
+# What we get from EOL
+current_taxonomy_levels = ['species','genus','family','order','class','phylum','kingdom']
+# And the extra ones from ITIS
+extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
+# all of them in order
+taxonomy_levels = ['species','genus','subfamily','family','superfamily','infraorder','suborder','order','superorder','subclass','class','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
-    def __init__(self, taxonomy, lock, queue, id=0, verbose=False, ignoreWarnings=False):
-        """ Constructor for the threaded model.
-        :param taxonomy: previous taxonomy available (if available) or an empty dictionary to store the results .
-        :type taxonomy: dictionary
-        :param lock: lock to keep the taxonomy threadsafe.
-        :type lock: Lock
-        :param queue: queue where the taxa are kept to be processed.
-        :type queue: Queue of strings
-        :param id: id for the thread to use if messages need to be printed.
-        :type id: int 
-        :param verbose: Show verbose messages during execution, will also define level of logging. True will set logging level to INFO.
-        :type verbose: boolean
-        :param ignoreWarnings: Ignore warnings and errors during execution? Errors will be logged with ERROR level on the logging output.
-        :type ignoreWarnings: boolean 
-        """
+def get_tree_taxa_taxonomy(taxon,wsdlObjectWoRMS):
 
-        threading.Thread.__init__(self)
-        self.taxonomy = taxonomy
-        self.lock = lock
-        self.queue = queue
-        self.id = id
-        self.verbose = verbose
-        self.pref_db = pref_db
-        self.ignoreWarnings = ignoreWarnings
+    taxon_data = wsdlObjectWoRMS.getAphiaRecords(taxon.replace('_',' '))
+    if taxon_data == None:
+        return {}
 
-    def run(self):
-        """ Gets and processes a taxon from the queue to get its taxonomy."""
-        while True :
-            if self.verbose :
-                logging.getLogger().setLevel(logging.INFO)
-            #get taxon from queue
-            taxon = self.queue.get()
-            logging.debug("Starting {} with thread #{} remaining ~{}".format(taxon,str(self.id),str(self.queue.qsize())))
-             
-            if not taxon in self.taxonomy: # is a new taxon, not previously in the taxonomy
-                #Release access to the taxonomy
-                self.lock.release()
-                if (self.verbose):
-                    print "Looking up ", taxon
-                    logging.info("Looking up taxon: {}".format(str(taxon)))
-                try:
-                    wsdlObjectWoRMS = WSDL.Proxy('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
-                    a = wsdlObjectWoRMS.getAphiaRecords('Lopholithodes foraminatus', like='true', fuzzy='false', marine_only='false')
-
-                    t = wsdlObjectWoRMS.getAphiaClassificationByID(378125)
-
-"""
-In [4]: a = wsdlObjectWoRMS.getAphiaRecords('Lopholithodes foraminatus', like='true', fuzzy='false', marine_only='false')
-
-In [5]: a
-Out[5]: [<SOAPpy.Types.structType item at 140452007880896>: {'kingdom': 'Animalia', 'match_type': 'exact', 'isFreshwater': None, 'family': 'Lithodidae', 'citation': 'Ahyong, S. (2014). Lopholithodes foraminatus (Stimpson, 1859). Accessed through:  World Register of Marine Species at http://www.marinespecies.org/aphia.php?p=taxdetails&id=378125 on 2015-01-26', 'rank': 'Species', 'unacceptreason': None, 'phylum': 'Arthropoda', 'valid_name': 'Lopholithodes foraminatus', 'isExtinct': None, 'AphiaID': 378125, 'isMarine': 1, 'status': 'accepted', 'valid_authority': '(Stimpson, 1859)', 'lsid': 'urn:lsid:marinespecies.org:taxname:378125', 'isBrackish': None, 'scientificname': 'Lopholithodes foraminatus', 'authority': '(Stimpson, 1859)', 'class': 'Malacostraca', 'url': 'http://www.marinespecies.org/aphia.php?p=taxdetails&id=378125', 'valid_AphiaID': 378125, 'modified': '2013-04-12T09:17:18Z', 'isTerrestrial': None, 'genus': 'Lopholithodes', 'order': 'Decapoda'}]
-
-In [6]: t = wsdlObjectWoRMS.getAphiaClassificationByID(378125)
-
-In [7]: t
-Out[7]: <SOAPpy.Types.structType return at 140452007879744>: {'child': <SOAPpy.Types.structType child at 140452007881616>: {'child': <SOAPpy.Types.structType child at 140452007880248>: {'child': <SOAPpy.Types.structType child at 140452007881544>: {'child': <SOAPpy.Types.structType child at 140452007882048>: {'child': <SOAPpy.Types.structType child at 140452007882120>: {'child': <SOAPpy.Types.structType child at 140451929051720>: {'child': <SOAPpy.Types.structType child at 140451929052152>: {'child': <SOAPpy.Types.structType child at 140451929052440>: {'child': <SOAPpy.Types.structType child at 140451929052728>: {'child': <SOAPpy.Types.structType child at 140451929053016>: {'child': <SOAPpy.Types.structType child at 140452007882408>: {'child': <SOAPpy.Types.structType child at 140452007882192>: {'child': <SOAPpy.Types.structType child at 140452007882480>: {'child': '', 'scientificname': 'Lopholithodes foraminatus', 'rank': 'Species', 'AphiaID': 378125}, 'scientificname': 'Lopholithodes', 'rank': 'Genus', 'AphiaID': 378124}, 'scientificname': 'Lithodidae', 'rank': 'Family', 'AphiaID': 106737}, 'scientificname': 'Lithodoidea', 'rank': 'Superfamily', 'AphiaID': 366102}, 'scientificname': 'Anomura', 'rank': 'Infraorder', 'AphiaID': 106671}, 'scientificname': 'Pleocyemata', 'rank': 'Suborder', 'AphiaID': 106670}, 'scientificname': 'Decapoda', 'rank': 'Order', 'AphiaID': 1130}, 'scientificname': 'Eucarida', 'rank': 'Superorder', 'AphiaID': 1089}, 'scientificname': 'Eumalacostraca', 'rank': 'Subclass', 'AphiaID': 1086}, 'scientificname': 'Malacostraca', 'rank': 'Class', 'AphiaID': 1071}, 'scientificname': 'Crustacea', 'rank': 'Subphylum', 'AphiaID': 1066}, 'scientificname': 'Arthropoda', 'rank': 'Phylum', 'AphiaID': 1065}, 'scientificname': 'Animalia', 'rank': 'Kingdom', 'AphiaID': 2}, 'scientificname': 'Biota', 'rank': 'Superdomain', 'AphiaID': 1}
-
-In [9]: a
-Out[9]: [<SOAPpy.Types.structType item at 140451929054744>: {'kingdom': 'Animalia', 'match_type': 'exact', 'isFreshwater': None, 'family': None, 'citation': 'WoRMS (2014). Decapoda. Accessed through:  World Register of Marine Species at http://www.marinespecies.org/aphia.php?p=taxdetails&id=1130 on 2015-01-26', 'rank': 'Order', 'unacceptreason': None, 'phylum': 'Arthropoda', 'valid_name': 'Decapoda', 'isExtinct': None, 'AphiaID': 1130, 'isMarine': 1, 'status': 'accepted', 'valid_authority': 'Latreille, 1803', 'lsid': 'urn:lsid:marinespecies.org:taxname:1130', 'isBrackish': None, 'scientificname': 'Decapoda', 'authority': 'Latreille, 1803', 'class': 'Malacostraca', 'url': 'http://www.marinespecies.org/aphia.php?p=taxdetails&id=1130', 'valid_AphiaID': 1130, 'modified': '2004-12-21T16:54:05Z', 'isTerrestrial': None, 'genus': None, 'order': 'Decapoda'}]
-
-In [10]: t = wsdlObjectWoRMS.getAphiaChildrenByID(1130)
-
-In [11]: t
-Out[11]: [<SOAPpy.Types.structType item at 140451929054960>: {'kingdom': 'Animalia', 'match_type': 'exact', 'isFreshwater': None, 'family': None, 'citation': 'Fransen, C.; De Grave, S. (2014). Dendrobranchiata. Accessed through:  World Register of Marine Species at http://www.marinespecies.org/aphia.php?p=taxdetails&id=106669 on 2015-01-26', 'rank': 'Suborder', 'unacceptreason': None, 'phylum': 'Arthropoda', 'valid_name': 'Dendrobranchiata', 'isExtinct': None, 'AphiaID': 106669, 'isMarine': 1, 'status': 'accepted', 'valid_authority': 'Spence Bate, 1888', 'lsid': 'urn:lsid:marinespecies.org:taxname:106669', 'isBrackish': None, 'scientificname': 'Dendrobranchiata', 'authority': 'Spence Bate, 1888', 'class': 'Malacostraca', 'url': 'http://www.marinespecies.org/aphia.php?p=taxdetails&id=106669', 'valid_AphiaID': 106669, 'modified': '2011-10-27T14:38:38Z', 'isTerrestrial': None, 'genus': None, 'order': 'Decapoda'}, <SOAPpy.Types.structType item at 140451929055032>: {'kingdom': 'Animalia', 'match_type': 'exact', 'isFreshwater': None, 'family': None, 'citation': 'WoRMS (2014). Macrura Reptantia. Accessed through:  World Register of Marine Species at http://www.marinespecies.org/aphia.php?p=taxdetails&id=536657 on 2015-01-26', 'rank': 'Suborder', 'unacceptreason': None, 'phylum': 'Arthropoda', 'valid_name': 'Macrura Reptantia', 'isExtinct': None, 'AphiaID': 536657, 'isMarine': None, 'status': 'accepted', 'valid_authority': 'Bouvier, 1917', 'lsid': 'urn:lsid:marinespecies.org:taxname:536657', 'isBrackish': None, 'scientificname': 'Macrura Reptantia', 'authority': 'Bouvier, 1917', 'class': 'Malacostraca', 'url': 'http://www.marinespecies.org/aphia.php?p=taxdetails&id=536657', 'valid_AphiaID': 536657, 'modified': '2010-11-03T12:25:36Z', 'isTerrestrial': None, 'genus': None, 'order': 'Decapoda'}, <SOAPpy.Types.structType item at 140451929055104>: {'kingdom': 'Animalia', 'match_type': 'exact', 'isFreshwater': None, 'family': None, 'citation': 'WoRMS (2014). Natantia. Accessed through:  World Register of Marine Species at http://www.marinespecies.org/aphia.php?p=taxdetails&id=181484 on 2015-01-26', 'rank': 'Suborder', 'unacceptreason': None, 'phylum': 'Arthropoda', 'valid_name': None, 'isExtinct': None, 'AphiaID': 181484, 'isMarine': None, 'status': 'unaccepted', 'valid_authority': None, 'lsid': 'urn:lsid:marinespecies.org:taxname:181484', 'isBrackish': None, 'scientificname': 'Natantia', 'authority': 'Boas, 1880', 'class': 'Malacostraca', 'url': 'http://www.marinespecies.org/aphia.php?p=taxdetails&id=181484', 'valid_AphiaID': 0, 'modified': '2009-02-24T11:52:11Z', 'isTerrestrial': None, 'genus': None, 'order': 'Decapoda'}, <SOAPpy.Types.structType item at 140451929055176>: {'kingdom': 'Animalia', 'match_type': 'exact', 'isFreshwater': None, 'family': None, 'citation': 'WoRMS (2014). Pleocyemata. Accessed through:  World Register of Marine Species at http://www.marinespecies.org/aphia.php?p=taxdetails&id=106670 on 2015-01-26', 'rank': 'Suborder', 'unacceptreason': None, 'phylum': 'Arthropoda', 'valid_name': 'Pleocyemata', 'isExtinct': None, 'AphiaID': 106670, 'isMarine': 1, 'status': 'accepted', 'valid_authority': 'Burkenroad, 1963', 'lsid': 'urn:lsid:marinespecies.org:taxname:106670', 'isBrackish': None, 'scientificname': 'Pleocyemata', 'authority': 'Burkenroad, 1963', 'class': 'Malacostraca', 'url': 'http://www.marinespecies.org/aphia.php?p=taxdetails&id=106670', 'valid_AphiaID': 106670, 'modified': '2005-05-02T14:40:44Z', 'isTerrestrial': None, 'genus': None, 'order': 'Decapoda'}, <SOAPpy.Types.structType item at 140451929053880>: {'kingdom': 'Animalia', 'match_type': 'exact', 'isFreshwater': None, 'family': None, 'citation': 'WoRMS (2014). Reptantia. Accessed through:  World Register of Marine Species at http://www.marinespecies.org/aphia.php?p=taxdetails&id=148412 on 2015-01-26', 'rank': 'Suborder', 'unacceptreason': None, 'phylum': 'Arthropoda', 'valid_name': 'Macrura Reptantia', 'isExtinct': None, 'AphiaID': 148412, 'isMarine': None, 'status': 'unaccepted', 'valid_authority': 'Bouvier, 1917', 'lsid': 'urn:lsid:marinespecies.org:taxname:148412', 'isBrackish': None, 'scientificname': 'Reptantia', 'authority': 'Boas, 1880', 'class': 'Malacostraca', 'url': 'http://www.marinespecies.org/aphia.php?p=taxdetails&id=148412', 'valid_AphiaID': 536657, 'modified': '2010-11-04T11:16:19Z', 'isTerrestrial': None, 'genus': None, 'order': 'Decapoda'}]
+    taxon_id = taxon_data[0]['valid_AphiaID'] # there might be records that aren't valid - they point to the valid one though
+    # call it again via the ID this time to make sure we've got the right one.
+    taxon_data = wsdlObjectWoRMS.getAphiaRecordByID(taxon_id)
+    # add data to taxonomy dictionary
+    # get the taxonomy of this species
+    classification = wsdlObjectWoRMS.getAphiaClassificationByID(taxon_id)
+    # construct array
+    tax_array = {}
+    # classification is a nested dictionary, so we need to iterate down it
+    current_child = classification.child
+    while True:
+        tax_array[current_child.rank.lower()] = current_child.scientificname
+        current_child = current_child.child
+        if current_child == '': # empty one is a string for some reason
+            break
+    return tax_array
 
 
-"""
+
+def get_taxonomy_worms(taxonomy, start_otu):
+    """ Gets and processes a taxon from the queue to get its taxonomy."""
+    from SOAPpy import WSDL    
+
+    wsdlObjectWoRMS = WSDL.Proxy('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
+
+    # this is the recursive function
+    def get_children(taxonomy, ID):
+
+        # get data
+        this_item = wsdlObjectWoRMS.getAphiaRecordByID(ID)
+        if this_item == None:
+            return taxonomy
+        if this_item['rank'].lower() == 'species':
+            # add data to taxonomy dictionary
+            # get the taxonomy of this species
+            classification = wsdlObjectWoRMS.getAphiaClassificationByID(ID)
+            taxon = this_item.scientificname
+            if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
+                print "Looking up ", taxon
+
+                # construct array
+                tax_array = {}
+                # classification is a nested dictionary, so we need to iterate down it
+                current_child = classification.child
+                while True:
+                    if taxonomy_levels.index(current_child.rank.lower()) <= taxonomy_levels.index(start_taxonomy_level):
+                        # we need this - we're closer to the tips of the tree than we started                    
+                        tax_array[current_child.rank.lower()] = current_child.scientificname
+                    current_child = current_child.child
+                    if current_child == '': # empty one is a string for some reason
+                        break
+                taxonomy[this_item.scientificname] = tax_array
+                return taxonomy
+            else:
+                return taxonomy
+
+        children = wsdlObjectWoRMS.getAphiaChildrenByID(ID, 1, False)
+        
+        for child in children:
+            taxonomy = get_children(taxonomy, child['valid_AphiaID'])
+
+        return taxonomy
+            
+
+    # main bit of the get_taxonomy_worms function
+    try:
+        start_taxa = wsdlObjectWoRMS.getAphiaRecords(start_otu)
+        start_id = start_taxa[0]['valid_AphiaID'] # there might be records that aren't valid - they point to the valid one though
+        # call it again via the ID this time to make sure we've got the right one.
+        start_taxa = wsdlObjectWoRMS.getAphiaRecordByID(start_id)
+        start_taxonomy_level = start_taxa['rank'].lower()
+    except HTTPError:
+        print "Error"
+        sys.exit(-1)
+
+    taxonomy = get_children(taxonomy,start_id)
+
+    return taxonomy, start_taxonomy_level
+            
 
 def main():
 
@@ -121,7 +141,7 @@ def main():
             '--pref_db',
             help="Taxonomy database to use. Default is Species 2000/ITIS",
             choices=['itis', 'worms', 'ncbi'],
-            default = 'itis'
+            default = 'worms'
             )
     parser.add_argument(
             '--save_taxonomy',
@@ -134,7 +154,7 @@ def main():
     parser.add_argument(
             'top_level', 
             nargs=1,
-            help="The top level group to look in, e.g. Arthropoda, Decapoda. Must match the EOL database."
+            help="The top level group to look in, e.g. Arthropoda, Decapoda. Must match the database."
             )
     parser.add_argument(
             'input_file', 
@@ -164,14 +184,15 @@ def main():
     # grab taxa in tree
     tree = stk.import_tree(input_file)
     taxa_list = stk._getTaxaFromNewick(tree)
+    print len(taxa_list)
 
     taxonomy = {}
-    # What we get from EOL
-    current_taxonomy_levels = ['species','genus','family','order','class','phylum','kingdom']
-    # And the extra ones from ITIS
-    extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
-    # all of them in order
-    taxonomy_levels = ['species','genus','subfamily','family','superfamily','infraorder','suborder','order','superorder','subclass','class','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
+
+    # we're going to add the taxa in the tree to the taxonomy, to stop them
+    # being fetched in first place. We delete them later
+    for taxon in taxa_list:
+        taxon = taxon.replace('_',' ')
+        taxonomy[taxon] = []
 
 
     if (pref_db == 'itis'):
@@ -179,23 +200,15 @@ def main():
         print "Sorry, ITIS is not implemented yet"
         pass
     elif (pref_db == 'worms'):
+        # get tree taxonomy from worms
+        tree_taxonomy = {}
+        for t in taxa_list:
+            from SOAPpy import WSDL    
+            wsdlObjectWoRMS = WSDL.Proxy('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
+            tree_taxonomy[t] = get_tree_taxa_taxonomy(t,wsdlObjectWoRMS)
+        print tree_taxonomy
         # get taxonomy from worms
-        lock = threading.Lock()
-        queue = Queue.Queue()
-
-        #Starting a few threads as daemons checking the queue
-        for i in range(threadNumber) :
-            t = TaxonomyFetcherWorms(taxonomy, lock, queue, i, pref_db, verbose, ignoreWarnings)
-            t.setDaemon(True)
-            t.start()
-        
-        #Popoluate the queue with the taxa.
-        for taxon in taxa :
-            queue.put(taxon)
-        
-        #Wait till everyone finishes
-        queue.join()
-        logging.getLogger().setLevel(logging.WARNING)
+        taxonomy, start_level = get_taxonomy_worms(taxonomy,top_level)
 
     elif (pref_db == 'ncbi'):
         # get taxonomy from ncbi
@@ -205,7 +218,88 @@ def main():
         print "ERROR: Didn't understand you database choice"
         sys.exit(-1)
 
+    # clean up taxonomy, deleting the ones already in the tree
+    for taxon in taxa_list:
+        taxon = taxon.replace('_',' ')        
+        del taxonomy[taxon]
 
+    # stick stuff on according to genus - remember to delete as we go!
+    # grab unique genera from taxonomy
+    genera = []
+    for t in taxonomy:
+        # some have odd data, so skip - we've assumed complete taxonomy...
+        if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
+            genera.append(taxonomy[t]['genus'])
+    genera = _uniquify(genera)
+    for g in genera:
+        # now we find all taxa in this genus
+        taxa_to_add = []
+        taxa_in_clade = []
+        for t in taxonomy:
+            if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
+                if taxonomy[t]['genus'] == g:
+                    taxa_to_add.append(t.replace(' ','_'))
+        # clean up taxonomy
+        for t in taxa_list:
+            if t.startswith(g+"_"):
+                taxa_in_clade.append(t)
+        if len(taxa_in_clade) > 0:
+            tree = add_taxa(tree, taxa_to_add, taxa_in_clade)
+            for t in taxa_to_add:
+                del taxonomy[t.replace('_',' ')]
+
+    # stick stuff on according to family - remember to delete as we go!
+    # grab unique families  from taxonomy
+    families = []
+    for t in taxonomy:
+        # some have odd data, so skip - we've assumed complete taxonomy...
+        if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
+            families.append(taxonomy[t]['family'])
+    families = _uniquify(families)
+    for f in families:
+        # now we find all taxa in this family
+        taxa_to_add = []
+        taxa_in_clade = []
+        for t in taxonomy:
+            if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
+                if taxonomy[t]['family'] == f:
+                    taxa_to_add.append(t.replace(' ','_'))
+        # clean up taxonomy
+        for t in taxa_list:
+            if 'family' in tree_taxonomy[t] and tree_taxonomy[t]['family'] == f:
+                taxa_in_clade.append(t)
+        if len(taxa_in_clade) > 0:
+            tree = add_taxa(tree, taxa_to_add, taxa_in_clade)
+            for t in taxa_to_add:
+                del taxonomy[t.replace('_',' ')]
+
+    # stick stuff on according to superfamily - remember to delete as we go!
+    # grab unique superfamilies  from taxonomy
+    families = []
+    for t in taxonomy:
+        # some have odd data, so skip - we've assumed complete taxonomy...
+        if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
+            families.append(taxonomy[t]['superfamily'])
+    families = _uniquify(families)
+    for f in families:
+        # now we find all taxa in this genus
+        taxa_to_add = []
+        taxa_in_clade = []
+        for t in taxonomy:
+            if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
+                if taxonomy[t]['superfamily'] == f:
+                    taxa_to_add.append(t.replace(' ','_'))
+        # clean up taxonomy
+        for t in taxa_list:
+            if 'superfamily' in tree_taxonomy[t] and  tree_taxonomy[t]['superfamily'] == f:
+                taxa_in_clade.append(t)
+        if len(taxa_in_clade) > 0:
+            tree = add_taxa(tree, taxa_to_add, taxa_in_clade)
+            for t in taxa_to_add:
+                del taxonomy[t.replace('_',' ')]
+
+    print tree
+    print taxonomy
 
 
 
@@ -222,19 +316,21 @@ def _uniquify(l):
 def add_taxa(tree, new_taxa, taxa_in_clade):
 
     # create new tree of the new taxa
-    tree_string = "(" + ",".join(new_taxa) + ");"
-    additionalTaxa = stk._parse_tree(tree_string) 
+    #tree_string = "(" + ",".join(new_taxa) + ");"
+    #additionalTaxa = stk._parse_tree(tree_string) 
 
     # find mrca parent
     treeobj = stk._parse_tree(tree)
-    mrca = stk.get_mrca(taxa_in_clade)
+    mrca = stk.get_mrca(tree,taxa_in_clade)
     mrca_parent = treeobj.node(mrca).parent
 
     # insert a node into the tree between the MRCA and it's parent (p4.addNodeBetweenNodes)
-    newNode = tree.addNodeBetweenNodes(mrca, mrca_paraent)
+    newNode = treeobj.addNodeBetweenNodes(mrca, mrca_parent)
 
     # add the new tree at the new node using p4.addSubTree(self, selfNode, theSubTree, subTreeTaxNames=None)
-    treeobj.addSubTree(newNode, additionalTaxa)
+    #treeobj.addSubTree(newNode, additionalTaxa)
+    for t in new_taxa:
+        treeobj.addSibLeaf(newNode,t)
 
     # return new tree
     return treeobj.writeNewick(fName=None,toString=True).strip()

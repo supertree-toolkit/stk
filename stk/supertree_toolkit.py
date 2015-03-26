@@ -3553,6 +3553,7 @@ def get_mrca(tree,taxa_list):
     # that node is your MRCA
     big = sys.maxsize
     node_ids
+    shortest = 0
     for n in node_ids:
         if len(n) < big:
             big = len(n)
