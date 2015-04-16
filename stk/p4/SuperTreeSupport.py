@@ -3,7 +3,7 @@ from Tree import Tree
 from func import read
 from Var import var
 from Glitch import Glitch
-from p4.ReducedStrictConsensus import Intersection, TreeBuilderFromSplits
+from ReducedStrictConsensus import Intersection, TreeBuilderFromSplits
 
 class SuperTreeInputTrees(object):
 
@@ -395,6 +395,10 @@ class SuperTreeSupport(object):
 #        0 to 100 percent. Non standard adhears to the few supertree papers regarding support values
 #        i.e -1 to 1. 
         self.doStandardDecoration=True
+#        if non stadard decoration, what metric to use
+#        [S,  P,  R,  Q,  WS, WP, V,  V+, V-, wV, wV+,wV-]
+#         0   1   2   3   4   5   6   7   8   9   10  11
+        self.decorationMetric = 9
         
 #        The decorated supertree can be saved to file
         self.doSaveDecoratedTree=False
@@ -569,6 +573,7 @@ class SuperTreeSupport(object):
 #           Used to store each supertree clades support values 
 #                              [S,  P,  R,  Q,  WS, WP, V,  V+, V-, wV, wV+,wV-]
             supertreeDict[i] = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+#                               0   1   2   3   4   5   6   7   8   9   10  11
         
         supertreeSplitDict = {}
         for j in range(self.SC):
@@ -703,7 +708,7 @@ class SuperTreeSupport(object):
             if self.doStandardDecoration:
                 name = str(int(round(100.0*(1.0 + value[9])/2.0)))
             else:
-                name = str(value[9])
+                name = str(value[self.decorationMetric])
             inter.name = name
             self.intersections.append(inter)
             
