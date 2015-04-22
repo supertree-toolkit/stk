@@ -9,6 +9,8 @@ import os
 import sys
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir )
 sys.path.insert(0, stk_path)
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
+sys.path.insert(0, stk_path)
 import stk.supertree_toolkit as stk
 from stk.p4.SuperTreeSupport import SuperTreeSupport
 from stk.stk_exceptions import *
