@@ -32,7 +32,10 @@ def handle_click(xml, xpath, path=None):
     ele_T = etree.fromstring(new_xml)
     element.getparent().replace(element,ele_T)
 
-    stk_gui.interface.plugin_xml = etree.tostring(xml_root)
+    # now make all unique
+    xml_root = stk.set_unique_names(etree.tostring(xml_root))
+
+    stk_gui.interface.plugin_xml = xml_root
     stk_gui.interface.pluginSender.emit('plugin_changed_xml')
 
     return

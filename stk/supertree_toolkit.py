@@ -2912,7 +2912,9 @@ def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
     prev_char = None
     prev_taxa = None
     prev_name = None
-    non_ind = {}
+    subsets = []
+    identical = []
+    is_identical = False
     for data in data_ind:
         name = data[0]
         char = data[1]
@@ -2921,22 +2923,37 @@ def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
             # when sorted, the longer list comes first
             if set(taxa).issubset(set(prev_taxa)):
                 if (taxa == prev_taxa):
-                    non_ind[name] = [prev_name,IDENTICAL]
+                    if (is_identical):
+                        identical[-1].append(name)
+                    else:
+                        identical.append([name,prev_name])
+                        is_identical = True
+
                 else:
-                    non_ind[name] = [prev_name,SUBSET]
+                    subsets.append([prev_name, name])
+                    prev_name = name
+                    is_identical = False
+            else:
+                prev_name = name
+                is_identical = False
+        else:
+            prev_name = name
+            is_identical = False
+            
         prev_char = char
         prev_taxa = taxa
-        prev_name = name
+        
+    print identical, subsets
 
     if (make_new_xml):
         new_xml = XML
-        for name in non_ind:
-            if (non_ind[name][1] == SUBSET):
-                new_xml = _swap_tree_in_XML(new_xml,None,name) 
+        # deal with subsets
+        for s in subsets:
+            new_xml = _swap_tree_in_XML(new_xml,None,s[1]) 
         new_xml = clean_data(new_xml)
-        return non_ind, new_xml
+        return identical, subsets, new_xml
     else:
-        return non_ind
+        return identical, subsets
 
 def add_historical_event(XML, event_description):
     """
