@@ -35,7 +35,7 @@ current_taxonomy_levels = ['species','genus','family','order','class','phylum','
 # And the extra ones from ITIS
 extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
 # all of them in order
-taxonomy_levels = ['species','genus','subfamily','family','superfamily','infraorder','suborder','order','superorder','subclass','class','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
+taxonomy_levels = ['species','subgenus','genus','subfamily','family','superfamily','subsection','section','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
 def get_tree_taxa_taxonomy(taxon,wsdlObjectWoRMS):
 
@@ -98,7 +98,9 @@ def get_taxonomy_worms(taxonomy, start_otu):
                 return taxonomy
 
         children = wsdlObjectWoRMS.getAphiaChildrenByID(ID, 1, False)
-        
+        if (children == None):
+            return taxonomy
+
         for child in children:
             taxonomy = get_children(taxonomy, child['valid_AphiaID'])
 
@@ -202,6 +204,8 @@ def main():
         print "Sorry, ITIS is not implemented yet"
         pass
     elif (pref_db == 'worms'):
+        if (verbose):
+            print "Getting data from WoRMS"
         # get tree taxonomy from worms
         if (tree_taxonomy == None):
             tree_taxonomy = {}
@@ -388,15 +392,18 @@ def add_taxa(tree, new_taxa, taxa_in_clade):
     # find mrca parent
     treeobj = stk._parse_tree(tree)
     mrca = stk.get_mrca(tree,taxa_in_clade)
-    mrca_parent = treeobj.node(mrca).parent
+    mrca = treeobj.nodes[mrca]
+    #mrca_parent = treeobj.node(mrca).parent
 
     # insert a node into the tree between the MRCA and it's parent (p4.addNodeBetweenNodes)
-    newNode = treeobj.addNodeBetweenNodes(mrca, mrca_parent)
+    # newNode = treeobj.addNodeBetweenNodes(mrca, mrca_parent)
 
     # add the new tree at the new node using p4.addSubTree(self, selfNode, theSubTree, subTreeTaxNames=None)
     #treeobj.addSubTree(newNode, additionalTaxa)
     for t in new_taxa:
-        treeobj.addSibLeaf(newNode,t)
+        t.replace('(','')
+        t.replace(')','')
+        treeobj.addSibLeaf(mrca,t)
 
     # return new tree
     return treeobj.writeNewick(fName=None,toString=True).strip()

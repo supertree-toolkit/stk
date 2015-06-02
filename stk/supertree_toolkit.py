@@ -3683,7 +3683,7 @@ def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
     
     If the new_taxa array is missing, simply delete the old_taxa
     """
-   
+  
     tree = _correctly_quote_taxa(tree)
     # are the input values lists or simple strings?
     if (isinstance(old_taxa,str)):
@@ -4007,7 +4007,6 @@ def _swap_tree_in_XML(XML, tree, name, delete=False):
         # for each source, get source name
         s_name = s.attrib['name']
         if source_name == s_name:
-            # found the bugger!
             for t in s.xpath("source_tree"):
                 tree_name = t.attrib['name']
                 if (tree_name == name):

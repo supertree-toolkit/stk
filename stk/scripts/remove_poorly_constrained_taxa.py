@@ -12,8 +12,8 @@ def main():
 
     # do stuff
     parser = argparse.ArgumentParser(
-         prog="convert tree from specific to generic",
-         description="""Converts a tree at specific level to generic level""",
+         prog="remove poorly contrained taxa",
+         description="""Remove taxa that appea in one source tree only.""",
          )
     parser.add_argument(
             '-v', 
@@ -34,6 +34,13 @@ def main():
                  " to removal those in polytomies *and* only in one other tree."
             )
     parser.add_argument(
+            '--tree_only', 
+            default=False,
+            action='store_true',
+            help="Restrict removal of taxa that only occur in one source tree. Default"+
+                 " to removal those in polytomies *and* only in one other tree."
+            )
+    parser.add_argument(
             'input_phyml', 
             metavar='input_phyml',
             nargs=1,
@@ -43,13 +50,13 @@ def main():
             'input_tree', 
             metavar='input_tree',
             nargs=1,
-            help="Your tree"
+            help="Your tree - can be NULL or None"
             )
     parser.add_argument(
             'output_tree', 
             metavar='output_tree',
             nargs=1,
-            help="Your output tree"
+            help="Your output tree or phyml - if input_tree is none, this is the Phyml"
             )
 
 
@@ -62,14 +69,20 @@ def main():
         dl = True
     poly_only = args.poly_only
     input_tree = args.input_tree[0]
-    output_tree = args.output_tree[0]
+    if input_tree == 'NULL' or input_tree == 'None':
+        input_tree = None
+    output_file = args.output_tree[0]
     input_phyml = args.input_phyml[0]
 
     XML = stk.load_phyml(input_phyml)
     # load tree
-    supertree = stk.import_tree(input_tree)
+    if (not input_tree == None):
+        supertree = stk.import_tree(input_tree)
+        taxa = stk._getTaxaFromNewick(supertree)
+    else:
+        supertree = None
+        taxa = stk.get_all_taxa(XML) 
     # grab taxa
-    taxa = stk._getTaxaFromNewick(supertree)
     delete_list = []
 
     # loop over taxa in supertree and get some stats
@@ -115,19 +128,29 @@ def main():
 
     print "Taxa: "+str(len(taxa))
     print "Deleting: "+str(len(delete_list))
-    # done, so delete the problem taxa from the supertree
-    for t in delete_list:
-        # remove taxa from supertree
-        supertree = stk._sub_taxa_in_tree(supertree,t)
 
-    # save supertree
-    tree = {}
-    tree['Tree_1'] = supertree
-    output = stk._amalgamate_trees(tree,format='nexus')
-    # write file
-    f = open(output_tree,"w")
-    f.write(output)
-    f.close()
+    if not supertree == None:
+        # done, so delete the problem taxa from the supertree
+        for t in delete_list:
+            # remove taxa from supertree
+            supertree = stk._sub_taxa_in_tree(supertree,t)
+
+        # save supertree
+        tree = {}
+        tree['Tree_1'] = supertree
+        output = stk._amalgamate_trees(tree,format='nexus')
+        # write file
+        f = open(output_file,"w")
+        f.write(output)
+        f.close()
+    else:
+        new_phyml =  stk.substitute_taxa(XML,delete_list)
+        # write file
+        f = open(output_file,"w")
+        f.write(new_phyml)
+        f.close()
+
+
 
     if (dl):
         # write file

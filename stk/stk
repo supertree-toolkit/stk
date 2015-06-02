@@ -1565,7 +1565,7 @@ def convert_file(args):
             new_trees = {}
             i = 1
             for t in trees:
-                new_trees['tree_'+str(i)] = t
+                new_trees['tree_'+str(i)] = supertree_toolkit._collapse_nodes(t)
                 i += 1
             output = supertree_toolkit._amalgamate_trees(new_trees,format=output_format)
         except TreeParseError as detail:

@@ -185,6 +185,7 @@ class Diamond:
                     "on_clean_data": self.on_clean_data,
                     "on_create_subset": self.on_create_subset,
                     "on_name_trees": self.on_name_trees,
+                    "on_autoprocess": self.on_autoprocess,
                     }
 
     self.gui.signal_autoconnect(signals)
@@ -232,7 +233,7 @@ class Diamond:
     
     if schematron_file is None:
       # Disable Validate Schematron
-      menu.get_children()[4].get_submenu().get_children()[1].set_property("sensitive", False)
+      menu.get_children()[5].get_submenu().get_children()[1].set_property("sensitive", False)
 
     return
 
@@ -2746,6 +2747,30 @@ class Diamond:
         msg = "Failed to save phyml file.\n"
         dialogs.error_tb(self.main_window,msg)
         return
+
+  def on_autoprocess(self, widget=None):
+
+    signals = {"on_autoprocess_dialog_close": self.on_process_cancel_button,
+               "on_process_cancel_clicked": self.on_process_cancel_button,
+               "on_process_clicked": self.on_process_button,
+               "on_process_browse_clicked": self.on_process_browse_clicked}
+
+    self.process_gui = gtk.glade.XML(self.gladefile, root="autoprocess_dialog")
+    self.process_dialog = self.subset_gui.get_widget("autoprocess_dialog")
+    self.process_gui.signal_autoconnect(signals)
+    process_button = self.process_gui.get_widget("process_button")
+    process_button.connect("activate", self.on_process_button)
+
+  def on_process_browse_clicked(self,button):
+      pass
+
+  def on_process_cancel_button(self, button):
+      self.process_dialog.hide()
+
+  def on_process_button(self, button):
+     pass
+
+
 
   def on_name_trees(self, button):
      """
