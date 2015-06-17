@@ -1,9 +1,9 @@
 Source: supertree-toolkit
-Maintainer: The SupertreeToolkit team <jon.hill@imperial.ac.uk>
-Uploaders: Jon Hill <jon.hill@imperial.ac.uk>
+Maintainer: The SupertreeToolkit team <jon.hill@york.ac.uk>
+Uploaders: Jon Hill <jon.hill@york.ac.uk>
 Section: science
 Priority: extra
-Build-Depends:  python-numpy, python-setuptools, python-all-dev, debhelper, python-central, python-support
+Build-Depends:  python-numpy, python-setuptools, python-all-dev, debhelper, python-support
 Standards-Version: 3.8.0
 XS-Python-Version: >= 2.5
 
