@@ -23,6 +23,7 @@ import urllib2
 from urllib import quote_plus
 import simplejson as json
 import argparse
+import copy
 import os
 import sys
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir )
@@ -92,6 +93,7 @@ def get_taxonomy_worms(taxonomy, start_otu):
                     current_child = current_child.child
                     if current_child == '': # empty one is a string for some reason
                         break
+                print tax_array
                 taxonomy[this_item.scientificname] = tax_array
                 return taxonomy
             else:
@@ -196,7 +198,7 @@ def main():
     # being fetched in first place. We delete them later
     for taxon in taxa_list:
         taxon = taxon.replace('_',' ')
-        taxonomy[taxon] = []
+        taxonomy[taxon] = {}
 
 
     if (pref_db == 'itis'):
@@ -226,14 +228,20 @@ def main():
         print "ERROR: Didn't understand you database choice"
         sys.exit(-1)
 
+
     # clean up taxonomy, deleting the ones already in the tree
     for taxon in taxa_list:
         taxon = taxon.replace('_',' ')        
         del taxonomy[taxon]
 
+    orig_taxonomy = copy.deepcopy(taxonomy)
+    print start_level
+    print orig_taxonomy
+
     # step up the taxonomy levels from genus, adding taxa to the correct node
     # as a polytomy
     for level in taxonomy_levels[1::]: # skip species....
+        print level
         new_taxa = []
         for t in taxonomy:
             # skip odd ones that should be in there
@@ -243,11 +251,18 @@ def main():
                 except KeyError:
                     continue # don't have this info
         new_taxa = _uniquify(new_taxa)
+        
         for nt in new_taxa:
             taxa_to_add = []
             taxa_in_clade = []
             for t in taxonomy:
                 if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
+                    # need to add taxonomic information in here - there's a structure to be added
+                    # loop over level to genus - insert nodes from level to genus
+                    # insert species on appropriate genus
+                    for l in reversed(taxonomy_levels[taxonomy_levels.index(level):1:-1]):
+                        current_tax = []
+
                     try:
                         if taxonomy[t][level] == nt:
                             taxa_to_add.append(t.replace(' ','_'))
@@ -278,74 +293,74 @@ def main():
             headers.extend(taxonomy_levels)
             headers.append("Data source")
             writer.writerow(headers)
-            for t in taxonomy:
+            for t in orig_taxonomy:
                 otu = t
                 try:
-                    species = taxonomy[t]['species']
+                    species = orig_taxonomy[t]['species']
                 except KeyError:
                     species = "-"
                 try:
-                    genus = taxonomy[t]['genus']
+                    genus = orig_taxonomy[t]['genus']
                 except KeyError:
                     genus = "-"
                 try:
-                    family = taxonomy[t]['family']
+                    family = orig_taxonomy[t]['family']
                 except KeyError:
                     family = "-"
                 try:
-                    superfamily = taxonomy[t]['superfamily']
+                    superfamily = orig_taxonomy[t]['superfamily']
                 except KeyError:
                     superfamily = "-"
                 try:
-                    infraorder = taxonomy[t]['infraorder']
+                    infraorder = orig_taxonomy[t]['infraorder']
                 except KeyError:
                     infraorder = "-"
                 try:
-                    suborder = taxonomy[t]['suborder']
+                    suborder = orig_taxonomy[t]['suborder']
                 except KeyError:
                     suborder = "-"
                 try:
-                    order = taxonomy[t]['order']
+                    order = orig_taxonomy[t]['order']
                 except KeyError:
                     order = "-"
                 try:
-                    superorder = taxonomy[t]['superorder']
+                    superorder = orig_taxonomy[t]['superorder']
                 except KeyError:
                     superorder = "-"
                 try:
-                    subclass = taxonomy[t]['subclass']
+                    subclass = orig_taxonomy[t]['subclass']
                 except KeyError:
                     subclass = "-"
                 try:
-                    tclass = taxonomy[t]['class']
+                    tclass = orig_taxonomy[t]['class']
                 except KeyError:
                     tclass = "-"
                 try:
-                    subphylum = taxonomy[t]['subphylum']
+                    subphylum = orig_taxonomy[t]['subphylum']
                 except KeyError:
                     subphylum = "-"
                 try:
-                    phylum = taxonomy[t]['phylum']
+                    phylum = orig_taxonomy[t]['phylum']
                 except KeyError:
                     phylum = "-"
                 try:
-                    superphylum = taxonomy[t]['superphylum']
+                    superphylum = orig_taxonomy[t]['superphylum']
                 except KeyError:
                     superphylum = "-"
                 try:
-                    infrakingdom = taxonomy[t]['infrakingdom']
+                    infrakingdom = orig_taxonomy[t]['infrakingdom']
                 except:
                     infrakingdom = "-"
                 try:
-                    subkingdom = taxonomy[t]['subkingdom']
+                    subkingdom = orig_taxonomy[t]['subkingdom']
                 except:
                     subkingdom = "-"
                 try:
-                    kingdom = taxonomy[t]['kingdom']
+                    kingdom = orig_taxonomy[t]['kingdom']
                 except KeyError:
                     kingdom = "-"
                 try:
-                    provider = taxonomy[t]['provider']
+                    provider = orig_taxonomy[t]['provider']
                 except KeyError:
                     provider = "-"
 
@@ -383,11 +398,8 @@ def _uniquify(l):
 
     return keys.keys()
 
-def add_taxa(tree, new_taxa, taxa_in_clade):
+def add_taxa(tree, new_tree, taxa_in_clade):
 
-    # create new tree of the new taxa
-    #tree_string = "(" + ",".join(new_taxa) + ");"
-    #additionalTaxa = stk._parse_tree(tree_string) 
 
     # find mrca parent
     treeobj = stk._parse_tree(tree)
@@ -399,11 +411,11 @@ def add_taxa(tree, new_taxa, taxa_in_clade):
     # newNode = treeobj.addNodeBetweenNodes(mrca, mrca_parent)
 
     # add the new tree at the new node using p4.addSubTree(self, selfNode, theSubTree, subTreeTaxNames=None)
-    #treeobj.addSubTree(newNode, additionalTaxa)
-    for t in new_taxa:
-        t.replace('(','')
-        t.replace(')','')
-        treeobj.addSibLeaf(mrca,t)
+    treeobj.addSubTree(mrca, new_tree, ignoreRootAssert=True)
+    #for t in new_taxa:
+    #    t.replace('(','')
+    #    t.replace(')','')
+    #    treeobj.addSibLeaf(mrca,t)
 
     # return new tree
     return treeobj.writeNewick(fName=None,toString=True).strip()

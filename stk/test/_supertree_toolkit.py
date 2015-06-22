@@ -269,15 +269,19 @@ class TestSTK(unittest.TestCase):
     
     def test_data_independence(self):
         XML = etree.tostring(etree.parse('data/input/check_data_ind.phyml',parser),pretty_print=True)
-        expected_dict = {'Hill_2011_2': ['Hill_2011_1', 1], 'Hill_Davis_2011_1': ['Hill_Davis_2011_2', 0]}
-        non_ind = data_independence(XML)
-        self.assertDictEqual(expected_dict, non_ind)
+        expected_idents = [['Hill_Davis_2011_2', 'Hill_Davis_2011_1', 'Hill_Davis_2011_3'], ['Hill_Davis_2013_1', 'Hill_Davis_2013_2']]
+        non_ind,subsets = data_independence(XML)
+        expected_subsets = [['Hill_2011_1', 'Hill_2011_2']]
+        self.assertListEqual(expected_subsets, subsets)
+        self.assertListEqual(expected_idents, non_ind)
 
-    def test_data_independence(self):
+    def test_data_independence_2(self):
         XML = etree.tostring(etree.parse('data/input/check_data_ind.phyml',parser),pretty_print=True)
-        expected_dict = {'Hill_2011_2': ['Hill_2011_1', 1], 'Hill_Davis_2011_1': ['Hill_Davis_2011_2', 0]}
-        non_ind, new_xml = data_independence(XML,make_new_xml=True)
-        self.assertDictEqual(expected_dict, non_ind)
+        expected_idents = [['Hill_Davis_2011_2', 'Hill_Davis_2011_1', 'Hill_Davis_2011_3'], ['Hill_Davis_2013_1', 'Hill_Davis_2013_2']]
+        expected_subsets = [['Hill_2011_1', 'Hill_2011_2']]
+        non_ind, subset, new_xml = data_independence(XML,make_new_xml=True)
+        self.assertListEqual(expected_idents, non_ind)
+        self.assertListEqual(expected_subsets, subset)
         # check the second tree has not been removed
         self.assertRegexpMatches(new_xml,re.escape('((A:1.00000,B:1.00000)0.00000:0.00000,F:1.00000,E:1.00000,(G:1.00000,H:1.00000)0.00000:0.00000)0.00000:0.00000;'))
         # check that the first tree is removed
@@ -561,11 +565,7 @@ class TestSTK(unittest.TestCase):
 
     def test_create_taxonomy(self):
         XML = etree.tostring(etree.parse('data/input/create_taxonomy.phyml',parser),pretty_print=True)
-        expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'},
-                    'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Egretta tricolor', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 
-                    'Gallus gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Gallus gallus', 'genus': 'Gallus', 'order': 'Galliformes'}, 
-                    'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Thalassarche melanophris', 'genus': 'Thalassarche', 'order': 'Procellariiformes'},
-                    'Jeletzkytes criptonodosus': {'superfamily': 'Scaphitoidea', 'family': 'Scaphitidae', 'subkingdom': 'Metazoa', 'subclass': 'Ammonoidea', 'species': 'Jeletzkytes criptonodosus', 'phylum': 'Mollusca', 'suborder': 'Ancyloceratina', 'provider': 'Paleobiology Database', 'genus': 'Jeletzkytes', 'class': 'Cephalopoda'}}
+        expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'superclass': 'Sarcopterygii', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'}, 'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Thalassarche melanophris', 'genus': 'Thalassarche', 'order': 'Procellariiformes'}, 'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Egretta tricolor', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 'Gallus gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Gallus gallus', 'genus': 'Gallus', 'order': 'Galliformes'}, 'Jeletzkytes criptonodosus': {'superfamily': 'Scaphitoidea', 'family': 'Scaphitidae', 'subkingdom': 'Metazoa', 'subclass': 'Ammonoidea', 'species': 'Jeletzkytes criptonodosus', 'phylum': 'Mollusca', 'suborder': 'Ancyloceratina', 'provider': 'Paleobiology Database', 'genus': 'Jeletzkytes', 'class': 'Cephalopoda'}}
         if (internet_on()):
             taxonomy = create_taxonomy(XML)
             self.maxDiff = None
@@ -576,10 +576,7 @@ class TestSTK(unittest.TestCase):
     
     def test_create_taxonomy_from_tree(self):
         """Tests if taxonomy from tree works. Uses same data for normal XML test but goes directly for the tree instead of parsing the XML """
-        expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'},
-                    'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'subkingdom': 'Bilateria', 'subclass': 'Neoloricata', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'suborder': 'Ischnochitonina', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Egretta', 'order': 'Pelecaniformes', 'species': 'Egretta tricolor'}, 
-                    'Gallus gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Gallus', 'order': 'Galliformes', 'species': 'Gallus gallus'}, 
-                    'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'infraphylum': 'Gnathostomata', 'superclass': 'Tetrapoda', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'order': 'Procellariiformes', 'species': 'Thalassarche melanophris'}}
+        expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'superclass': 'Sarcopterygii', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'}, 'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Egretta tricolor', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 'Gallus gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Gallus gallus', 'genus': 'Gallus', 'order': 'Galliformes'}, 'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Thalassarche melanophris', 'genus': 'Thalassarche', 'order': 'Procellariiformes'}}
         tree = "(Archaeopteryx_lithographica, (Gallus_gallus, (Thalassarche_melanophris, Egretta_tricolor)));"
         if (internet_on()):
             taxonomy = create_taxonomy_from_tree(tree)
@@ -615,11 +612,7 @@ class TestSTK(unittest.TestCase):
 
     def test_load_taxonomy(self):
         csv_file = "data/input/create_taxonomy.csv"
-        expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'},
-                    'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'subkingdom': 'Bilateria', 'subclass': 'Neoloricata', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'suborder': 'Ischnochitonina', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Protostomia', 'genus': 'Egretta', 'order': 'Pelecaniformes', 'species': 'Egretta tricolor'}, 
-                    'Gallus gallus': {'kingdom': 'Animalia', 'infrakingdom': 'Protostomia', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'genus': 'Gallus', 'order': 'Galliformes', 'species': 'Gallus gallus'}, 
-                    'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'order': 'Procellariiformes', 'species': 'Thalassarche melanophris'},
-                    'Jeletzkytes criptonodosus': {'kingdom': 'Metazoa', 'family': 'Scaphitidae', 'order': 'Ammonoidea', 'phylum': 'Mollusca', 'provider': 'PBDB', 'species': 'Jeletzkytes criptonodosus', 'class': 'Cephalopoda'}}
+        expected = {'Jeletzkytes criptonodosus': {'kingdom': 'Metazoa', 'subclass': 'Cephalopoda', 'species': 'Jeletzkytes criptonodosus', 'suborder': 'Ammonoidea', 'provider': 'PBDB', 'subfamily': 'Scaphitidae', 'class': 'Mollusca'}, 'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'}, 'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'subkingdom': 'Bilateria', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'subclass': 'Neoloricata', 'species': 'Egretta tricolor', 'phylum': 'Chordata', 'suborder': 'Ischnochitonina', 'superphylum': 'Lophozoa', 'infrakingdom': 'Protostomia', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 'Gallus gallus': {'kingdom': 'Animalia', 'superorder': 'Galliformes', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Gallus gallus', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'infrakingdom': 'Protostomia', 'genus': 'Gallus', 'class': 'Aves'}, 'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'species': 'Thalassarche melanophris', 'order': 'Procellariiformes', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'class': 'Aves'}}
         taxonomy = load_taxonomy(csv_file)
         self.maxDiff = None
 
@@ -654,7 +647,7 @@ class TestSTK(unittest.TestCase):
 def internet_on():
     import urllib2
     try:
-        response=urllib2.urlopen('http://74.125.228.100',timeout=1)
+        response=urllib2.urlopen('http://173.194.116.191',timeout=1)
         return True
     except urllib2.URLError as err: pass
     return False

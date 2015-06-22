@@ -2756,10 +2756,13 @@ class Diamond:
                "on_process_browse_clicked": self.on_process_browse_clicked}
 
     self.process_gui = gtk.glade.XML(self.gladefile, root="autoprocess_dialog")
-    self.process_dialog = self.subset_gui.get_widget("autoprocess_dialog")
+    self.process_dialog = self.process_gui.get_widget("autoprocess_dialog")
     self.process_gui.signal_autoconnect(signals)
     process_button = self.process_gui.get_widget("process_button")
     process_button.connect("activate", self.on_process_button)
+    self.process_dialog.show()
+
+    return
 
   def on_process_browse_clicked(self,button):
       pass

@@ -42,7 +42,9 @@ import string
 import stk.p4 as p4
 import lxml
 import csv
-from subprocess import check_call
+import tempfile
+from subprocess import check_call, CalledProcessError, call
+
 import stk.bzr_version as bzr_version
 d = bzr_version.version_info
 build = d.get('revno','<unknown revno>')
@@ -700,9 +702,9 @@ def data_ind(args):
     XML = supertree_toolkit.load_phyml(input_file)
     try:
         if (newphyml == None):
-            data_independence = supertree_toolkit.data_independence(XML,ignoreWarnings=ignoreWarnings)
+            data_independence, subsets = supertree_toolkit.data_independence(XML,ignoreWarnings=ignoreWarnings)
         else:
-            data_independence, new_phyml = supertree_toolkit.data_independence(XML,make_new_xml=True,ignoreWarnings=ignoreWarnings)
+            data_independence, subsets, new_phyml = supertree_toolkit.data_independence(XML,make_new_xml=True,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
         msg = "***Error: Failed to check independence.\n"+detail.msg
         print msg
@@ -729,16 +731,14 @@ def data_ind(args):
     data_ind = ""
     #column headers
     data_ind = "Source trees that are subsets of others\n"
-    data_ind = data_ind + "Flagged tree, is a subset of:\n"
-    for name in data_independence:
-        if ( data_independence[name][1] == supertree_toolkit.SUBSET ):
-            data_ind += name + "," + data_independence[name][0] + "\n"
+    data_ind = data_ind + "Flagged tree(s), is/are subset(s) of:\n"
+    for names in subsets:
+        data_ind += names[1:] + "," + names[0] + "\n"
     
     data_ind += "\n\nSource trees that are identical to others\n"
-    data_ind = data_ind + "Flagged tree, is identical to:\n"
-    for name in data_independence:
-        if ( data_independence[name][1] == supertree_toolkit.IDENTICAL ):
-            data_ind += name + "," + data_independence[name][0] + "\n"
+    data_ind = data_ind + "Flagged tree(s), is/are identical to:\n"
+    for names in data_independence:
+        data_ind += names[1:] + "," + names[0] + "\n"
         
 
     if (output_file == False or
@@ -1973,6 +1973,7 @@ def process(args):
     ignoreWarnings = args.ignoreWarnings
     taxonomy_file = args.taxonomy_file
     equivalents_file = args.equivalents_file
+    overwrite = args.overwrite
 
     if (os.path.exists(output) and not overwrite):
         print "Output matrix file exists. Either remove the file or use the --overwrite flag."
@@ -2097,9 +2098,17 @@ def process(args):
             except KeyError:
                 species = "-"
             try:
+                subgenus = taxonomy[t]['subgenus']
+            except KeyError:
+                subgenus = "-"
+            try:
                 genus = taxonomy[t]['genus']
             except KeyError:
                 genus = "-"
+            try:
+                subfamily = taxonomy[t]['subfamily']
+            except KeyError:
+                subfamily = "-"
             try:
                 family = taxonomy[t]['family']
             except KeyError:
@@ -2108,6 +2117,14 @@ def process(args):
                 superfamily = taxonomy[t]['superfamily']
             except KeyError:
                 superfamily = "-"
+            try:
+                subsection = taxonomy[t]['subsection']
+            except KeyError:
+                subsection = "-"
+            try:
+                section = taxonomy[t]['section']
+            except KeyError:
+                section = "-"
             try:
                 infraorder = taxonomy[t]['infraorder']
             except KeyError:
@@ -2160,13 +2177,16 @@ def process(args):
                 provider = taxonomy[t]['provider']
             except KeyError:
                 provider = "-"
-
             this_classification = [
                     otu.encode('utf-8'),
                     species.encode('utf-8'),
+                    subgenus.encode('utf-8'),
                     genus.encode('utf-8'),
+                    subfamily.encode('utf-8'),
                     family.encode('utf-8'),
                     superfamily.encode('utf-8'),
+                    subsection.encode('utf-8'),
+                    section.encode('utf-8'),
                     infraorder.encode('utf-8'),
                     suborder.encode('utf-8'),
                     order.encode('utf-8'),
@@ -2217,7 +2237,6 @@ def process(args):
     f = open(os.path.join(dirname,project_name+"_species_level.phyml"), "w")
     f.write(phyml)
     f.close()
-    
 
     # 4) Remove non-monophyletic taxa (requires TNT to be installed)
     if verbose:
@@ -2226,13 +2245,14 @@ def process(args):
     try:
         for t in tree_list:
             # permute
-            output_string = supertree_toolkit.permute_tree(tree_list[t],matrix='tnt',treefile=None,verbose=verbose)
-
+            output_string = "i"
+            output_string = supertree_toolkit.permute_tree(tree_list[t],matrix='hennig',treefile=None,verbose=verbose)
+            print output_string
             #save
             if (not output_string == ""):
                 file_name = os.path.basename(filename)
                 dirname = os.path.dirname(filename)
-                new_output = os.path.join(dirname,t,file_name)
+                new_output = os.path.join(dirname,t,t+"_matrix.tnt")
                 try: 
                    os.makedirs(os.path.join(dirname,t))
                 except OSError:
@@ -2245,26 +2265,40 @@ def process(args):
             # now create the tnt command to deal with this
             # create a tmp file for the output tree
             temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tnt")
-            tnt_command = "tnt run "+new_output+",ienum,taxname=,nelsen*,tsave *"+temp_file+",save /,quit"
+            tnt_command = "tnt mxram 512,run "+new_output+",echo= ,timeout 00:10:00,rseed0,rseed*,hold 1000,xmult= level 0,taxname=,nelsen *,tsave *"+temp_file+",save /,quit"
+            #tnt_command = "tnt run "+new_output+",ienum,taxname=,nelsen*,tsave *"+temp_file+",save /,quit"
             # run tnt, grab the output and store back in the data
-            try:
-                check_call([tnt_command])
-            except subprocess.CalledProcessError as e:
-                msg = "***Error: Failed to run TNT. Is it installed correctl?.\n"+e.msg
-                print msg
+            #try:
+            #    check_call(tnt_command)
+            #except CalledProcessError as e:
+            #    msg = "***Error: Failed to run TNT. Is it installed correctl?.\n"+e.msg
+            #    print msg
+            #    return
+            ret = os.system(tnt_command)
+            if (not ret == 0):
+                print "error running tnt"
                 return
 
-            new_tree = supertree_toolkit._parse_tree(temp_file)
+            new_tree = supertree_toolkit.import_tree(temp_file)
             phyml = supertree_toolkit._swap_tree_in_XML(phyml,new_tree,t)
 
     except TreeParseError as e:
         msg = "***Error permuting trees.\n"+e.msg
         print msg
         return
+
+    #4.5) remove MRP_Outgroups
+    phyml = supertree_toolkit.substitute_taxa(phyml,'MRP_Outgroup')
+    phyml = supertree_toolkit.substitute_taxa(phyml,'MRPOutgroup')
+    phyml = supertree_toolkit.substitute_taxa(phyml,'MRP_outgroup')
+    phyml = supertree_toolkit.substitute_taxa(phyml,'MRPoutgroup')
+    phyml = supertree_toolkit.substitute_taxa(phyml,'MRPOUTGROUP')  
+
     # save intermediate phyml
     f = open(os.path.join(dirname,project_name+"_nonmonophyl_removed.phyml"), "w")
     f.write(phyml)
     f.close()
+
 
     # 5) Remove common names
     # no function to do this yet...
@@ -2272,7 +2306,7 @@ def process(args):
     # 6) Data independance
     if verbose:
         print "Checking data independence"
-    data_ind,phyml = supertree_toolkit.data_independence(phyml,make_new_xml=True)
+    data_ind,subsets,phyml = supertree_toolkit.data_independence(phyml,make_new_xml=True)
     # save phyml
     f = open(os.path.join(dirname,project_name+"_data_ind.phyml"), "w")
     f.write(phyml)

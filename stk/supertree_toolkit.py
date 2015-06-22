@@ -70,7 +70,8 @@ current_taxonomy_levels = ['species','genus','family','order','class','phylum','
 # And the extra ones from ITIS
 extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
 # all of them in order
-taxonomy_levels = ['species','genus','family','superfamily','infraorder','suborder','order','superorder','subclass','class','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
+taxonomy_levels = ['species','subgenus','genus','subfamily','family','superfamily','subsection','section','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
+
 # The NOTIN are not in the PBDB taxonomy - hopeully none of their results have NOTIN as a label!
 
 SPECIES = taxonomy_levels[0]
@@ -924,7 +925,7 @@ def import_trees(filename):
     # Need to add checks on the file. Problems include:
 # TNT: outputs Phyllip format or something - basically a Newick
 # string without commas, so add 'em back in
-    m = re.search(r'proc-;', content)
+    m = re.search(r'proc.;', content)
     if (m != None):
         # TNT output tree
         # Done on a Mac? Replace ^M with a newline
@@ -2238,7 +2239,7 @@ def load_taxonomy(taxonomy_csv):
                     current_taxonomy[t] = row[i]
                 i = i+ 1
 
-            current_taxonomy['provider'] = row[17] # data source
+            current_taxonomy['provider'] = row[22] # data source
             taxonomy[row[0]] = current_taxonomy
     
     return taxonomy
@@ -2943,8 +2944,6 @@ def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
         prev_char = char
         prev_taxa = taxa
         
-    print identical, subsets
-
     if (make_new_xml):
         new_xml = XML
         # deal with subsets
@@ -3590,6 +3589,37 @@ def get_mrca(tree,taxa_list):
         raise InvalidSTKData("Error finding MRCA of: "+" ".join(taxa_list))
 
     return mrca
+
+
+def tree_from_taxonomy(taxonomy, end_level, end_rank):
+    """Create a tree from a taxonomy data structure.
+    This is not the most efficient way, but works OK
+    """
+
+    # Grab data only for the end_level calssification
+    required_taxonomy = {}
+    for t in taxonomy:
+        if (end_level in t):
+            required_taxonomy[t] = taxonomy[t]
+
+    rank_index = taxonomy_levels.index(end_rank)
+
+    # create basic string
+
+        # get unique otus
+
+        # sort by the subfamily
+
+        # for each genus create a newick string
+
+        # if it's the same grouping as previous, add as sister clade (i.e. ,)
+        # else, prepend a (, append a ) and add new clade (ie. ,)
+
+    
+    # return tree
+
+
+
 
 ################ PRIVATE FUNCTIONS ########################
 
@@ -4299,7 +4329,7 @@ def _create_matrix_string(matrix,taxa,charsets=None,names=None,
             matrix_string += string + "\n"
             i += 1
             
-        matrix_string += "\t;\n"
+        matrix_string += "\n"
         if (not weights == None):
             # get unique weights
             unique_weights = _uniquify(weights)
