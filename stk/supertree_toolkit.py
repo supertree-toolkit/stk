@@ -4344,7 +4344,7 @@ def _create_matrix_string(matrix,taxa,charsets=None,names=None,
                         matrix_string += " " + str(i)
                     i += 1
                 matrix_string += ";\n"
-        matrix_string += "procedure /;"
+        matrix_string += "proc /;"
     elif (format == 'nexus'):
         matrix_string = "#nexus\n\nbegin data;\n"
         matrix_string += "\tdimensions ntax = "+str(len(taxa)) +" nchar = "+str(last_char)+";\n"

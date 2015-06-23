@@ -23,6 +23,7 @@ import os
 import sys
 import argparse
 import traceback
+import time
 try:
     __file__
 except NameError:
@@ -2150,6 +2151,10 @@ def process(args):
             except KeyError:
                 tclass = "-"
             try:
+                superclass = taxonomy[t]['superclass']
+            except KeyError:
+                superclass = "-"
+            try:
                 subphylum = taxonomy[t]['subphylum']
             except KeyError:
                 subphylum = "-"
@@ -2193,6 +2198,7 @@ def process(args):
                     superorder.encode('utf-8'),
                     subclass.encode('utf-8'),
                     tclass.encode('utf-8'),
+                    superclass.encode('utf-8'),
                     subphylum.encode('utf-8'),
                     phylum.encode('utf-8'),
                     superphylum.encode('utf-8'),
@@ -2245,9 +2251,7 @@ def process(args):
     try:
         for t in tree_list:
             # permute
-            output_string = "i"
             output_string = supertree_toolkit.permute_tree(tree_list[t],matrix='hennig',treefile=None,verbose=verbose)
-            print output_string
             #save
             if (not output_string == ""):
                 file_name = os.path.basename(filename)
@@ -2258,29 +2262,30 @@ def process(args):
                 except OSError:
                     if not os.path.isdir(os.path.join(dirname,t)):
                         raise
-                f = open(new_output,'w')
+                f = open(new_output,'w',0)
                 f.write(output_string)
                 f.close
+                time.sleep(1)
 
-            # now create the tnt command to deal with this
-            # create a tmp file for the output tree
-            temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tnt")
-            tnt_command = "tnt mxram 512,run "+new_output+",echo= ,timeout 00:10:00,rseed0,rseed*,hold 1000,xmult= level 0,taxname=,nelsen *,tsave *"+temp_file+",save /,quit"
-            #tnt_command = "tnt run "+new_output+",ienum,taxname=,nelsen*,tsave *"+temp_file+",save /,quit"
-            # run tnt, grab the output and store back in the data
-            #try:
-            #    check_call(tnt_command)
-            #except CalledProcessError as e:
-            #    msg = "***Error: Failed to run TNT. Is it installed correctl?.\n"+e.msg
-            #    print msg
-            #    return
-            ret = os.system(tnt_command)
-            if (not ret == 0):
-                print "error running tnt"
-                return
+                # now create the tnt command to deal with this
+                # create a tmp file for the output tree
+                temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tnt")
+                tnt_command = "tnt mxram 512,run "+new_output+",echo= ,timeout 00:10:00,rseed0,rseed*,hold 1000,xmult= level 0,taxname=,nelsen *,tsave *"+temp_file+",save /,quit"
+                #tnt_command = "tnt run "+new_output+",ienum,taxname=,nelsen*,tsave *"+temp_file+",save /,quit"
+                # run tnt, grab the output and store back in the data
+                #try:
+                call(tnt_command, shell=True)
+                #except CalledProcessError as e:
+                #    msg = "***Error: Failed to run TNT. Is it installed correctl?.\n"+e.msg
+                #    print msg
+                #    return
+                #ret = os.system(tnt_command)
+                #if (not ret == 0):
+                #    print "error running tnt"
+                #    return
 
-            new_tree = supertree_toolkit.import_tree(temp_file)
-            phyml = supertree_toolkit._swap_tree_in_XML(phyml,new_tree,t)
+                new_tree = supertree_toolkit.import_tree(temp_file)
+                phyml = supertree_toolkit._swap_tree_in_XML(phyml,new_tree,t)
 
     except TreeParseError as e:
         msg = "***Error permuting trees.\n"+e.msg
