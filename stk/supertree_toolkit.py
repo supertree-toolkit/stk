@@ -387,7 +387,7 @@ def import_bibliography(XML, bibfile, skip=False):
             taxa = etree.SubElement(s_tree,"taxa_data")
             taxa.tail="\n      "
             # Note: we do not add all elements as otherwise they get set to some option
-            # rather than remaining blank (and hence blue int he interface)
+            # rather than remaining blank (and hence blue in the interface)
 
             # append our new source to the main tree
             # if sources has no valid source, overwrite,
@@ -2950,9 +2950,45 @@ def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
         for s in subsets:
             new_xml = _swap_tree_in_XML(new_xml,None,s[1]) 
         new_xml = clean_data(new_xml)
+        # deal with identical - weight them, if there's 3, weights are 0.3, i.e. 
+        # weights are 1/no of identical trees
+        for i in identical:
+            weight = 1.0 / float(len(i))
+            new_xml = add_weights(new_xml, i, weight)
+
         return identical, subsets, new_xml
     else:
         return identical, subsets
+
+
+def add_weights(XML, names, weight):
+    """ Add weights for tree, supply array of names and a weight, they get set
+        Returns a new XML
+    """
+
+    xml_root = _parse_xml(XML)
+    # By getting source, we can then loop over each source_tree
+    find = etree.XPath("//source_tree")
+    sources = find(xml_root)
+    for s in sources:
+        s_name = s.attrib['name']
+        for n in names:
+            if s_name == n:
+                if s.xpath("tree/weight/real_value") == []:
+                    # add weights
+                    weights_element = etree.Element("weight")
+                    weights_element.tail="\n"
+                    real_value = etree.SubElement(weights_element,'real_value')
+                    real_value.attrib['rank'] = '0'
+                    real_value.tail = '\n'
+                    real_value.text = str(weight)
+                    t = s.xpath("tree")[0]                    
+                    t.append(weights_element)
+                else:
+                    s.xpath("tree/weight/real_value")[0].text = str(weight)
+
+    return etree.tostring(xml_root,pretty_print=True)
+
 
 def add_historical_event(XML, event_description):
     """

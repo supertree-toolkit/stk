@@ -7,7 +7,7 @@ from stk.supertree_toolkit import _check_uniqueness, parse_subs_file, _check_tax
 import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-from stk.supertree_toolkit import _check_uniqueness, _check_taxa, _check_data, get_all_characters, data_independence
+from stk.supertree_toolkit import _check_uniqueness, _check_taxa, _check_data, get_all_characters, data_independence, add_weights
 from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
 from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
@@ -286,6 +286,35 @@ class TestSTK(unittest.TestCase):
         self.assertRegexpMatches(new_xml,re.escape('((A:1.00000,B:1.00000)0.00000:0.00000,F:1.00000,E:1.00000,(G:1.00000,H:1.00000)0.00000:0.00000)0.00000:0.00000;'))
         # check that the first tree is removed
         self.assertNotRegexpMatches(new_xml,re.escape('((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000)0.00000:0.00000)0.00000:0.00000;'))
+
+    def test_add_weights(self):
+        """Add weights to a bunch of trees"""
+        XML = etree.tostring(etree.parse('data/input/check_data_ind.phyml',parser),pretty_print=True)
+        # see above
+        expected_idents = [['Hill_Davis_2011_2', 'Hill_Davis_2011_1', 'Hill_Davis_2011_3'], ['Hill_Davis_2013_1', 'Hill_Davis_2013_2']]
+        # so the first should end up with a weight of 0.33333 and the second with 0.5
+        for ei in expected_idents:
+            weight = 1.0/float(len(ei))
+            XML = add_weights(XML, ei, weight)
+
+        expected_weights = [str(1.0/3.0), str(1.0/3.0), str(1.0/3.0), str(0.5), str(0.5)]
+        weights_in_xml = []
+        # now check weights have been added to the correct part of the tree
+        xml_root = _parse_xml(XML)
+        i = 0
+        for ei in expected_idents:
+            for tree in ei:
+                find = etree.XPath("//source_tree")
+                trees = find(xml_root)
+                for t in trees:
+                    if t.attrib['name'] == tree:
+                        # check len(trees) == 0
+                        weights_in_xml.append(t.xpath("tree/weight/real_value")[0].text)
+
+        self.assertListEqual(expected_weights,weights_in_xml) 
+            
+        
+
     
     def test_overlap(self):
         XML = etree.tostring(etree.parse('data/input/check_overlap_ok.phyml',parser),pretty_print=True)
