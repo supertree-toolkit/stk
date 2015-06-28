@@ -99,11 +99,22 @@ def get_taxonomy_worms(taxonomy, start_otu):
             else:
                 return taxonomy
 
-        children = wsdlObjectWoRMS.getAphiaChildrenByID(ID, 1, False)
-        if (children == None):
+        all_children = []
+        start = 1
+        while True:
+            children = wsdlObjectWoRMS.getAphiaChildrenByID(ID, start, False)
+            if (children == None):
+                break
+            if (len(children) < 50):
+                all_children.extend(children)
+                break
+            all_children.extend(children)
+            start += 50
+        
+        if (len(all_children) == 0):
             return taxonomy
 
-        for child in children:
+        for child in all_children:
             taxonomy = get_children(taxonomy, child['valid_AphiaID'])
 
         return taxonomy
