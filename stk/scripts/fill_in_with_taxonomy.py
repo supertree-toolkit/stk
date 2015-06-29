@@ -230,6 +230,8 @@ def main():
             tree_taxonomy = stk.load_taxonomy(tree_taxonomy)
         # get taxonomy from worms
         taxonomy, start_level = get_taxonomy_worms(taxonomy,top_level)
+        #start_level = 'family'
+        #taxonomy = tree_taxonomy
 
     elif (pref_db == 'ncbi'):
         # get taxonomy from ncbi
@@ -311,9 +313,17 @@ def main():
                 except KeyError:
                     species = "-"
                 try:
+                    subgenus = orig_taxonomy[t]['subgenus']
+                except KeyError:
+                    subgenus = "-"
+                try:
                     genus = orig_taxonomy[t]['genus']
                 except KeyError:
                     genus = "-"
+                try:
+                    subfamily = orig_taxonomy[t]['subfamily']
+                except KeyError:
+                    subfamily = "-"
                 try:
                     family = orig_taxonomy[t]['family']
                 except KeyError:
@@ -322,6 +332,14 @@ def main():
                     superfamily = orig_taxonomy[t]['superfamily']
                 except KeyError:
                     superfamily = "-"
+                try:
+                    subsection = orig_taxonomy[t]['subsection']
+                except KeyError:
+                    subsection = "-"
+                try:
+                    section = orig_taxonomy[t]['section']
+                except KeyError:
+                    section = "-"
                 try:
                     infraorder = orig_taxonomy[t]['infraorder']
                 except KeyError:
@@ -346,6 +364,10 @@ def main():
                     tclass = orig_taxonomy[t]['class']
                 except KeyError:
                     tclass = "-"
+                try:
+                    superclass = orig_taxonomy[t]['superclass']
+                except KeyError:
+                    superclass = "-"
                 try:
                     subphylum = orig_taxonomy[t]['subphylum']
                 except KeyError:
@@ -380,15 +402,20 @@ def main():
                 this_classification = [
                         otu.encode('utf-8'),
                         species.encode('utf-8'),
+                        subgenus.encode('utf-8'),
                         genus.encode('utf-8'),
+                        subfamily.encode('utf-8'),
                         family.encode('utf-8'),
                         superfamily.encode('utf-8'),
+                        subsection.encode('utf-8'),
+                        section.encode('utf-8'),
                         infraorder.encode('utf-8'),
                         suborder.encode('utf-8'),
                         order.encode('utf-8'),
                         superorder.encode('utf-8'),
                         subclass.encode('utf-8'),
                         tclass.encode('utf-8'),
+                        superclass.encode('utf-8'),
                         subphylum.encode('utf-8'),
                         phylum.encode('utf-8'),
                         superphylum.encode('utf-8'),
@@ -409,8 +436,11 @@ def _uniquify(l):
 
     return keys.keys()
 
-def add_taxa(tree, new_tree, taxa_in_clade):
+def add_taxa(tree, new_taxa, taxa_in_clade):
 
+    # create new tree of the new taxa
+    tree_string = "(" + ",".join(new_taxa) + ");"
+    additionalTaxa = stk._parse_tree(tree_string) 
 
     # find mrca parent
     treeobj = stk._parse_tree(tree)
@@ -422,7 +452,7 @@ def add_taxa(tree, new_tree, taxa_in_clade):
     # newNode = treeobj.addNodeBetweenNodes(mrca, mrca_parent)
 
     # add the new tree at the new node using p4.addSubTree(self, selfNode, theSubTree, subTreeTaxNames=None)
-    treeobj.addSubTree(mrca, new_tree, ignoreRootAssert=True)
+    treeobj.addSubTree(mrca, additionalTaxa, ignoreRootAssert=True)
     #for t in new_taxa:
     #    t.replace('(','')
     #    t.replace(')','')

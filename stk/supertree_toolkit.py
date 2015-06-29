@@ -58,8 +58,6 @@ import types
 IDENTICAL = 0
 SUBSET = 1
 PLATFORM = sys.platform
-taxonomy_levels = ['species','genus','family','superfamily','infraorder','suborder','order','superorder','subclass','class','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
-
 #Logging
 import logging
 logging.basicConfig(filename='supertreetoolkit.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
@@ -71,8 +69,6 @@ current_taxonomy_levels = ['species','genus','family','order','class','phylum','
 extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
 # all of them in order
 taxonomy_levels = ['species','subgenus','genus','subfamily','family','superfamily','subsection','section','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
-
-# The NOTIN are not in the PBDB taxonomy - hopeully none of their results have NOTIN as a label!
 
 SPECIES = taxonomy_levels[0]
 GENUS = taxonomy_levels[1]
