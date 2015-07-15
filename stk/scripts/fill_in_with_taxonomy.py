@@ -254,7 +254,6 @@ def main():
     # step up the taxonomy levels from genus, adding taxa to the correct node
     # as a polytomy
     for level in taxonomy_levels[1::]: # skip species....
-        print level
         new_taxa = []
         for t in taxonomy:
             # skip odd ones that should be in there
@@ -264,7 +263,8 @@ def main():
                 except KeyError:
                     continue # don't have this info
         new_taxa = _uniquify(new_taxa)
-        
+        print level, new_taxa
+
         for nt in new_taxa:
             taxa_to_add = []
             taxa_in_clade = []
@@ -273,22 +273,26 @@ def main():
                     # need to add taxonomic information in here - there's a structure to be added
                     # loop over level to genus - insert nodes from level to genus
                     # insert species on appropriate genus
-                    for l in reversed(taxonomy_levels[taxonomy_levels.index(level):1:-1]):
-                        current_tax = []
-
                     try:
                         if taxonomy[t][level] == nt:
                             taxa_to_add.append(t.replace(' ','_'))
                     except KeyError:
                         continue
+
+            taxa_to_add = _uniquify(taxa_to_add)
             # add to tree
             for t in taxa_list:
                 if level in tree_taxonomy[t] and tree_taxonomy[t][level] == nt:
                     taxa_in_clade.append(t)
             if len(taxa_in_clade) > 0:
+                print "\t", taxa_to_add, taxa_in_clade
                 tree = add_taxa(tree, taxa_to_add, taxa_in_clade)
+                taxa_list = stk._getTaxaFromNewick(tree)   
                 for t in taxa_to_add: # clean up taxonomy
-                    del taxonomy[t.replace('_',' ')]
+                    #try:
+                    tree_taxonomy[t] = taxonomy[t.replace('_',' ')]
+                    #except KeyError:
+                    #    continue
 
 
     trees = {}
