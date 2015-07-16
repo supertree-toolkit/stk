@@ -85,10 +85,41 @@ def main():
     #print new_taxa
 
     taxa_tree = Tree()
+    taxonomy_markers = []
+    i = 0
 
-    for t in tree_taxonomy:
+    for l in range[start_level:0:-1]:
+        current_level_names = {}
+        for t in tree_taxonomy:
+            current_level_names[taxonomy_levels[t][l]] = [t for taxonomy_levels[t][l:start_level+1:1]]
+
+        nodes = []
+
+        # empty dictionaries evaulate to False
+        if bool(taxonomy_markers):
+            for c in current_level_names:
+                nodes.append([t.add_child(name=c),c])
+        else:
+            # need to ID which node to attach to - step back up the taoxnomy until a non-"-" is found
+            for c in current_level_names:
+                for tm in taxonomy_markers[i-1]:
+                    if tm[1] == 
+                node_to_append_to = taxonomy_markers[i-1]
+                nodes.append([t.add_child(name=c),c])
+
+        i += 1
 
 
+
+def _uniquify(l):
+    """
+    Make a list, l, contain only unique data
+    """
+    keys = {}
+    for e in l:
+        keys[e] = 1
+
+    return keys.keys()
 
 if __name__ == "__main__":
     main()
