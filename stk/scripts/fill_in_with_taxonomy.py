@@ -30,6 +30,8 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir 
 sys.path.insert(0, stk_path)
 import supertree_toolkit as stk
 import csv
+from ete2 import Tree
+
 
 # What we get from EOL
 current_taxonomy_levels = ['species','genus','family','order','class','phylum','kingdom']
@@ -289,10 +291,7 @@ def main():
                 tree = add_taxa(tree, taxa_to_add, taxa_in_clade)
                 taxa_list = stk._getTaxaFromNewick(tree)   
                 for t in taxa_to_add: # clean up taxonomy
-                    #try:
                     tree_taxonomy[t] = taxonomy[t.replace('_',' ')]
-                    #except KeyError:
-                    #    continue
 
 
     trees = {}
