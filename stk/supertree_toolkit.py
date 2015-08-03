@@ -1458,15 +1458,12 @@ def get_weights(XML):
     for s in sources:
         # for each source, get source name
         name = s.attrib['name']
-        # get trees
-        tree_no = 1
-        for t in s.xpath("source_tree/tree"):
-            t_name = name+"_"+str(tree_no)
-            if (len(t.xpath("weight/real_value")) > 0):
-                weights[t_name] = float(t.xpath("weight/real_value")[0].text)
+        for t in s.xpath("source_tree"):
+            tree_name = t.attrib['name']
+            if (len(t.xpath("tree/weight/real_value")) > 0):
+                weights[tree_name] = float(t.xpath("tree/weight/real_value")[0].text)
             else:
-                weights[t_name] = 1.0
-            tree_no += 1
+                weights[tree_name] = 1.0
 
     min_weight = min(weights.values())
     factor = 1.0/min_weight
@@ -3584,7 +3581,9 @@ def _create_matrix(trees, taxa, format="hennig", quote=False, weights=None):
         weights_per_char = []
     names = []
     current_char = 1
+    print weights
     for key in trees:
+        print key
         if (not weights == None):
             weight = weights[key]
         names.append(key)
