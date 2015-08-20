@@ -71,7 +71,7 @@ def main():
     # And the extra ones from ITIS
     extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
     # all of them in order
-    taxonomy_levels = ['species','genus','family','superfamily','infraorder','suborder','order','superorder','subclass','class','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
+    taxonomy_levels = ['species','subgenus','genus','subfamily','family','superfamily','subsection','section','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
 
     for taxon in taxa:

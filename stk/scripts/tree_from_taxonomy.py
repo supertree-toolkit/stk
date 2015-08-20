@@ -16,9 +16,6 @@
 #
 #    Jon Hill. jon.hill@york.ac.uk
 
-import urllib2
-from urllib import quote_plus
-import simplejson as json
 import argparse
 import copy
 import os
@@ -27,7 +24,7 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir 
 sys.path.insert(0, stk_path)
 import supertree_toolkit as stk
 import csv
-from ete2 import Tree
+#from ete2 import Tree
 
 
 # What we get from EOL
@@ -84,31 +81,10 @@ def main():
 
     #print new_taxa
 
+    print tree_taxonomy
+
     taxa_tree = Tree()
     taxonomy_markers = []
-    i = 0
-
-    for l in range[start_level:0:-1]:
-        current_level_names = {}
-        for t in tree_taxonomy:
-            current_level_names[taxonomy_levels[t][l]] = [t for taxonomy_levels[t][l:start_level+1:1]]
-
-        nodes = []
-
-        # empty dictionaries evaulate to False
-        if bool(taxonomy_markers):
-            for c in current_level_names:
-                nodes.append([t.add_child(name=c),c])
-        else:
-            # need to ID which node to attach to - step back up the taoxnomy until a non-"-" is found
-            for c in current_level_names:
-                for tm in taxonomy_markers[i-1]:
-                    if tm[1] == 
-                node_to_append_to = taxonomy_markers[i-1]
-                nodes.append([t.add_child(name=c),c])
-
-        i += 1
-
 
 
 def _uniquify(l):
