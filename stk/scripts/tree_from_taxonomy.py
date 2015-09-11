@@ -24,15 +24,10 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir 
 sys.path.insert(0, stk_path)
 import supertree_toolkit as stk
 import csv
-#from ete2 import Tree
+from ete2 import Tree
 
-
-# What we get from EOL
-current_taxonomy_levels = ['species','genus','family','order','class','phylum','kingdom']
-# And the extra ones from ITIS
-extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
-# all of them in order
 taxonomy_levels = ['species','subgenus','genus','subfamily','family','superfamily','subsection','section','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
+tlevels = ['species','genus','family','order','class','phylum','kingdom']
 
 
 def main():
@@ -74,17 +69,60 @@ def main():
     top_level = args.top_level[0]
 
     start_level = taxonomy_levels.index(top_level)
-
     tree_taxonomy = stk.load_taxonomy(input_file)
-
     new_taxa = tree_taxonomy.keys()
 
-    #print new_taxa
+    tl_types = []
+    for tt in tree_taxonomy:
+        tl_types.append(tree_taxonomy[tt][top_level])
 
-    print tree_taxonomy
+    tl_types = _uniquify(tl_types)
+    levels_to_worry_about = tlevels[0:tlevels.index(top_level)+1]
+        
+    #print levels_to_worry_about[-2::-1]
+    
+    t = Tree()
+    nodes = {}
+    nodes[top_level] = []
+    for tl in tl_types:
+        n = t.add_child(name=tl)
+        nodes[top_level].append({tl:n})
 
-    taxa_tree = Tree()
-    taxonomy_markers = []
+    for l in levels_to_worry_about[-2::-1]:
+        #print t
+        names = []
+        nodes[l] = []
+        ci = levels_to_worry_about.index(l)
+        for tt in tree_taxonomy:
+            names.append(tree_taxonomy[tt][l])
+        names = _uniquify(names)
+        for n in names:
+            #print n
+            # find my parent
+            parent = None
+            for tt in tree_taxonomy:
+                if tree_taxonomy[tt][l] == n:
+                    parent = tree_taxonomy[tt][levels_to_worry_about[ci+1]]
+                    k = []
+                    for nd in nodes[levels_to_worry_about[ci+1]]:
+                        k.extend(nd.keys())
+                    i = 0
+                    for kk in k:
+                        print kk
+                        if kk == parent:
+                            break
+                        i += 1
+                    parent_id = i
+                    break
+            # find out where to attach it
+            node_id = nodes[levels_to_worry_about[ci+1]][parent_id][parent]
+            nd = node_id.add_child(name=n.replace(" ","_"))
+            nodes[l].append({n:nd})
+
+    tree = t.write(format=9)  
+    tree = stk._collapse_nodes(tree) 
+    tree = stk._collapse_nodes(tree) 
+    print tree
 
 
 def _uniquify(l):
