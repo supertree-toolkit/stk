@@ -31,14 +31,11 @@ sys.path.insert(0, stk_path)
 import supertree_toolkit as stk
 import csv
 from ete2 import Tree
+import tempfile
 
+taxonomy_levels = stk.taxonomy_levels
+tlevels = ['species','genus','family','superfamily','suborder','order','class','phylum','kingdom']
 
-# What we get from EOL
-current_taxonomy_levels = ['species','genus','family','order','class','phylum','kingdom']
-# And the extra ones from ITIS
-extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
-# all of them in order
-taxonomy_levels = ['species','subgenus','genus','subfamily','family','superfamily','subsection','section','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
 def get_tree_taxa_taxonomy(taxon,wsdlObjectWoRMS):
 
@@ -65,25 +62,33 @@ def get_tree_taxa_taxonomy(taxon,wsdlObjectWoRMS):
 
 
 
-def get_taxonomy_worms(taxonomy, start_otu):
+def get_taxonomy_worms(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
     """ Gets and processes a taxon from the queue to get its taxonomy."""
     from SOAPpy import WSDL    
 
     wsdlObjectWoRMS = WSDL.Proxy('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
 
     # this is the recursive function
-    def get_children(taxonomy, ID):
+    def get_children(taxonomy, ID, aphiaIDsDone):
 
         # get data
         this_item = wsdlObjectWoRMS.getAphiaRecordByID(ID)
         if this_item == None:
             return taxonomy
+        print this_item['status'].lower()
+        if not this_item['status'].lower() == 'accepted':
+            print "rejecting " , this_item.valid_name
+            return taxonomy        
+        #print this_item['rank'].lower(), this_item.scientificname
         if this_item['rank'].lower() == 'species':
             # add data to taxonomy dictionary
-            # get the taxonomy of this species
-            classification = wsdlObjectWoRMS.getAphiaClassificationByID(ID)
-            taxon = this_item.scientificname
+            taxon = this_item.valid_name
+            #print taxon
+            #print this_item
+            # NOTE following line means existing items are *not* updated
             if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
+                # get the taxonomy of this species
+                classification = wsdlObjectWoRMS.getAphiaClassificationByID(ID)
                 # construct array
                 tax_array = {}
                 # classification is a nested dictionary, so we need to iterate down it
@@ -95,8 +100,11 @@ def get_taxonomy_worms(taxonomy, start_otu):
                     current_child = current_child.child
                     if current_child == '': # empty one is a string for some reason
                         break
-                print tax_array
-                taxonomy[this_item.scientificname] = tax_array
+                if verbose:
+                    print "\tAdding "+this_item.scientificname
+                taxonomy[this_item.valid_name] = tax_array
+                if not tmpfile == None:
+                    stk.save_taxonomy(taxonomy,tmpfile)
                 return taxonomy
             else:
                 return taxonomy
@@ -105,20 +113,27 @@ def get_taxonomy_worms(taxonomy, start_otu):
         start = 1
         while True:
             children = wsdlObjectWoRMS.getAphiaChildrenByID(ID, start, False)
-            if (children == None):
+            #print children
+            if (children is None or children == None):
                 break
             if (len(children) < 50):
                 all_children.extend(children)
                 break
             all_children.extend(children)
             start += 50
-        
+            #print len(all_children), start
+
         if (len(all_children) == 0):
             return taxonomy
 
+        #print all_children
         for child in all_children:
-            taxonomy = get_children(taxonomy, child['valid_AphiaID'])
-
+            #print "recursive bit: "+str(child['valid_AphiaID'])
+            if child['valid_AphiaID'] in aphiaIDsDone: # we get stuck sometime
+                continue
+            aphiaIDsDone.append(child['valid_AphiaID'])
+            taxonomy = get_children(taxonomy, child['valid_AphiaID'], aphiaIDsDone)
+            
         return taxonomy
             
 
@@ -133,7 +148,9 @@ def get_taxonomy_worms(taxonomy, start_otu):
         print "Error"
         sys.exit(-1)
 
-    taxonomy = get_children(taxonomy,start_id)
+    aphiaIDsDone = []
+    if not skip:
+        taxonomy = get_children(taxonomy,start_id,aphiaIDsDone)
 
     return taxonomy, start_taxonomy_level
             
@@ -150,6 +167,13 @@ def main():
             '--verbose', 
             action='store_true', 
             help="Verbose output: mainly progress reports.",
+            default=False
+            )
+    parser.add_argument(
+            '-s', 
+            '--skip', 
+            action='store_true', 
+            help="Skip online checking, just use taxonomy files",
             default=False
             )
     parser.add_argument(
@@ -195,24 +219,55 @@ def main():
     top_level = args.top_level[0]
     save_taxonomy_file = args.save_taxonomy
     tree_taxonomy = args.tree_taxonomy
+    taxonomy = args.taxonomy_from_file
     pref_db = args.pref_db
+    skip = args.skip
     if (save_taxonomy_file == None):
         save_taxonomy = False
     else:
         save_taxonomy = True
+    load_tree_taxonomy = False
+    if (not tree_taxonomy == None):
+        tree_taxonomy_file = tree_taxonomy
+        load_tree_taxonomy = True
+    if skip:
+        if tree_taxonomy == None or taxonomy == None:
+            print "Error: If you're skipping checking online, then you need to supply taxonomy files"
+            return
 
     # grab taxa in tree
     tree = stk.import_tree(input_file)
     taxa_list = stk._getTaxaFromNewick(tree)
 
-    taxonomy = {}
+    # load in any taxonomy files - we still call the APIs as a) they may have updated data and
+    # b) the user may have missed some first time round (i.e. expanded the tree and not redone 
+    # the taxonomy
+    if (taxonomy == None):
+        taxonomy = {}
+    else:
+        taxonomy = stk.load_taxonomy(taxonomy)
+        tree_taxonomy = {}    
+        # this might also have tree_taxonomy in too - let's check this
+        for t in taxa_list:
+            try:
+                tree_taxonomy[t] = taxonomy[t]
+            except KeyError:
+                pass
+        
+    if (load_tree_taxonomy): # overwrite the good work above...
+        tree_taxonomy = stk.load_taxonomy(tree_taxonomy_file)
+    if (tree_taxonomy == None):
+        tree_taxonomy = {}
 
-    # we're going to add the taxa in the tree to the taxonomy, to stop them
+
+
+    # we're going to add the taxa in the tree to the main WORMS taxonomy, to stop them
     # being fetched in first place. We delete them later
+    # If you've loaded a taxonomy created by this script, this overwrites the tree taxa in the main taxonomy dict
+    # Don't worry, we put them back in before saving again!
     for taxon in taxa_list:
         taxon = taxon.replace('_',' ')
         taxonomy[taxon] = {}
-
 
     if (pref_db == 'itis'):
         # get taxonomy info from itis
@@ -222,18 +277,53 @@ def main():
         if (verbose):
             print "Getting data from WoRMS"
         # get tree taxonomy from worms
-        if (tree_taxonomy == None):
-            tree_taxonomy = {}
-            for t in taxa_list:
-                from SOAPpy import WSDL    
-                wsdlObjectWoRMS = WSDL.Proxy('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
+        from SOAPpy import WSDL    
+        wsdlObjectWoRMS = WSDL.Proxy('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
+        if (verbose):
+            print "Dealing with taxa in tree"
+        for t in taxa_list:
+            if verbose:
+                print "\t"+t
+            try:
+                tree_taxonomy[t]
+                pass # we have data - NOTE we assume things are *not* updated here...
+            except KeyError:
                 tree_taxonomy[t] = get_tree_taxa_taxonomy(t,wsdlObjectWoRMS)
-        else:
-            tree_taxonomy = stk.load_taxonomy(tree_taxonomy)
+       
+        if save_taxonomy:
+            if (verbose):
+                print "Saving tree taxonomy"
+            # note -temporary save as we overwrite this file later.
+            stk.save_taxonomy(tree_taxonomy,save_taxonomy_file+'_tree.csv')
+
         # get taxonomy from worms
-        taxonomy, start_level = get_taxonomy_worms(taxonomy,top_level)
-        #start_level = 'family'
-        #taxonomy = tree_taxonomy
+        if verbose:
+            print "Now dealing with all other taxa - this might take a while..."
+        # create a temp file so we can checkpoint and continue
+        tmpf, tmpfile = tempfile.mkstemp()
+        
+        if os.path.isfile('.fit_lock'):
+            f = open('.fit_lock','r')
+            tf = f.read()
+            f.close()
+            if os.path.isfile(tf.strip()):
+                taxonomy = stk.load_taxonomy(tf.strip())
+            os.remove('.fit_lock')
+        
+        # create lock file - if this is here, then we load from the file in the lock file (or try to) and continue
+        # where we left off.
+        with open(".fit_lock", 'w') as f:
+            f.write(tmpfile)
+        # bit naughty with tmpfile - we're using the filename rather than handle to write to it. Have to for write_taxonomy function
+        taxonomy, start_level = get_taxonomy_worms(taxonomy,top_level,verbose,tmpfile=tmpfile,skip=skip) # this skips ones already there
+
+        # clean up
+        os.close(tmpf)
+        os.remove('.fit_lock')
+        try:
+            os.remove('tmpfile')
+        except OSError:
+            pass
 
     elif (pref_db == 'ncbi'):
         # get taxonomy from ncbi
@@ -243,19 +333,31 @@ def main():
         print "ERROR: Didn't understand you database choice"
         sys.exit(-1)
 
-
     # clean up taxonomy, deleting the ones already in the tree
     for taxon in taxa_list:
-        taxon = taxon.replace('_',' ')        
-        del taxonomy[taxon]
+        taxon = taxon.replace('_',' ')
+        try:
+            del taxonomy[taxon]
+        except KeyError:
+            pass # if it's not there, so we care?
 
-    orig_taxonomy = copy.deepcopy(taxonomy)
-    print start_level
-    print orig_taxonomy
+    # We now have 2 taxonomies:
+    #  - for taxa in the tree
+    #  - for all other taxa in the clade of interest
+
+    if save_taxonomy:
+        tot_taxonomy = taxonomy.copy()
+        tot_taxonomy.update(tree_taxonomy)
+        stk.save_taxonomy(tot_taxonomy,save_taxonomy_file)
+
+
+    #print taxa_list
+    orig_taxa_list = taxa_list
 
     # step up the taxonomy levels from genus, adding taxa to the correct node
     # as a polytomy
-    for level in taxonomy_levels[1::]: # skip species....
+    for level in tlevels[1::]: # skip species....
+        #print level
         new_taxa = []
         for t in taxonomy:
             # skip odd ones that should be in there
@@ -265,35 +367,48 @@ def main():
                 except KeyError:
                     continue # don't have this info
         new_taxa = _uniquify(new_taxa)
-        print level, new_taxa
+        print level, new_taxa, len(taxonomy)
 
         for nt in new_taxa:
-            taxa_to_add = []
+            taxa_to_add = {}
             taxa_in_clade = []
             for t in taxonomy:
+                #print taxonomy[t]
                 if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
-                    # need to add taxonomic information in here - there's a structure to be added
-                    # loop over level to genus - insert nodes from level to genus
-                    # insert species on appropriate genus
                     try:
-                        if taxonomy[t][level] == nt:
-                            taxa_to_add.append(t.replace(' ','_'))
+                        #print len(taxonomy),taxonomy[t][level], nt, t, t in orig_taxa_list
+                        if taxonomy[t][level] == nt and not t in taxa_list:
+                            taxa_to_add[t] = taxonomy[t]
                     except KeyError:
                         continue
 
-            taxa_to_add = _uniquify(taxa_to_add)
             # add to tree
             for t in taxa_list:
                 if level in tree_taxonomy[t] and tree_taxonomy[t][level] == nt:
                     taxa_in_clade.append(t)
-            if len(taxa_in_clade) > 0:
-                print "\t", taxa_to_add, taxa_in_clade
-                tree = add_taxa(tree, taxa_to_add, taxa_in_clade)
-                taxa_list = stk._getTaxaFromNewick(tree)   
-                for t in taxa_to_add: # clean up taxonomy
-                    tree_taxonomy[t] = taxonomy[t.replace('_',' ')]
+
+            print len(taxa_in_clade), nt
+
+            if len(taxa_in_clade) > 0 and len(taxa_to_add) > 0:
+                #print "\t", taxa_to_add, taxa_in_clade
+                tree = add_taxa(tree, taxa_to_add, taxa_in_clade,level)
+                taxa_list = stk._getTaxaFromNewick(tree)
+                try:
+                    taxa_list = stk._getTaxaFromNewick(tree) 
+                except stk.TreeParseError as e:
+                    print e.msg
+                    return
+
+                for t in taxa_to_add:
+                    #print t, taxa_to_add[t]
+                    tree_taxonomy[t.replace(' ','_')] = taxa_to_add[t]
+                    del taxonomy[t.replace('_',' ')]
 
 
+    # remove singelton nodes
+    tree = stk._collapse_nodes(tree) 
+    tree = stk._collapse_nodes(tree) 
+    tree = stk._collapse_nodes(tree) 
     trees = {}
     trees['tree_1'] = tree
     output = stk._amalgamate_trees(trees,format='nexus')
@@ -301,133 +416,7 @@ def main():
     f.write(output)
     f.close()
 
-    if not save_taxonomy_file == None:
-        with open(save_taxonomy_file, 'w') as f:
-            writer = csv.writer(f)
-            headers = []
-            headers.append("OTU")
-            headers.extend(taxonomy_levels)
-            headers.append("Data source")
-            writer.writerow(headers)
-            for t in orig_taxonomy:
-                otu = t
-                try:
-                    species = orig_taxonomy[t]['species']
-                except KeyError:
-                    species = "-"
-                try:
-                    subgenus = orig_taxonomy[t]['subgenus']
-                except KeyError:
-                    subgenus = "-"
-                try:
-                    genus = orig_taxonomy[t]['genus']
-                except KeyError:
-                    genus = "-"
-                try:
-                    subfamily = orig_taxonomy[t]['subfamily']
-                except KeyError:
-                    subfamily = "-"
-                try:
-                    family = orig_taxonomy[t]['family']
-                except KeyError:
-                    family = "-"
-                try:
-                    superfamily = orig_taxonomy[t]['superfamily']
-                except KeyError:
-                    superfamily = "-"
-                try:
-                    subsection = orig_taxonomy[t]['subsection']
-                except KeyError:
-                    subsection = "-"
-                try:
-                    section = orig_taxonomy[t]['section']
-                except KeyError:
-                    section = "-"
-                try:
-                    infraorder = orig_taxonomy[t]['infraorder']
-                except KeyError:
-                    infraorder = "-"
-                try:
-                    suborder = orig_taxonomy[t]['suborder']
-                except KeyError:
-                    suborder = "-"
-                try:
-                    order = orig_taxonomy[t]['order']
-                except KeyError:
-                    order = "-"
-                try:
-                    superorder = orig_taxonomy[t]['superorder']
-                except KeyError:
-                    superorder = "-"
-                try:
-                    subclass = orig_taxonomy[t]['subclass']
-                except KeyError:
-                    subclass = "-"
-                try:
-                    tclass = orig_taxonomy[t]['class']
-                except KeyError:
-                    tclass = "-"
-                try:
-                    superclass = orig_taxonomy[t]['superclass']
-                except KeyError:
-                    superclass = "-"
-                try:
-                    subphylum = orig_taxonomy[t]['subphylum']
-                except KeyError:
-                    subphylum = "-"
-                try:
-                    phylum = orig_taxonomy[t]['phylum']
-                except KeyError:
-                    phylum = "-"
-                try:
-                    superphylum = orig_taxonomy[t]['superphylum']
-                except KeyError:
-                    superphylum = "-"
-                try:
-                    infrakingdom = orig_taxonomy[t]['infrakingdom']
-                except:
-                    infrakingdom = "-"
-                try:
-                    subkingdom = orig_taxonomy[t]['subkingdom']
-                except:
-                    subkingdom = "-"
-                try:
-                    kingdom = orig_taxonomy[t]['kingdom']
-                except KeyError:
-                    kingdom = "-"
-                try:
-                    provider = orig_taxonomy[t]['provider']
-                except KeyError:
-                    provider = "-"
-
-                if (isinstance(species, list)):
-                    species = " ".join(species)
-                this_classification = [
-                        otu.encode('utf-8'),
-                        species.encode('utf-8'),
-                        subgenus.encode('utf-8'),
-                        genus.encode('utf-8'),
-                        subfamily.encode('utf-8'),
-                        family.encode('utf-8'),
-                        superfamily.encode('utf-8'),
-                        subsection.encode('utf-8'),
-                        section.encode('utf-8'),
-                        infraorder.encode('utf-8'),
-                        suborder.encode('utf-8'),
-                        order.encode('utf-8'),
-                        superorder.encode('utf-8'),
-                        subclass.encode('utf-8'),
-                        tclass.encode('utf-8'),
-                        superclass.encode('utf-8'),
-                        subphylum.encode('utf-8'),
-                        phylum.encode('utf-8'),
-                        superphylum.encode('utf-8'),
-                        infrakingdom.encode('utf-8'),
-                        subkingdom.encode('utf-8'),
-                        kingdom.encode('utf-8'),
-                        provider.encode('utf-8')]
-                writer.writerow(this_classification)
-
+ 
 
 def _uniquify(l):
     """
@@ -439,30 +428,98 @@ def _uniquify(l):
 
     return keys.keys()
 
-def add_taxa(tree, new_taxa, taxa_in_clade):
+def add_taxa(tree, new_taxa, taxa_in_clade, level):
 
     # create new tree of the new taxa
-    tree_string = "(" + ",".join(new_taxa) + ");"
-    additionalTaxa = stk._parse_tree(tree_string) 
+    additionalTaxa = tree_from_taxonomy(level,new_taxa)
+    print additionalTaxa
 
     # find mrca parent
     treeobj = stk._parse_tree(tree)
     mrca = stk.get_mrca(tree,taxa_in_clade)
-    mrca = treeobj.nodes[mrca]
-    #mrca_parent = treeobj.node(mrca).parent
+    print mrca
+    if (mrca == 0):
+        # we need to make a new tree! The additional taxa are being placed at the root of the tree
+        t = Tree()
+        A = t.add_child()
+        B = t.add_child()
+        t1 = Tree(additionalTaxa)
+        t2 = Tree(tree)
+        A.add_child(t1)
+        B.add_child(t2)
+        return t.write(format=9)
+    else:
+        mrca = treeobj.nodes[mrca]
+        additionalTaxa = stk._parse_tree(additionalTaxa)
+        
+        if len(taxa_in_clade) == 1:
+            taxon = treeobj.node(taxa_in_clade[0])
+            mrca = treeobj.addNodeBetweenNodes(taxon,mrca)
 
-    # insert a node into the tree between the MRCA and it's parent (p4.addNodeBetweenNodes)
-    # newNode = treeobj.addNodeBetweenNodes(mrca, mrca_parent)
 
-    # add the new tree at the new node using p4.addSubTree(self, selfNode, theSubTree, subTreeTaxNames=None)
-    treeobj.addSubTree(mrca, additionalTaxa, ignoreRootAssert=True)
-    #for t in new_taxa:
-    #    t.replace('(','')
-    #    t.replace(')','')
-    #    treeobj.addSibLeaf(mrca,t)
+        # insert a node into the tree between the MRCA and it's parent (p4.addNodeBetweenNodes)
+        # newNode = treeobj.addNodeBetweenNodes(mrca, mrca_parent)
 
-    # return new tree
+        # add the new tree at the new node using p4.addSubTree(self, selfNode, theSubTree, subTreeTaxNames=None)
+        treeobj.addSubTree(mrca, additionalTaxa, ignoreRootAssert=True)
+
     return treeobj.writeNewick(fName=None,toString=True).strip()
+
+
+
+def tree_from_taxonomy(top_level, tree_taxonomy):
+
+    start_level = taxonomy_levels.index(top_level)
+    new_taxa = tree_taxonomy.keys()
+
+    tl_types = []
+    for tt in tree_taxonomy:
+        tl_types.append(tree_taxonomy[tt][top_level])
+
+    tl_types = _uniquify(tl_types)
+    levels_to_worry_about = tlevels[0:tlevels.index(top_level)+1]
+        
+    t = Tree()
+    nodes = {}
+    nodes[top_level] = []
+    for tl in tl_types:
+        n = t.add_child(name=tl)
+        nodes[top_level].append({tl:n})
+
+    for l in levels_to_worry_about[-2::-1]:
+        names = []
+        nodes[l] = []
+        ci = levels_to_worry_about.index(l)
+        for tt in tree_taxonomy:
+            names.append(tree_taxonomy[tt][l])
+        names = _uniquify(names)
+        for n in names:
+            # find my parent
+            parent = None
+            for tt in tree_taxonomy:
+                if tree_taxonomy[tt][l] == n:
+                    parent = tree_taxonomy[tt][levels_to_worry_about[ci+1]]
+                    k = []
+                    for nd in nodes[levels_to_worry_about[ci+1]]:
+                        k.extend(nd.keys())
+                    i = 0
+                    for kk in k:
+                        #print kk
+                        if kk == parent:
+                            break
+                        i += 1
+                    parent_id = i
+                    break
+            # find out where to attach it
+            node_id = nodes[levels_to_worry_about[ci+1]][parent_id][parent]
+            nd = node_id.add_child(name=n.replace(" ","_"))
+            nodes[l].append({n:nd})
+
+    tree = t.write(format=9)  
+    #tree = stk._collapse_nodes(tree) 
+    #tree = stk._collapse_nodes(tree) 
+    
+    return tree
 
 if __name__ == "__main__":
     main()

@@ -2214,6 +2214,35 @@ def load_equivalents(equiv_csv):
     
     return equivalents
 
+def save_taxonomy(taxonomy, output_file):
+
+    import csv
+
+    with open(output_file, 'w') as f:
+        writer = csv.writer(f)
+        row = ['OTU']
+        row.extend(taxonomy_levels)
+        row.append('Provider')
+        writer.writerow(row)
+        for t in taxonomy:
+            species = t
+            row = []
+            row.append(t.encode('utf-8'))
+            for l in taxonomy_levels:
+                try:
+                    g = taxonomy[t][l]
+                except KeyError:
+                    g = '-'
+                row.append(g.encode('utf-8'))
+            try:
+                provider = taxonomy[t]['provider']
+            except KeyError:
+                provider = "-"
+            row.append(provider)
+
+            writer.writerow(row)
+
+
 def load_taxonomy(taxonomy_csv):
     """Load in a taxonomy CSV file and convert to taxonomy Dict"""
     
@@ -2223,17 +2252,22 @@ def load_taxonomy(taxonomy_csv):
 
     with open(taxonomy_csv, 'rU') as csvfile:
         tax_reader = csv.reader(csvfile, delimiter=',')
-        tax_reader.next()
-        for row in tax_reader:
-            current_taxonomy = {}
-            i = 1
-            for t in taxonomy_levels:
-                if not row[i] == '-':
-                    current_taxonomy[t] = row[i]
-                i = i+ 1
+        try:
+            tax_reader.next()
+            for row in tax_reader:
+                current_taxonomy = {}
+                i = 1
+                for t in taxonomy_levels:
+                    if row[0] == 'Deosergestes pediformis':
+                        print row
+                    if not row[i] == '-':
+                        current_taxonomy[t] = row[i]
+                    i = i+ 1
 
-            current_taxonomy['provider'] = row[22] # data source
-            taxonomy[row[0]] = current_taxonomy
+                current_taxonomy['provider'] = row[22] # data source
+                taxonomy[row[0]] = current_taxonomy
+        except:
+            pass
     
     return taxonomy
 

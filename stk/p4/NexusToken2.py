@@ -88,7 +88,7 @@ def safeNextTok(flob, caller=None):
         else:
             gm = ["safeNextTok()"]
         gm.append("Premature Death.")
-        gm.append("Ran out of understandable things to read in nexus file.")
+        gm.append("Ran out of understandable things to read in nexus file." + str(flob))
         raise Glitch, gm
     else:
         return t
