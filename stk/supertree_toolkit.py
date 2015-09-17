@@ -2258,13 +2258,11 @@ def load_taxonomy(taxonomy_csv):
                 current_taxonomy = {}
                 i = 1
                 for t in taxonomy_levels:
-                    if row[0] == 'Deosergestes pediformis':
-                        print row
                     if not row[i] == '-':
                         current_taxonomy[t] = row[i]
                     i = i+ 1
 
-                current_taxonomy['provider'] = row[22] # data source
+                current_taxonomy['provider'] = row[-1] # data source
                 taxonomy[row[0]] = current_taxonomy
         except:
             pass
