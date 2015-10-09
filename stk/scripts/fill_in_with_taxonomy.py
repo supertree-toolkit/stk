@@ -37,7 +37,10 @@ taxonomy_levels = stk.taxonomy_levels
 tlevels = ['species','genus','family','superfamily','suborder','order','class','phylum','kingdom']
 
 
-def get_tree_taxa_taxonomy(taxon,wsdlObjectWoRMS):
+def get_tree_taxa_taxonomy_worms(taxon):
+
+    from SOAPpy import WSDL    
+    wsdlObjectWoRMS = WSDL.Proxy('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
 
     taxon_data = wsdlObjectWoRMS.getAphiaRecords(taxon.replace('_',' '))
     if taxon_data == None:
@@ -59,6 +62,151 @@ def get_tree_taxa_taxonomy(taxon,wsdlObjectWoRMS):
         if current_child == '': # empty one is a string for some reason
             break
     return tax_array
+
+def get_tree_taxa_taxonomy_itis(taxon):
+
+    URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(taxon.replace('_',' ').strip())
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)    
+    string = unicode(f.read(),"ISO-8859-1")
+    this_item = json.loads(string)
+    if this_item['scientificNames'] == [None]: # not found
+        return {}
+    tsn = this_item['scientificNames'][0]['tsn'] # there might be records that aren't valid - they point to the valid one though
+    # so call another function to get any valid names
+    URL="http://www.itis.gov/ITISWebService/jsonservice/getAcceptedNamesFromTSN?tsn="+tsn
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    string = unicode(f.read(),"ISO-8859-1")
+    this_item = json.loads(string)
+    if not this_item['acceptedNames'] == [None]:
+        tsn = this_item['acceptedNames'][0]['acceptedTsn']
+
+    URL="http://www.itis.gov/ITISWebService/jsonservice/getFullHierarchyFromTSN?tsn="+str(tsn)
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    string = unicode(f.read(),"ISO-8859-1")
+    data = json.loads(string)
+    # construct array
+    this_taxonomy = {}
+    for level in data['hierarchyList']:
+        if level['rankName'].lower() in taxonomy_levels:
+            # note the dump into ASCII            
+            this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
+
+    return this_taxonomy
+
+
+def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
+    import simplejson as json
+        
+    # this is the recursive function
+    def get_children(taxonomy, ID, aphiaIDsDone):
+
+        # get data
+        URL="http://www.itis.gov/ITISWebService/jsonservice/getFullRecordFromTSN?tsn="+ID
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        string = unicode(f.read(),"ISO-8859-1")
+        this_item = json.loads(string)
+        if this_item == None:
+            return taxonomy
+        if not this_item['usage']['taxonUsageRating'].lower() == 'valid':
+            print "rejecting " , this_item['scientificName']['combinedName']
+            return taxonomy        
+        if this_item['taxRank']['rankName'].lower().strip() == 'species':
+            # add data to taxonomy dictionary
+            taxon = this_item['scientificName']['combinedName']
+            #print this_item
+            # NOTE following line means existing items are *not* updated
+            if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
+                # get the taxonomy of this species
+                tsn = this_item["scientificName"]["tsn"]
+                URL="http://www.itis.gov/ITISWebService/jsonservice/getFullHierarchyFromTSN?tsn="+tsn
+                req = urllib2.Request(URL)
+                opener = urllib2.build_opener()
+                f = opener.open(req)
+                string = unicode(f.read(),"ISO-8859-1")
+                data = json.loads(string)
+                this_taxonomy = {}
+                for level in data['hierarchyList']:
+                    if level['rankName'].lower() in taxonomy_levels:
+                        # note the dump into ASCII            
+                        this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
+                #if verbose:
+                print "\tAdding "+taxon
+                taxonomy[taxon] = this_taxonomy
+                if not tmpfile == None:
+                    stk.save_taxonomy(taxonomy,tmpfile)
+                return taxonomy
+            else:
+                return taxonomy
+
+        all_children = []
+        URL="http://www.itis.gov/ITISWebService/jsonservice/getHierarchyDownFromTSN?tsn="+ID
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        string = unicode(f.read(),"ISO-8859-1")
+        this_item = json.loads(string)
+        if this_item == None:
+            return taxonomy
+
+        for level in this_item['hierarchyList']:
+            if not level == None:
+                all_children.append(level['tsn'])
+        
+        if (len(all_children) == 0):
+            return taxonomy
+
+        #print all_children
+        for child in all_children:
+            #print "recursive bit: "+str(child['valid_AphiaID'])
+            if child in aphiaIDsDone: # we get stuck sometime
+                continue
+            aphiaIDsDone.append(child)
+            taxonomy = get_children(taxonomy, child, aphiaIDsDone)
+            
+        return taxonomy
+            
+
+    # main bit of the get_taxonomy_worms function
+    URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(start_otu.strip())
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    string = unicode(f.read(),"ISO-8859-1")
+    this_item = json.loads(string)
+    start_id = this_item['scientificNames'][0]['tsn'] # there might be records that aren't valid - they point to the valid one though
+    # call it again via the ID this time to make sure we've got the right one.
+    # so call another function to get any valid names
+    URL="http://www.itis.gov/ITISWebService/jsonservice/getAcceptedNamesFromTSN?tsn="+start_id
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    string = unicode(f.read(),"ISO-8859-1")
+    this_item = json.loads(string)
+    if not this_item['acceptedNames'] == [None]:
+        start_id = this_item['acceptedNames'][0]['acceptedTsn']
+
+    URL="http://www.itis.gov/ITISWebService/jsonservice/getFullRecordFromTSN?tsn="+start_id
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    string = unicode(f.read(),"ISO-8859-1")
+    this_item = json.loads(string)
+    start_taxonomy_level = this_item['taxRank']['rankName'].lower()
+
+    aphiaIDsDone = []
+    if not skip:
+        taxonomy = get_children(taxonomy,start_id,aphiaIDsDone)
+
+    return taxonomy, start_taxonomy_level
+
 
 
 
@@ -271,14 +419,9 @@ def main():
 
     if (pref_db == 'itis'):
         # get taxonomy info from itis
-        print "Sorry, ITIS is not implemented yet"
-        pass
-    elif (pref_db == 'worms'):
         if (verbose):
-            print "Getting data from WoRMS"
+            print "Getting data from ITIS"
         # get tree taxonomy from worms
-        from SOAPpy import WSDL    
-        wsdlObjectWoRMS = WSDL.Proxy('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
         if (verbose):
             print "Dealing with taxa in tree"
         for t in taxa_list:
@@ -288,7 +431,56 @@ def main():
                 tree_taxonomy[t]
                 pass # we have data - NOTE we assume things are *not* updated here...
             except KeyError:
-                tree_taxonomy[t] = get_tree_taxa_taxonomy(t,wsdlObjectWoRMS)
+                tree_taxonomy[t] = get_tree_taxa_taxonomy_itis(t)
+       
+        if save_taxonomy:
+            if (verbose):
+                print "Saving tree taxonomy"
+            # note -temporary save as we overwrite this file later.
+            stk.save_taxonomy(tree_taxonomy,save_taxonomy_file+'_tree.csv')
+
+        # get taxonomy from worms
+        if verbose:
+            print "Now dealing with all other taxa - this might take a while..."
+        # create a temp file so we can checkpoint and continue
+        tmpf, tmpfile = tempfile.mkstemp()
+        
+        if os.path.isfile('.fit_lock'):
+            f = open('.fit_lock','r')
+            tf = f.read()
+            f.close()
+            if os.path.isfile(tf.strip()):
+                taxonomy = stk.load_taxonomy(tf.strip())
+            os.remove('.fit_lock')
+        
+        # create lock file - if this is here, then we load from the file in the lock file (or try to) and continue
+        # where we left off.
+        with open(".fit_lock", 'w') as f:
+            f.write(tmpfile)
+        # bit naughty with tmpfile - we're using the filename rather than handle to write to it. Have to for write_taxonomy function
+        taxonomy, start_level = get_taxonomy_itis(taxonomy,top_level,verbose,tmpfile=tmpfile,skip=skip) # this skips ones already there
+
+        # clean up
+        os.close(tmpf)
+        os.remove('.fit_lock')
+        try:
+            os.remove('tmpfile')
+        except OSError:
+            pass
+    elif (pref_db == 'worms'):
+        if (verbose):
+            print "Getting data from WoRMS"
+        # get tree taxonomy from worms
+        if (verbose):
+            print "Dealing with taxa in tree"
+        for t in taxa_list:
+            if verbose:
+                print "\t"+t
+            try:
+                tree_taxonomy[t]
+                pass # we have data - NOTE we assume things are *not* updated here...
+            except KeyError:
+                tree_taxonomy[t] = get_tree_taxa_taxonomy_worms(t)
        
         if save_taxonomy:
             if (verbose):
@@ -409,6 +601,33 @@ def main():
     tree = stk._collapse_nodes(tree) 
     tree = stk._collapse_nodes(tree) 
     tree = stk._collapse_nodes(tree) 
+
+    taxa = stk._getTaxaFromNewick(tree)
+    # clean tree of higher level taxa
+    generic = []
+    # find all the generic and build an internal subs file
+    for t in taxa:
+        t = t.replace(" ","_")
+        if t.find("_") == -1:
+            # no underscore, so just generic
+            generic.append(t)
+
+    subs = []
+    generic_to_replace = []
+    for t in generic:
+        currentSub = []
+        for taxon in taxa:
+            if (not taxon == t) and taxon.find(t) > -1:
+                m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', taxon)
+                if (not m == None):
+                    if taxon.find("'") == -1:
+                        taxon = "'"+taxon+"'" 
+                currentSub.append(taxon)
+        if (len(currentSub) > 0):
+            subs.append(",".join(currentSub))
+            generic_to_replace.append(t)
+    
+    tree = stk._sub_taxa_in_tree(tree, generic_to_replace, subs)
     trees = {}
     trees['tree_1'] = tree
     output = stk._amalgamate_trees(trees,format='nexus')
@@ -437,7 +656,7 @@ def add_taxa(tree, new_taxa, taxa_in_clade, level):
     # find mrca parent
     treeobj = stk._parse_tree(tree)
     mrca = stk.get_mrca(tree,taxa_in_clade)
-    print mrca
+    print mrca, taxa_in_clade
     if (mrca == 0):
         # we need to make a new tree! The additional taxa are being placed at the root of the tree
         t = Tree()
