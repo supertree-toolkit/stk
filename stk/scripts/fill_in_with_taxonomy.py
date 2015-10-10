@@ -546,6 +546,15 @@ def main():
     #print taxa_list
     orig_taxa_list = taxa_list
 
+    remove_higher_level = [] # for storing the higher level taxa in the original tree that need deleting
+    generic = []
+    # find all the generic and build an internal subs file
+    for t in taxa_list:
+        t = t.replace(" ","_")
+        if t.find("_") == -1:
+            # no underscore, so just generic
+            generic.append(t)
+
     # step up the taxonomy levels from genus, adding taxa to the correct node
     # as a polytomy
     for level in tlevels[1::]: # skip species....
@@ -578,6 +587,9 @@ def main():
             for t in taxa_list:
                 if level in tree_taxonomy[t] and tree_taxonomy[t][level] == nt:
                     taxa_in_clade.append(t)
+                    if t in generic:
+                        # we are appending taxa to this higher taxon, so we need to remove it
+                        remove_higher_level.append(t)
 
             print len(taxa_in_clade), nt
 
@@ -601,33 +613,8 @@ def main():
     tree = stk._collapse_nodes(tree) 
     tree = stk._collapse_nodes(tree) 
     tree = stk._collapse_nodes(tree) 
-
-    taxa = stk._getTaxaFromNewick(tree)
-    # clean tree of higher level taxa
-    generic = []
-    # find all the generic and build an internal subs file
-    for t in taxa:
-        t = t.replace(" ","_")
-        if t.find("_") == -1:
-            # no underscore, so just generic
-            generic.append(t)
-
-    subs = []
-    generic_to_replace = []
-    for t in generic:
-        currentSub = []
-        for taxon in taxa:
-            if (not taxon == t) and taxon.find(t) > -1:
-                m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', taxon)
-                if (not m == None):
-                    if taxon.find("'") == -1:
-                        taxon = "'"+taxon+"'" 
-                currentSub.append(taxon)
-        if (len(currentSub) > 0):
-            subs.append(",".join(currentSub))
-            generic_to_replace.append(t)
     
-    tree = stk._sub_taxa_in_tree(tree, generic_to_replace, subs)
+    tree = stk._sub_taxa_in_tree(tree, remove_higher_level)
     trees = {}
     trees['tree_1'] = tree
     output = stk._amalgamate_trees(trees,format='nexus')
