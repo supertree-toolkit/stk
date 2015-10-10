@@ -32,6 +32,7 @@ import supertree_toolkit as stk
 import csv
 from ete2 import Tree
 import tempfile
+import re
 
 taxonomy_levels = stk.taxonomy_levels
 tlevels = ['species','genus','family','superfamily','suborder','order','class','phylum','kingdom']
