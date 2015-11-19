@@ -3657,7 +3657,7 @@ def tree_from_taxonomy(taxonomy, end_level, end_rank):
     This is not the most efficient way, but works OK
     """
 
-    # Grab data only for the end_level calssification
+    # Grab data only for the end_level classification
     required_taxonomy = {}
     for t in taxonomy:
         if (end_level in t):
@@ -4098,6 +4098,7 @@ def _swap_tree_in_XML(XML, tree, name, delete=False):
         # for each source, get source name
         s_name = s.attrib['name']
         if source_name == s_name:
+            # found the bugger!
             for t in s.xpath("source_tree"):
                 tree_name = t.attrib['name']
                 if (tree_name == name):
@@ -4627,5 +4628,4 @@ def _parse_tree(tree,fixDuplicateTaxa=False):
     t = p4.var.trees[0]
     p4.var.trees = []
     return t
-
 

@@ -38,6 +38,71 @@ taxonomy_levels = stk.taxonomy_levels
 tlevels = ['species','genus','family','superfamily','suborder','order','class','phylum','kingdom']
 
 
+def get_tree_taxa_taxonomy_eol(taxon):
+
+    taxonq = quote_plus(taxon)
+    URL = "http://eol.org/api/search/1.0.json?q="+taxonq
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    data = json.load(f)
+    
+    if data['results'] == []:
+        return {}
+    ID = str(data['results'][0]['id']) # take first hit
+    # Now look for taxonomies
+    URL = "http://eol.org/api/pages/1.0/"+ID+".json"
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    data = json.load(f)
+    if len(data['taxonConcepts']) == 0:
+        return {}
+    TID = str(data['taxonConcepts'][0]['identifier']) # take first hit
+    currentdb = str(data['taxonConcepts'][0]['nameAccordingTo'])
+    # loop through and get preferred one if specified
+    # now get taxonomy        
+    for db in data['taxonConcepts']:
+        currentdb = db['nameAccordingTo'].lower()
+        TID = str(db['identifier'])
+        break
+    URL="http://eol.org/api/hierarchy_entries/1.0/"+TID+".json"
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    data = json.load(f)
+    tax_array = {}
+    tax_array['provider'] = currentdb
+    for a in data['ancestors']:
+        try:
+            if a.has_key('taxonRank') :
+                temp_level = a['taxonRank'].encode("ascii","ignore")
+                if (temp_level in taxonomy_levels):
+                    # note the dump into ASCII
+                    temp_name = a['scientificName'].encode("ascii","ignore")
+                    temp_name = temp_name.split(" ")
+                    if (temp_level == 'species'):
+                        tax_array[temp_level] = "_".join(temp_name[0:2])
+                        
+                    else:
+                        tax_array[temp_level] = temp_name[0]  
+        except KeyError as e:
+            logging.exception("Key not found: taxonRank")
+            continue
+    try:
+        # add taxonomy in to the taxonomy!
+        # some issues here, so let's make sure it's OK
+        temp_name = taxon.split(" ")            
+        if data.has_key('taxonRank') :
+            if not data['taxonRank'].lower() == 'species':
+                tax_array[data['taxonRank'].lower()] = temp_name[0]
+            else:
+                tax_array[data['taxonRank'].lower()] = ' '.join(temp_name[0:2])
+    except KeyError as e:
+       return tax_array 
+
+    return tax_array
+
 def get_tree_taxa_taxonomy_worms(taxon):
 
     from SOAPpy import WSDL    
@@ -99,6 +164,86 @@ def get_tree_taxa_taxonomy_itis(taxon):
             this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
 
     return this_taxonomy
+
+
+
+def get_taxonomy_eol(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
+        
+    # this is the recursive function
+    def get_children(taxonomy, ID, aphiaIDsDone):
+
+        # get data
+        URL="http://eol.org/api/hierarchy_entries/1.0/"+str(ID)+".json?common_names=false&synonyms=false&cache_ttl="
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        string = unicode(f.read(),"ISO-8859-1")
+        this_item = json.loads(string)
+        if this_item == None:
+            return taxonomy  
+        if this_item['taxonRank'].lower().strip() == 'species':
+            # add data to taxonomy dictionary
+            taxon = this_item['scientificName'].split()[0:2] # just the first two words
+            taxon = " ".join(taxon[0:2])
+            #print this_item
+            # NOTE following line means existing items are *not* updated
+            if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
+                this_taxonomy = {}
+                for level in this_item['ancestors']:
+                    if level['taxonRank'].lower() in taxonomy_levels:
+                        # note the dump into ASCII            
+                        this_taxonomy[level['taxonRank'].lower().encode("ascii","ignore")] = level['scientificName'].encode("ascii","ignore")
+                # add species:
+                this_taxonomy['species'] = taxon.replace(" ","_")
+                if verbose:
+                    print "\tAdding "+taxon
+                taxonomy[taxon] = this_taxonomy
+                if not tmpfile == None:
+                    stk.save_taxonomy(taxonomy,tmpfile)
+                return taxonomy
+            else:
+                return taxonomy
+        all_children = []
+        for level in this_item['children']:
+            if not level == None:
+                all_children.append(level['taxonID'])
+        
+        if (len(all_children) == 0):
+            return taxonomy
+
+        for child in all_children:
+            if child in aphiaIDsDone: # we get stuck sometime
+                continue
+            aphiaIDsDone.append(child)
+            taxonomy = get_children(taxonomy, child, aphiaIDsDone)
+        return taxonomy
+            
+
+    # main bit of the get_taxonomy_eol function
+    taxonq = quote_plus(start_otu)
+    URL = "http://eol.org/api/search/1.0.json?q="+taxonq
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    data = json.load(f)
+    start_id = str(data['results'][0]['id']) # this is the page ID. We get the species ID next
+    URL = "http://eol.org/api/pages/1.0/"+start_id+".json"
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    data = json.load(f)
+    if len(data['taxonConcepts']) == 0:
+        print "Error finding you start taxa. Spelling?"
+        return None  
+    start_id = data['taxonConcepts'][0]['identifier']
+    start_taxonomy_level = data['taxonConcepts'][0]['taxonRank'].lower()
+
+    aphiaIDsDone = []
+    if not skip:
+        taxonomy = get_children(taxonomy,start_id,aphiaIDsDone)
+
+    return taxonomy, start_taxonomy_level
+
 
 
 def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
@@ -328,7 +473,7 @@ def main():
     parser.add_argument(
             '--pref_db',
             help="Taxonomy database to use. Default is Species 2000/ITIS",
-            choices=['itis', 'worms', 'ncbi'],
+            choices=['itis', 'worms', 'ncbi', 'eol'],
             default = 'worms'
             )
     parser.add_argument(
@@ -407,8 +552,6 @@ def main():
         tree_taxonomy = stk.load_taxonomy(tree_taxonomy_file)
     if (tree_taxonomy == None):
         tree_taxonomy = {}
-
-
 
     # we're going to add the taxa in the tree to the main WORMS taxonomy, to stop them
     # being fetched in first place. We delete them later
@@ -522,8 +665,57 @@ def main():
         # get taxonomy from ncbi
         print "Sorry, NCBI is not implemented yet"        
         pass
+    elif (pref_db == 'eol'):
+        if (verbose):
+            print "Getting data from EOL"
+        # get tree taxonomy from worms
+        if (verbose):
+            print "Dealing with taxa in tree"
+        for t in taxa_list:
+            if verbose:
+                print "\t"+t
+            try:
+                tree_taxonomy[t]
+                pass # we have data - NOTE we assume things are *not* updated here...
+            except KeyError:
+                tree_taxonomy[t] = get_tree_taxa_taxonomy_eol(t)
+       
+        if save_taxonomy:
+            if (verbose):
+                print "Saving tree taxonomy"
+            # note -temporary save as we overwrite this file later.
+            stk.save_taxonomy(tree_taxonomy,save_taxonomy_file+'_tree.csv')
+
+        # get taxonomy from worms
+        if verbose:
+            print "Now dealing with all other taxa - this might take a while..."
+        # create a temp file so we can checkpoint and continue
+        tmpf, tmpfile = tempfile.mkstemp()
+        
+        if os.path.isfile('.fit_lock'):
+            f = open('.fit_lock','r')
+            tf = f.read()
+            f.close()
+            if os.path.isfile(tf.strip()):
+                taxonomy = stk.load_taxonomy(tf.strip())
+            os.remove('.fit_lock')
+        
+        # create lock file - if this is here, then we load from the file in the lock file (or try to) and continue
+        # where we left off.
+        with open(".fit_lock", 'w') as f:
+            f.write(tmpfile)
+        # bit naughty with tmpfile - we're using the filename rather than handle to write to it. Have to for write_taxonomy function
+        taxonomy, start_level = get_taxonomy_eol(taxonomy,top_level,verbose,tmpfile=tmpfile,skip=skip) # this skips ones already there
+
+        # clean up
+        os.close(tmpf)
+        os.remove('.fit_lock')
+        try:
+            os.remove('tmpfile')
+        except OSError:
+            pass
     else:
-        print "ERROR: Didn't understand you database choice"
+        print "ERROR: Didn't understand your database choice"
         sys.exit(-1)
 
     # clean up taxonomy, deleting the ones already in the tree
