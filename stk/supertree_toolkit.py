@@ -54,6 +54,7 @@ import types
 
 #plt.ion()
 
+sys.setrecursionlimit(50000)
 # GLOBAL VARIABLES
 IDENTICAL = 0
 SUBSET = 1
@@ -2253,17 +2254,22 @@ def load_taxonomy(taxonomy_csv):
     with open(taxonomy_csv, 'rU') as csvfile:
         tax_reader = csv.reader(csvfile, delimiter=',')
         try:
-            tax_reader.next()
+            j = 0
             for row in tax_reader:
-                current_taxonomy = {}
+                if j == 0:
+                    tax_levels = row[1:-1]
+                    j += 1
+                    continue
                 i = 1
-                for t in taxonomy_levels:
+                current_taxonomy = {}
+                for t in tax_levels:
                     if not row[i] == '-':
                         current_taxonomy[t] = row[i]
                     i = i+ 1
 
                 current_taxonomy['provider'] = row[-1] # data source
-                taxonomy[row[0]] = current_taxonomy
+                taxonomy[row[0].replace(" ","_")] = current_taxonomy
+                j += 1
         except:
             pass
     

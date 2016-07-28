@@ -126,7 +126,6 @@ def main():
             else:
                taxonomy[row[0]] = row[index]
 
-    print taxonomy
     values = taxonomy.values()
     values = _uniquify(values)
     n = len(values)

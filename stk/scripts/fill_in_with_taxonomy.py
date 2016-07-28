@@ -35,8 +35,8 @@ import tempfile
 import re
 
 taxonomy_levels = stk.taxonomy_levels
-tlevels = ['species','genus','family','superfamily','suborder','order','class','phylum','kingdom']
-
+#tlevels = ['species','genus','family','superfamily','suborder','order','class','phylum','kingdom']
+tlevels = ['species','genus', 'subfamily', 'family','infraorder','order','class','phylum','kingdom']
 
 def get_tree_taxa_taxonomy_eol(taxon):
 
@@ -120,6 +120,8 @@ def get_tree_taxa_taxonomy_worms(taxon):
     classification = wsdlObjectWoRMS.getAphiaClassificationByID(taxon_id)
     # construct array
     tax_array = {}
+    if (classification == ""):
+        return {}
     # classification is a nested dictionary, so we need to iterate down it
     current_child = classification.child
     while True:
@@ -525,13 +527,14 @@ def main():
         tree_taxonomy_file = tree_taxonomy
         load_tree_taxonomy = True
     if skip:
-        if tree_taxonomy == None or taxonomy == None:
+        if taxonomy == None:
             print "Error: If you're skipping checking online, then you need to supply taxonomy files"
             return
 
     # grab taxa in tree
     tree = stk.import_tree(input_file)
     taxa_list = stk._getTaxaFromNewick(tree)
+    print len(taxa_list)
 
     # load in any taxonomy files - we still call the APIs as a) they may have updated data and
     # b) the user may have missed some first time round (i.e. expanded the tree and not redone 
@@ -543,11 +546,11 @@ def main():
         tree_taxonomy = {}    
         # this might also have tree_taxonomy in too - let's check this
         for t in taxa_list:
-            try:
+            if t in taxonomy:
                 tree_taxonomy[t] = taxonomy[t]
-            except KeyError:
-                pass
-        
+            elif t.replace("_"," ") in taxonomy:
+                tree_taxonomy[t] = taxonomy[t.replace("_"," ")]
+       
     if (load_tree_taxonomy): # overwrite the good work above...
         tree_taxonomy = stk.load_taxonomy(tree_taxonomy_file)
     if (tree_taxonomy == None):
@@ -571,10 +574,8 @@ def main():
         for t in taxa_list:
             if verbose:
                 print "\t"+t
-            try:
-                tree_taxonomy[t]
-                pass # we have data - NOTE we assume things are *not* updated here...
-            except KeyError:
+            if not(t in tree_taxonomy or t.replace("_"," ") in tree_taxonomy):
+                # we don't have data - NOTE we assume things are *not* updated here if we do
                 tree_taxonomy[t] = get_tree_taxa_taxonomy_itis(t)
        
         if save_taxonomy:
@@ -617,15 +618,14 @@ def main():
         # get tree taxonomy from worms
         if (verbose):
             print "Dealing with taxa in tree"
+        
         for t in taxa_list:
             if verbose:
                 print "\t"+t
-            try:
-                tree_taxonomy[t]
-                pass # we have data - NOTE we assume things are *not* updated here...
-            except KeyError:
-                tree_taxonomy[t] = get_tree_taxa_taxonomy_worms(t)
-       
+            if not(t in tree_taxonomy or t.replace("_"," ") in tree_taxonomy):
+                # we don't have data - NOTE we assume things are *not* updated here if we do
+                tree_taxonomy[t] = get_tree_taxa_taxonomy_itis(t)
+
         if save_taxonomy:
             if (verbose):
                 print "Saving tree taxonomy"
@@ -750,11 +750,13 @@ def main():
 
     # step up the taxonomy levels from genus, adding taxa to the correct node
     # as a polytomy
+    start_level = start_level.encode('utf-8').strip()
+    print start_level
     for level in tlevels[1::]: # skip species....
-        #print level
         new_taxa = []
         for t in taxonomy:
             # skip odd ones that should be in there
+            print taxonomy[t][start_level]
             if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
                 try:
                     new_taxa.append(taxonomy[t][level])
@@ -767,7 +769,6 @@ def main():
             taxa_to_add = {}
             taxa_in_clade = []
             for t in taxonomy:
-                #print taxonomy[t]
                 if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
                     try:
                         #print len(taxonomy),taxonomy[t][level], nt, t, t in orig_taxa_list
@@ -799,7 +800,7 @@ def main():
                 for t in taxa_to_add:
                     #print t, taxa_to_add[t]
                     tree_taxonomy[t.replace(' ','_')] = taxa_to_add[t]
-                    del taxonomy[t.replace('_',' ')]
+                    del taxonomy[t.replace(' ','_')]
 
 
     # remove singelton nodes
@@ -814,7 +815,8 @@ def main():
     f = open(output_file, "w")
     f.write(output)
     f.close()
-
+    taxa_list = stk._getTaxaFromNewick(tree)
+    print len(taxa_list)
  
 
 def _uniquify(l):
@@ -890,13 +892,16 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
         nodes[l] = []
         ci = levels_to_worry_about.index(l)
         for tt in tree_taxonomy:
-            names.append(tree_taxonomy[tt][l])
+            try:
+                names.append(tree_taxonomy[tt][l])
+            except KeyError:
+                pass
         names = _uniquify(names)
         for n in names:
             # find my parent
             parent = None
             for tt in tree_taxonomy:
-                if tree_taxonomy[tt][l] == n:
+               if tree_taxonomy[tt][l] == n:
                     parent = tree_taxonomy[tt][levels_to_worry_about[ci+1]]
                     k = []
                     for nd in nodes[levels_to_worry_about[ci+1]]:
