@@ -371,7 +371,6 @@ def get_taxonomy_worms(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
         this_item = wsdlObjectWoRMS.getAphiaRecordByID(ID)
         if this_item == None:
             return taxonomy
-        print this_item['status'].lower()
         if not this_item['status'].lower() == 'accepted':
             print "rejecting " , this_item.valid_name
             return taxonomy        
@@ -439,8 +438,11 @@ def get_taxonomy_worms(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
         start_id = start_taxa[0]['valid_AphiaID'] # there might be records that aren't valid - they point to the valid one though
         # call it again via the ID this time to make sure we've got the right one.
         start_taxa = wsdlObjectWoRMS.getAphiaRecordByID(start_id)
-        start_taxonomy_level = start_taxa['rank'].lower()
-    except HTTPError:
+        if start_taxa == None:
+            start_taxonomy_level = 'infraorder'
+        else:
+            start_taxonomy_level = start_taxa['rank'].lower()
+    except urllib2.HTTPError:
         print "Error"
         sys.exit(-1)
 
@@ -678,7 +680,10 @@ def main():
                 tree_taxonomy[t]
                 pass # we have data - NOTE we assume things are *not* updated here...
             except KeyError:
-                tree_taxonomy[t] = get_tree_taxa_taxonomy_eol(t)
+                try:
+                    tree_taxonomy[t.replace('_',' ')]
+                except KeyError:
+                    tree_taxonomy[t] = get_tree_taxa_taxonomy_eol(t)
        
         if save_taxonomy:
             if (verbose):
@@ -798,9 +803,13 @@ def main():
                     return
 
                 for t in taxa_to_add:
-                    #print t, taxa_to_add[t]
+                    print t, taxa_to_add[t]
                     tree_taxonomy[t.replace(' ','_')] = taxa_to_add[t]
-                    del taxonomy[t.replace(' ','_')]
+                    try:
+                        del taxonomy[t.replace('_',' ')]
+                    except KeyError:
+                        # It might have _ or it might not...
+                        del taxonomy[t]
 
 
     # remove singelton nodes

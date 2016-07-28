@@ -2266,7 +2266,6 @@ def load_taxonomy(taxonomy_csv):
                     if not row[i] == '-':
                         current_taxonomy[t] = row[i]
                     i = i+ 1
-
                 current_taxonomy['provider'] = row[-1] # data source
                 taxonomy[row[0].replace(" ","_")] = current_taxonomy
                 j += 1
