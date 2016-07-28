@@ -997,16 +997,16 @@ class Tree(object):
                     if item == self.root:
                         if var.fixRootedTrees:
                             if self.name:
-                                print "Tree.initFinish()   tree '%s'" % self.name
+                                #print "Tree.initFinish()   tree '%s'" % self.name
                             else:
-                                print 'Tree.initFinish()'
-                            print "Fixing tree to work with SuperTree scores"
+                                #print 'Tree.initFinish()'
+                            #print "Fixing tree to work with SuperTree scores"
                             self.removeRoot()
                         elif var.warnAboutTerminalRootWithNoName:
                             if self.name:
-                                print "Tree.initFinish()   tree '%s'" % self.name
+                                #print "Tree.initFinish()   tree '%s'" % self.name
                             else:
-                                print 'Tree.initFinish()'
+                                #print 'Tree.initFinish()'
                             print '    Non-fatal warning: the root is terminal, but has no name.'
                             print '    This may be what you wanted.  Or not?'
                             print '    (To get rid of this warning, turn off var.warnAboutTerminalRootWithNoName)'

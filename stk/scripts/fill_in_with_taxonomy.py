@@ -187,7 +187,6 @@ def get_taxonomy_eol(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
             # add data to taxonomy dictionary
             taxon = this_item['scientificName'].split()[0:2] # just the first two words
             taxon = " ".join(taxon[0:2])
-            #print this_item
             # NOTE following line means existing items are *not* updated
             if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
                 this_taxonomy = {}
@@ -269,7 +268,6 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
         if this_item['taxRank']['rankName'].lower().strip() == 'species':
             # add data to taxonomy dictionary
             taxon = this_item['scientificName']['combinedName']
-            #print this_item
             # NOTE following line means existing items are *not* updated
             if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
                 # get the taxonomy of this species
@@ -285,8 +283,8 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
                     if level['rankName'].lower() in taxonomy_levels:
                         # note the dump into ASCII            
                         this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
-                #if verbose:
-                print "\tAdding "+taxon
+                if verbose:
+                    print "\tAdding "+taxon
                 taxonomy[taxon] = this_taxonomy
                 if not tmpfile == None:
                     stk.save_taxonomy(taxonomy,tmpfile)
@@ -311,9 +309,7 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
         if (len(all_children) == 0):
             return taxonomy
 
-        #print all_children
         for child in all_children:
-            #print "recursive bit: "+str(child['valid_AphiaID'])
             if child in aphiaIDsDone: # we get stuck sometime
                 continue
             aphiaIDsDone.append(child)
@@ -374,12 +370,9 @@ def get_taxonomy_worms(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
         if not this_item['status'].lower() == 'accepted':
             print "rejecting " , this_item.valid_name
             return taxonomy        
-        #print this_item['rank'].lower(), this_item.scientificname
         if this_item['rank'].lower() == 'species':
             # add data to taxonomy dictionary
             taxon = this_item.valid_name
-            #print taxon
-            #print this_item
             # NOTE following line means existing items are *not* updated
             if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
                 # get the taxonomy of this species
@@ -408,7 +401,6 @@ def get_taxonomy_worms(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
         start = 1
         while True:
             children = wsdlObjectWoRMS.getAphiaChildrenByID(ID, start, False)
-            #print children
             if (children is None or children == None):
                 break
             if (len(children) < 50):
@@ -416,14 +408,11 @@ def get_taxonomy_worms(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
                 break
             all_children.extend(children)
             start += 50
-            #print len(all_children), start
 
         if (len(all_children) == 0):
             return taxonomy
 
-        #print all_children
         for child in all_children:
-            #print "recursive bit: "+str(child['valid_AphiaID'])
             if child['valid_AphiaID'] in aphiaIDsDone: # we get stuck sometime
                 continue
             aphiaIDsDone.append(child['valid_AphiaID'])
@@ -443,7 +432,7 @@ def get_taxonomy_worms(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
         else:
             start_taxonomy_level = start_taxa['rank'].lower()
     except urllib2.HTTPError:
-        print "Error"
+        print "Error finding start_otu taxonomic level. Do you have an internet connection?"
         sys.exit(-1)
 
     aphiaIDsDone = []
@@ -536,7 +525,9 @@ def main():
     # grab taxa in tree
     tree = stk.import_tree(input_file)
     taxa_list = stk._getTaxaFromNewick(tree)
-    print len(taxa_list)
+    
+    if verbose:
+        print "Taxa count for input tree: ", len(taxa_list)
 
     # load in any taxonomy files - we still call the APIs as a) they may have updated data and
     # b) the user may have missed some first time round (i.e. expanded the tree and not redone 
@@ -741,7 +732,6 @@ def main():
         stk.save_taxonomy(tot_taxonomy,save_taxonomy_file)
 
 
-    #print taxa_list
     orig_taxa_list = taxa_list
 
     remove_higher_level = [] # for storing the higher level taxa in the original tree that need deleting
@@ -756,19 +746,20 @@ def main():
     # step up the taxonomy levels from genus, adding taxa to the correct node
     # as a polytomy
     start_level = start_level.encode('utf-8').strip()
-    print start_level
+    if verbose:
+        print "I think your start OTU is at: ", start_level
     for level in tlevels[1::]: # skip species....
+        if verbose:
+            print "Dealing with ",level
         new_taxa = []
         for t in taxonomy:
             # skip odd ones that should be in there
-            print taxonomy[t][start_level]
             if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
                 try:
                     new_taxa.append(taxonomy[t][level])
                 except KeyError:
                     continue # don't have this info
         new_taxa = _uniquify(new_taxa)
-        print level, new_taxa, len(taxonomy)
 
         for nt in new_taxa:
             taxa_to_add = {}
@@ -776,7 +767,6 @@ def main():
             for t in taxonomy:
                 if start_level in taxonomy[t] and taxonomy[t][start_level] == top_level:
                     try:
-                        #print len(taxonomy),taxonomy[t][level], nt, t, t in orig_taxa_list
                         if taxonomy[t][level] == nt and not t in taxa_list:
                             taxa_to_add[t] = taxonomy[t]
                     except KeyError:
@@ -790,10 +780,8 @@ def main():
                         # we are appending taxa to this higher taxon, so we need to remove it
                         remove_higher_level.append(t)
 
-            print len(taxa_in_clade), nt
 
             if len(taxa_in_clade) > 0 and len(taxa_to_add) > 0:
-                #print "\t", taxa_to_add, taxa_in_clade
                 tree = add_taxa(tree, taxa_to_add, taxa_in_clade,level)
                 taxa_list = stk._getTaxaFromNewick(tree)
                 try:
@@ -803,7 +791,6 @@ def main():
                     return
 
                 for t in taxa_to_add:
-                    print t, taxa_to_add[t]
                     tree_taxonomy[t.replace(' ','_')] = taxa_to_add[t]
                     try:
                         del taxonomy[t.replace('_',' ')]
@@ -825,7 +812,8 @@ def main():
     f.write(output)
     f.close()
     taxa_list = stk._getTaxaFromNewick(tree)
-    print len(taxa_list)
+    
+    print "Final taxa count:", len(taxa_list)
  
 
 def _uniquify(l):
@@ -842,12 +830,10 @@ def add_taxa(tree, new_taxa, taxa_in_clade, level):
 
     # create new tree of the new taxa
     additionalTaxa = tree_from_taxonomy(level,new_taxa)
-    print additionalTaxa
 
     # find mrca parent
     treeobj = stk._parse_tree(tree)
     mrca = stk.get_mrca(tree,taxa_in_clade)
-    print mrca, taxa_in_clade
     if (mrca == 0):
         # we need to make a new tree! The additional taxa are being placed at the root of the tree
         t = Tree()
@@ -910,27 +896,46 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
             # find my parent
             parent = None
             for tt in tree_taxonomy:
-               if tree_taxonomy[tt][l] == n:
-                    parent = tree_taxonomy[tt][levels_to_worry_about[ci+1]]
-                    k = []
-                    for nd in nodes[levels_to_worry_about[ci+1]]:
-                        k.extend(nd.keys())
-                    i = 0
-                    for kk in k:
-                        #print kk
-                        if kk == parent:
-                            break
-                        i += 1
-                    parent_id = i
-                    break
+                try:
+                    if tree_taxonomy[tt][l] == n:
+                        try:
+                            parent = tree_taxonomy[tt][levels_to_worry_about[ci+1]]
+                            level = ci+1
+                        except KeyError:
+                            try:
+                                parent = tree_taxonomy[tt][levels_to_worry_about[ci+2]]
+                                level = ci+2
+                            except KeyError:
+                                try:
+                                    parent = tree_taxonomy[tt][levels_to_worry_about[ci+3]]
+                                    level = ci+3
+                                except KeyError:
+                                    print "ERROR: tried to find some taxonomic info for "+tt+" from tree_taxonomy file/downloaded data and I went two levels up, but failed find any. Looked at:\n"
+                                    print "\t"+levels_to_worry_about[ci+1]
+                                    print "\t"+levels_to_worry_about[ci+2]
+                                    print "\t"+levels_to_worry_about[ci+3]
+                                    print "This is the taxonomy info I have for "+tt
+                                    print tree_taxonomy[tt]
+                                    sys.exit(1)
+
+                        k = []
+                        for nd in nodes[levels_to_worry_about[level]]:
+                            k.extend(nd.keys())
+                        i = 0
+                        for kk in k:
+                            if kk == parent:
+                                break
+                            i += 1
+                        parent_id = i
+                        break
+                except KeyError:
+                    pass # no data at this level for this beastie
             # find out where to attach it
-            node_id = nodes[levels_to_worry_about[ci+1]][parent_id][parent]
+            node_id = nodes[levels_to_worry_about[level]][parent_id][parent]
             nd = node_id.add_child(name=n.replace(" ","_"))
             nodes[l].append({n:nd})
 
     tree = t.write(format=9)  
-    #tree = stk._collapse_nodes(tree) 
-    #tree = stk._collapse_nodes(tree) 
     
     return tree
 
