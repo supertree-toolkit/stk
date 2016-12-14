@@ -35,7 +35,7 @@ current_taxonomy_levels = ['species','genus','family','order','class','phylum','
 # And the extra ones from ITIS
 extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
 # all of them in order
-taxonomy_levels = ['species','genus','subfamily','family','superfamily','infraorder','suborder','order','superorder','subclass','class','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
+taxonomy_levels = ['species','genus','subfamily','family','tribe','superfamily','infraorder','suborder','order','superorder','subclass','class','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
 def get_tree_taxa_taxonomy(taxon,wsdlObjectWoRMS):
 
