@@ -561,7 +561,6 @@ def main():
         # get taxonomy info from itis
         if (verbose):
             print "Getting data from ITIS"
-        # get tree taxonomy from worms
         if (verbose):
             print "Dealing with taxa in tree"
         for t in taxa_list:
@@ -617,7 +616,7 @@ def main():
                 print "\t"+t
             if not(t in tree_taxonomy or t.replace("_"," ") in tree_taxonomy):
                 # we don't have data - NOTE we assume things are *not* updated here if we do
-                tree_taxonomy[t] = get_tree_taxa_taxonomy_itis(t)
+                tree_taxonomy[t] = get_tree_taxa_taxonomy_worms(t)
 
         if save_taxonomy:
             if (verbose):
@@ -783,10 +782,10 @@ def main():
 
             if len(taxa_in_clade) > 0 and len(taxa_to_add) > 0:
                 tree = add_taxa(tree, taxa_to_add, taxa_in_clade,level)
-                taxa_list = stk._getTaxaFromNewick(tree)
                 try:
                     taxa_list = stk._getTaxaFromNewick(tree) 
                 except stk.TreeParseError as e:
+                    print taxa_to_add, taxa_in_clade, level, tree
                     print e.msg
                     return
 
