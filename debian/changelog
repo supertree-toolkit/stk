@@ -1,3 +1,13 @@
+supertree-toolkit (2.15) UNRELEASED; urgency=medium
+
+  * Minor bug fixes
+  * Sorting packages
+  * Adding weights to matrix
+  * Script for supertree support
+  * Starting to add taxonomic intelligence
+
+ -- Jon Hill <jh1889@tethys>  Wed, 11 Jan 2017 15:24:49 +0000
+
 supertree-toolkit (2.14) precise; urgency=medium
 
   * New funcitonality to create matrix from trees via command line
