@@ -633,7 +633,8 @@ class TestSTK(unittest.TestCase):
     def test_taxonomy_checker2(self):
         XML = etree.tostring(etree.parse('data/input/check_taxonomy_fixes.phyml',parser),pretty_print=True)
         if (internet_on()):
-            equivs = taxonomic_checker(XML)
+            # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
+            equivs = taxonomic_checker(XML,verbose=False)
             self.maxDiff = None
             self.assert_(equivs['Agathamera_crassa'][0][0] == 'Agathemera_crassa')
             self.assert_(equivs['Celatoblatta_brunni'][0][0] == 'Maoriblatta_brunni')

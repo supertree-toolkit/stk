@@ -2102,7 +2102,7 @@ def taxonomic_checker_list(name_list,existing_data=None,verbose=False):
             # colour is amber in this case
             amber = True
         ID = str(data['results'][0]['id']) # take first hit
-        URL = "http://eol.org/api/pages/1.0/"+ID+".json?images=2&videos=0&sounds=0&maps=0&text=2&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&vetted=0"       
+        URL = "http://eol.org/api/pages/1.0/"+ID+".json?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&vetted=0"       
         req = urllib2.Request(URL)
         opener = urllib2.build_opener()
         
