@@ -4,12 +4,12 @@ It uses the current working tree to determine the revision.
 So don't edit it. :)
 """
 
-version_info = {'branch_nick': u'trunk',
- 'build_date': '2017-01-11 15:18:03 +0000',
+version_info = {'branch_nick': u'supertree-toolkit',
+ 'build_date': '2017-01-11 17:42:27 +0000',
  'clean': None,
- 'date': '2017-01-11 15:16:21 +0000',
- 'revision_id': 'jon.hill@york.ac.uk-20170111151621-e2ddsw5fsu9a40hc',
- 'revno': '277'}
+ 'date': '2017-01-11 17:39:43 +0000',
+ 'revision_id': 'jon.hill@imperial.ac.uk-20170111173943-88so1icr33su3afo',
+ 'revno': '279'}
 
 revisions = {}
 
