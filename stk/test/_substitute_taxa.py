@@ -776,8 +776,15 @@ class TestSubs(unittest.TestCase):
         new_tree = _sub_taxa_in_tree(tree2,"Thereuopodina",sub_in,skip_existing=True);
         self.assert_(answer2, new_tree)
 
-        
-
+    
+    def test_parrot_edge_case(self):
+        """Random edge case where the tree dissappeared..."""
+        trees = ["(((((((Agapornis_lilianae, Agapornis_nigrigenis), Agapornis_personata, Agapornis_fischeri), Agapornis_roseicollis), (Agapornis_pullaria, Agapornis_taranta)), Agapornis_cana), Loriculus_galgulus), Geopsittacus_occidentalis);"]
+        answer = "(((((((Agapornis_lilianae, Agapornis_nigrigenis), Agapornis_personatus, Agapornis_fischeri), Agapornis_roseicollis), (Agapornis_pullarius, Agapornis_taranta)), Agapornis_canus), Loriculus_galgulus), Pezoporus_occidentalis);"
+        new_taxa = ["Pezoporus occidentalis","Agapornis canus","Agapornis_pullaria","Apapornis_roseicollis","Agapornis_personata"]
+        old_taxa = ["Geopsittacus_occidentalis","Agapornis_cana","Agapornis pullarius","Agapornis_roseicollis","Agapornis_personatus"]
+        new_trees = substitute_taxa_in_trees(trees,old_taxa,new_taxa=new_taxa)
+        self.assert_(answer, new_trees[0])
 
 if __name__ == '__main__':
     unittest.main()

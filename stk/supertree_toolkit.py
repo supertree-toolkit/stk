@@ -52,6 +52,7 @@ import types
 IDENTICAL = 0
 SUBSET = 1
 PLATFORM = sys.platform
+taxonomy_levels = ['species','genus','family','superfamily','infraorder','suborder','order','superorder','subclass','class','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
@@ -1457,15 +1458,12 @@ def get_weights(XML):
     for s in sources:
         # for each source, get source name
         name = s.attrib['name']
-        # get trees
-        tree_no = 1
-        for t in s.xpath("source_tree/tree"):
-            t_name = name+"_"+str(tree_no)
-            if (len(t.xpath("weight/real_value")) > 0):
-                weights[t_name] = float(t.xpath("weight/real_value")[0].text)
+        for t in s.xpath("source_tree"):
+            tree_name = t.attrib['name']
+            if (len(t.xpath("tree/weight/real_value")) > 0):
+                weights[tree_name] = float(t.xpath("tree/weight/real_value")[0].text)
             else:
-                weights[t_name] = 1.0
-            tree_no += 1
+                weights[tree_name] = 1.0
 
     min_weight = min(weights.values())
     factor = 1.0/min_weight
@@ -1990,6 +1988,32 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
 
 
     return output_string
+
+
+
+def load_taxonomy(taxonomy_csv):
+    """Load in a taxonomy CSV file and convert to taxonomy Dict"""
+    
+    import csv
+
+    taxonomy = {}
+
+    with open(taxonomy_csv, 'rU') as csvfile:
+        tax_reader = csv.reader(csvfile, delimiter=',')
+        tax_reader.next()
+        for row in tax_reader:
+            current_taxonomy = {}
+            i = 1
+            for t in taxonomy_levels:
+                if not row[i] == '-':
+                    current_taxonomy[t] = row[i]
+                i = i+ 1
+
+            current_taxonomy['provider'] = row[17] # data source
+            taxonomy[row[0]] = current_taxonomy
+    
+    return taxonomy
+
 
 def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=False, verbose=False, ignoreWarnings=False):
     """ Calculate the amount of taxonomic overlap between source trees.
@@ -2851,6 +2875,58 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
     XML = etree.tostring(xml_root,pretty_print=True)
 
     return XML
+
+def get_mrca(tree,taxa_list):
+    """Return the node number for the MRCA of the list of given taxa
+       This node number must be used in conjection with a p4 tree object, along
+       the lines of:
+       treeobj = _parse_tree(tree_string)
+       treeobj.node(mrca).parent 
+    """
+
+    # find MRCA of all taxa within this clade, already in the tree
+    node_ids = []
+    # get the nodes of the taxa in question
+    node_id_for_taxa = []
+    treeobj = _parse_tree(tree)
+    for t in taxa_list:
+        node_id_for_taxa.append(treeobj.node(t).nodeNum)
+    # for each, get all parents to root
+    for n in node_id_for_taxa:
+        nodes = []
+        nodes.append(treeobj.node(n).parent.nodeNum)
+        while 1:
+            nn = treeobj.node(nodes[-1]).parent
+            if nn == None:
+                break
+            else:
+                nodes.append(nn.nodeNum)
+        node_ids.append(nodes)
+    # in the shortest list, loop through the values, check they exist in all lists. If it does, 
+    # that node is your MRCA
+    big = sys.maxsize
+    node_ids
+    shortest = 0
+    for n in node_ids:
+        if len(n) < big:
+            big = len(n)
+            shortest = n
+    mrca = -1
+    for s in shortest:
+        found = True
+        for n in node_ids:
+            if not s in n:
+                found = False
+                break # move to next s
+        # if we get here, we have the MRCA
+        if (found):
+            mrca = s
+            break
+    if mrca == -1:
+        # something went wrong!
+        raise InvalidSTKData("Error finding MRCA of: "+" ".join(taxa_list))
+
+    return mrca
 
 ################ PRIVATE FUNCTIONS ########################
 
