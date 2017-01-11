@@ -124,7 +124,7 @@ def main():
     sts.doSaveDecoratedTree = True
     sts.doStandardDecoration=False
     sts.decorationMetric = measure
-    sts.decoratedFilename=output_stub+'dec_st.nex'
+    sts.decoratedFilename=output_stub+'_dec_st.nex'
     sts.doSaveIndexTree=True
     sts.indexFilename=output_stub+'_index.nex'
     sts.csvFilename=output_stub+'_index.csv'
