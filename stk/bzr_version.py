@@ -5,21 +5,11 @@ So don't edit it. :)
 """
 
 version_info = {'branch_nick': u'sub_in_subfile',
-<<<<<<< TREE
- 'build_date': '2015-12-18 13:17:16 +0000',
-=======
- 'build_date': '2015-10-07 16:33:20 +0100',
->>>>>>> MERGE-SOURCE
+ 'build_date': '2017-01-11 16:08:58 +0000',
  'clean': None,
-<<<<<<< TREE
- 'date': '2015-11-19 09:14:19 +0000',
- 'revision_id': 'jon.hill@imperial.ac.uk-20151119091419-8u03rsshkyj3yhe7',
- 'revno': '311'}
-=======
- 'date': '2015-09-17 07:45:13 +0100',
- 'revision_id': 'jon.hill@york.ac.uk-20150917064513-9h4apc573s5cd8hc',
- 'revno': '307'}
->>>>>>> MERGE-SOURCE
+ 'date': '2016-07-28 13:10:35 +0100',
+ 'revision_id': 'jon.hill@imperial.ac.uk-20160728121035-95uz01dbjzdn4v2v',
+ 'revno': '314'}
 
 revisions = {}
 

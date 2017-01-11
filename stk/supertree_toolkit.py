@@ -4340,9 +4340,7 @@ def _create_matrix(trees, taxa, format="hennig", quote=False, weights=None, verb
         weights_per_char = []
     names = []
     current_char = 1
-    print weights
     for key in trees:
-        print key
         if (not weights == None):
             weight = weights[key]
         names.append(key)
