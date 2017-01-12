@@ -3132,9 +3132,11 @@ def clean_data(XML):
     # check trees are informative
     XML = _check_informative_trees(XML,delete=True)
 
+    
     # check sources
     XML = _check_sources(XML,delete=True)
-
+    XML = all_sourcenames(XML)
+    
     # fix tree names
     XML = set_unique_names(XML)
     XML = set_all_tree_names(XML,overwrite=True)

@@ -2429,8 +2429,13 @@ class Diamond:
      self.tree.write(f)
      XML = f.getvalue() 
      try:
-        XML = stk.clean_data(XML) 
-        XML = stk.all_sourcenames(XML)
+        prompt_response = dialogs.prompt(self.main_window, 
+                "This function will remove data and rename sources and trees. Sure you want to go ahead?", gtk.MESSAGE_WARNING, True)
+        if (prompt_response == gtk.RESPONSE_CANCEL or
+           prompt_response == gtk.RESPONSE_NO):
+            return
+        elif prompt_response == gtk.RESPONSE_YES:
+            XML = stk.clean_data(XML) 
      except NoAuthors as detail:
         dialogs.error(self.main_window,detail.msg)
         return 

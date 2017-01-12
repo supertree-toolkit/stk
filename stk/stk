@@ -371,7 +371,7 @@ def main():
 
     # Clean data
     parser_cm = subparsers.add_parser('clean_data',
-            help='Remove errant taxa, uninformative trees and empty sources.'
+            help='Renames all sources and trees sensibly. Removes errant taxa, uninformative trees and empty sources.'
             )
     parser_cm.add_argument('input', 
             help='The input phyml file')
