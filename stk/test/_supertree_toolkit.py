@@ -13,7 +13,7 @@ from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str,
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
 from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used, _trees_equal, get_weights
 from stk.supertree_toolkit import get_outgroup, set_all_tree_names, create_tree_name, taxonomic_checker, load_taxonomy, load_equivalents
-from stk.supertree_toolkit import create_taxonomy, create_taxonomy_from_tree
+from stk.supertree_toolkit import create_taxonomy, create_taxonomy_from_tree, get_all_tree_names
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -472,7 +472,7 @@ class TestSTK(unittest.TestCase):
         XML = clean_data(XML)
         trees = obtain_trees(XML)
         self.assert_(len(trees) == 2)
-        expected_trees = {'Hill_2011_4': '(A,B,(C,D,E));', 'Hill_2011_2': '(A, B, C, (D, E, F));'}
+        expected_trees = {'Hill_2011_2': '(A,B,(C,D,E));', 'Hill_2011_1': '(A, B, C, (D, E, F));'}
         for t in trees:
             self.assert_(_trees_equal(trees[t],expected_trees[t]))
 
@@ -676,6 +676,17 @@ class TestSTK(unittest.TestCase):
         new_xml = set_all_tree_names(XML)
         XML = etree.tostring(etree.parse('data/input/single_source.phyml',parser),pretty_print=True)
         self.assert_(isEqualXML(new_xml,XML))
+
+    def test_all_rename_tree(self):
+        XML = etree.tostring(etree.parse('data/input/single_source_same_tree_name.phyml',parser),pretty_print=True)
+        new_xml = set_all_tree_names(XML,overwrite=True)
+        XML = etree.tostring(etree.parse('data/output/single_source_same_tree_name.phyml',parser),pretty_print=True)
+        self.assert_(isEqualXML(new_xml,XML))
+
+    def test_get_all_tree_names(self):
+        XML = etree.tostring(etree.parse('data/input/single_source_same_tree_name.phyml',parser),pretty_print=True)
+        names = get_all_tree_names(XML)
+        self.assertListEqual(names,['Hill_2011_2','Hill_2011_2'])
 
 
 def internet_on(host="8.8.8.8", port=443, timeout=5):

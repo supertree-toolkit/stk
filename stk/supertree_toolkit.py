@@ -206,6 +206,22 @@ def get_all_source_names(XML):
     
     return names
 
+def get_all_tree_names(XML):
+    """ From a full XML-PHYML string, extract all tree names.
+    """
+
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+    names = []
+    for s in sources:
+        for st in s.xpath("source_tree"):
+            if 'name' in st.attrib and not st.attrib['name'] == "":
+                names.append(st.attrib['name'])
+    
+    return names
+
+
 def set_unique_names(XML):
     """ Ensures all sources have unique names.
     """
@@ -294,9 +310,17 @@ def set_all_tree_names(XML,overwrite=False):
         if (ele.tag == "source"):
             sources.append(ele)
 
+    if overwrite:
+        # remove all the names first
+        for s in sources:
+            for st in s.xpath("source_tree"):
+                if 'name' in st.attrib:
+                    del st.attrib['name']
+
+
     for s in sources:
         for st in s.xpath("source_tree"):
-            if overwrite or not 'name' in st.attrib:
+            if not'name' in st.attrib:
                 tree_name = create_tree_name(XML,st)
                 st.attrib['name'] = tree_name
    
@@ -3111,6 +3135,11 @@ def clean_data(XML):
     # check sources
     XML = _check_sources(XML,delete=True)
 
+    # fix tree names
+    XML = set_unique_names(XML)
+    XML = set_all_tree_names(XML,overwrite=True)
+    
+
     # unpermutable trees
     permutable_trees = _find_trees_for_permuting(XML)
     all_trees = obtain_trees(XML)
@@ -3732,6 +3761,18 @@ def _check_uniqueness(XML):
             # if non-unique throw exception
             message = message + \
                     "The source names in the dataset are not unique. Please run the auto-name function on these data. Name: "+name+"\n"
+        last_name = name
+
+    # do same for tree names:
+    names = get_all_tree_names(XML)
+    names.sort()
+    last_name = "" # This will actually throw an non-unique error if a name is empty
+    # not great, but still an error!
+    for name in names:
+        if name == last_name:
+            # if non-unique throw exception
+            message = message + \
+                    "The tree names in the dataset are not unique. Please run the auto-name function on these data with replace or edit by hand. Name: "+name+"\n"
         last_name = name
 
     if (not message == ""):
