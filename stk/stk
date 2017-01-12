@@ -701,6 +701,7 @@ def data_ind(args):
                 break
 
     XML = supertree_toolkit.load_phyml(input_file)
+    
     try:
         if (newphyml == None):
             data_independence, subsets = supertree_toolkit.data_independence(XML,ignoreWarnings=ignoreWarnings)
@@ -734,12 +735,12 @@ def data_ind(args):
     data_ind = "Source trees that are subsets of others\n"
     data_ind = data_ind + "Flagged tree(s), is/are subset(s) of:\n"
     for names in subsets:
-        data_ind += names[1:] + "," + names[0] + "\n"
+        data_ind += ', '.join(str(e) for e in names[1:]) + " : " + names[0] + "\n"
     
     data_ind += "\n\nSource trees that are identical to others\n"
     data_ind = data_ind + "Flagged tree(s), is/are identical to:\n"
     for names in data_independence:
-        data_ind += names[1:] + "," + names[0] + "\n"
+        data_ind += ', '.join(str(e) for e in names[1:]) + " : " + names[0] + "\n"
         
 
     if (output_file == False or
