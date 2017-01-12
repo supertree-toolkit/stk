@@ -16,6 +16,8 @@ sys.path.insert(0, stk_path)
 import supertree_toolkit as stk
 import csv
 
+taxonomy_levels = stk.taxonomy_levels
+
 def main():
 
     # do stuff
@@ -66,13 +68,6 @@ def main():
         f.close()
 
     taxonomy = {}
-    # What we get from EOL
-    current_taxonomy_levels = ['species','genus','family','order','class','phylum','kingdom']
-    # And the extra ones from ITIS
-    extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
-    # all of them in order
-    taxonomy_levels = ['species','genus','family','superfamily','infraorder','suborder','order','superorder','subclass','class','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
-
 
     for taxon in taxa:
         taxon = taxon.replace("_"," ")
@@ -180,99 +175,8 @@ def main():
                 continue
         
 
-    # Now create the CSV output
-    with open(output_file, 'w') as f:
-        writer = csv.writer(f)
-        writer.writerow(taxonomy_levels)
-        for t in taxonomy:
-            species = t
-            try:
-                genus = taxonomy[t]['genus']
-            except KeyError:
-                genus = "-"
-            try:
-                family = taxonomy[t]['family']
-            except KeyError:
-                family = "-"
-            try:
-                superfamily = taxonomy[t]['superfamily']
-            except KeyError:
-                superfamily = "-"
-            try:
-                infraorder = taxonomy[t]['infraorder']
-            except KeyError:
-                infraorder = "-"
-            try:
-                suborder = taxonomy[t]['suborder']
-            except KeyError:
-                suborder = "-"
-            try:
-                order = taxonomy[t]['order']
-            except KeyError:
-                order = "-"
-            try:
-                superorder = taxonomy[t]['superorder']
-            except KeyError:
-                superorder = "-"
-            try:
-                subclass = taxonomy[t]['subclass']
-            except KeyError:
-                subclass = "-"
-            try:
-                tclass = taxonomy[t]['class']
-            except KeyError:
-                tclass = "-"
-            try:
-                subphylum = taxonomy[t]['subphylum']
-            except KeyError:
-                subphylum = "-"
-            try:
-                phylum = taxonomy[t]['phylum']
-            except KeyError:
-                phylum = "-"
-            try:
-                superphylum = taxonomy[t]['superphylum']
-            except KeyError:
-                superphylum = "-"
-            try:
-                infrakingdom = taxonomy[t]['infrakingdom']
-            except:
-                infrakingdom = "-"
-            try:
-                subkingdom = taxonomy[t]['subkingdom']
-            except:
-                subkingdom = "-"
-            try:
-                kingdom = taxonomy[t]['kingdom']
-            except KeyError:
-                kingdom = "-"
-            try:
-                provider = taxonomy[t]['provider']
-            except KeyError:
-                provider = "-"
-
-
-            this_classification = [
-                    species.encode('utf-8'),
-                    genus.encode('utf-8'),
-                    family.encode('utf-8'),
-                    superfamily.encode('utf-8'),
-                    infraorder.encode('utf-8'),
-                    suborder.encode('utf-8'),
-                    order.encode('utf-8'),
-                    superorder.encode('utf-8'),
-                    subclass.encode('utf-8'),
-                    tclass.encode('utf-8'),
-                    subphylum.encode('utf-8'),
-                    phylum.encode('utf-8'),
-                    superphylum.encode('utf-8'),
-                    infrakingdom.encode('utf-8'),
-                    subkingdom.encode('utf-8'),
-                    kingdom.encode('utf-8'),
-                    provider.encode('utf-8')]
-            writer.writerow(this_classification)
-            
-    
+    stk.save_taxonomy(taxonomy, output_file)
+     
 def _uniquify(l):
     """
     Make a list, l, contain only unique data

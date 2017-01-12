@@ -1,0 +1,627 @@
+<phylo_storage>
+  <project_name>
+    <string_value lines="1">old_stk_test</string_value>
+  </project_name>
+  <sources>
+    <source name="Andersson_1999a">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Andersson</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">M</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Hybridisation and skua phylogeny.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">1999</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Proceedings of the Royal Society of London B</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">1579-1585</string_value>
+          </pages>
+        </article>
+      </bibliographic_information>
+      <source_tree name="Andersson_1999a_1">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Larus_argentatus, (Stercorarius_longicaudus, Stercorarius_parasiticus, ((Stercorarius_pomarinus, Stercorarius_skua), (Stercorarius_antarcticus, Stercorarius_chilensis, Stercorarius_maccormicki))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="morphological" name="Parasites"/>
+        </character_data>
+      </source_tree>
+      <source_tree name="Andersson_1999a_2">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Larus_argentatus, ((Stercorarius_pomarinus, (Stercorarius_longicaudus, Stercorarius_parasiticus)), (Stercorarius_antarctica, Stercorarius_skua, Stercorarius_antarcticus, Stercorarius_chilensis, Stercorarius_maccormicki)));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="morphological" name="Plumage"/>
+          <character type="morphological" name="Body size"/>
+        </character_data>
+      </source_tree>
+    </source>
+    <source name="Andersson_1999b">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Andersson</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">M</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Phylogeny, behaviour, plumage evolution and neoteny in skuas Stercorariidae.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">1999</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Journal of Avian Biology</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">205-215</string_value>
+          </pages>
+        </article>
+      </bibliographic_information>
+      <source_tree name="Andersson_1999b_1">
+        <tree>
+          <tree_string>
+            <string_value lines="1">((Larus_argentatus, Larus_marinus), ((Stercorarius_parasiticus, Stercorarius_longicaudus), (Stercorarius_pomarinus, Stercorarius_skua)));</string_value>
+            <comment>Cladistic phylogeny. Single most parsimonious tree found by exhaustive search.</comment>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="behavioural" name="Displays"/>
+          <character type="behavioural" name="Calls"/>
+        </character_data>
+      </source_tree>
+    </source>
+    <source name="Baker_Strauch_1988">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Baker</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Strauch</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">J</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Genetic variation and differentiation in shorebirds.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">1988</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Proceedings of the 19th International Ornithological Congress</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">1639-1645</string_value>
+          </pages>
+        </article>
+      </bibliographic_information>
+      <source_tree name="Baker_Strauch_1988_1">
+        <tree>
+          <tree_string>
+            <string_value lines="1">((Limnodromus_griseus, (Calidris_ferruginea, (Xenus_cinerea, (Calidris_canutus, (Tringa_semipalmata, (Calidris_maritima, ((Calidris_alpina, (Calidris_fuscicollis, Calidris_minutilla)), (Calidris_mauri, Calidris_ruficollis)))))))), (((Charadrius_falklandicus, Charadrius_montanus), (Charadrius_semipalmatus, Charadrius_vociferus)), (Pluvialis_dominica, Pluvialis_squatarola)));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="UPGMA"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="Alleles"/>
+        </character_data>
+      </source_tree>
+    </source>
+    <source name="Baker_etal_2006">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Baker</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Pereira</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">O</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Edge</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">K</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Multiple gene evidence for expansion of extant penguins out of Antarctica due to global cooling.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2006</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Proceedings of the Royal Society B-Biological Sciences</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">11-17</string_value>
+          </pages>
+        </article>
+      </bibliographic_information>
+      <source_tree name="Baker_etal_2006_1">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Struthio_camelus, (Gavia_immer, (Diomedea_exulans, ((Aptenodytes_forsteri, Aptenodytes_patagonicus), (((Megadyptes_antipodes, (Eudyptes_sclateri, ((Eudyptes_chrysocome, (Eudyptes_pachyrhynchus, Eudyptes_robustus)), (Eudyptes_chrysolophus, Eudyptes_schlegeli)))), (Eudyptula_minor, ((Spheniscus_humboldti, Spheniscus_mendiculus), (Spheniscus_demersus, Spheniscus_magellanicus)))), (Pygoscelis_adeliae, (Pygoscelis_antarctica, Pygoscelis_papua)))))), (Anser_albifrons, Gallus_gallus));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Bayesian"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="12S"/>
+          <character type="molecular" name="16S"/>
+          <character type="molecular" name="cytb"/>
+          <character type="molecular" name="COI"/>
+          <character type="molecular" name="RAG1"/>
+        </character_data>
+      </source_tree>
+    </source>
+    <source name="Baker_etal_2007a">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Baker</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Pereira</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">S</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Paton</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">T</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Phylogenetic relationships and divergence times of Charadriiformes genera: multigene evidence for the Cretaceous origin of at least 14 clades of shorebirds</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2007</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Biology Letters</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">205-209</string_value>
+          </pages>
+        </article>
+      </bibliographic_information>
+      <source_tree name="Baker_etal_2007a_1">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Struthio_camelus, (Columba_livia, ((((((Anous_tenuirostris, (Gygis_alba, ((((Chlidonias_leucopterus, (Thalasseus_sandvicensis, (Sterna_hirundo, (Onychoprion_anaethetus, Onychoprion_fuscatus)))), (Larosterna_inca, (Gelochelidon_nilotica, Hydroprogne_caspia))), (Phaetusa_simplex, Sternula_superciliaris)), (Rynchops_niger, ((Xema_sabini, (Pagophila_eburnea, (Larus_marinus, Rissa_tridactyla))), (Creagrus_furcatus, Rhodostethia_rosea)))))), (((Brachyramphus_brevirostris, (Cepphus_columba, (Synthliboramphus_antiquus, (Uria_lomvia, (Alle_alle, (Alca_torda, Pinguinus_impennis)))))), ((Ptychoramphus_aleuticus, (Aethia_cristatella, Aethia_psittacula)), (Cerorhinca_monocerata, Fratercula_arctica))), (Stercorarius_skua, Stercorarius_longicaudus))), (Rhinoptilus_chalcopterus, (Cursorius_temminckii, (Stiltia_isabella, (Glareola_maldivarum, Glareola_nuchalis))))), (Turnix_sylvaticus, Turnix_hottentottus)), (((Limosa_haemastica, (((Arenaria_interpres, ((Eurynorhynchus_pygmeus, (Aphriza_virgata, Calidris_canutus)), (Limicola_falcinellus, Philomachus_pugnax), (Calidris_himantopus, Tryngites_subruficollis))), (Phalaropus_tricolor, (Xenus_cinereus, (Actitis_hypoleucos, (Tringa_semipalmata, (Tringa_incana, Tringa_melanoleuca)))))), ((Scolopax_minor, (Coenocorypha_aucklandica, Gallinago_gallinago)), (Limnodromus_scolopaceus, Lymnocryptes_minimus)))), (Bartramia_longicauda, Numenius_minutus)), ((((Actophilornis_africanus, (Irediparra_gallinacea, Microparra_capensis)), (Hydrophasianus_chirurgus, Jacana_jacana)), (Nycticryphes_semicollaris, Rostratula_benghalensis)), (Pedionomus_torquatus, (Attagis_gayi, Thinocorus_rumicivorus))))), ((Pluvianus_aegyptius, (((Oreopholus_ruficollis, (Phegornis_mitchellii, (Charadrius_morinellus, (Charadrius_vociferus, (Elseyornis_melanops, Thinornis_novaeseelandiae))))), (Vanellus_chilensis, (Erythrogonys_cinctus, (Anarhynchus_frontalis, Peltohyas_australis)))), (Pluvialis_squatarola, ((Recurvirostra_americana, (Cladorhynchus_leucocephalus, Himantopus_mexicanus)), (Haematopus_ater, Ibidorhyncha_struthersii))))), ((Burhinus_vermiculatus, Esacus_magnirostris), (Chionis_minor, Pluvianellus_socialis)))), (Pterocles_orientalis, Pterocles_namaqua)), ((Anas, (Anhima_cornuta, Chauna_torquata)), (Megapodius, (Crax_blumenbachii, Gallus_gallus))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Bayesian"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="12S"/>
+          <character type="molecular" name="cytb"/>
+          <character type="molecular" name="ND2"/>
+          <character type="molecular" name="RAG1"/>
+        </character_data>
+      </source_tree>
+    </source>
+    <source name="Baker_etal_2007b">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Baker</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Pereira</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">D</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Elbourne</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">R</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Hassell</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">C</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Mitochondrial-DNA evidence shows the Australian Painted Snipe is a full species, Rostratula australis</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2007</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Emu</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">185-189</string_value>
+          </pages>
+        </article>
+      </bibliographic_information>
+      <source_tree name="Baker_etal_2007b_1">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Jacana_jacana, (Nycticryphes_semicollaris, (Rostratula_australis, Rostratula_benghalensis)));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Bayesian"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="cytb"/>
+          <character type="molecular" name="COI"/>
+          <character type="molecular" name="ND5"/>
+          <character type="molecular" name="ATPase 6"/>
+          <character type="molecular" name="ATPase 8"/>
+          <character type="molecular" name="COIII"/>
+        </character_data>
+      </source_tree>
+    </source>
+    <source name="Bertelli_etal_2006">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Bertelli</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">S</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Giannini</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">N</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Ksepka</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">D</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Redescription and phylogenetic position of the early Miocene penguin Paraptenodytes antarcticus from Patagonia.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2006</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">American Museum Novitates</string_value>
+          </journal>
+          <pages>
+            <string_value lines="1">1-25</string_value>
+          </pages>
+        </article>
+      </bibliographic_information>
+      <source_tree name="Bertelli_etal_2006_1">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Gavia_stellata, ((Macronectes_giganteus, (Daption_capense, ((Pterodroma_incerta, ((Oceanodroma_leucorhoa, Oceanites_oceanicus), (Pachyptila_desolata, Pelecanoides_urinatrix))), (Procellaria_aequinoctialis, Puffinus_griseus)))), (Thalassarche_melanophris, Phoebetria_palpebrata)), (Paraptenodytes_antarcticus, ((Eudyptula_minor, (Spheniscus_demersus, Spheniscus_magellanicus, (Spheniscus_humboldti, Spheniscus_mendiculus))), (((Aptenodytes_patagonicus, Aptenodytes_forsteri), (Pygoscelis_antarctica, (Pygoscelis_papua, Pygoscelis_adeliae))), (Megadyptes_antipodes, (Eudyptes_pachyrhynchus, ((Eudyptes_robustus, Eudyptes_sclateri), (Eudyptes_chrysocome, (Eudyptes_schlegeli, Eudyptes_chrysolophus)))))))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">0</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <mixed_fossil_and_extant>
+            <taxon name="Gavia_stellata">
+              <fossil/>
+            </taxon>
+          </mixed_fossil_and_extant>
+        </taxa_data>
+        <character_data>
+          <character type="morphological" name="Osteology"/>
+          <character type="morphological" name="soft tissue"/>
+          <character type="behavioural" name="behaviour"/>
+          <character type="morphological" name="oology"/>
+        </character_data>
+      </source_tree>
+      <source_tree name="Bertelli_etal_2006_2">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Gavia_stellata, ((Oceanodroma_leucorhoa, Oceanites_oceanicus), ((Thalassarche_melanophris, Phoebetria_palpebrata), (((Procellaria_aequinoctialis, (Macronectes_giganteus, Daption_capense)), (Pachyptila_desolata, Pelecanoides_urinatrix)), (Puffinus_griseus, Pterodroma_incerta)))), (Paraptenodytes_antarcticus, ((((Eudyptula_minor, (Spheniscus_demersus, Spheniscus_magellanicus, (Spheniscus_humboldti, Spheniscus_mendiculus))), (Megadyptes_antipodes, (Eudyptes_pachyrhynchus, ((Eudyptes_robustus, Eudyptes_sclateri), (Eudyptes_chrysocome, (Eudyptes_schlegeli, Eudyptes_chrysolophus)))))), (Pygoscelis_adeliae, (Pygoscelis_papua, Pygoscelis_antarctica))), (Aptenodytes_patagonicus, Aptenodytes_forsteri))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">0</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <mixed_fossil_and_extant>
+            <taxon name="Gavia_stellata">
+              <fossil/>
+            </taxon>
+          </mixed_fossil_and_extant>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="Molecular"/>
+          <character type="morphological" name="Osteology"/>
+          <character type="morphological" name="soft tissue"/>
+          <character type="morphological" name="behaviour"/>
+          <character type="morphological" name="oology"/>
+        </character_data>
+      </source_tree>
+      <source_tree name="Bertelli_etal_2006_3">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Gavia_stellata, (Thalassarche_melanophris, Phoebetria_palpebrata, Macronectes_giganteus, Daption_capense, Procellaria_aequinoctialis, Puffinus_griseus, Pterodroma_incerta, Pachyptila_desolata, Pelecanoides_urinatrix, (Oceanodroma_leucorhoa, Oceanites_oceanicus)), (Paraptenodytes_antarcticus, (Eudyptula_minor, (Spheniscus_demersus, Spheniscus_magellanicus, Spheniscus_humboldti, Spheniscus_mendiculus), ((Pygoscelis_papua, (Aptenodytes_patagonicus, Aptenodytes_forsteri), (Pygoscelis_adeliae, Pygoscelis_antarctica)), (Megadyptes_antipodes, (Eudyptes_pachyrhynchus, Eudyptes_robustus, Eudyptes_sclateri, Eudyptes_chrysocome, Eudyptes_chrysolophus, Eudyptes_schlegeli))))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">NA</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">0</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">0</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">A</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <mixed_fossil_and_extant>
+            <taxon name="Gavia_stellata">
+              <fossil/>
+            </taxon>
+          </mixed_fossil_and_extant>
+        </taxa_data>
+        <character_data>
+          <character type="morphological" name="Osteology"/>
+        </character_data>
+      </source_tree>
+    </source>
+  </sources>
+  <history>
+    <event>
+      <datetime>
+        <string_value lines="1">2013-06-27 18:01</string_value>
+      </datetime>
+      <action>
+        <string_value lines="1">Data imported from: /home/jhill1/software/supertree_toolkit_2/data_overlap/stk/test/data/input/old_stk_test</string_value>
+      </action>
+    </event>
+  </history>
+</phylo_storage>

@@ -769,6 +769,7 @@ def addNodeBetweenNodes(self, specifier1, specifier2):
     else:
         gm.append("The 2 specified nodes should have a parent-child relationship")
         raise Glitch, gm
+    
     if var.usePfAndNumpy:
         self.deleteCStuff()
 
@@ -1629,7 +1630,7 @@ def dupeSubTree(self, dupeNodeSpecifier, up):
 
 
 
-def addSubTree(self, selfNode, theSubTree, subTreeTaxNames=None):
+def addSubTree(self, selfNode, theSubTree, subTreeTaxNames=None, ignoreRootAssert=False):
     """Add a subtree to a tree.
 
     The nodes from theSubTree are added to self.nodes, and theSubTree
@@ -1666,7 +1667,8 @@ def addSubTree(self, selfNode, theSubTree, subTreeTaxNames=None):
 
     assert selfNode in self.nodes
     assert selfNode.parent
-    assert theSubTree.root.leftChild and not theSubTree.root.leftChild.sibling # its a root on a stick
+    if not ignoreRootAssert:
+        assert theSubTree.root.leftChild and not theSubTree.root.leftChild.sibling # its a root on a stick
     if not subTreeTaxNames:
         subTreeTaxNames = [n.name for n in theSubTree.iterLeavesNoRoot()]
 

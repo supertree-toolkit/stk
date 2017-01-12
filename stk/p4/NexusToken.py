@@ -44,6 +44,7 @@ def safeNextTok(flob, caller=None):
             gm = ["safeNextTok(), called from %s" % caller]
         else:
             gm = ["safeNextTok()"]
+        print flob
         gm.append("Premature Death.")
         gm.append("Ran out of understandable things to read in nexus file.")
         raise Glitch, gm

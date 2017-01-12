@@ -44,21 +44,66 @@ from indent import *
 import unicodedata
 from stk_internals import *
 from copy import deepcopy
+import Queue
+import threading
+import urllib2
+from urllib import quote_plus
+import simplejson as json
+import time
 import types
 
 #plt.ion()
 
+sys.setrecursionlimit(50000)
 # GLOBAL VARIABLES
 IDENTICAL = 0
 SUBSET = 1
 PLATFORM = sys.platform
-taxonomy_levels = ['species','genus','family','superfamily','infraorder','suborder','order','superorder','subclass','class','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
+#Logging
+import logging
+logging.basicConfig(filename='supertreetoolkit.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+
+# taxonomy levels
+# What we get from EOL
+current_taxonomy_levels = ['species','genus','family','order','class','phylum','kingdom']
+# And the extra ones from ITIS
+extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
+# all of them in order
+taxonomy_levels = ['species','subgenus','genus','tribe','subfamily','family','superfamily','subsection','section','parvorder','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
+
+SPECIES = taxonomy_levels[0]
+GENUS = taxonomy_levels[1]
+FAMILY = taxonomy_levels[2]
+SUPERFAMILY = taxonomy_levels[3]
+INFRAORDER = taxonomy_levels[4]
+SUBORDER = taxonomy_levels[5]
+ORDER = taxonomy_levels[6]
+SUPERORDER = taxonomy_levels[7]
+SUBCLASS = taxonomy_levels[8]
+CLASS = taxonomy_levels[9]
+SUBPHYLUM = taxonomy_levels[10]
+PHYLUM = taxonomy_levels[11]
+SUPERPHYLUM = taxonomy_levels[12] 
+INFRAKINGDOM = taxonomy_levels[13]
+SUBKINGDOM = taxonomy_levels[14]
+KINGDOM = taxonomy_levels[15]
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
 #
 # All functions take XML and a list of other arguments, process the data and return
 # it back to the user interface handler to save it somewhere
+
+
+def get_project_name(XML):
+    """
+    Get the name of the dataset currently being worked on
+    """
+
+    xml_root = _parse_xml(XML)
+
+    return xml_root.xpath('/phylo_storage/project_name/string_value')[0].text 
+
 
 def create_name(authors, year, append=''):
     """ 
@@ -161,6 +206,22 @@ def get_all_source_names(XML):
     
     return names
 
+def get_all_tree_names(XML):
+    """ From a full XML-PHYML string, extract all tree names.
+    """
+
+    xml_root = _parse_xml(XML)
+    find = etree.XPath("//source")
+    sources = find(xml_root)
+    names = []
+    for s in sources:
+        for st in s.xpath("source_tree"):
+            if 'name' in st.attrib and not st.attrib['name'] == "":
+                names.append(st.attrib['name'])
+    
+    return names
+
+
 def set_unique_names(XML):
     """ Ensures all sources have unique names.
     """
@@ -249,9 +310,17 @@ def set_all_tree_names(XML,overwrite=False):
         if (ele.tag == "source"):
             sources.append(ele)
 
+    if overwrite:
+        # remove all the names first
+        for s in sources:
+            for st in s.xpath("source_tree"):
+                if 'name' in st.attrib:
+                    del st.attrib['name']
+
+
     for s in sources:
         for st in s.xpath("source_tree"):
-            if overwrite or not 'name' in st.attrib:
+            if not'name' in st.attrib:
                 tree_name = create_tree_name(XML,st)
                 st.attrib['name'] = tree_name
    
@@ -339,7 +408,7 @@ def import_bibliography(XML, bibfile, skip=False):
             taxa = etree.SubElement(s_tree,"taxa_data")
             taxa.tail="\n      "
             # Note: we do not add all elements as otherwise they get set to some option
-            # rather than remaining blank (and hence blue int he interface)
+            # rather than remaining blank (and hence blue in the interface)
 
             # append our new source to the main tree
             # if sources has no valid source, overwrite,
@@ -877,7 +946,7 @@ def import_trees(filename):
     # Need to add checks on the file. Problems include:
 # TNT: outputs Phyllip format or something - basically a Newick
 # string without commas, so add 'em back in
-    m = re.search(r'proc-;', content)
+    m = re.search(r'proc.;', content)
     if (m != None):
         # TNT output tree
         # Done on a Mac? Replace ^M with a newline
@@ -1402,6 +1471,36 @@ def amalgamate_trees(XML,format="nexus",anonymous=False,ignoreWarnings=False):
 
     return _amalgamate_trees(trees,format,anonymous)
         
+def get_taxa_from_tree_for_taxonomy(tree, pretty=False, ignoreErrors=False):
+    """Returns a list of all taxa available for the tree passed as argument.
+    :param tree: string with the data for the tree in Newick format.
+    :type tree: string
+    :param pretty: defines if '_' in taxa names should be replaced with spaces. 
+    :type pretty: boolean
+    :param ignoreErrors: should execution continue on error?
+    :type ignoreErrors: boolean
+    :returns: list of strings with the taxa names, sorted alphabetically
+    :rtype: list
+    """
+    taxa_list = []
+
+    try:
+        taxa_list.extend(_getTaxaFromNewick(tree))
+    except TreeParseError as detail:
+        if (ignoreErrors):
+            logging.warning(detail.msg)
+            pass
+        else:
+            raise TreeParseError( detail.msg )
+
+    # now uniquify the list of taxa
+    taxa_list = _uniquify(taxa_list)
+    taxa_list.sort()
+
+    if (pretty):
+        taxa_list = [x.replace('_', ' ') for x in taxa_list]
+
+    return taxa_list
 
 def get_all_taxa(XML, pretty=False, ignoreErrors=False):
     """ Produce a taxa list by scanning all trees within 
@@ -1422,21 +1521,17 @@ def get_all_taxa(XML, pretty=False, ignoreErrors=False):
             taxa_list.extend(_getTaxaFromNewick(t))
         except TreeParseError as detail:
             if (ignoreErrors):
+                logging.warning(detail.msg)
                 pass
             else:
                 raise TreeParseError( detail.msg )
-
-
 
     # now uniquify the list of taxa
     taxa_list = _uniquify(taxa_list)
     taxa_list.sort()
 
-    if (pretty):
-        unpretty_tl = taxa_list
-        taxa_list = []
-        for t in unpretty_tl:
-            taxa_list.append(t.replace('_',' '))
+    if (pretty): #Remove underscores from names
+        taxa_list = [x.replace('_', ' ') for x in taxa_list]
 
     return taxa_list
 
@@ -1508,7 +1603,7 @@ def get_outgroup(XML):
     return outgroups
 
 
-def create_matrix(XML,format="hennig",quote=False,taxonomy=None,outgroups=False,ignoreWarnings=False):
+def create_matrix(XML,format="hennig",quote=False,taxonomy=None,outgroups=False,ignoreWarnings=False, verbose=False):
     """ From all trees in the XML, create a matrix
     """
 
@@ -1553,7 +1648,7 @@ def create_matrix(XML,format="hennig",quote=False,taxonomy=None,outgroups=False,
         taxa.sort()
     taxa.insert(0,"MRP_Outgroup")
         
-    return _create_matrix(trees, taxa, format=format, quote=quote, weights=weights)
+    return _create_matrix(trees, taxa, format=format, quote=quote, weights=weights,verbose=verbose)
 
 
 def create_matrix_from_trees(trees,format="hennig"):
@@ -1925,7 +2020,7 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
         _check_data(XML)
 
     xml_root = _parse_xml(XML)
-    proj_name = xml_root.xpath('/phylo_storage/project_name/string_value')[0].text
+    proj_name = get_project_name(XML)
 
     output_string  = "======================\n"
     output_string += " Data summary of: " + proj_name + "\n" 
@@ -1989,6 +2084,188 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
 
     return output_string
 
+def taxonomic_checker_list(name_list,existing_data=None,verbose=False):
+    """ For each name in the database generate a database of the original name,
+    possible synonyms and if the taxon is not know, signal that. We do this by
+    using the EoL API to grab synonyms of each taxon.  """
+
+    import urllib2
+    from urllib import quote_plus
+    import simplejson as json
+
+    if existing_data == None:
+        equivalents = {}
+    else:
+        equivalents = existing_data
+
+    # for each taxon, check the name on EoL - what if it's a synonym? Does EoL still return a result?
+    # if not, is there another API function to do this?
+    # search for the taxon and grab the name - if you search for a recognised synonym on EoL then
+    # you get the original ('correct') name - shorten this to two words and you're done.
+    for t in name_list:
+        if t in equivalents:
+            continue
+        taxon = t.replace("_"," ")
+        if (verbose):
+            print "Looking up ", taxon
+        # get the data from EOL on taxon
+        taxonq = quote_plus(taxon)
+        URL = "http://eol.org/api/search/1.0.json?q="+taxonq
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        data = json.load(f)
+        # check if there's some data
+        if len(data['results']) == 0:
+            equivalents[t] = [[t],'red']
+            continue
+        amber = False
+        if len(data['results']) > 1:
+            # this is not great - we have multiple hits for this taxon - needs the user to go back and warn about this
+            # for automatic processing we'll just take the first one though
+            # colour is amber in this case
+            amber = True
+        ID = str(data['results'][0]['id']) # take first hit
+        URL = "http://eol.org/api/pages/1.0/"+ID+".json?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&vetted=0"       
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        
+        try:
+            f = opener.open(req)
+        except urllib2.HTTPError:
+            equivalents[t] = [[t],'red'] 
+            continue
+        data = json.load(f)
+        if len(data['scientificName']) == 0:
+            # not found a scientific name, so set as red
+            equivalents[t] = [[t],'red']            
+            continue
+        correct_name = data['scientificName'].encode("ascii","ignore")
+        # we only want the first two bits of the name, not the original author and year if any
+        temp_name = correct_name.split(' ')
+        if (len(temp_name) > 2):
+            correct_name = ' '.join(temp_name[0:2])
+        correct_name = correct_name.replace(' ','_')
+
+        # build up the output dictionary - original name is key, synonyms/missing is value
+        if (correct_name == t):
+            # if the original matches the 'correct', then it's green
+            equivalents[t] = [[t], 'green']
+        else:
+            # if we managed to get something anyway, then it's yellow and create a list of possible synonyms with the 
+            # 'correct' taxon at the top
+            eol_synonyms = data['synonyms']
+            synonyms = []
+            for s in eol_synonyms:
+                ts = s['synonym'].encode("ascii","ignore")
+                temp_syn = ts.split(' ')
+                if (len(temp_syn) > 2):
+                    temp_syn = ' '.join(temp_syn[0:2])
+                    ts = temp_syn
+                if (s['relationship'] == "synonym"):
+                    ts = ts.replace(" ","_")
+                    synonyms.append(ts)
+            synonyms = _uniquify(synonyms)
+            # we need to put the correct name at the top of the list now
+            if (correct_name in synonyms):
+                synonyms.insert(0, synonyms.pop(synonyms.index(correct_name)))
+            elif len(synonyms) == 0:
+                synonyms.append(correct_name)
+            else:
+                synonyms.insert(0,correct_name)
+
+            if (amber):
+                equivalents[t] = [synonyms,'amber']
+            else:
+                equivalents[t] = [synonyms,'yellow']
+        # if our search was empty, then it's red - see above
+
+    # up to the calling funciton to do something sensible with this
+    # we build a dictionary of names and then a list of synonyms or the original name, then a tag if it's green, yellow, red.
+    # Amber means we found synonyms and multilpe hits. User def needs to sort these!
+
+    return equivalents
+
+def taxonomic_checker_tree(tree_file,existing_data=None,verbose=False):
+    """ For each name in the database generate a database of the original name,
+    possible synonyms and if the taxon is not know, signal that. We do this by
+    using the EoL API to grab synonyms of each taxon.  """
+
+    tree = import_tree(tree_file)
+    p4tree = _parse_tree(tree) 
+    taxa = p4tree.getAllLeafNames(p4tree.root) 
+    if existing_data == None:
+        equivalents = {}
+    else:
+        equivalents = existing_data
+
+    equivalents = taxonomic_checker_list(taxa,existing_data,verbose)
+    return equivalents
+
+def taxonomic_checker(XML,existing_data=None,verbose=False):
+    """ For each name in the database generate a database of the original name,
+    possible synonyms and if the taxon is not know, signal that. We do this by
+    using the EoL API to grab synonyms of each taxon.  """
+
+    # grab all taxa
+    taxa = get_all_taxa(XML)
+
+    if existing_data == None:
+        equivalents = {}
+    else:
+        equivalents = existing_data
+
+    equivalents = taxonomic_checker_list(taxa,existing_data,verbose)
+    return equivalents
+
+
+def load_equivalents(equiv_csv):
+    """Load equivalents data from a csv and convert to a equivalents Dict.
+        Structure is key, with a list that is array of synonyms, followed by status ('green',
+        'yellow' or 'red').
+
+    """
+
+    import csv
+
+    equivalents = {}
+
+    with open(equiv_csv, 'rU') as csvfile:
+        equiv_reader = csv.reader(csvfile, delimiter=',')
+        equiv_reader.next() # skip header
+        for row in equiv_reader:
+            i = 1
+            equivalents[row[0]] = [row[1].split(';'),row[2]]
+    
+    return equivalents
+
+def save_taxonomy(taxonomy, output_file):
+
+    import csv
+
+    with open(output_file, 'w') as f:
+        writer = csv.writer(f)
+        row = ['OTU']
+        row.extend(taxonomy_levels)
+        row.append('Provider')
+        writer.writerow(row)
+        for t in taxonomy:
+            species = t
+            row = []
+            row.append(t.encode('utf-8'))
+            for l in taxonomy_levels:
+                try:
+                    g = taxonomy[t][l]
+                except KeyError:
+                    g = '-'
+                row.append(g.encode('utf-8'))
+            try:
+                provider = taxonomy[t]['provider']
+            except KeyError:
+                provider = "-"
+            row.append(provider)
+
+            writer.writerow(row)
 
 
 def load_taxonomy(taxonomy_csv):
@@ -2000,20 +2277,443 @@ def load_taxonomy(taxonomy_csv):
 
     with open(taxonomy_csv, 'rU') as csvfile:
         tax_reader = csv.reader(csvfile, delimiter=',')
-        tax_reader.next()
-        for row in tax_reader:
-            current_taxonomy = {}
-            i = 1
-            for t in taxonomy_levels:
-                if not row[i] == '-':
-                    current_taxonomy[t] = row[i]
-                i = i+ 1
-
-            current_taxonomy['provider'] = row[17] # data source
-            taxonomy[row[0]] = current_taxonomy
+        try:
+            j = 0
+            for row in tax_reader:
+                if j == 0:
+                    tax_levels = row[1:-1]
+                    j += 1
+                    continue
+                i = 1
+                current_taxonomy = {}
+                for t in tax_levels:
+                    if not row[i] == '-':
+                        current_taxonomy[t] = row[i]
+                    i = i+ 1
+                current_taxonomy['provider'] = row[-1] # data source
+                taxonomy[row[0].replace(" ","_")] = current_taxonomy
+                j += 1
+        except:
+            pass
     
     return taxonomy
 
+
+class TaxonomyFetcher(threading.Thread):
+    """ Class to provide the taxonomy fetching functionality as a threaded function to be used individually or working with a pool.
+    """
+
+    def __init__(self, taxonomy, lock, queue, id=0, pref_db=None, verbose=False, ignoreWarnings=False):
+        """ Constructor for the threaded model.
+        :param taxonomy: previous taxonomy available (if available) or an empty dictionary to store the results .
+        :type taxonomy: dictionary
+        :param lock: lock to keep the taxonomy threadsafe.
+        :type lock: Lock
+        :param queue: queue where the taxa are kept to be processed.
+        :type queue: Queue of strings
+        :param id: id for the thread to use if messages need to be printed.
+        :type id: int 
+        :param pref_db: Gives priority to database. Seems it is unused.
+        :type pref_db: string 
+        :param verbose: Show verbose messages during execution, will also define level of logging. True will set logging level to INFO.
+        :type verbose: boolean
+        :param ignoreWarnings: Ignore warnings and errors during execution? Errors will be logged with ERROR level on the logging output.
+        :type ignoreWarnings: boolean 
+        """
+
+        threading.Thread.__init__(self)
+        self.taxonomy = taxonomy
+        self.lock = lock
+        self.queue = queue
+        self.id = id
+        self.verbose = verbose
+        self.pref_db = pref_db
+        self.ignoreWarnings = ignoreWarnings
+
+    def run(self):
+        """ Gets and processes a taxon from the queue to get its taxonomy."""
+        while True :
+            if self.verbose :
+                logging.getLogger().setLevel(logging.INFO)
+            #get taxon from queue
+            taxon = self.queue.get()
+
+            logging.debug("Starting {} with thread #{} remaining ~{}".format(taxon,str(self.id),str(self.queue.qsize())))
+             
+            #Lock access to the taxonomy
+            self.lock.acquire()
+            if not taxon in self.taxonomy: # is a new taxon, not previously in the taxonomy
+                #Release access to the taxonomy
+                self.lock.release()
+                if (self.verbose):
+                    print "Looking up ", taxon
+                    logging.info("Loolking up taxon: {}".format(str(taxon)))
+                try:
+                    # get the data from EOL on taxon
+                    taxonq = quote_plus(taxon)
+                    URL = "http://eol.org/api/search/1.0.json?q="+taxonq
+                    req = urllib2.Request(URL)
+                    opener = urllib2.build_opener()
+                    f = opener.open(req)
+                    data = json.load(f)
+                    # check if there's some data
+                    if len(data['results']) == 0:
+                        # try PBDB as it might be a fossil
+                        URL = "http://paleobiodb.org/data1.1/taxa/single.json?name="+taxonq+"&show=phylo&vocab=pbdb"
+                        req = urllib2.Request(URL)
+                        opener = urllib2.build_opener()
+                        f = opener.open(req)
+                        datapbdb = json.load(f)
+                        if (len(datapbdb['records']) == 0):
+                            # no idea!
+                            with self.lock:
+                                self.taxonomy[taxon] = {}
+                            self.queue.task_done()
+                            continue
+                        # otherwise, let's fill in info here - only if extinct!
+                        if datapbdb['records'][0]['is_extant'] == 0:
+                            this_taxonomy = {}
+                            this_taxonomy['provider'] = 'PBDB'
+                            for level in taxonomy_levels:
+                                try:
+                                    if datapbdb.has_key('records'):
+                                        pbdb_lev = datapbdb['records'][0][level]
+                                        temp_lev = pbdb_lev.split(" ")
+                                        # they might have the author on the end, so strip it off
+                                        if (level == 'species'):
+                                            this_taxonomy[level] = ' '.join(temp_lev[0:2])
+                                        else:
+                                            this_taxonomy[level] = temp_lev[0]       
+                                except KeyError as e:
+                                    logging.exception("Key not found records")
+                                    continue
+                            # add the taxon at right level too
+                            try:
+                                if datapbdb.has_key('records'):
+                                    current_level = datapbdb['records'][0]['rank']
+                                    this_taxonomy[current_level] = datapbdb['records'][0]['taxon_name']
+                            except KeyError as e:
+                                self.queue.task_done()
+                                logging.exception("Key not found records")
+                                continue
+                            with self.lock:
+                                self.taxonomy[taxon] = this_taxonomy
+                            self.queue.task_done()
+                            continue
+                        else:
+                            # extant, but not in EoL - leave the user to sort this one out
+                            with self.lock:
+                                self.taxonomy[taxon] = {}
+                            self.queue.task_done()
+                            continue
+
+                                
+                    ID = str(data['results'][0]['id']) # take first hit
+                    # Now look for taxonomies
+                    URL = "http://eol.org/api/pages/1.0/"+ID+".json"
+                    req = urllib2.Request(URL)
+                    opener = urllib2.build_opener()
+                    f = opener.open(req)
+                    data = json.load(f)
+                    if len(data['taxonConcepts']) == 0:
+                        with self.lock:
+                            self.taxonomy[taxon] = {}
+                        self.queue.task_done()
+                        continue
+                    TID = str(data['taxonConcepts'][0]['identifier']) # take first hit
+                    currentdb = str(data['taxonConcepts'][0]['nameAccordingTo'])
+                    # loop through and get preferred one if specified
+                    # now get taxonomy
+                    if (not self.pref_db is None):
+                        for db in data['taxonConcepts']:
+                            currentdb = db['nameAccordingTo'].lower()
+                            if (self.pref_db.lower() in currentdb):
+                                TID = str(db['identifier'])
+                                break
+                    URL="http://eol.org/api/hierarchy_entries/1.0/"+TID+".json"
+                    req = urllib2.Request(URL)
+                    opener = urllib2.build_opener()
+                    f = opener.open(req)
+                    data = json.load(f)
+                    this_taxonomy = {}
+                    this_taxonomy['provider'] = currentdb
+                    for a in data['ancestors']:
+                        try:
+                            if a.has_key('taxonRank') :
+                                temp_level = a['taxonRank'].encode("ascii","ignore")
+                                if (temp_level in taxonomy_levels):
+                                    # note the dump into ASCII
+                                    temp_name = a['scientificName'].encode("ascii","ignore")
+                                    temp_name = temp_name.split(" ")
+                                    if (temp_level == 'species'):
+                                        this_taxonomy[temp_level] = temp_name[0:2]
+                                        
+                                    else:
+                                        this_taxonomy[temp_level] = temp_name[0]  
+                        except KeyError as e:
+                            logging.exception("Key not found: taxonRank")
+                            continue
+                    try:
+                        # add taxonomy in to the taxonomy!
+                        # some issues here, so let's make sure it's OK
+                        temp_name = taxon.split(" ")            
+                        if data.has_key('taxonRank') :
+                            if not data['taxonRank'].lower() == 'species':
+                                this_taxonomy[data['taxonRank'].lower()] = temp_name[0]
+                            else:
+                                this_taxonomy[data['taxonRank'].lower()] = ' '.join(temp_name[0:2])
+                    except KeyError as e:
+                        self.queue.task_done()
+                        logging.exception("Key not found: taxonRank")
+                        continue
+                    with self.lock:
+                        #Send result to dictionary
+                        self.taxonomy[taxon] = this_taxonomy
+                except urllib2.HTTPError:
+                    print("Network error when processing {} ".format(taxon,))
+                    logging.info("Network error when processing {} ".format(taxon,))
+                    self.queue.task_done()
+                    continue
+                except urllib2.URLError:
+                    print("Network error when processing {} ".format(taxon,))
+                    logging.info("Network error when processing {} ".format(taxon,))
+                    self.queue.task_done()
+                    continue
+            else :
+                #Nothing to do release the lock on taxonomy
+                self.lock.release()
+            #Mark task as done
+            self.queue.task_done()
+
+def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, threadNumber=5):
+    """Uses the taxa provided to generate a taxonomy for all the taxon available. 
+    :param taxa: list of the taxa.
+    :type taxa : list 
+    :param taxonomy: previous taxonomy available (if available) or an empty 
+    dictionary to store the results. If None will be init to an empty dictionary
+    :type taxonomy: dictionary
+    :param pref_db: Gives priority to database. Seems it is unused.
+    :type pref_db: string 
+    :param verbose: Show verbose messages during execution, will also define 
+    level of logging. True will set logging level to INFO.
+    :type verbose: boolean
+    :param ignoreWarnings: Ignore warnings and errors during execution? Errors 
+    will be logged with ERROR level on the logging output.
+    :type ignoreWarnings: boolean 
+    :param threadNumber: Maximum number of threads to use for taxonomy processing.
+    :type threadNumber: int
+    :returns: dictionary with resulting taxonomy for each taxon (keys) 
+    :rtype: dictionary 
+    """
+    if verbose :
+        logging.getLogger().setLevel(logging.INFO)
+    if taxonomy is None:
+        taxonomy = {}
+
+    lock = threading.Lock()
+    queue = Queue.Queue()
+
+    #Starting a few threads as daemons checking the queue
+    for i in range(threadNumber) :
+        t = TaxonomyFetcher(taxonomy, lock, queue, i, pref_db, verbose, ignoreWarnings)
+        t.setDaemon(True)
+        t.start()
+    
+    #Popoluate the queue with the taxa.
+    for taxon in taxa :
+        queue.put(taxon)
+    
+    #Wait till everyone finishes
+    queue.join()
+    logging.getLogger().setLevel(logging.WARNING)
+
+def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
+    """ Generates the taxonomy from a tree. Uses a similar method to the XML version but works directly on a string with the tree.
+    :param tree: list of the taxa.
+    :type tree : list 
+    :param existing_taxonomy: list of the taxa.
+    :type existing_taxonomy: list 
+    :param pref_db: Gives priority to database. Seems it is unused.
+    :type pref_db: string 
+    :param verbose: Flag for verbosity.
+    :type verbose: boolean
+    :param ignoreWarnings: Flag for exception processing.
+    :type ignoreWarnings: boolean
+    :returns: the modified taxonomy
+    :rtype: dictionary
+    """
+    starttime = time.time()
+
+    if(existing_taxonomy is None) :
+        taxonomy = {}
+    else :
+        taxonomy = existing_taxonomy
+
+    taxa = get_taxa_from_tree_for_taxonomy(tree, pretty=True)
+    
+    create_taxonomy_from_taxa(taxa, taxonomy)
+    
+    taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings)
+    
+    return taxonomy
+
+def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
+    """Generates a taxonomy of the data from EoL data. This is stored as a
+    dictionary of taxonomy for each taxon in the dataset. Missing data are
+    encoded as '' (blank string). It's up to the calling function to store this
+    data to file or display it."""
+    
+    starttime = time.time()
+
+    if not ignoreWarnings:
+        _check_data(XML)
+
+    if (existing_taxonomy is None):
+        taxonomy = {}
+    else:
+        taxonomy = existing_taxonomy
+    taxa = get_all_taxa(XML, pretty=True)
+    create_taxonomy_from_taxa(taxa, taxonomy)
+    #taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings)
+    return taxonomy
+
+def create_extended_taxonomy(taxonomy, starttime, verbose=False, ignoreWarnings=False):
+    """Bring extra taxonomy terms from other databases, shared method for completing the taxonomy
+    both for trees comming from XML or directly from trees.
+    :param taxonomy: Dictionary with the relationship for taxa and taxonomy terms.
+    :type taxonomy: dictionary
+    :param starttime: time to keep track of processing time.
+    :type starttime: long
+    :param verbose: Flag for verbosity.
+    :type verbose: boolean
+    :param ignoreWarnings: Flag for exception processing.
+    :type ignoreWarnings: boolean
+    :returns: the modified taxonomy
+    :rtype: dictionary
+    """
+    
+    if (verbose):
+        logging.info('Done basic taxonomy, getting more info from ITIS')
+        print("Time elapsed {}".format(str(time.time() - starttime)))
+        print "Done basic taxonomy, getting more info from ITIS"
+    # fill in the rest of the taxonomy
+    # get all genera
+    genera = []
+    for t in taxonomy:
+        if t in taxonomy:
+            if GENUS in taxonomy[t]:
+                genera.append(taxonomy[t][GENUS])
+    genera = _uniquify(genera)
+    # We then use ITIS to fill in missing info based on the genera only - that saves us a species level search
+    # and we can fill in most of the EoL missing data
+    for g in genera:
+        if (verbose):
+            print "Looking up ", g
+            logging.info("Looking up {}".format(str(g)))
+        try:
+            URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(g.strip())
+        except:
+            continue
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        try:
+            f = opener.open(req)
+        except urllib2.HTTPError:
+            continue
+        string = unicode(f.read(),"ISO-8859-1")
+        data = json.loads(string)
+        if data['scientificNames'][0] == None:
+            continue
+        tsn = data["scientificNames"][0]["tsn"]
+        URL="http://www.itis.gov/ITISWebService/jsonservice/getFullHierarchyFromTSN?tsn="+str(tsn)
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        try:
+            string = unicode(f.read(),"ISO-8859-1")
+        except:
+            continue
+        data = json.loads(string)
+        this_taxonomy = {}
+        for level in data['hierarchyList']:
+            if not level['rankName'].lower() in current_taxonomy_levels:
+                # note the dump into ASCII            
+                if level['rankName'].lower() == 'species':
+                    this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = ' '.join.level['taxonName'][0:2].encode("ascii","ignore")
+                else:
+                    this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
+
+        for t in taxonomy:
+            if t in taxonomy:
+                if GENUS in taxonomy[t]:
+                    if taxonomy[t][GENUS] == g:
+                        taxonomy[t].update(this_taxonomy)
+
+    return taxonomy
+
+def generate_species_level_data(XML, taxonomy, ignoreWarnings=False, verbose=False):
+    """ Based on a taxonomy data set, amend the data to be at species level as
+    far as possible.  This function creates an internal 'subs file' and calls
+    the standard substitution functions.  The internal subs are generated by
+    looping over the taxa and if not at species-level, working out which level
+    they are at and then adding species already in the dataset to replace it
+    via a polytomy. This has to be done in one step to avoid adding spurious
+    structure to the phylogenies """
+
+    if not ignoreWarnings:
+        _check_data(XML)
+
+    # if taxonomic checker not done, warn
+    if (not taxonomy):
+        raise NoneCompleteTaxonomy("Taxonomy is empty. Create a taxonomy first. You'll probably need to hand edit the file to complete")
+        return
+
+    # if missing data in taxonomy, warn
+    taxa = get_all_taxa(XML)
+    keys = taxonomy.keys()
+    if (not ignoreWarnings):
+        for t in taxa:
+            t = t.replace("_"," ")
+            if not t in keys:
+                # This idea here is that the caller will catch this, then re-run with ignoreWarnings set to True
+                raise NoneCompleteTaxonomy("Taxonomy is not complete. I will soldier on anyway, but this might not work as intended")
+
+    # get all taxa - see above!
+    # for each taxa, if not at species level
+    new_taxa = []
+    old_taxa = []
+    for t in taxa:
+        subs = []
+        t = t.replace("_"," ")
+        if (not SPECIES in taxonomy[t]): # the current taxon is not a species, but higher level taxon
+            # work out which level - should we encode this in the data to start with?
+            for tl in taxonomy_levels:
+                try:
+                    tax_data = taxonomy[t][tl]
+                except KeyError:
+                    continue
+                if (t == taxonomy[t][tl]):
+                    current_level = tl
+                    # find all species in the taxonomy that match this level
+                    for taxon in taxa:
+                        taxon = taxon.replace("_"," ")
+                        if (SPECIES in taxonomy[taxon]):
+                            try:
+                                if taxonomy[taxon][current_level] == t: # our current taxon
+                                    subs.append(taxon.replace(" ","_"))
+                            except KeyError:
+                                continue
+
+        # create the sub
+        if len(subs) > 0:
+            old_taxa.append(t.replace(" ","_"))
+            new_taxa.append(','.join(subs))
+
+    # call the sub
+    new_XML = substitute_taxa(XML, old_taxa, new_taxa, verbose=verbose)
+    new_XML = clean_data(new_XML)
+    
+    return new_XML
 
 def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=False, verbose=False, ignoreWarnings=False):
     """ Calculate the amount of taxonomic overlap between source trees.
@@ -2024,7 +2724,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
     If filename is None, no graphic is generated. Otherwise a simple
     graphic is generated showing the number of cluster. If detailed is set to
     true, a graphic is generated showing *all* trees. For data containing >200
-    source tres this could be very big and take along time. More likely, you'll run
+    source trees this could be very big and take along time. More likely, you'll run
     out of memory.
     """
     import matplotlib
@@ -2103,6 +2803,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
         sufficient_overlap = True
 
     # The above list actually contains which components are seperate from each other
+    key_list = connected_components
 
     if (not filename == None or show):
         if (verbose):
@@ -2266,7 +2967,9 @@ def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
     prev_char = None
     prev_taxa = None
     prev_name = None
-    non_ind = {}
+    subsets = []
+    identical = []
+    is_identical = False
     for data in data_ind:
         name = data[0]
         char = data[1]
@@ -2275,22 +2978,71 @@ def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
             # when sorted, the longer list comes first
             if set(taxa).issubset(set(prev_taxa)):
                 if (taxa == prev_taxa):
-                    non_ind[name] = [prev_name,IDENTICAL]
+                    if (is_identical):
+                        identical[-1].append(name)
+                    else:
+                        identical.append([name,prev_name])
+                        is_identical = True
+
                 else:
-                    non_ind[name] = [prev_name,SUBSET]
+                    subsets.append([prev_name, name])
+                    prev_name = name
+                    is_identical = False
+            else:
+                prev_name = name
+                is_identical = False
+        else:
+            prev_name = name
+            is_identical = False
+            
         prev_char = char
         prev_taxa = taxa
-        prev_name = name
-
+        
     if (make_new_xml):
         new_xml = XML
-        for name in non_ind:
-            if (non_ind[name][1] == SUBSET):
-                new_xml = _swap_tree_in_XML(new_xml,None,name) 
+        # deal with subsets
+        for s in subsets:
+            new_xml = _swap_tree_in_XML(new_xml,None,s[1]) 
         new_xml = clean_data(new_xml)
-        return non_ind, new_xml
+        # deal with identical - weight them, if there's 3, weights are 0.3, i.e. 
+        # weights are 1/no of identical trees
+        for i in identical:
+            weight = 1.0 / float(len(i))
+            new_xml = add_weights(new_xml, i, weight)
+
+        return identical, subsets, new_xml
     else:
-        return non_ind
+        return identical, subsets
+
+
+def add_weights(XML, names, weight):
+    """ Add weights for tree, supply array of names and a weight, they get set
+        Returns a new XML
+    """
+
+    xml_root = _parse_xml(XML)
+    # By getting source, we can then loop over each source_tree
+    find = etree.XPath("//source_tree")
+    sources = find(xml_root)
+    for s in sources:
+        s_name = s.attrib['name']
+        for n in names:
+            if s_name == n:
+                if s.xpath("tree/weight/real_value") == []:
+                    # add weights
+                    weights_element = etree.Element("weight")
+                    weights_element.tail="\n"
+                    real_value = etree.SubElement(weights_element,'real_value')
+                    real_value.attrib['rank'] = '0'
+                    real_value.tail = '\n'
+                    real_value.text = str(weight)
+                    t = s.xpath("tree")[0]                    
+                    t.append(weights_element)
+                else:
+                    s.xpath("tree/weight/real_value")[0].text = str(weight)
+
+    return etree.tostring(xml_root,pretty_print=True)
+
 
 def add_historical_event(XML, event_description):
     """
@@ -2380,8 +3132,15 @@ def clean_data(XML):
     # check trees are informative
     XML = _check_informative_trees(XML,delete=True)
 
+    
     # check sources
     XML = _check_sources(XML,delete=True)
+    XML = all_sourcenames(XML)
+    
+    # fix tree names
+    XML = set_unique_names(XML)
+    XML = set_all_tree_names(XML,overwrite=True)
+    
 
     # unpermutable trees
     permutable_trees = _find_trees_for_permuting(XML)
@@ -2659,7 +3418,7 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
         s.getparent().remove(s)
 
     # edit name (append _subset)
-    proj_name = xml_root.xpath('/phylo_storage/project_name/string_value')[0].text
+    proj_name = get_project_name(XML)
     proj_name += "_subset"
     xml_root.xpath('/phylo_storage/project_name/string_value')[0].text = proj_name
 
@@ -2928,6 +3687,37 @@ def get_mrca(tree,taxa_list):
 
     return mrca
 
+
+def tree_from_taxonomy(taxonomy, end_level, end_rank):
+    """Create a tree from a taxonomy data structure.
+    This is not the most efficient way, but works OK
+    """
+
+    # Grab data only for the end_level classification
+    required_taxonomy = {}
+    for t in taxonomy:
+        if (end_level in t):
+            required_taxonomy[t] = taxonomy[t]
+
+    rank_index = taxonomy_levels.index(end_rank)
+
+    # create basic string
+
+        # get unique otus
+
+        # sort by the subfamily
+
+        # for each genus create a newick string
+
+        # if it's the same grouping as previous, add as sister clade (i.e. ,)
+        # else, prepend a (, append a ) and add new clade (ie. ,)
+
+    
+    # return tree
+
+
+
+
 ################ PRIVATE FUNCTIONS ########################
 
 def _uniquify(l):
@@ -2975,13 +3765,25 @@ def _check_uniqueness(XML):
                     "The source names in the dataset are not unique. Please run the auto-name function on these data. Name: "+name+"\n"
         last_name = name
 
+    # do same for tree names:
+    names = get_all_tree_names(XML)
+    names.sort()
+    last_name = "" # This will actually throw an non-unique error if a name is empty
+    # not great, but still an error!
+    for name in names:
+        if name == last_name:
+            # if non-unique throw exception
+            message = message + \
+                    "The tree names in the dataset are not unique. Please run the auto-name function on these data with replace or edit by hand. Name: "+name+"\n"
+        last_name = name
+
     if (not message == ""):
         raise NotUniqueError(message)
 
     return
 
 
-def _assemble_tree_matrix(tree_string):
+def _assemble_tree_matrix(tree_string, verbose=False):
     """ Assembles the MRP matrix for an individual tree
 
         returns: matrix (2D numpy array: taxa on i, nodes on j)
@@ -3009,7 +3811,7 @@ def _assemble_tree_matrix(tree_string):
         for i in range(0,len(names)):
             adjmat.append([1])
         adjmat = numpy.array(adjmat)
-
+    if verbose:
         print "Warning: Found uninformative tree in data. Including it in the matrix anyway"
 
     return adjmat, names
@@ -3020,7 +3822,7 @@ def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
     
     If the new_taxa array is missing, simply delete the old_taxa
     """
-   
+  
     tree = _correctly_quote_taxa(tree)
     # are the input values lists or simple strings?
     if (isinstance(old_taxa,str)):
@@ -3564,7 +4366,7 @@ def _find_trees_for_permuting(XML):
 
     return permute_trees
 
-def _create_matrix(trees, taxa, format="hennig", quote=False, weights=None):
+def _create_matrix(trees, taxa, format="hennig", quote=False, weights=None, verbose=False):
     """
     Does the hard work on creating a matrix
     """
@@ -3585,7 +4387,7 @@ def _create_matrix(trees, taxa, format="hennig", quote=False, weights=None):
         if (not weights == None):
             weight = weights[key]
         names.append(key)
-        submatrix, tree_taxa = _assemble_tree_matrix(trees[key])
+        submatrix, tree_taxa = _assemble_tree_matrix(trees[key], verbose=verbose)
         nChars = len(submatrix[0,:])
         # loop over characters in the submatrix
         for i in range(1,nChars):
@@ -3637,7 +4439,7 @@ def _create_matrix_string(matrix,taxa,charsets=None,names=None,
             matrix_string += string + "\n"
             i += 1
             
-        matrix_string += "\t;\n"
+        matrix_string += "\n"
         if (not weights == None):
             # get unique weights
             unique_weights = _uniquify(weights)
@@ -3652,7 +4454,7 @@ def _create_matrix_string(matrix,taxa,charsets=None,names=None,
                         matrix_string += " " + str(i)
                     i += 1
                 matrix_string += ";\n"
-        matrix_string += "procedure /;"
+        matrix_string += "proc /;"
     elif (format == 'nexus'):
         matrix_string = "#nexus\n\nbegin data;\n"
         matrix_string += "\tdimensions ntax = "+str(len(taxa)) +" nchar = "+str(last_char)+";\n"

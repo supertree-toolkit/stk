@@ -1,0 +1,378 @@
+<?xml version='1.0' encoding='utf-8'?>
+<phylo_storage>
+  <project_name>
+    <string_value lines="1">Name_check_test</string_value>
+  </project_name>
+  <sources>
+    <source name="Lo_etal_2000">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Lo</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Nathan</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Tokuda</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Gaku</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Watanabe</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Hirofumi</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Rose</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Harley</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Slaytor</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Michael</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Maekawa</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Kiyoto</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Bandi</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Claudio</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Noda</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Hiroaki</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Evidence from multiple gene sequences indicates that termites evolved from wood-feeding cockroaches</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2000</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Current Biology</string_value>
+          </journal>
+          <volume>
+            <string_value lines="1">10</string_value>
+          </volume>
+          <pages>
+            <string_value lines="1">801-804</string_value>
+          </pages>
+          <doi>
+            <string_value lines="1">10.1016/S0960-9822(00)00561-3</string_value>
+          </doi>
+          <url>
+            <string_value lines="1">http://www.sciencedirect.com.ezp2.bath.ac.uk/science/article/pii/S0960982200005613#</string_value>
+          </url>
+        </article>
+      </bibliographic_information>
+      <source_tree name="Lo_etal_2000_1">
+        <tree>
+          <tree_string>
+            <string_value lines="1">((((Periplaneta_americana, ((Microhodotermopsis_viator, Mactotermes_darwiniensis, (Coptotermes_lacteus, Serritermes_serrifer), (Neotermes_koshunensis, Hodotermopsis_japonica)), (Cryptocercus_relictus, Cryptocercus_punctulatus))), (Polyphaga_aegyptica, (Panesthia_cribrata, Blattella_germanica))), (Paroxypilus_tasmaniensis, (Kongobatha_diademata, (Tenodera_angustipennis, Creobroter_pictipennis)))), (Agathamera_crassa, Phyllium_bioculatum));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">Phylogeny of Dictyoptera inferred from a combined analysis of 18S
+rDNA and COII (first and second codon positions only; see
+Supplementary material). The most likely tree (log likelihood = 7916.91)
+found by PUZZLE 4.0.2 [26] using the HKY85 [27] model of sequence
+substitution and the 1 variable + 1 invariable model of among-site rate
+heterogeneity is shown. MP analyses recovered trees with almost
+identical topologies (see Supplementary material). Red branches
+indicate termites, blue indicate cockroaches and green indicate
+mantids. Numbers on selected nodes are, from top to bottom: ML
+quartet puzzling support values (QPV), MP bootstrap values (BV), MP
+jackknife values (JV) and MP decay (d) values. Asterisks indicate nodes
+that had QPV, BV and JV of 95100% and decay values &gt; 10. Nodes
+with QPV less than 50% were collapsed to form polytomies. Trees
+were rooted with stick insects; 18S rDNA sequences from the two
+stick-insect species shown (+) were combined with the COII sequence
+of Neohiriasea japonica. Values in inset boxes are from individual
+analyses of 18S rDNA (upper node) and COII (lower node; amino acid
+level). Support values at the upper node for individual COII analyses
+and the lower node for 18S rDNA analyses were less than 50%. The
+scale bar represents 0.1 substitutions per site.</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">802</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Likelihood"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">Agathemera crassa
+Phyllium bioculatum</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="RNA, 18S ribosomal"/>
+          <character type="molecular" name="mitochondrially encoded cytochrome c oxidase II"/>
+        </character_data>
+      </source_tree>
+      <source_tree name="Lo_etal_2000_2">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Cherax_quadricarinatus, (Polyphaga_aegyptica, Panesthia_cribrata, Blattella_germanica, (Periplaneta_americana, (Cryptocercus_clevelandi, (Neotermes_koshunensis, Hodotermopsis_japonica, Mastotermes_darwiniensis, (Nasutitermes_takasagoensis, Reticulitermes_speratus))))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">Phylogeny of endo-b-1,4-glucanase genes (EG) from termites,
+cockroaches and a crustacean. The most likely tree (log
+likelihood = 12235.85) found by PUZZLE 4.0.2 [26] using the models
+described in Figure 1 is shown. Branch support values, asterisks, branch
+colours and scale bar are as outlined in Figure 1. The bullet indicates a
+node that was not supported in &gt; 50% of MP bootstrap and jackknife
+analyses. Trees were rooted with non-arthropod glycosyl hydrolase
+family 9 sequences (data not shown; see Supplementary material).</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">2</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">802</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Likelihood"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">Cherax quadricarinatus</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="endo_B_1_4_glucanase_genes"/>
+        </character_data>
+      </source_tree>
+    </source>
+    <source name="Chinn_Gemmell_2004">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Chinn</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Warren G.</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Gemmell</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">Neil J.</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">Adaptive radiation within New Zealand endemic species of the cockroach genus Celatoblatta Johns (Blattidae): a response to Plio-Pleistocene mountain building and climate change</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2004</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Molecular Ecology</string_value>
+          </journal>
+          <volume>
+            <string_value lines="1">13</string_value>
+          </volume>
+          <pages>
+            <string_value lines="1">1507-1518</string_value>
+          </pages>
+          <doi>
+            <string_value lines="1">10.1111/j.1365-294X.2004.02160.x</string_value>
+          </doi>
+          <url>
+            <string_value lines="1">http://onlinelibrary.wiley.com/doi/10.1111/j.1365-294X.2004.02160.x/pdf</string_value>
+          </url>
+        </article>
+      </bibliographic_information>
+      <source_tree name="Chinn_Gemmell_2004_1">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Drymaplaneta_variegata, (Prosthemadera_novaeseelandiae, (Celatoblatta_sp., (Celatoblatta_vulgaris, ((Celatoblatta_montana, ((Celatoblatta_quinquemaculata, Celatoblatta_anisoptera), (Celatoblatta_laevispinata, Celatoblatta_hesperia))), (Celatoblatta_pallidicauda, (Celatoblatta_brunni, Celatoblatta_peninsularis)))))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">Maximum likelihood ultrametric
+tree (GTR + I + *) with approximate time
+line (based on 2.2% genetic divergence per
+million years). At around 6 myr before
+present (late Miocene to early Pliocene), uplift
+of the Southern Alps accelerates, establishing
+a significant barrier to circumpolar
+westerly airstreams (arrow at left). Deep
+lineage splits within Celatoblatta occur in
+response to climatic differentiation from 6
+to 3 mya (~7.2% divergence). Subsequent
+Pleistocene glaciation, landscape modification
+and range restrictions encouraged phylogenetic
+structuring within clades. Numbers
+above branches are bootstrap support
+values for 1000 replicates (values below
+60% not shown), numbers adjacent to taxa
+are haplotype designations.</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">6</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">1513</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Likelihood"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">Drymaplaneta variegata</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="molecular" name="mitochondrially encoded cytochrome c oxidase I"/>
+        </character_data>
+      </source_tree>
+    </source>
+    <source name="Inward_etal_2007b">
+      <bibliographic_information>
+        <article>
+          <authors>
+            <author>
+              <surname>
+                <string_value lines="1">Inward</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">D. J.</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Vogler</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">A. P.</string_value>
+              </other_names>
+            </author>
+            <author>
+              <surname>
+                <string_value lines="1">Eggleton</string_value>
+              </surname>
+              <other_names>
+                <string_value lines="1">P.</string_value>
+              </other_names>
+            </author>
+          </authors>
+          <title>
+            <string_value lines="1">A comprehensive phylogenetic analysis of termites (Isoptera) illuminates key aspects of their evolutionary biology.</string_value>
+          </title>
+          <year>
+            <integer_value rank="0">2007</integer_value>
+          </year>
+          <journal>
+            <string_value lines="1">Molecular Phylogenetics and Evolution</string_value>
+          </journal>
+          <volume>
+            <string_value lines="1">44</string_value>
+          </volume>
+          <pages>
+            <string_value lines="1">953-967</string_value>
+          </pages>
+          <issue>
+            <string_value lines="1">3</string_value>
+          </issue>
+          <doi>
+            <string_value lines="1">10.1016/j.ympev.2007.05.014</string_value>
+          </doi>
+          <url>
+            <string_value lines="1">http://www.ncbi.nlm.nih.gov/pubmed/17625919</string_value>
+          </url>
+        </article>
+      </bibliographic_information>
+      <source_tree name="Inward_etal_2007b_1">
+        <tree>
+          <tree_string>
+            <string_value lines="1">(Miomantis_sp., ((Periplaneta_australae, Blatta_lateralis), (Cryptocercus_punctulatus, (Mastotermes_darwiniensis, ((Zootermopsis_angusticollis, Archotermopsis_wroughtoni), ((Hodotermopsis_sjoestedti, (Anacanthotermes_ochraeus, (Hodotermes_mossambicus, Microhodotermes_viator))), ((Stolotermes_inopinus, Porotermes_quadricollis), ((Kalotermes_flavicollis, (Epicalotermes_sp., (Bifiditermes_improbus, (Postelectrotermes_sp., Cryptocercus_secundus)))), (((Dolichorhinotermes_longilabius, Rhinotermes_sp.), (Parrhinotermes_microdentiformis, (Schedorhinotermes_medioobscurus, (Schedorhinotermes_laminianus, Schedorhinotermes_putorius)))), ((Termitogeton_planus, Serritermes_serrifer), ((Prorhinotermes_tibiaoensiformis, (Psammotermes_voeltzhowi, Psammotermes_allocerus)), (Reticulitermes_grassei, ((Coptotermes_sjoestedti, (Coptotermes_acinaciformis, (Coptotermes_testaceus, Coptotermes_niger))), (Heterotermes_tenuior, (Heterotermes_platycephalus, Heterotermes_tenuis)))))))))))))));</string_value>
+          </tree_string>
+          <figure_legend>
+            <string_value lines="1">The phylogeny of Isoptera inferred from simultaneous analysis of molecular and morphological data. The tree shown is based on the preferred Clustal alignment, as a strict consensus of the 187,300 equally parsimonious trees. Numbers on the branches represent Bremer support values. The existing classification is indicated by coloured species names. With few exceptions, the preferred tree represents very well the consensus of key relationships recovered by the different analyses (Table 4). The trees are cladograms and so the branch lengths shown are arbitrary. Leaves without species names are generally undescribed species, which have been given a code according to where they were collected. Termitidae tree continued in Fig. 2. (For interpretation of the references to colors in this figure legend, the reader is referred to the web version of this paper.)
+
+Fig. 2. Tree covering Termitidae from Macrotermitinae to the Termes-group. Features as in Fig. 1. Black arrow, acquisition of asymmetrical snapping mandibles in the soldiers. Sub-group 1 continued in Fig. 3. (For interpretation of the references to colors in this figure legend, the reader is referred to the web version of this paper.)
+
+Fig. 3. Tree covering the rest of Termitidae. Features as in Fig. 1. Black arrow, acquisition of asymmetrical snapping mandibles in the soldiers. Orange arrows, acquisition of a nasus. (For interpretation of the references to colour in this figure legend, the reader is referred to the web version of this paper.)</string_value>
+          </figure_legend>
+          <figure_number>
+            <string_value lines="1">1, 2, 3</string_value>
+          </figure_number>
+          <page_number>
+            <string_value lines="1">960</string_value>
+          </page_number>
+          <tree_inference>
+            <optimality_criterion name="Maximum Parsimony"/>
+          </tree_inference>
+          <topology>
+            <outgroup>
+              <string_value lines="1">Miomantis sp.
+Periplaneta australasiae
+Blatta lateralis
+Cryptocercus punctulatus</string_value>
+            </outgroup>
+          </topology>
+        </tree>
+        <taxa_data>
+          <all_extant/>
+        </taxa_data>
+        <character_data>
+          <character type="morphological" name="Worker_Morphology"/>
+          <character type="molecular" name="mitochondrially encoded cytochrome c oxidase II"/>
+          <character type="molecular" name="mitochondrially encoded 12S RNA"/>
+          <character type="molecular" name="RNA, 28S ribosomal"/>
+        </character_data>
+      </source_tree>
+    </source>
+  </sources>
+  <history/>
+</phylo_storage>

@@ -23,6 +23,7 @@ import os
 import sys
 import argparse
 import traceback
+import time
 try:
     __file__
 except NameError:
@@ -41,6 +42,10 @@ import stk.Getch as Getch
 import string
 import stk.p4 as p4
 import lxml
+import csv
+import tempfile
+from subprocess import check_call, CalledProcessError, call
+
 import stk.bzr_version as bzr_version
 d = bzr_version.version_info
 build = d.get('revno','<unknown revno>')
@@ -366,7 +371,7 @@ def main():
 
     # Clean data
     parser_cm = subparsers.add_parser('clean_data',
-            help='Remove errant taxa, uninformative trees and empty sources.'
+            help='Renames all sources and trees sensibly. Removes errant taxa, uninformative trees and empty sources.'
             )
     parser_cm.add_argument('input', 
             help='The input phyml file')
@@ -488,7 +493,81 @@ def main():
     parser_cm.add_argument('subs',
             help='The subs file')
     parser_cm.set_defaults(func=check_subs)
-    
+   
+    # taxonomic name checker
+    parser_cm = subparsers.add_parser('check_otus',
+            help='Check your OTUs against EoL.'
+            )
+    parser_cm.add_argument('input',
+            help='The input Phyml. Also accepts tree files or a simple list')
+    parser_cm.add_argument('output', 
+            help='The output CSV file. Taxon, synonyms, status')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing file without asking for confirmation")
+    parser_cm.set_defaults(func=check_otus)
+
+    # create taxonomy csv file
+    parser_cm = subparsers.add_parser('create_taxonomy',
+            help='Create a taxonomy file in CSV for you to then augment.'
+            )
+    parser_cm.add_argument('input',
+            help='The input Phyml. Also accepts tree files or a simple list')
+    parser_cm.add_argument('output', 
+            help='The output CSV file. Name, followed by classification and source')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing file without asking for confirmation")
+    parser_cm.add_argument('--taxonomy',
+            help="Give a starting taxonomy file, e.g. one you ran earlier",)
+    parser_cm.set_defaults(func=create_taxonomy)
+
+
+    # do the subs in a one go using taxonomy
+    parser_cm = subparsers.add_parser('auto_subs',
+            help='Using a taxonomy, generate a species level version of your data in one go.'
+            )
+    parser_cm.add_argument('input',
+            help='The input Phyml')
+    parser_cm.add_argument('taxonomy',
+            help='Your taxonomy file',
+            )
+    parser_cm.add_argument('output', 
+            help='The output phyml')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing file without asking for confirmation")
+    #parser_cm.add_argument('--level',
+    #        choices=supertree_toolkit.taxonomy_levels,
+    #        help="Taxonomic level to output at",)
+    parser_cm.set_defaults(func=auto_subs)
+
+
+    # attempt to process the data into a matrix all automatically
+    parser_cm = subparsers.add_parser('process',
+            help='Generate a species-level matrix, and do all the checks and processing automatically. Note this creates a taxonomy and does all the processing, but will not be perfect (as taxonomies are not perfect)'
+            )
+    parser_cm.add_argument('input',
+            help='The input Phyml')
+    parser_cm.add_argument('output', 
+            help='The output matrix')
+    parser_cm.add_argument('--taxonomy_file',
+            help='Existing taxonomy file to prevent redownloading data. Any taxa not in the file will be checked online, so partial complete file are OK.')
+    parser_cm.add_argument('--equivalents_file',
+            help='Existing equivalents file from a taxonomic name check. Any taxa not in the file will be checked online, so partially complete files are OK.')
+    parser_cm.add_argument('--overwrite',
+            action='store_true',
+            default=False,
+            help="Overwrite the existing file without asking for confirmation")
+    parser_cm.add_argument('--no_store',
+            action="store_true",
+            default=False,
+            help="Do not store intermediate files -- not recommended")
+    parser_cm.set_defaults(func=process)
+
 
     # before we let argparse work its magic, check for --version
     if "--version" in sys.argv:
@@ -602,7 +681,7 @@ def data_ind(args):
     # check if output files are there
     if (output_file and os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -612,7 +691,7 @@ def data_ind(args):
                 break
     if (not newphyml == None and os.path.exists(newphyml) and not overwrite):
         print "Output Phyml file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -624,9 +703,9 @@ def data_ind(args):
     XML = supertree_toolkit.load_phyml(input_file)
     try:
         if (newphyml == None):
-            data_independence = supertree_toolkit.data_independence(XML,ignoreWarnings=ignoreWarnings)
+            data_independence, subsets = supertree_toolkit.data_independence(XML,ignoreWarnings=ignoreWarnings)
         else:
-            data_independence, new_phyml = supertree_toolkit.data_independence(XML,make_new_xml=True,ignoreWarnings=ignoreWarnings)
+            data_independence, subsets, new_phyml = supertree_toolkit.data_independence(XML,make_new_xml=True,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
         msg = "***Error: Failed to check independence.\n"+detail.msg
         print msg
@@ -644,7 +723,7 @@ def data_ind(args):
         print msg
         return
     except:
-        msg = "***Error: failed to check independence due to unknown error."
+        msg = "***Error: failed to check independence due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit"
         print msg
         traceback.print_exc()
         return
@@ -653,16 +732,14 @@ def data_ind(args):
     data_ind = ""
     #column headers
     data_ind = "Source trees that are subsets of others\n"
-    data_ind = data_ind + "Flagged tree, is a subset of:\n"
-    for name in data_independence:
-        if ( data_independence[name][1] == supertree_toolkit.SUBSET ):
-            data_ind += name + "," + data_independence[name][0] + "\n"
+    data_ind = data_ind + "Flagged tree(s), is/are subset(s) of:\n"
+    for names in subsets:
+        data_ind += names[1:] + "," + names[0] + "\n"
     
     data_ind += "\n\nSource trees that are identical to others\n"
-    data_ind = data_ind + "Flagged tree, is identical to:\n"
-    for name in data_independence:
-        if ( data_independence[name][1] == supertree_toolkit.IDENTICAL ):
-            data_ind += name + "," + data_independence[name][0] + "\n"
+    data_ind = data_ind + "Flagged tree(s), is/are identical to:\n"
+    for names in data_independence:
+        data_ind += names[1:] + "," + names[0] + "\n"
         
 
     if (output_file == False or
@@ -762,7 +839,7 @@ def create_matrix(args):
     # Does the output file already exist?
     if (os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -771,6 +848,7 @@ def create_matrix(args):
             if k.lower() == 'y':
                 break
     try:
+
         XML = supertree_toolkit.load_phyml(input_file)
         input_is_xml = True
     except:
@@ -896,7 +974,7 @@ def sub_taxa(args):
     # Does the output file already exist?
     if (os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -942,7 +1020,7 @@ def sub_taxa(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed sbstituting taxa due to unknown error.\n"
+        msg = "***Error: Failed sbstituting taxa due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
         print msg
         traceback.print_exc()
         return 
@@ -983,7 +1061,7 @@ def import_data(args):
 
     if (os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1013,7 +1091,7 @@ def import_data(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed sbstituting taxa due to unknown error.\n"
+        msg = "***Error: Failed sbstituting taxa due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
         print msg
         traceback.print_exc()
         return 
@@ -1060,7 +1138,7 @@ def export_data(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to export data due to unknown error.\n"
+        msg = "***Error: Failed to export data due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
         print msg
         traceback.print_exc()
         return 
@@ -1115,7 +1193,7 @@ def data_overlap(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to check overlap due to unknown error.\n"
+        msg = "***Error: Failed to check overlap due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
         print msg
         traceback.print_exc()
         return 
@@ -1161,7 +1239,7 @@ def export_trees(args):
     # check if output files are there
     if (output_file and os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1191,7 +1269,7 @@ def export_trees(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to export trees due to unknown error.\n"
+        msg = "***Error: Failed to export trees due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
         print msg
         traceback.print_exc()
         return 
@@ -1220,7 +1298,7 @@ def export_bib(args):
     # check if output files are there
     if (output_file and os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1309,7 +1387,7 @@ def permute_trees(args):
             print msg
             return
         except: 
-            msg = "***Error: Failed to permute trees due to unknown error.\n"
+            msg = "***Error: Failed to permute trees due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
             print msg
             traceback.print_exc()
             return 
@@ -1347,7 +1425,7 @@ def clean_data(args):
     # check if output files are there
     if (os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1376,7 +1454,7 @@ def clean_data(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to clean data due to unknown error.\n"
+        msg = "***Error: Failed to clean data due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
         print msg
         traceback.print_exc()
         return 
@@ -1404,7 +1482,7 @@ def replace_genera(args):
     # check if output files are there
     if (os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1433,7 +1511,7 @@ def replace_genera(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to replace genera due to unknown error.\n"
+        msg = "***Error: Failed to replace genera due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
         print msg
         traceback.print_exc()
         return 
@@ -1488,7 +1566,7 @@ def convert_file(args):
             new_trees = {}
             i = 1
             for t in trees:
-                new_trees['tree_'+str(i)] = t
+                new_trees['tree_'+str(i)] = supertree_toolkit._collapse_nodes(t)
                 i += 1
             output = supertree_toolkit._amalgamate_trees(new_trees,format=output_format)
         except TreeParseError as detail:
@@ -1503,7 +1581,7 @@ def convert_file(args):
     # check if output files are there
     if (os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1540,7 +1618,7 @@ def create_subset(args):
     # check if output files are there
     if (os.path.exists(output_file) and not overwrite):
         print "Output file exists. Either remove the file or use the --overwrite flag."
-        print "Do you wish to continue? [Y/n]"
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
         while True:
             k=inkey()
             if k.lower() == 'n':
@@ -1589,7 +1667,7 @@ def create_subset(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to create subset due to unknown error.\n"
+        msg = "***Error: Failed to create subset due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
         print msg
         traceback.print_exc()
         return 
@@ -1637,6 +1715,681 @@ def check_subs(args):
     print "**************************************************************\n"
 
 
+def check_otus(args):
+    """check out the OTUs in the Phyml - are they considered valid?"""
+
+    verbose = args.verbose
+    input_file = args.input
+    output_file = args.output
+
+    print input_file
+    if (input_file.endswith(".phyml")):
+        XML = supertree_toolkit.load_phyml(input_file)
+        try:
+            equivs = supertree_toolkit.taxonomic_checker(XML, verbose=verbose)
+        except NotUniqueError as detail:
+            msg = "***Error: Failed to check OTUs.\n"+detail.msg
+            print msg
+            return
+        except InvalidSTKData as detail:
+            msg = "***Error: Failed to check OTUs.\n"+detail.msg
+            print msg
+            return
+        except UninformativeTreeError as detail:
+            msg = "***Error: Failed to check OTUs.\n"+detail.msg
+            print msg
+            return
+        except TreeParseError as detail:
+            msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+            print msg
+            return
+        except:
+            # what about no internet conenction? What error do that throw?
+            msg = "***Error: failed to create OTUs due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit"
+            print msg
+            traceback.print_exc()
+            return
+    elif (input_file.endswith(".txt") or input_file.endswith('.dat')):
+        # read file - assume one taxa per line
+        with open(input_file,'r') as f:
+            lines = f.read().splitlines()        
+        equivs = supertree_toolkit.taxonomic_checker_list(lines, verbose=verbose)
+    else:
+        # assume a tree!
+        equivs = supertree_toolkit.taxonomic_checker_tree(input_file, verbose=verbose)
+
+
+
+    f = open(output_file,"w")
+    for taxon in sorted(equivs.keys()):
+        f.write(taxon+","+";".join(equivs[taxon][0])+","+equivs[taxon][1]+"\n")
+    f.close()
+
+
+
+def create_taxonomy(args):
+    """create a taxonomic heirachy for each OTU in the Phyml"""
+
+    verbose = args.verbose
+    input_file = args.input
+    output_file = args.output
+    existing_taxonomy = args.taxonomy
+    ignoreWarnings = args.ignoreWarnings
+
+    XML = supertree_toolkit.load_phyml(input_file)
+    if (not existing_taxonomy == None):
+        existing_taxonomy = supertree_toolkit.load_taxonomy(existing_taxonomy) # load it in and create the dictionary
+        pass
+
+    try:
+        taxonomy = supertree_toolkit.create_taxonomy(XML,existing_taxonomy=existing_taxonomy,verbose=verbose,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to create taxonomy.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to create taxonomy.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to create taxonomy.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except:
+        # what about no internet conenction? What error do that throw?
+        msg = "***Error: failed to create taxonomy due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit"
+        print msg
+        traceback.print_exc()
+        return
+    
+    # Now create the CSV output
+    with open(output_file, 'w') as f:
+        writer = csv.writer(f)
+        headers = []
+        headers.append("OTU")
+        headers.extend(supertree_toolkit.taxonomy_levels)
+        headers.append("Data source")
+        writer.writerow(headers)
+        for t in taxonomy:
+            otu = t
+            try:
+                species = taxonomy[t]['species']
+            except KeyError:
+                species = "-"
+            try:
+                genus = taxonomy[t]['genus']
+            except KeyError:
+                genus = "-"
+            try:
+                family = taxonomy[t]['family']
+            except KeyError:
+                family = "-"
+            try:
+                superfamily = taxonomy[t]['superfamily']
+            except KeyError:
+                superfamily = "-"
+            try:
+                infraorder = taxonomy[t]['infraorder']
+            except KeyError:
+                infraorder = "-"
+            try:
+                suborder = taxonomy[t]['suborder']
+            except KeyError:
+                suborder = "-"
+            try:
+                order = taxonomy[t]['order']
+            except KeyError:
+                order = "-"
+            try:
+                superorder = taxonomy[t]['superorder']
+            except KeyError:
+                superorder = "-"
+            try:
+                subclass = taxonomy[t]['subclass']
+            except KeyError:
+                subclass = "-"
+            try:
+                tclass = taxonomy[t]['class']
+            except KeyError:
+                tclass = "-"
+            try:
+                subphylum = taxonomy[t]['subphylum']
+            except KeyError:
+                subphylum = "-"
+            try:
+                phylum = taxonomy[t]['phylum']
+            except KeyError:
+                phylum = "-"
+            try:
+                superphylum = taxonomy[t]['superphylum']
+            except KeyError:
+                superphylum = "-"
+            try:
+                infrakingdom = taxonomy[t]['infrakingdom']
+            except:
+                infrakingdom = "-"
+            try:
+                subkingdom = taxonomy[t]['subkingdom']
+            except:
+                subkingdom = "-"
+            try:
+                kingdom = taxonomy[t]['kingdom']
+            except KeyError:
+                kingdom = "-"
+            try:
+                provider = taxonomy[t]['provider']
+            except KeyError:
+                provider = "-"
+
+            if (isinstance(species, list)):
+                species = " ".join(species)
+            this_classification = [
+                    otu.encode('utf-8'),
+                    species.encode('utf-8'),
+                    genus.encode('utf-8'),
+                    family.encode('utf-8'),
+                    superfamily.encode('utf-8'),
+                    infraorder.encode('utf-8'),
+                    suborder.encode('utf-8'),
+                    order.encode('utf-8'),
+                    superorder.encode('utf-8'),
+                    subclass.encode('utf-8'),
+                    tclass.encode('utf-8'),
+                    subphylum.encode('utf-8'),
+                    phylum.encode('utf-8'),
+                    superphylum.encode('utf-8'),
+                    infrakingdom.encode('utf-8'),
+                    subkingdom.encode('utf-8'),
+                    kingdom.encode('utf-8'),
+                    provider.encode('utf-8')]
+            writer.writerow(this_classification)
+
+def auto_subs(args):
+    """Get all OTUs to the same taxonomic level"""
+
+    
+    verbose = args.verbose
+    input_file = args.input
+    output = args.output
+    taxonomy = args.taxonomy
+    ignoreWarnings = args.ignoreWarnings
+
+    if (os.path.exists(output) and not overwrite):
+        print "Output Phyml file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue and overwrite the file anyway?? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+
+    XML = supertree_toolkit.load_phyml(input_file)
+    taxonomy = supertree_toolkit.load_taxonomy(taxonomy) # load it in and create the dictionary
+
+    try:
+        newXML = supertree_toolkit.generate_species_level_data(XML,taxonomy,verbose=verbose,ignoreWarnings=ignoreWarnings)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except NoneCompleteTaxonomy as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except:
+        # what about no internet conenction? What error do that throw?
+        msg = "***Error: failed to carry out auto subs due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit"
+        print msg
+        traceback.print_exc()
+        return
+
+    f = open(output,"w")
+    f.write(newXML)
+    f.close()
+
+def process(args):
+
+    verbose = args.verbose
+    input_file = args.input
+    output = args.output
+    no_store = args.no_store
+    ignoreWarnings = args.ignoreWarnings
+    taxonomy_file = args.taxonomy_file
+    equivalents_file = args.equivalents_file
+    overwrite = args.overwrite
+
+    if (os.path.exists(output) and not overwrite):
+        print "Output matrix file exists. Either remove the file or use the --overwrite flag."
+        print "Do you wish to continue and overwrite the file anyway? [Y/n]"
+        while True:
+            k=inkey()
+            if k.lower() == 'n':
+                print "Exiting..."
+                sys.exit(0)
+            if k.lower() == 'y':
+                break
+
+    filename = os.path.basename(input_file)
+    dirname = os.path.dirname(input_file)
+
+    if verbose:
+        print "Loading and checking your data"
+    # 0) load and check data
+    try:
+        phyml = supertree_toolkit.load_phyml(input_file)
+        project_name = supertree_toolkit.get_project_name(phyml)
+        supertree_toolkit._check_data(phyml)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to load data.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to load data.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to load data.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed to load input due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        print msg
+        traceback.print_exc()
+        return 
+
+    if verbose:
+        print "Checking taxa againt online databases"
+    # 1) taxonomy checker with autoreplace
+    # Load existing data if any:
+    if (not equivalents_file == None):
+        equivalents = supertree_toolkit.load_equivalents(equivalents_file)
+    else:
+        equivalents = None
+    equivalents = supertree_toolkit.taxonomic_checker(phyml,existing_data=equivalents,verbose=verbose)    
+    # save the equivalents for later (as CSV and as sub file)
+    data_string_csv = _equivalents_to_csv(equivalents)
+    data_string_subs = _equivalents_to_subs(equivalents)
+    f = open(os.path.join(dirname,project_name+"_taxonomy_checker.csv"), "w")
+    f.write(data_string_csv)
+    f.close()
+    f = open(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat"), "w")
+    f.write(data_string_subs)
+    f.close()
+    
+    # now do the replacements - we use the subs file :)
+    if verbose:
+        print "Swapping in the corrected taxa names"    
+    try:
+        old_taxa, new_taxa = supertree_toolkit.parse_subs_file(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat"))
+    except UnableToParseSubsFile as e:
+        print e.msg
+        sys.exit(-1)
+    try:
+        phyml = supertree_toolkit.substitute_taxa(phyml,old_taxa,new_taxa,only_existing=False,verbose=verbose)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to substituting taxa.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed substituting taxa.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to substituting taxa.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed sbstituting taxa due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        print msg
+        traceback.print_exc()
+        return 
+    # save phyml as intermediate step
+    f = open(os.path.join(dirname,project_name+"_taxonomy_checked.phyml"), "w")
+    f.write(phyml)
+    f.close()
+
+    
+    if verbose:
+        print "Creating taxonomic information"    
+    # 2) create taxonomy
+    if (not taxonomy_file == None):
+        taxonomy = supertree_toolkit.load_taxonomy(taxonomy_file)
+    else:
+        taxonomy = None
+    taxonomy = supertree_toolkit.create_taxonomy(phyml,existing_taxonomy=taxonomy,verbose=verbose)
+    # save the taxonomy for later
+    # Now create the CSV output - seperate out into function in STK (used several times)
+    with open(os.path.join(dirname,project_name+"_taxonomy.csv"), 'w') as f:
+        writer = csv.writer(f)
+        headers = []
+        headers.append("OTU")
+        headers.extend(supertree_toolkit.taxonomy_levels)
+        headers.append("Data source")
+        writer.writerow(headers)
+        for t in taxonomy:
+            otu = t
+            try:
+                species = taxonomy[t]['species']
+            except KeyError:
+                species = "-"
+            try:
+                subgenus = taxonomy[t]['subgenus']
+            except KeyError:
+                subgenus = "-"
+            try:
+                genus = taxonomy[t]['genus']
+            except KeyError:
+                genus = "-"
+            try:
+                subfamily = taxonomy[t]['subfamily']
+            except KeyError:
+                subfamily = "-"
+            try:
+                family = taxonomy[t]['family']
+            except KeyError:
+                family = "-"
+            try:
+                superfamily = taxonomy[t]['superfamily']
+            except KeyError:
+                superfamily = "-"
+            try:
+                subsection = taxonomy[t]['subsection']
+            except KeyError:
+                subsection = "-"
+            try:
+                section = taxonomy[t]['section']
+            except KeyError:
+                section = "-"
+            try:
+                infraorder = taxonomy[t]['infraorder']
+            except KeyError:
+                infraorder = "-"
+            try:
+                suborder = taxonomy[t]['suborder']
+            except KeyError:
+                suborder = "-"
+            try:
+                order = taxonomy[t]['order']
+            except KeyError:
+                order = "-"
+            try:
+                superorder = taxonomy[t]['superorder']
+            except KeyError:
+                superorder = "-"
+            try:
+                subclass = taxonomy[t]['subclass']
+            except KeyError:
+                subclass = "-"
+            try:
+                tclass = taxonomy[t]['class']
+            except KeyError:
+                tclass = "-"
+            try:
+                superclass = taxonomy[t]['superclass']
+            except KeyError:
+                superclass = "-"
+            try:
+                subphylum = taxonomy[t]['subphylum']
+            except KeyError:
+                subphylum = "-"
+            try:
+                phylum = taxonomy[t]['phylum']
+            except KeyError:
+                phylum = "-"
+            try:
+                superphylum = taxonomy[t]['superphylum']
+            except KeyError:
+                superphylum = "-"
+            try:
+                infrakingdom = taxonomy[t]['infrakingdom']
+            except:
+                infrakingdom = "-"
+            try:
+                subkingdom = taxonomy[t]['subkingdom']
+            except:
+                subkingdom = "-"
+            try:
+                kingdom = taxonomy[t]['kingdom']
+            except KeyError:
+                kingdom = "-"
+            try:
+                provider = taxonomy[t]['provider']
+            except KeyError:
+                provider = "-"
+            this_classification = [
+                    otu.encode('utf-8'),
+                    species.encode('utf-8'),
+                    subgenus.encode('utf-8'),
+                    genus.encode('utf-8'),
+                    subfamily.encode('utf-8'),
+                    family.encode('utf-8'),
+                    superfamily.encode('utf-8'),
+                    subsection.encode('utf-8'),
+                    section.encode('utf-8'),
+                    infraorder.encode('utf-8'),
+                    suborder.encode('utf-8'),
+                    order.encode('utf-8'),
+                    superorder.encode('utf-8'),
+                    subclass.encode('utf-8'),
+                    tclass.encode('utf-8'),
+                    superclass.encode('utf-8'),
+                    subphylum.encode('utf-8'),
+                    phylum.encode('utf-8'),
+                    superphylum.encode('utf-8'),
+                    infrakingdom.encode('utf-8'),
+                    subkingdom.encode('utf-8'),
+                    kingdom.encode('utf-8'),
+                    provider.encode('utf-8')]
+            writer.writerow(this_classification)
+
+    # 3) create species level dataset
+    if verbose:
+        print "Converting data to species level"
+    try:
+        phyml = supertree_toolkit.generate_species_level_data(phyml,taxonomy,verbose=verbose)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except NoneCompleteTaxonomy as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except:
+        # what about no internet conenction? What error do that throw?
+        msg = "***Error: failed to carry out auto subs due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit"
+        print msg
+        traceback.print_exc()
+        return
+    # save the phyml as intermediate step
+    f = open(os.path.join(dirname,project_name+"_species_level.phyml"), "w")
+    f.write(phyml)
+    f.close()
+
+    # 4) Remove non-monophyletic taxa (requires TNT to be installed)
+    if verbose:
+        print "Removing non-monophyletic taxa via mini-supertree method"
+    tree_list = supertree_toolkit._find_trees_for_permuting(phyml)
+    try:
+        for t in tree_list:
+            # permute
+            output_string = supertree_toolkit.permute_tree(tree_list[t],matrix='hennig',treefile=None,verbose=verbose)
+            #save
+            if (not output_string == ""):
+                file_name = os.path.basename(filename)
+                dirname = os.path.dirname(filename)
+                new_output = os.path.join(dirname,t,t+"_matrix.tnt")
+                try: 
+                   os.makedirs(os.path.join(dirname,t))
+                except OSError:
+                    if not os.path.isdir(os.path.join(dirname,t)):
+                        raise
+                f = open(new_output,'w',0)
+                f.write(output_string)
+                f.close
+                time.sleep(1)
+
+                # now create the tnt command to deal with this
+                # create a tmp file for the output tree
+                temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tnt")
+                tnt_command = "tnt mxram 512,run "+new_output+",echo= ,timeout 00:10:00,rseed0,rseed*,hold 1000,xmult= level 0,taxname=,nelsen *,tsave *"+temp_file+",save /,quit"
+                #tnt_command = "tnt run "+new_output+",ienum,taxname=,nelsen*,tsave *"+temp_file+",save /,quit"
+                # run tnt, grab the output and store back in the data
+                #try:
+                call(tnt_command, shell=True)
+                #except CalledProcessError as e:
+                #    msg = "***Error: Failed to run TNT. Is it installed correctl?.\n"+e.msg
+                #    print msg
+                #    return
+                #ret = os.system(tnt_command)
+                #if (not ret == 0):
+                #    print "error running tnt"
+                #    return
+
+                new_tree = supertree_toolkit.import_tree(temp_file)
+                phyml = supertree_toolkit._swap_tree_in_XML(phyml,new_tree,t)
+
+    except TreeParseError as e:
+        msg = "***Error permuting trees.\n"+e.msg
+        print msg
+        return
+
+    #4.5) remove MRP_Outgroups
+    phyml = supertree_toolkit.substitute_taxa(phyml,'MRP_Outgroup')
+    phyml = supertree_toolkit.substitute_taxa(phyml,'MRPOutgroup')
+    phyml = supertree_toolkit.substitute_taxa(phyml,'MRP_outgroup')
+    phyml = supertree_toolkit.substitute_taxa(phyml,'MRPoutgroup')
+    phyml = supertree_toolkit.substitute_taxa(phyml,'MRPOUTGROUP')  
+
+    # save intermediate phyml
+    f = open(os.path.join(dirname,project_name+"_nonmonophyl_removed.phyml"), "w")
+    f.write(phyml)
+    f.close()
+
+
+    # 5) Remove common names
+    # no function to do this yet...
+
+    # 6) Data independance
+    if verbose:
+        print "Checking data independence"
+    data_ind,subsets,phyml = supertree_toolkit.data_independence(phyml,make_new_xml=True)
+    # save phyml
+    f = open(os.path.join(dirname,project_name+"_data_ind.phyml"), "w")
+    f.write(phyml)
+    f.close()
+
+    # 7) Data overlap
+    if verbose:
+        print "Checking data overlap"
+    sufficient_overlap, key_list = supertree_toolkit.data_overlap(phyml,verbose=verbose)
+    # process the key_list to remove the unconnected trees
+    if not sufficient_overlap:
+        # we don't, have enough, then remove all but the largest group.
+        # the key contains a list, with the largest group first (thanks networkX!)
+        # we can therefore just remove trees from everything but the first in the list
+        delete_me = []
+        for t in key_list[1::]: # skip 0
+            delete_me.extend(t)
+        for tree in delete_me:
+            phyml = supertree_toolkit._swap_tree_in_XML(phyml, None, tree, delete=True) # delete the tree and clean the data as we go 
+    # save phyml
+    f = open(os.path.join(dirname,project_name+"_data_tax_overlap.phyml"), "w")
+    f.write(phyml)
+    f.close()
+
+
+    # 8) Create matrix
+    if verbose:
+        print "Creating matrix"
+    try:
+        matrix = supertree_toolkit.create_matrix(phyml)
+    except NotUniqueError as detail:
+        msg = "***Error: Failed to create matrix.\n"+detail.msg
+        print msg
+        return
+    except InvalidSTKData as detail:
+        msg = "***Error: Failed to create matrix.\n"+detail.msg
+        print msg
+        return
+    except UninformativeTreeError as detail:
+        msg = "***Error: Failed to create matrix.\n"+detail.msg
+        print msg
+        return
+    except TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed to create matrix due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        print msg
+        traceback.print_exc()
+        return 
+
+    f = open(output, "w")
+    f.write(matrix)
+    f.close()
+
+    return
+
+
+def _equivalents_to_csv(equivalents):
+
+    output_string = 'Taxa,Equivalents,Status\n'
+
+    for taxon in sorted(equivalents):
+        output_string += taxon + "," + ';'.join(equivalents[taxon][0]) + "," + equivalents[taxon][1] + "\n"
+
+    return output_string
+
+
+def _equivalents_to_subs(equivalents):
+    """Only corrects the yellow ones. Red and green are left alone"""
+
+    output_string = ""
+    for taxon in sorted(equivalents):
+        if (equivalents[taxon][1] == 'yellow'):
+            # the first name is always the correct one
+            output_string += taxon + " = "+equivalents[taxon][0][0]+"\n"
+    return output_string
 
 if __name__ == "__main__":
     main()

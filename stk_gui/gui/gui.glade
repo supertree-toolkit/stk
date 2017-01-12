@@ -2,6 +2,212 @@
 <glade-interface>
   <!-- interface-requires gtk+ 2.16 -->
   <!-- interface-naming-policy toplevel-contextual -->
+  <widget class="GtkDialog" id="autoprocess_dialog">
+    <property name="can_focus">False</property>
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">Auto Process</property>
+    <property name="resizable">False</property>
+    <property name="type_hint">dialog</property>
+    <signal name="close" handler="on_autoprocess_dialog_close" />
+    <signal name="destroy" handler="on_autoprocess_dialog_close" />
+    <child internal-child="vbox">
+      <widget class="GtkVBox" id="dialog-vbox16">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <widget class="GtkHButtonBox" id="dialog-action_area16">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <widget class="GtkButton" id="process_button">
+                <property name="label" translatable="yes">Process Data</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+                <signal name="clicked" handler="on_process_clicked" />
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkButton" id="process_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+                <signal name="clicked" handler="on_process_cancel_clicked" />
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkVBox" id="vbox1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <widget class="GtkLabel" id="label1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <property name="label" translatable="yes">Choose an output directory and Matrix file format</property>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="label2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <property name="label" translatable="yes">All intermediate files will be created using the project name</property>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="format_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Choose an output matrix format</property>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkRadioButton" id="matrix_format_tnt_chooser">
+                <property name="label" translatable="yes">Hennig (TNT)</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_action_appearance">False</property>
+                <property name="active">True</property>
+                <property name="draw_indicator">True</property>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkRadioButton" id="matrix_format_nexus_chooser">
+                <property name="label" translatable="yes">Nexus</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_action_appearance">False</property>
+                <property name="draw_indicator">True</property>
+                <property name="group">matrix_format_tnt_chooser</property>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="create_matrix_file_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Choose an output directory</property>
+                <property name="ellipsize">start</property>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">5</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkHBox" id="hbox2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <widget class="GtkEntry" id="entry1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">•</property>
+                    <property name="invisible_char_set">True</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkButton" id="filebrowse">
+                    <property name="label">gtk-open</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="use_stock">True</property>
+                    <property name="image_position">right</property>
+                    <signal name="clicked" handler="on_process_browse_clicked" />
+                  </widget>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">6</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </widget>
+    </child>
+  </widget>
   <widget class="GtkDialog" id="create_matrix_dialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -162,7 +368,7 @@
                 <property name="fill">True</property>
                 <property name="position">4</property>
               </packing>
-          </child>
+            </child>
             <child>
               <widget class="GtkLabel" id="create_matrix_taxonomy_label">
                 <property name="visible">True</property>
@@ -234,6 +440,213 @@
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">7</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
+                <property name="label" translatable="yes">Ignore Warnings</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="has_tooltip">True</property>
+                <property name="tooltip" translatable="yes">Ignore warnings regarding data quality</property>
+                <property name="use_action_appearance">False</property>
+                <property name="draw_indicator">True</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">8</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkStatusbar" id="create_matrix_statusbar1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="spacing">2</property>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkDialog" id="create_taxonomy_dialog">
+    <property name="can_focus">False</property>
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">Create taxonomy data</property>
+    <property name="resizable">False</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <widget class="GtkVBox" id="dialog-vbox17">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <widget class="GtkHButtonBox" id="dialog-action_area17">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <widget class="GtkButton" id="create_taxonomy_button">
+                <property name="label" translatable="yes">Collect taxonomy data</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkButton" id="create_taxonomy_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkVBox" id="vbox1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <widget class="GtkLabel" id="create_taxonomy_file_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Choose an output file</property>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkHBox" id="hbox1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <widget class="GtkEntry" id="entry1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">•</property>
+                    <property name="invisible_char_set">True</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkButton" id="filebrowse_taxonomy">
+                    <property name="label">gtk-open</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="use_stock">True</property>
+                    <property name="image_position">right</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="existing_taxonomy_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Use an existing taxonomy to start the search</property>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">5</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkHBox" id="hbox2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <widget class="GtkEntry" id="entry2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">•</property>
+                    <property name="invisible_char_set">True</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkButton" id="filebrowse2">
+                    <property name="label">gtk-open</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="use_stock">True</property>
+                    <property name="image_position">right</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">6</property>
               </packing>
             </child>
             <child>
@@ -365,7 +778,7 @@
             </child>
             <child>
               <widget class="GtkButton" id="button3">
-                <property name="label" translatable="yes">Remove subsets and save</property>
+                <property name="label" translatable="yes">Remove selected subsets and save</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -951,8 +1364,8 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkRadioButton" id="file_format_short_chooser">
-                        <property name="label" translatable="yes">Text (short)</property>
+                      <widget class="GtkRadioButton" id="file_format_html_chooser">
+                        <property name="label" translatable="yes">HTML</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -985,8 +1398,8 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkRadioButton" id="file_format_html_chooser">
-                        <property name="label" translatable="yes">HTML</property>
+                      <widget class="GtkRadioButton" id="file_format_short_chooser">
+                        <property name="label" translatable="yes">Text (short)</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -1338,9 +1751,9 @@
             <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
-       </child>
-       <child>
-        <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
+        </child>
+        <child>
+          <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
             <property name="label" translatable="yes">Ignore Warnings</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
@@ -1353,8 +1766,7 @@
             <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
-
-       </child>
+        </child>
       </widget>
     </child>
   </widget>
@@ -1455,7 +1867,7 @@
                   </widget>
                   <packing>
                     <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
+                    <property name="y_options"/>
                   </packing>
                 </child>
               </widget>
@@ -1936,55 +2348,11 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="use_action_appearance">False</property>
-                <property name="label" translatable="yes">STK Functions</property>
+                <property name="label" translatable="yes">STK Processing</property>
                 <child>
                   <widget class="GtkMenu" id="menu1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <child>
-                      <widget class="GtkMenuItem" id="stndSourceNames">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tooltip" translatable="yes">Standardise the source names.</property>
-                        <property name="use_action_appearance">False</property>
-                        <property name="label" translatable="yes">Standardise source names</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_standardise_names" />
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkMenuItem" id="stndTreeNames">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tooltip" translatable="yes">Add tree names.</property>
-                        <property name="use_action_appearance">False</property>
-                        <property name="label" translatable="yes">Add tree names</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_name_trees" />
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkMenuItem" id="clean_data1">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tooltip" translatable="yes">Clean data by removing bad data</property>
-                        <property name="use_action_appearance">False</property>
-                        <property name="label" translatable="yes">Clean Data</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_clean_data" />
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkMenuItem" id="data_summary">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tooltip" translatable="yes">Create a text summary of the data</property>
-                        <property name="use_action_appearance">False</property>
-                        <property name="label" translatable="yes">Data Summary</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_data_summary" />
-                      </widget>
-                    </child>
                     <child>
                       <widget class="GtkMenuItem" id="permute_trees">
                         <property name="visible">True</property>
@@ -2063,16 +2431,86 @@
                       </widget>
                     </child>
                     <child>
+                      <widget class="GtkMenuItem" id="autoprocess">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Auto-process the data</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Auto Process</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_autoprocess" />
+                      </widget>
+                    </child>
+                  </widget>
+                </child>
+              </widget>
+          </child>
+            <child>
+              <widget class="GtkMenuItem" id="data">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_action_appearance">False</property>
+                <property name="label" translatable="yes">Data Handling</property>
+                <child>
+                  <widget class="GtkMenu" id="menu3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <widget class="GtkMenuItem" id="data_summary">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Create a text summary of the data</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Data Summary</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_data_summary" />
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="stndTreeNames">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Sort tree names.</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Sort tree names</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_name_trees" />
+                      </widget>
+                    </child>
+                    <child>
                       <widget class="GtkMenuItem" id="clean_data">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="tooltip" translatable="yes">Create a subset from these data</property>
+                        <property name="tooltip" translatable="yes">Clean data - warning: will delete partial data</property>
                         <property name="use_action_appearance">False</property>
-                        <property name="label" translatable="yes">Create subset</property>
+                        <property name="label" translatable="yes">Clean data</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_create_subset" />
+                        <signal name="activate" handler="on_clean_data" />
                       </widget>
                     </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="stndSourceNames">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Standardise the source names.</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Standardise source names</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_standardise_names" />
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="checkNomenclature">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip" translatable="yes">Check you nomenclature against online databases.</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Check nomenclature</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_check_nomenclature" />
+                      </widget>
+                    </child>
+
                   </widget>
                 </child>
               </widget>
@@ -2266,9 +2704,13 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkStatusbar" id="statusBar">
+          <widget class="GtkHButtonBox" id="plugin_buttonbox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="layout_style">start</property>
+            <child>
+              <placeholder/>
+            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -2277,13 +2719,9 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkHButtonBox" id="plugin_buttonbox">
+          <widget class="GtkStatusbar" id="statusBar">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="layout_style">start</property>
-            <child>
-              <placeholder/>
-            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -3240,23 +3678,6 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
-                <property name="label" translatable="yes">Ignore Warnings</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="has_tooltip">True</property>
-                <property name="tooltip" translatable="yes">Ignore warnings regarding data quality</property>
-                <property name="use_action_appearance">False</property>
-                <property name="draw_indicator">True</property>
-             </widget>
-             <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
               <widget class="GtkCheckButton" id="onlyexisting_checkbutton">
                 <property name="label" translatable="yes">Only sub existing taxa</property>
                 <property name="visible">True</property>
@@ -3267,7 +3688,24 @@
                 <property name="use_action_appearance">False</property>
                 <property name="draw_indicator">True</property>
                 <signal name="clicked" handler="on_onlyexisting_clicked" />
-             </widget>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
+                <property name="label" translatable="yes">Ignore Warnings</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="has_tooltip">True</property>
+                <property name="tooltip" translatable="yes">Ignore warnings regarding data quality</property>
+                <property name="use_action_appearance">False</property>
+                <property name="draw_indicator">True</property>
+              </widget>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
@@ -3284,7 +3722,7 @@
                 <property name="tooltip" translatable="yes">When subbing in existing taxa only, consider matches at genus level</property>
                 <property name="use_action_appearance">False</property>
                 <property name="draw_indicator">True</property>
-             </widget>
+              </widget>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
@@ -3501,6 +3939,114 @@
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkWindow" id="taxonomy_checker">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Check names</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="default_width">440</property>
+    <property name="default_height">500</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="skip_pager_hint">True</property>
+    <property name="urgency_hint">True</property>
+    <child>
+      <widget class="GtkVBox" id="vbox1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <widget class="GtkScrolledWindow" id="scrolledwindow1">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="vscrollbar_policy">automatic</property>
+            <child>
+              <placeholder/>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkHBox" id="hbox1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <widget class="GtkButton" id="button1">
+                <property name="label" translatable="yes">Store as sub file</property>
+                <property name="width_request">120</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="padding">2</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkButton" id="button2">
+                <property name="label" translatable="yes">Export data</property>
+                <property name="width_request">120</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="padding">2</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkButton" id="button3">
+                <property name="label" translatable="yes">Do subs</property>
+                <property name="width_request">60</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="padding">2</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkButton" id="button4">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="width_request">60</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="padding">2</property>
+                <property name="pack_type">end</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
             <property name="position">1</property>
           </packing>
         </child>
