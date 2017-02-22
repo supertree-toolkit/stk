@@ -39,7 +39,7 @@ def main():
             )
     parser.add_argument(
             '--level',
-            choices=['Genus','Family','Superfamily','Infraorder','Suborder','Order'],
+            choices=['Genus','Subfamily','Family','Superfamily','Infraorder','Suborder','Order'],
             default='Family',
             help="Which taxonomic level to colour at. Note that not all will return data. Family and Order will always work."
             )
@@ -88,9 +88,6 @@ def main():
         saturation=0.25
         value=0.8
 
-    index = stk.taxonomy_levels.index(level.lower())+1
-    print index
-
     if (tree):
         tree_data = stk.import_tree(input_file)
         # rather than simply grabbing taxa, just go through in "tree order"
@@ -116,13 +113,25 @@ def main():
 
 
     taxonomy = {}
+    index = 0
     with open(input_taxonomy, 'r') as f:
         reader = csv.reader(f)
         i = 0
         for row in reader:
             if i == 0:
-                i += 1
-                continue
+                # find index of the level required
+                j = 0
+                for r in row:
+                    if r.lower() == level.lower():
+                        index = j
+                        i = 1
+                        break
+                    j = j+ 1
+                if j == len(row):
+                    print "Error finding the desired level in your taxonomy file."
+                    print "You asked for: "+level.lower()
+                    print "Your taxonomy contains: "+" ".join(row)
+                    sys.exit()
             else:
                taxonomy[row[0]] = row[index]
 
@@ -137,6 +146,33 @@ def main():
         i += 1
     
     f = open(output_file,"w")
+    # write header
+    f.write(
+"""DATASET_COLORSTRIP
+#=================================================================#
+#                    MANDATORY SETTINGS                           #
+#=================================================================#
+SEPARATOR COMMA
+
+#label is used in the legend table (can be changed later)
+DATASET_LABEL,""")
+    f.write(level+"\n")
+    f.write(
+"""
+#dataset color (can be changed later)
+COLOR,#000000
+
+#=================================================================#
+#                    OPTIONAL SETTINGS                            #
+#=================================================================#
+COLOR_BRANCHES,1
+
+#=================================================================#
+#       Actual data follows after the "DATA" keyword              #
+#=================================================================#
+DATA
+
+""")
     for t in taxa:
         tt = t.replace("_"," ")
         try:
