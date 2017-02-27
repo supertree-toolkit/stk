@@ -2925,7 +2925,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             else:
                 fig.savefig(filename)
 
-    return sufficient_overlap, key_list
+    return sufficient_overlap, list(key_list)
 
 def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
     """ Return a list of sources that are not independent.

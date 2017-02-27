@@ -1208,6 +1208,9 @@ def data_overlap(args):
         for key in key_list:
             if type(key).__name__=='list':
                 f.write(str(i)+","+",".join(key)+"\n")
+            if type(key).__name__=='set':
+                key = list(key)
+                f.write(str(i)+","+",".join(key)+"\n")
             else:
                 f.write(str(i)+","+key+"\n")
             i = i+1
