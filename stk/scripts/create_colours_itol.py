@@ -133,7 +133,7 @@ def main():
                     print "Your taxonomy contains: "+" ".join(row)
                     sys.exit()
             else:
-               taxonomy[row[0]] = row[index]
+               taxonomy[row[0].replace(" ","_")] = row[index] # the replace is to make sure we're consistant across PHYML, tree and taxonomy
 
     values = taxonomy.values()
     values = _uniquify(values)
@@ -174,7 +174,7 @@ DATA
 
 """)
     for t in taxa:
-        tt = t.replace("_"," ")
+        tt = t.replace(" ","_")
         try:
             if (taxonomy[tt] == "-"):
                 f.write(t+",#000000\n")
