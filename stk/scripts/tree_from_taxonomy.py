@@ -27,7 +27,7 @@ import csv
 from ete2 import Tree
 
 taxonomy_levels = ['species','subgenus','genus','subfamily','family','superfamily','subsection','section','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
-tlevels = ['species','genus','family','order','class','phylum','kingdom']
+tlevels = ['species','genus','subfamily','family','superfamily','infraorder','suborder','order','class','phylum','kingdom']
 
 
 def main():
@@ -68,7 +68,6 @@ def main():
     output_file = args.output_file[0]
     top_level = args.top_level[0]
 
-    start_level = taxonomy_levels.index(top_level)
     tree_taxonomy = stk.load_taxonomy(input_file)
     new_taxa = tree_taxonomy.keys()
 
@@ -77,10 +76,9 @@ def main():
         tl_types.append(tree_taxonomy[tt][top_level])
 
     tl_types = _uniquify(tl_types)
+    print tl_types
     levels_to_worry_about = tlevels[0:tlevels.index(top_level)+1]
         
-    #print levels_to_worry_about[-2::-1]
-    
     t = Tree()
     nodes = {}
     nodes[top_level] = []
@@ -89,40 +87,66 @@ def main():
         nodes[top_level].append({tl:n})
 
     for l in levels_to_worry_about[-2::-1]:
-        #print t
         names = []
         nodes[l] = []
         ci = levels_to_worry_about.index(l)
         for tt in tree_taxonomy:
-            names.append(tree_taxonomy[tt][l])
+            try:
+                names.append(tree_taxonomy[tt][l])
+            except KeyError:
+                pass
         names = _uniquify(names)
         for n in names:
-            #print n
             # find my parent
             parent = None
             for tt in tree_taxonomy:
-                if tree_taxonomy[tt][l] == n:
-                    parent = tree_taxonomy[tt][levels_to_worry_about[ci+1]]
-                    k = []
-                    for nd in nodes[levels_to_worry_about[ci+1]]:
-                        k.extend(nd.keys())
-                    i = 0
-                    for kk in k:
-                        print kk
-                        if kk == parent:
-                            break
-                        i += 1
-                    parent_id = i
-                    break
+                try:
+                    if tree_taxonomy[tt][l] == n:
+                        try:
+                            parent = tree_taxonomy[tt][levels_to_worry_about[ci+1]]
+                            level = ci+1
+                        except KeyError:
+                            try:
+                                parent = tree_taxonomy[tt][levels_to_worry_about[ci+2]]
+                                level = ci+2
+                            except KeyError:
+                                try:
+                                    parent = tree_taxonomy[tt][levels_to_worry_about[ci+3]]
+                                    level = ci+3
+                                except KeyError:
+                                    print "ERROR: tried to find some taxonomic info for "+tt+" from tree_taxonomy file/downloaded data and I went two levels up, but failed find any. Looked at:\n"
+                                    print "\t"+levels_to_worry_about[ci+1]
+                                    print "\t"+levels_to_worry_about[ci+2]
+                                    print "\t"+levels_to_worry_about[ci+3]
+                                    print "This is the taxonomy info I have for "+tt
+                                    print tree_taxonomy[tt]
+                                    sys.exit(1)
+
+                        k = []
+                        for nd in nodes[levels_to_worry_about[level]]:
+                            k.extend(nd.keys())
+                        i = 0
+                        for kk in k:
+                            if kk == parent:
+                                break
+                            i += 1
+                        parent_id = i
+                        break
+                except KeyError:
+                    pass # no data at this level for this beastie
             # find out where to attach it
-            node_id = nodes[levels_to_worry_about[ci+1]][parent_id][parent]
+            node_id = nodes[levels_to_worry_about[level]][parent_id][parent]
             nd = node_id.add_child(name=n.replace(" ","_"))
             nodes[l].append({n:nd})
 
     tree = t.write(format=9)  
     tree = stk._collapse_nodes(tree) 
     tree = stk._collapse_nodes(tree) 
-    print tree
+    f = open(output_file, "w")
+    f.write(tree)
+    f.close()
+
+
 
 
 def _uniquify(l):

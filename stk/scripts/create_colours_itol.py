@@ -111,7 +111,7 @@ def main():
                 taxa.append(line.strip())
             f.close()
 
-
+    print len(taxa)
     taxonomy = {}
     index = 0
     with open(input_taxonomy, 'r') as f:
@@ -135,6 +135,7 @@ def main():
             else:
                taxonomy[row[0].replace(" ","_")] = row[index] # the replace is to make sure we're consistant across PHYML, tree and taxonomy
 
+    print len(taxonomy)
     values = taxonomy.values()
     values = _uniquify(values)
     n = len(values)
