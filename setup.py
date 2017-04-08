@@ -65,9 +65,10 @@ setup(
       author = "The STK Team",
       author_email = "jon.hill@imperial.ac.uk",
       url = "https://launchpad.net/supertree-tookit",
-      packages = ['stk', 'stk_gui', 'stk.yapbib', 'stk.p4','stk.nameparser'],
+      packages = ['stk', 'dxdiff', 'stk_gui', 'stk.yapbib', 'stk.p4','stk.nameparser'],
       package_dir = {
-          'stk': 'stk', 
+          'stk': 'stk',
+          'dxdiff': 'dxdiff/dxdiff',
           'stk_gui':'stk_gui/stk_gui', 
           'stk.yapbib':'stk/yapbib', 
           #'stk.dxdiff':'stk_gui/dxdiff/dxdiff',
