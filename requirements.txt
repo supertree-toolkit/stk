@@ -3,7 +3,6 @@ python-simplejson
 python-dxdiff
 python-pygraphviz
 python-lxml-dbg
-python-lxml
 python-gtk2
 python-numpy
 python-matplotlib
