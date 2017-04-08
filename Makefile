@@ -3,8 +3,8 @@ VERSION=2.0
 default:
 	python setup.py build
 
-#test:
-#	cd stk/test/; make
+test:
+	cd stk/test/; make
 
 install:
 ifeq ($(origin BUILDING_DEBIAN),undefined)
