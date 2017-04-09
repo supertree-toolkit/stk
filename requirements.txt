@@ -1,5 +1,4 @@
 lxml
-gtk
 networkx
 matplotlib
 simplejson
