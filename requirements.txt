@@ -4,4 +4,3 @@ matplotlib
 simplejson
 pygraphviz
 numpy
-pygobject

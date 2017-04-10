@@ -8,7 +8,7 @@ matrix:
         dist: trusty
         language: python
         python: "2.7_with_system_site_packages"
-        env: PACKAGES="xvfb gir1.2-gtk-3.0 python-gi python-gi-cairo pep8 pyflakes python-pytest" PYTHON="python"
+        env: PACKAGES="xvfb gir1.2-gtk-3.0 python-gi python-gi-cairo pep8 pyflakes python-pytest" PYTHON="python" MPLBACKEND="agg"
 cache: pip
 before_install:
   - sudo apt-get -qq update
