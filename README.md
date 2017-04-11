@@ -20,12 +20,13 @@ You need to add the Supertree Toolkit PPA
 (https://launchpad.net/~stk-developers/+archive/release) to your system.
 You can then install the package. Run the commands below to do all this.
 
+```
 sudo apt-add-repository ppa:stk-developers/release
 sudo apt-get update
 sudo apt-get -y install supertree-toolkit
+```
 
-
-##References:
+## References:
 
 1. Davis and Hill, 2010. The Supertree Tool Kit. BMC Research Notes 3:95. doi:10.1186/1756-0500-3-95
 2. Hill, J., and Davis, K.E. 2014. The Supertree Toolkit 2: a new and improved software package with a Graphical User Interface for supertree construction. Biodiversity Data Journal 2: e1053. DOI: 10.3897/BDJ.2.e1053.
