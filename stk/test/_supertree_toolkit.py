@@ -12,8 +12,7 @@ from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_s
 from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
 from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
 from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used, _trees_equal, get_weights
-from stk.supertree_toolkit import get_outgroup, set_all_tree_names, create_tree_name, taxonomic_checker, load_taxonomy, load_equivalents
-from stk.supertree_toolkit import create_taxonomy, create_taxonomy_from_tree, get_all_tree_names
+from stk.supertree_toolkit import get_outgroup, set_all_tree_names, create_tree_name, load_equivalents, get_all_tree_names
 from lxml import etree
 from util import *
 from stk.stk_exceptions import *
@@ -592,65 +591,6 @@ class TestSTK(unittest.TestCase):
             self.assert_(c in expected_characters)
         self.assert_(len(characters) == len(expected_characters))
 
-    def test_create_taxonomy(self):
-        XML = etree.tostring(etree.parse('data/input/create_taxonomy.phyml',parser),pretty_print=True)
-        # Tested on 11/01/17 and EOL have changed the output
-        # old_expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'superclass': 'Sarcopterygii', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'}, 'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Thalassarche melanophris', 'genus': 'Thalassarche', 'order': 'Procellariiformes'}, 'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Egretta tricolor', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 'Gallus gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Gallus gallus', 'genus': 'Gallus', 'order': 'Galliformes'}, 'Jeletzkytes criptonodosus': {'superfamily': 'Scaphitoidea', 'family': 'Scaphitidae', 'subkingdom': 'Metazoa', 'subclass': 'Ammonoidea', 'species': 'Jeletzkytes criptonodosus', 'phylum': 'Mollusca', 'suborder': 'Ancyloceratina', 'provider': 'Paleobiology Database', 'genus': 'Jeletzkytes', 'class': 'Cephalopoda'}}
-        expected = {'Jeletzkytes criptonodosus': {'superfamily': 'Scaphitoidea', 'family': 'Scaphitidae', 'subkingdom': 'Metazoa', 'subclass': 'Ammonoidea', 'species': 'Jeletzkytes criptonodosus', 'phylum': 'Mollusca', 'suborder': 'Ancyloceratina', 'provider': 'Paleobiology Database', 'genus': 'Jeletzkytes', 'class': 'Cephalopoda'}, 'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Thalassarche melanophris', 'genus': 'Thalassarche', 'order': 'Procellariiformes'}, 'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'infraspecies': 'Egretta', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': ['Egretta', 'tricolor'], 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 'Gallus gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Gallus gallus', 'genus': 'Gallus', 'order': 'Galliformes'}, 'Archaeopteryx lithographica': {'genus': 'Archaeopteryx', 'provider': 'Paleobiology Database'}}
-        if (internet_on()):
-            taxonomy = create_taxonomy(XML)
-            self.maxDiff = None
-            self.assertDictEqual(taxonomy, expected)
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
-        return
-    
-    def test_create_taxonomy_from_tree(self):
-        """Tests if taxonomy from tree works. Uses same data for normal XML test but goes directly for the tree instead of parsing the XML """
-        # Tested on 11/01/17 and this no longer worked, but is correct! EOL returned something different.
-        #old_expected = {'Archaeopteryx lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'superclass': 'Sarcopterygii', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'}, 'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Egretta tricolor', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 'Gallus gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Gallus gallus', 'genus': 'Gallus', 'order': 'Galliformes'}, 'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Thalassarche melanophris', 'genus': 'Thalassarche', 'order': 'Procellariiformes'}}
-        expected = {'Archaeopteryx lithographica': {'genus': 'Archaeopteryx', 'provider': 'Paleobiology Database'}, 'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'infraspecies': 'Egretta', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': ['Egretta', 'tricolor'], 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 'Gallus gallus': {'kingdom': 'Animalia', 'family': 'Phasianidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Gallus gallus', 'genus': 'Gallus', 'order': 'Galliformes'}, 'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Thalassarche melanophris', 'genus': 'Thalassarche', 'order': 'Procellariiformes'}}
-        tree = "(Archaeopteryx_lithographica, (Gallus_gallus, (Thalassarche_melanophris, Egretta_tricolor)));"
-        if (internet_on()):
-            taxonomy = create_taxonomy_from_tree(tree)
-            self.maxDiff = None
-            self.assertDictEqual(taxonomy, expected)
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the create_taxonomy function"
-        return
-    
-    def test_taxonomy_checker(self):
-        expected = {'Thalassarche_melanophrys': [['Thalassarche_melanophris', 'Thalassarche_melanophrys', 'Diomedea_melanophris', 'Thalassarche_[melanophrys', 'Diomedea_melanophrys'], 'amber'], 'Egretta_tricolor': [['Egretta_tricolor'], 'green'], 'Gallus_gallus': [['Gallus_gallus'], 'green']}
-        XML = etree.tostring(etree.parse('data/input/check_taxonomy.phyml',parser),pretty_print=True)
-        if (internet_on()):
-            equivs = taxonomic_checker(XML)
-            self.maxDiff = None
-            self.assertDictEqual(equivs, expected)
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
-        return
-
-    def test_taxonomy_checker2(self):
-        XML = etree.tostring(etree.parse('data/input/check_taxonomy_fixes.phyml',parser),pretty_print=True)
-        if (internet_on()):
-            # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
-            equivs = taxonomic_checker(XML,verbose=False)
-            self.maxDiff = None
-            self.assert_(equivs['Agathamera_crassa'][0][0] == 'Agathemera_crassa')
-            self.assert_(equivs['Celatoblatta_brunni'][0][0] == 'Maoriblatta_brunni')
-            self.assert_(equivs['Blatta_lateralis'][1] == 'amber')
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
-        return
-
-
-    def test_load_taxonomy(self):
-        csv_file = "data/input/create_taxonomy.csv"
-        expected = {'Jeletzkytes_criptonodosus': {'kingdom': 'Metazoa', 'subclass': 'Cephalopoda', 'species': 'Jeletzkytes criptonodosus', 'suborder': 'Ammonoidea', 'provider': 'PBDB', 'subfamily': 'Scaphitidae', 'class': 'Mollusca'}, 'Archaeopteryx_lithographica': {'subkingdom': 'Metazoa', 'subclass': 'Tetrapodomorpha', 'suborder': 'Coelurosauria', 'provider': 'Paleobiology Database', 'genus': 'Archaeopteryx', 'class': 'Aves'}, 'Egretta_tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'subkingdom': 'Bilateria', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'subclass': 'Neoloricata', 'species': 'Egretta tricolor', 'phylum': 'Chordata', 'suborder': 'Ischnochitonina', 'superphylum': 'Lophozoa', 'infrakingdom': 'Protostomia', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 'Gallus_gallus': {'kingdom': 'Animalia', 'superorder': 'Galliformes', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'species': 'Gallus gallus', 'phylum': 'Chordata', 'superphylum': 'Lophozoa', 'infrakingdom': 'Protostomia', 'genus': 'Gallus', 'class': 'Aves'}, 'Thalassarche_melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'species': 'Thalassarche melanophris', 'order': 'Procellariiformes', 'phylum': 'Chordata', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'class': 'Aves'}}
-        taxonomy = load_taxonomy(csv_file)
-        self.maxDiff = None
-
-        self.assertDictEqual(taxonomy, expected)
 
 
     def test_load_equivalents(self):
@@ -687,24 +627,6 @@ class TestSTK(unittest.TestCase):
         XML = etree.tostring(etree.parse('data/input/single_source_same_tree_name.phyml',parser),pretty_print=True)
         names = get_all_tree_names(XML)
         self.assertListEqual(names,['Hill_2011_2','Hill_2011_2'])
-
-
-def internet_on(host="8.8.8.8", port=443, timeout=5):
-    import socket
-
-    """
-      Host: 8.8.8.8 (google-public-dns-a.google.com)
-      OpenPort: 53/tcp
-      Service: domain (DNS/TCP)
-    """
-    try:
-        socket.setdefaulttimeout(timeout)
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
-        return True
-    except Exception as ex:
-        print ex.message
-        return False    
-
 
 
 if __name__ == '__main__':
