@@ -4,3 +4,4 @@ matplotlib
 simplejson
 pygraphviz
 numpy
+ete2
