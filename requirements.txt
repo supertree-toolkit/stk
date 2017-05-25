@@ -1,0 +1,6 @@
+lxml
+networkx
+matplotlib
+simplejson
+pygraphviz
+numpy
