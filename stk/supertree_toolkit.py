@@ -3688,32 +3688,86 @@ def get_mrca(tree,taxa_list):
     return mrca
 
 
-def tree_from_taxonomy(taxonomy, end_level, end_rank):
-    """Create a tree from a taxonomy data structure.
-    This is not the most efficient way, but works OK
+def tree_from_taxonomy(top_level, tree_taxonomy):
+    """ Create a tree from a taxonomy hash. Supply the starting level (e.g. Order) and the taxonomy.
+        Will only work if most of the taxonomic information is filled in, but will search 2 levels up to complete 
+        the taxonomy if required
+        Returns: tree string
     """
+    start_level = taxonomy_levels.index(top_level)
+    new_taxa = tree_taxonomy.keys()
 
-    # Grab data only for the end_level classification
-    required_taxonomy = {}
-    for t in taxonomy:
-        if (end_level in t):
-            required_taxonomy[t] = taxonomy[t]
+    tl_types = []
+    for tt in tree_taxonomy:
+        tl_types.append(tree_taxonomy[tt][top_level])
 
-    rank_index = taxonomy_levels.index(end_rank)
+    tl_types = _uniquify(tl_types)
+    levels_to_worry_about = tlevels[0:tlevels.index(top_level)+1]
+        
+    t = Tree()
+    nodes = {}
+    nodes[top_level] = []
+    for tl in tl_types:
+        n = t.add_child(name=tl)
+        nodes[top_level].append({tl:n})
 
-    # create basic string
+    for l in levels_to_worry_about[-2::-1]:
+        names = []
+        nodes[l] = []
+        ci = levels_to_worry_about.index(l)
+        for tt in tree_taxonomy:
+            try:
+                names.append(tree_taxonomy[tt][l])
+            except KeyError:
+                pass
+        names = _uniquify(names)
+        for n in names:
+            # find my parent
+            parent = None
+            for tt in tree_taxonomy:
+                try:
+                    if tree_taxonomy[tt][l] == n:
+                        try:
+                            parent = tree_taxonomy[tt][levels_to_worry_about[ci+1]]
+                            level = ci+1
+                        except KeyError:
+                            try:
+                                parent = tree_taxonomy[tt][levels_to_worry_about[ci+2]]
+                                level = ci+2
+                            except KeyError:
+                                try:
+                                    parent = tree_taxonomy[tt][levels_to_worry_about[ci+3]]
+                                    level = ci+3
+                                except KeyError:
+                                    print "ERROR: tried to find some taxonomic info for "+tt+" from tree_taxonomy file/downloaded data and I went two levels up, but failed find any. Looked at:\n"
+                                    print "\t"+levels_to_worry_about[ci+1]
+                                    print "\t"+levels_to_worry_about[ci+2]
+                                    print "\t"+levels_to_worry_about[ci+3]
+                                    print "This is the taxonomy info I have for "+tt
+                                    print tree_taxonomy[tt]
+                                    sys.exit(1)
 
-        # get unique otus
+                        k = []
+                        for nd in nodes[levels_to_worry_about[level]]:
+                            k.extend(nd.keys())
+                        i = 0
+                        for kk in k:
+                            if kk == parent:
+                                break
+                            i += 1
+                        parent_id = i
+                        break
+                except KeyError:
+                    pass # no data at this level for this beastie
+            # find out where to attach it
+            node_id = nodes[levels_to_worry_about[level]][parent_id][parent]
+            nd = node_id.add_child(name=n.replace(" ","_"))
+            nodes[l].append({n:nd})
 
-        # sort by the subfamily
-
-        # for each genus create a newick string
-
-        # if it's the same grouping as previous, add as sister clade (i.e. ,)
-        # else, prepend a (, append a ) and add new clade (ie. ,)
-
+    tree = t.write(format=9)  
     
-    # return tree
+    return tree
+
 
 
 
