@@ -31,7 +31,7 @@ import re
 import supertree_toolkit
 from copy import deepcopy
 from supertree_toolkit import _parse_xml
-from stk_exceptions import *
+import stk_exceptions
 import stk.p4
 import unicodedata
 import string as python_string
@@ -59,10 +59,10 @@ def export_to_old(xml, output_dir, verbose=False, ignoreWarnings=False):
     except OSError:
         msg = "Directory already exists. "
         msg += "Please check you are trying to output into the correct directory. If so remove "+project_dir
-        raise STKImportExportError(msg)
+        raise stk_exceptions.STKImportExportError(msg)
     except:
         msg = "Error making project directory: "+os.path.join(output_dir,project_name)
-        raise STKImportExportError(msg)
+        raise stk_exceptions.STKImportExportError(msg)
 
     # Loop through the sources
     find = etree.XPath("//source")
@@ -75,7 +75,7 @@ def export_to_old(xml, output_dir, verbose=False, ignoreWarnings=False):
             print "----\nWorking on:" +name
         if (name == '' or name == None):
             msg = "One of the sources does not have a valid name. Aborting."
-            raise STKImportExportError(msg)
+            raise stk_exceptions.STKImportExportError(msg)
 
         source_dir = os.path.join(project_dir,name)
         os.mkdir(source_dir)
@@ -161,7 +161,7 @@ def import_old_data(input_dir, verbose=False):
 
     if (nXML == 0):
         msg = "Didn't find any XML files in this directory"
-        raise STKImportExportError(msg)
+        raise stk_exceptions.STKImportExportError(msg)
 
     # create all sourcenames
     phyml = supertree_toolkit.all_sourcenames(etree.tostring(xml_root))
@@ -307,7 +307,7 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
     cur_dir = os.path.split(xml_file)[0]
     try:
         tree = supertree_toolkit.import_tree(os.path.join(cur_dir,treefile))
-    except TreeParseError as detail:
+    except stk_exceptions.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"
         msg += "File is: "+treefile+"\n"+detail.msg
         print msg
@@ -317,7 +317,7 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
         treefile = treefile.rsplit('\\')[-1]
         try:
             tree = supertree_toolkit.import_tree(os.path.join(cur_dir,treefile))
-        except TreeParseError as detail:
+        except stk_exceptions.TreeParseError as detail:
             msg = "***Error: failed to parse a tree in your data set.\n"
             msg += "File is: "+treefile+"\n"+detail.msg
             print msg
@@ -451,7 +451,7 @@ def create_xml_metadata(XML_string, this_source, filename):
         stk.p4.read(filename+'.tre')
         stk.p4.var.warnReadNoFile = True
     except:
-        raise TreeParseError("Error parsing " + filename)
+        raise stk_exceptions.TreeParseError("Error parsing " + filename)
     trees = stk.p4.var.trees
     stk.p4.var.trees = []
     tree = trees[0]
