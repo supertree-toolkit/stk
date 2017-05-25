@@ -32,7 +32,6 @@ import supertree_toolkit
 from copy import deepcopy
 from supertree_toolkit import _parse_xml
 from stk_exceptions import *
-from stk_internals import *
 import stk.p4
 import unicodedata
 import string as python_string
@@ -148,7 +147,7 @@ def import_old_data(input_dir, verbose=False):
         source_tree = convert_to_phyml_sourcetree(current_xml, xml)
          
         # add into PHYML sources element
-        append_to_source, already_in = already_in_data(new_source,sources)
+        append_to_source, already_in = supertree_toolkit.already_in_data(new_source,sources)
         if (not already_in):
             # append tree to current source
             new_source.append(deepcopy(source_tree))

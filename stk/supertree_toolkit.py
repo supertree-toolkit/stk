@@ -30,7 +30,7 @@ import stk.yapbib.biblist as biblist
 import stk.yapbib.bibparse as bibparse
 import stk.yapbib.bibitem as bibitem
 import string
-from stk_exceptions import *
+import stk_exceptions as excp
 import traceback
 from cStringIO import StringIO
 from collections import defaultdict
@@ -40,9 +40,9 @@ import operator
 import stk.p4.MRP as MRP
 import networkx as nx
 import datetime
-from indent import *
+import indent
 import unicodedata
-from stk_internals import *
+import stk_internals
 from copy import deepcopy
 import Queue
 import threading
@@ -685,7 +685,7 @@ def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=N
 
     if (not matrix==None):
         if (taxa == None):
-            raise InvalidSTKData("If you supply a matrix to STR, you also need to supply taxa")
+            raise excp.InvalidSTKData("If you supply a matrix to STR, you also need to supply taxa")
     else:
         # create matrix, but keep the matrix as an array
         # and get the taxa - hence we replicate most
@@ -863,7 +863,7 @@ def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=N
                 eq += e[0]+"("+e[1]+")  "
         output_data.append([equiv_matrix[i][0],str(missing_chars[i]),eq])
 
-    output_string += indent([labels]+output_data, hasHeader=True, prefix='| ', postfix=' |')
+    output_string += indent.indent([labels]+output_data, hasHeader=True, prefix='| ', postfix=' |')
 
     output_string += "\n\n"
     output_string += "Recommend you remove the following taxa:\n"
@@ -941,7 +941,7 @@ def import_trees(filename):
     f.close()    
 
     # translate to ascii
-    content = str(replace_utf(content))
+    content = str(stk_internals.replace_utf(content))
     
     # Need to add checks on the file. Problems include:
 # TNT: outputs Phyllip format or something - basically a Newick
@@ -1486,7 +1486,7 @@ def get_taxa_from_tree_for_taxonomy(tree, pretty=False, ignoreErrors=False):
 
     try:
         taxa_list.extend(_getTaxaFromNewick(tree))
-    except TreeParseError as detail:
+    except excp.TreeParseError as detail:
         if (ignoreErrors):
             logging.warning(detail.msg)
             pass
@@ -1519,7 +1519,7 @@ def get_all_taxa(XML, pretty=False, ignoreErrors=False):
         t = trees[tname]
         try:
             taxa_list.extend(_getTaxaFromNewick(t))
-        except TreeParseError as detail:
+        except excp.TreeParseError as detail:
             if (ignoreErrors):
                 logging.warning(detail.msg)
                 pass
@@ -3123,7 +3123,7 @@ def clean_data(XML):
     # check all names are unique - this is easy...
     try:
         _check_uniqueness(XML) # this will raise an error is the test is not passed
-    except NotUniqueError:
+    except excp.NotUniqueError:
         XML = set_unique_names(XML)
 
     # now the taxa
@@ -3249,7 +3249,7 @@ def parse_subs_file(filename):
     try:
         f = open(filename,'r')
     except:
-        raise UnableToParseSubsFile("Unable to open subs file. Check your path")
+        raise excp.UnableToParseSubsFile("Unable to open subs file. Check your path")
 
     old_taxa = []
     new_taxa = []
@@ -3258,7 +3258,7 @@ def parse_subs_file(filename):
     for line in f.readlines():
         if (re.search('\w+=\s+', line) != None or re.search('\s+=\w+', line) != None):
             # probable error
-            raise UnableToParseSubsFile("You sub file contains '=' without spaces either side. If it's within a taxa, remove the spaces. If this is a sub, add spaces")
+            raise excp.UnableToParseSubsFile("You sub file contains '=' without spaces either side. If it's within a taxa, remove the spaces. If this is a sub, add spaces")
         if (re.search('\s+=\s+', line) != None): # new taxa description
             data = re.split('\s+=\s+', line) # note the spaces!
             old_taxa.append(data[0].strip())
@@ -3299,9 +3299,9 @@ def parse_subs_file(filename):
         new_taxa.append(n_t.strip())
 
     if (len(old_taxa) != len(new_taxa)):
-        raise UnableToParseSubsFile("Output arrays are not same length. File incorrectly formatted")
+        raise excp.UnableToParseSubsFile("Output arrays are not same length. File incorrectly formatted")
     if (len(old_taxa) == 0):
-        raise UnableToParseSubsFile("No substitutions found! File incorrectly formatted")
+        raise excp.UnableToParseSubsFile("No substitutions found! File incorrectly formatted")
  
 
     return old_taxa, new_taxa
@@ -3346,7 +3346,7 @@ def check_subs(XML,new_taxa):
         taxa_list = '\n'.join(unknown_taxa)
         msg = "These taxa are not already in the dataset, are you sure you want to substitute them in?\n"
         msg += taxa_list
-        raise AddingTaxaWarning(msg) 
+        raise excp.AddingTaxaWarning(msg) 
     
     return
 
@@ -3683,7 +3683,7 @@ def get_mrca(tree,taxa_list):
             break
     if mrca == -1:
         # something went wrong!
-        raise InvalidSTKData("Error finding MRCA of: "+" ".join(taxa_list))
+        raise excp.InvalidSTKData("Error finding MRCA of: "+" ".join(taxa_list))
 
     return mrca
 
@@ -3769,6 +3769,25 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
     return tree
 
 
+def already_in_data(new_source,sources):
+    """
+    Is the new source already in the dataset?
+
+    Determine this by searching for the paper title.
+
+    Returns the source which matches the new one and True if a match is found
+    or None, False if not.
+    """
+
+    find = etree.XPath('//title/string_value')
+    new_source_title = find(new_source)[0].text
+    current_sources = find(sources)
+    for title in current_sources:
+        t = title.text
+        if t == new_source_title:
+            return title.getparent().getparent().getparent().getparent(), True
+
+    return None, False
 
 
 
@@ -3797,7 +3816,7 @@ def _check_uniqueness(XML):
         find = etree.XPath("//source")
         sources = find(xml_root)
     except:
-        raise InvalidSTKData("Error parsing the data to check uniqueness")
+        raise excp.InvalidSTKData("Error parsing the data to check uniqueness")
     
     names = []
     message = ""
@@ -3807,7 +3826,7 @@ def _check_uniqueness(XML):
             # for each source, get source name
             names.append(s.attrib['name'])
     except:
-        raise InvalidSTKData("Error parsing the data to check uniqueness")
+        raise excp.InvalidSTKData("Error parsing the data to check uniqueness")
 
     names.sort()
     last_name = "" # This will actually throw an non-unique error if a name is empty
@@ -3832,7 +3851,7 @@ def _check_uniqueness(XML):
         last_name = name
 
     if (not message == ""):
-        raise NotUniqueError(message)
+        raise excp.NotUniqueError(message)
 
     return
 
@@ -3929,7 +3948,7 @@ def _tree_contains(taxon,tree):
     taxon = taxon.replace(" ","_")
     try:
         tree = _parse_tree(tree) 
-    except TreeParseError:
+    except excp.TreeParseError:
         return False
     terminals = tree.getAllLeafNames(tree.root)
     # p4 strips off ', so we need to do so for the input taxon
@@ -4068,7 +4087,7 @@ def _sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
             old_taxon = old_taxon.replace("_"," ")
             match = re.search(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",modified_tree)
             if (match == None):
-                raise InvalidSTKData("Tried to find "+old_taxon+" in "+modified_tree+" and failed")
+                raise excp.InvalidSTKData("Tried to find "+old_taxon+" in "+modified_tree+" and failed")
 
     # simple text swap
     new_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new_taxon+'\g<posttaxon>', modified_tree)
@@ -4119,7 +4138,7 @@ def _collapse_nodes(in_tree):
     modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)  
     try:
         tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
-    except TreeParseError:
+    except excp.TreeParseError:
         tree = ""
         return tree
     taxa = tree.getAllLeafNames(0)
@@ -4155,7 +4174,7 @@ def _remove_single_poly_taxa(tree):
 
     try:
         taxa = _getTaxaFromNewick(tree)
-    except TreeParseError:
+    except excp.TreeParseError:
         return tree
 
     numbers = {}
@@ -4230,7 +4249,7 @@ def _check_taxa(XML,delete=False):
         find = etree.XPath("//source")
         sources = find(xml_root)
     except:
-        raise InvalidSTKData("Error parsing the data to check taxa")
+        raise excp.InvalidSTKData("Error parsing the data to check taxa")
     
     message = ""
 
@@ -4266,7 +4285,7 @@ def _check_taxa(XML,delete=False):
                         message = message + "Taxon: "+xml_taxon+" is not in the tree "+name+"\n"
     if not delete:               
         if (not message==""):
-            raise InvalidSTKData(message)
+            raise excp.InvalidSTKData(message)
         else:
             return
     else:
@@ -4285,7 +4304,7 @@ def _check_sources(XML,delete=True):
         find = etree.XPath("//source")
         sources = find(xml_root)
     except:
-        raise InvalidSTKData("Error parsing the data to check source")
+        raise excp.InvalidSTKData("Error parsing the data to check source")
             
     message = ""
     # for each source
@@ -4302,7 +4321,7 @@ def _check_sources(XML,delete=True):
 
     if not delete:
         if (not message == ""):
-            raise InvalidSTKData(message)
+            raise excp.InvalidSTKData(message)
         else:
             return
     else:
@@ -4658,7 +4677,7 @@ def _check_informative_trees(XML,delete=False):
     try:
         trees = obtain_trees(XML)
     except:
-        raise InvalidSTKData("Error parsing the data to check trees")
+        raise excp.InvalidSTKData("Error parsing the data to check trees")
     remove = []
     message=""
     for t in trees:
@@ -4677,7 +4696,7 @@ def _check_informative_trees(XML,delete=False):
 
     if (not delete):
         if (not message == ""):
-            raise UninformativeTreeError(message)
+            raise excp.UninformativeTreeError(message)
         else:
             return
     else:
@@ -4702,7 +4721,7 @@ def _parse_trees(tree_block):
         p4.var.warnReadNoFile = True
         p4.var.doRepairDupedTaxonNames = 0
     except p4.Glitch as detail:
-        raise TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree_block[0:128] )
+        raise excp.TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree_block[0:128] )
     trees = p4.var.trees
     p4.var.trees = []
     return trees
@@ -4723,7 +4742,7 @@ def _parse_tree(tree,fixDuplicateTaxa=False):
         if (fixDuplicateTaxa):
             p4.var.doRepairDupedTaxonNames = 0
     except p4.Glitch as detail:
-        raise TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree[0:128] )
+        raise excp.TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree[0:128] )
 
     t = p4.var.trees[0]
     p4.var.trees = []
