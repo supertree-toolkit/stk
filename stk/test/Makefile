@@ -12,7 +12,8 @@ _supertree_toolkit.py \
 _import_export.py \
 _schema_validation.py \
 _substitute_taxa.py \
-_create_subsets.py
+_create_subsets.py \
+_taxonomy.py
 
 # default case (and test). Loop through all
 # tests listed above and run them

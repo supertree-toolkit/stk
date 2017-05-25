@@ -65,11 +65,12 @@ logging.basicConfig(filename='supertreetoolkit.log', level=logging.DEBUG, format
 
 # taxonomy levels
 # What we get from EOL
-current_taxonomy_levels = ['species','genus','family','order','class','phylum','kingdom']
+current_taxonomy_levels = ['species','genus','tribe','subfamily','family','superfamily','order','superorder','class','superclass','phylum','subkingdom','kingdom']
 # And the extra ones from ITIS
 extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
 # all of them in order
 taxonomy_levels = ['species','subgenus','genus','tribe','subfamily','family','superfamily','subsection','section','parvorder','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
+
 
 SPECIES = taxonomy_levels[0]
 GENUS = taxonomy_levels[1]
@@ -3694,6 +3695,8 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
         the taxonomy if required
         Returns: tree string
     """
+    from ete2 import Tree
+    
     start_level = taxonomy_levels.index(top_level)
     new_taxa = tree_taxonomy.keys()
 
@@ -3702,7 +3705,7 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
         tl_types.append(tree_taxonomy[tt][top_level])
 
     tl_types = _uniquify(tl_types)
-    levels_to_worry_about = tlevels[0:tlevels.index(top_level)+1]
+    levels_to_worry_about = taxonomy_levels[0:taxonomy_levels.index(top_level)+1]
         
     t = Tree()
     nodes = {}
@@ -3727,25 +3730,21 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
             for tt in tree_taxonomy:
                 try:
                     if tree_taxonomy[tt][l] == n:
-                        try:
-                            parent = tree_taxonomy[tt][levels_to_worry_about[ci+1]]
-                            level = ci+1
-                        except KeyError:
+                        for jj in range(1,len(taxonomy_levels)-ci+1): # rest of taxonomy levels available
                             try:
-                                parent = tree_taxonomy[tt][levels_to_worry_about[ci+2]]
-                                level = ci+2
-                            except KeyError:
-                                try:
-                                    parent = tree_taxonomy[tt][levels_to_worry_about[ci+3]]
-                                    level = ci+3
-                                except KeyError:
-                                    print "ERROR: tried to find some taxonomic info for "+tt+" from tree_taxonomy file/downloaded data and I went two levels up, but failed find any. Looked at:\n"
-                                    print "\t"+levels_to_worry_about[ci+1]
-                                    print "\t"+levels_to_worry_about[ci+2]
-                                    print "\t"+levels_to_worry_about[ci+3]
-                                    print "This is the taxonomy info I have for "+tt
-                                    print tree_taxonomy[tt]
-                                    sys.exit(1)
+                                parent = tree_taxonomy[tt][levels_to_worry_about[ci+jj]]
+                                level = ci+jj
+                                break # break the loop and jj get fixed < len(taxonomy_levels)-ci+1
+                            
+                            except KeyError: # this will loop until we find something
+                                pass
+                       
+                            if jj == len(taxonomy_levels)-ci+1: # we completed the loop and found nothing!
+                                print "ERROR: tried to find some taxonomic info for "+tt+" from tree_taxonomy file/downloaded data."
+                                print "I went a few levels up, but failed find any info."
+                                print "This is the taxonomy info I have for "+tt
+                                print tree_taxonomy[tt]
+                                sys.exit(1)
 
                         k = []
                         for nd in nodes[levels_to_worry_about[level]]:
@@ -3765,6 +3764,11 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
             nodes[l].append({n:nd})
 
     tree = t.write(format=9)  
+    tree = _collapse_nodes(tree)
+    tree = _collapse_nodes(tree)
+    tree = _collapse_nodes(tree)
+    
+
     
     return tree
 

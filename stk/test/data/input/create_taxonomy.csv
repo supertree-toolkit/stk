@@ -1,6 +1,7 @@
-OTU,species,subgebus,genus,subfamily,family,superfamily,subsection,section,infraorder,suborder,order,superorder,subclass,class,superclass,subphylum,phylum,superphylum,infrakingdom,subkingdom,kingdom,Data source
-Archaeopteryx lithographica,-,-,Archaeopteryx,-,-,-,-,-,-,Coelurosauria,-,-,Tetrapodomorpha,Aves,-,-,-,-,-,Metazoa,-,Paleobiology Database
+OTU,species,subgenus,genus,subfamily,family,superfamily,subsection,section,infraorder,suborder,order,superorder,subclass,class,superclass,subphylum,phylum,superphylum,infrakingdom,subkingdom,kingdom,Data source
+Archaeopteryx lithographica,Archaeopteryx lithographica,-,Archaeopteryx,-,Archaeopterygidae,-,-,-,-,Coelurosauria,-,-,Tetrapodomorpha,Aves,-,-,-,-,-,Metazoa,-,Paleobiology Database
 Thalassarche melanophris,Thalassarche melanophris,-,Thalassarche,-,Diomedeidae,-,-,-,-,-,Procellariiformes,-,-,Aves,-,Vertebrata,Chordata,-,Deuterostomia,Bilateria,Animalia,Species 2000 & ITIS Catalogue of Life: April 2013
 Egretta tricolor,Egretta tricolor,-,Egretta,-,Ardeidae,-,-,-,-,Ischnochitonina,Pelecaniformes,-,Neoloricata,Aves,-,-,Chordata,Lophozoa,Protostomia,Bilateria,Animalia,Species 2000 & ITIS Catalogue of Life: April 2013
+Egretta garzetta,Egretta garzetta,-,Egretta,-,Ardeidae,-,-,-,-,Ischnochitonina,Pelecaniformes,-,Neoloricata,Aves,-,-,Chordata,Lophozoa,Protostomia,Bilateria,Animalia,Species 2000 & ITIS Catalogue of Life: April 2013
 Gallus gallus,Gallus gallus,-,Gallus,-,Phasianidae,-,-,-,-,-,-,Galliformes,-,Aves,-,-,Chordata,Lophozoa,Protostomia,Bilateria,Animalia,Species 2000 & ITIS Catalogue of Life: April 2013
-Jeletzkytes criptonodosus,Jeletzkytes criptonodosus,-,-,Scaphitidae,-,-,-,-,-,Ammonoidea,-,-,Cephalopoda,Mollusca,-,-,-,-,-,-,Metazoa,PBDB
+Jeletzkytes criptonodosus,Jeletzkytes criptonodosus,-,-,-,Scaphitidae,Scaphitidae,-,-,-,Ammonoidea,-,-,Cephalopoda,Mollusca,-,-,-,-,-,-,Metazoa,PBDB
