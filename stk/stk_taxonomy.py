@@ -122,7 +122,7 @@ def taxonomic_checker_list(name_list,existing_data=None,verbose=False):
                 if (s['relationship'] == "synonym"):
                     ts = ts.replace(" ","_")
                     synonyms.append(ts)
-            synonyms = _uniquify(synonyms)
+            synonyms = stk_internals._uniquify(synonyms)
             # we need to put the correct name at the top of the list now
             if (correct_name in synonyms):
                 synonyms.insert(0, synonyms.pop(synonyms.index(correct_name)))
@@ -472,7 +472,7 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
     starttime = time.time()
 
     if not ignoreWarnings:
-        _check_data(XML)
+        stk_internals._check_data(XML)
 
     if (existing_taxonomy is None):
         taxonomy = {}
@@ -509,7 +509,7 @@ def create_extended_taxonomy(taxonomy, starttime, verbose=False, ignoreWarnings=
         if t in taxonomy:
             if GENUS in taxonomy[t]:
                 genera.append(taxonomy[t][GENUS])
-    genera = _uniquify(genera)
+    genera = stk_internals._uniquify(genera)
     # We then use ITIS to fill in missing info based on the genera only - that saves us a species level search
     # and we can fill in most of the EoL missing data
     for g in genera:

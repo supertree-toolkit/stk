@@ -3,10 +3,12 @@ import math
 import sys
 # so we import local stk before any other
 sys.path.insert(0,"../../")
-from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon,_tree_contains
-from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa, get_taxa_from_tree, get_characters_from_tree, amalgamate_trees, _uniquify
-from stk.supertree_toolkit import import_trees, import_tree, _trees_equal, _find_trees_for_permuting, permute_tree, get_all_source_names, _getTaxaFromNewick, _parse_tree
+from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, create_matrix
+from stk.supertree_toolkit import substitute_taxa, get_taxa_from_tree, get_characters_from_tree, amalgamate_trees
+from stk.supertree_toolkit import import_trees, import_tree, permute_tree, get_all_source_names
 from stk.supertree_toolkit import get_mrca
+from stk.stk_internals import _assemble_tree_matrix, _swap_tree_in_XML, _trees_equal, _find_trees_for_permuting, _getTaxaFromNewick, _parse_tree
+from stk.stk_internals import _delete_taxon, _sub_taxon, _tree_contains, _uniquify
 import os
 from lxml import etree
 from util import *
