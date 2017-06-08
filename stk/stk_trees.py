@@ -414,7 +414,6 @@ def trees_equal(t1,t2):
 
     return same
 
-det_phases
 def create_matrix(trees, taxa, format="hennig", quote=False, weights=None, verbose=False):
     """
     Does the hard work on creating a matrix

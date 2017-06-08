@@ -21,13 +21,15 @@
 
 import csv
 import stk_exceptions as excp
-
+import stk_trees
+import re
+import sys
 
 def get_mrca(tree,taxa_list):
     """Return the node number for the MRCA of the list of given taxa
        This node number must be used in conjection with a p4 tree object, along
        the lines of:
-       treeobj = _parse_tree(tree_string)
+       treeobj = parse_tree(tree_string)
        treeobj.node(mrca).parent 
     """
 
@@ -35,7 +37,7 @@ def get_mrca(tree,taxa_list):
     node_ids = []
     # get the nodes of the taxa in question
     node_id_for_taxa = []
-    treeobj = stk_internals._parse_tree(tree)
+    treeobj = stk_trees.parse_tree(tree)
     for t in taxa_list:
         node_id_for_taxa.append(treeobj.node(t).nodeNum)
     # for each, get all parents to root
@@ -75,7 +77,7 @@ def get_mrca(tree,taxa_list):
 
     return mrca
 
-def load_subs_files(filename):
+def load_subs_file(filename):
     """ Reads in a subs file and returns two arrays:
         new_taxa and the corresponding old_taxa
 
@@ -177,37 +179,4 @@ def subs_from_csv(filename):
 
     return old_taxa, new_taxa
 
-
-def check_subs_additions(XML,new_taxa):
-    """Check that if additional taxa are being added via a substitution and issues
-       a warning if any of the incoming taxa
-       are not already in the dataset. This is often what is wanted, but sometimes
-       it is not. We run this before we do the subs to alert the user of this
-       but they may continue
-    """
-
-    dataset_taxa = get_all_taxa(XML)
-    unknown_taxa = []
-    generic = get_all_genera(XML)
-    for taxon in new_taxa:
-        if not taxon == None:
-            all_taxa = taxon.split(",")
-            for t in all_taxa:
-                if t.find("_") == -1:
-                    # just generic, so check against that
-                    if not t in generic:
-                        unknown_taxa.append(t)
-                else:
-                    if not t in dataset_taxa:
-                        unknown_taxa.append(t)
-    unknown_taxa = stk_internals._uniquify(unknown_taxa)
-    unknown_taxa.sort()
-
-    if (len(unknown_taxa) > 0):
-        taxa_list = '\n'.join(unknown_taxa)
-        msg = "These taxa are not already in the dataset, are you sure you want to substitute them in?\n"
-        msg += taxa_list
-        raise excp.AddingTaxaWarning(msg) 
-    
-    return
 
