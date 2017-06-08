@@ -30,19 +30,14 @@ Taxonomy is stored as a dictionary. I/O is done in a CSV file.
 Most functions return the taxonomy dictionary.
 
 """
-from StringIO import StringIO
 import os
 import sys
-import math
-import re
-import numpy 
 from lxml import etree
 sys.path.insert(0,"../../")
 import string
 import stk_exceptions as excp
 from collections import defaultdict
 import stk.p4 as p4
-import re
 import stk.p4.MRP as MRP
 import stk_internals
 import Queue
@@ -51,7 +46,7 @@ import urllib2
 from urllib import quote_plus
 import simplejson as json
 
-
+taxonomy_levels = ['species','subgenus','genus','tribe','subfamily','family','superfamily','subsection','section','parvorder','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
 def taxonomic_checker_list(name_list,existing_data=None,verbose=False):
     """ For each name in the database generate a database of the original name,
@@ -221,7 +216,7 @@ class TaxonomyFetcher(threading.Thread):
     """ Class to provide the taxonomy fetching functionality as a threaded function to be used individually or working with a pool.
     """
 
-    def __init__(self, taxonomy, lock, queue, id=0, pref_db=None, verbose=False, ignoreWarnings=False):
+    def __init__(self, taxonomy, lock, queue, id=0, pref_db='eol', check_fossil=True, verbose=False, ignoreWarnings=False):
         """ Constructor for the threaded model.
         :param taxonomy: previous taxonomy available (if available) or an empty dictionary to store the results .
         :type taxonomy: dictionary
@@ -231,8 +226,10 @@ class TaxonomyFetcher(threading.Thread):
         :type queue: Queue of strings
         :param id: id for the thread to use if messages need to be printed.
         :type id: int 
-        :param pref_db: Gives priority to database. Seems it is unused.
+        :param pref_db: Gives preferred DB. Can be backfilled with "create_extended_taxonomy"
         :type pref_db: string 
+        :param check_fossil: If a taxon can't be found in the preferred database, check PBDB in case it's a fossil
+        :type pref_db: boolean
         :param verbose: Show verbose messages during execution, will also define level of logging. True will set logging level to INFO.
         :type verbose: boolean
         :param ignoreWarnings: Ignore warnings and errors during execution? Errors will be logged with ERROR level on the logging output.
@@ -266,142 +263,36 @@ class TaxonomyFetcher(threading.Thread):
                 if (self.verbose):
                     print "Looking up ", taxon
                     logging.info("Loolking up taxon: {}".format(str(taxon)))
-                try:
-                    # get the data from EOL on taxon
-                    taxonq = quote_plus(taxon)
-                    URL = "http://eol.org/api/search/1.0.json?q="+taxonq
-                    req = urllib2.Request(URL)
-                    opener = urllib2.build_opener()
-                    f = opener.open(req)
-                    data = json.load(f)
-                    # check if there's some data
-                    if len(data['results']) == 0:
-                        # try PBDB as it might be a fossil
-                        URL = "http://paleobiodb.org/data1.1/taxa/single.json?name="+taxonq+"&show=phylo&vocab=pbdb"
-                        req = urllib2.Request(URL)
-                        opener = urllib2.build_opener()
-                        f = opener.open(req)
-                        datapbdb = json.load(f)
-                        if (len(datapbdb['records']) == 0):
-                            # no idea!
-                            with self.lock:
-                                self.taxonomy[taxon] = {}
-                            self.queue.task_done()
-                            continue
-                        # otherwise, let's fill in info here - only if extinct!
-                        if datapbdb['records'][0]['is_extant'] == 0:
-                            this_taxonomy = {}
-                            this_taxonomy['provider'] = 'PBDB'
-                            for level in taxonomy_levels:
-                                try:
-                                    if datapbdb.has_key('records'):
-                                        pbdb_lev = datapbdb['records'][0][level]
-                                        temp_lev = pbdb_lev.split(" ")
-                                        # they might have the author on the end, so strip it off
-                                        if (level == 'species'):
-                                            this_taxonomy[level] = ' '.join(temp_lev[0:2])
-                                        else:
-                                            this_taxonomy[level] = temp_lev[0]       
-                                except KeyError as e:
-                                    logging.exception("Key not found records")
-                                    continue
-                            # add the taxon at right level too
-                            try:
-                                if datapbdb.has_key('records'):
-                                    current_level = datapbdb['records'][0]['rank']
-                                    this_taxonomy[current_level] = datapbdb['records'][0]['taxon_name']
-                            except KeyError as e:
-                                self.queue.task_done()
-                                logging.exception("Key not found records")
-                                continue
-                            with self.lock:
-                                self.taxonomy[taxon] = this_taxonomy
-                            self.queue.task_done()
-                            continue
-                        else:
-                            # extant, but not in EoL - leave the user to sort this one out
-                            with self.lock:
-                                self.taxonomy[taxon] = {}
-                            self.queue.task_done()
-                            continue
-
-                                
-                    ID = str(data['results'][0]['id']) # take first hit
-                    # Now look for taxonomies
-                    URL = "http://eol.org/api/pages/1.0/"+ID+".json"
-                    req = urllib2.Request(URL)
-                    opener = urllib2.build_opener()
-                    f = opener.open(req)
-                    data = json.load(f)
-                    if len(data['taxonConcepts']) == 0:
-                        with self.lock:
-                            self.taxonomy[taxon] = {}
-                        self.queue.task_done()
-                        continue
-                    TID = str(data['taxonConcepts'][0]['identifier']) # take first hit
-                    currentdb = str(data['taxonConcepts'][0]['nameAccordingTo'])
-                    # loop through and get preferred one if specified
-                    # now get taxonomy
-                    if (not self.pref_db is None):
-                        for db in data['taxonConcepts']:
-                            currentdb = db['nameAccordingTo'].lower()
-                            if (self.pref_db.lower() in currentdb):
-                                TID = str(db['identifier'])
-                                break
-                    URL="http://eol.org/api/hierarchy_entries/1.0/"+TID+".json"
-                    req = urllib2.Request(URL)
-                    opener = urllib2.build_opener()
-                    f = opener.open(req)
-                    data = json.load(f)
-                    this_taxonomy = {}
-                    this_taxonomy['provider'] = currentdb
-                    for a in data['ancestors']:
-                        try:
-                            if a.has_key('taxonRank') :
-                                temp_level = a['taxonRank'].encode("ascii","ignore")
-                                if (temp_level in taxonomy_levels):
-                                    # note the dump into ASCII
-                                    temp_name = a['scientificName'].encode("ascii","ignore")
-                                    temp_name = temp_name.split(" ")
-                                    if (temp_level == 'species'):
-                                        this_taxonomy[temp_level] = temp_name[0:2]
-                                        
-                                    else:
-                                        this_taxonomy[temp_level] = temp_name[0]  
-                        except KeyError as e:
-                            logging.exception("Key not found: taxonRank")
-                            continue
-                    try:
-                        # add taxonomy in to the taxonomy!
-                        # some issues here, so let's make sure it's OK
-                        temp_name = taxon.split(" ")            
-                        if data.has_key('taxonRank') :
-                            if not data['taxonRank'].lower() == 'species':
-                                this_taxonomy[data['taxonRank'].lower()] = temp_name[0]
-                            else:
-                                this_taxonomy[data['taxonRank'].lower()] = ' '.join(temp_name[0:2])
-                    except KeyError as e:
-                        self.queue.task_done()
-                        logging.exception("Key not found: taxonRank")
-                        continue
-                    with self.lock:
-                        #Send result to dictionary
-                        self.taxonomy[taxon] = this_taxonomy
-                except urllib2.HTTPError:
-                    print("Network error when processing {} ".format(taxon,))
-                    logging.info("Network error when processing {} ".format(taxon,))
-                    self.queue.task_done()
+                if pref_db == 'eol':
+                    this_taxonomy = get_taxonomy_for_taxon_eol(taxon)
+                elif pref_db == 'worms':
+                    this_taxonomy = get_taxonomy_for_taxon_worms(taxon)
+                elif pref_db == 'itis':
+                    this_taxonomy = get_taxonomy_for_taxon_itis(taxon)
+                elif pref_db == 'pbdb':
+                    this_taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
+                else:
+                    # raise something
                     continue
-                except urllib2.URLError:
-                    print("Network error when processing {} ".format(taxon,))
-                    logging.info("Network error when processing {} ".format(taxon,))
+                if (check_fossil and this_taxonomy == None and pref_db != 'pbdb'):
+                    this_taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
+                
+                
+                if this_taxonomy == None:
                     self.queue.task_done()
+                    logging.exception("Key not found: taxonRank")
                     continue
+                
+                with self.lock:
+                    #Send result to dictionary
+                    self.taxonomy[taxon] = this_taxonomy
             else :
                 #Nothing to do release the lock on taxonomy
                 self.lock.release()
             #Mark task as done
             self.queue.task_done()
+
+
 
 def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, threadNumber=5):
     """Uses the taxa provided to generate a taxonomy for all the taxon available. 
@@ -445,7 +336,8 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, 
     queue.join()
     logging.getLogger().setLevel(logging.WARNING)
 
-def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
+
+def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, fill=False):
     """ Generates the taxonomy from a tree. Uses a similar method to the XML version but works directly on a string with the tree.
     :param tree: list of the taxa.
     :type tree : list 
@@ -470,10 +362,12 @@ def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbos
     taxa = get_taxa_from_tree_for_taxonomy(tree, pretty=True)
     
     create_taxonomy_from_taxa(taxa, taxonomy)
-    
-    taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings)
+    if fill:
+        taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings, pref_db)
     
     return taxonomy
+
+
 
 def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
     """Generates a taxonomy of the data from EoL data. This is stored as a
@@ -492,8 +386,10 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
         taxonomy = existing_taxonomy
     taxa = get_all_taxa(XML, pretty=True)
     create_taxonomy_from_taxa(taxa, taxonomy)
-    #taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings)
     return taxonomy
+
+
+
 
 def create_extended_taxonomy(taxonomy, starttime, verbose=False, ignoreWarnings=False):
     """Bring extra taxonomy terms from other databases, shared method for completing the taxonomy
@@ -649,9 +545,461 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
     tree = stk_internals._collapse_nodes(tree)
     tree = stk_internals._collapse_nodes(tree)
     tree = stk_internals._collapse_nodes(tree)
-    
-
-    
+        
     return tree
 
+
+def get_taxonomy_for_taxon_pbdb(taxon):
+
+    this_taxonomy = {}
+    # try PBDB as it might be a fossil
+    URL = "http://paleobiodb.org/data1.1/taxa/single.json?name="+taxonq+"&show=phylo&vocab=pbdb"
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    datapbdb = json.load(f)
+    if (len(datapbdb['records']) == 0):
+        # no idea!
+        with self.lock:
+            self.taxonomy[taxon] = {}
+        self.queue.task_done()
+    # otherwise, let's fill in info here - only if extinct!
+    if datapbdb['records'][0]['is_extant'] == 0:
+        this_taxonomy = {}
+        this_taxonomy['provider'] = 'PBDB'
+        for level in taxonomy_levels:
+            try:
+                if datapbdb.has_key('records'):
+                    pbdb_lev = datapbdb['records'][0][level]
+                    temp_lev = pbdb_lev.split(" ")
+                    # they might have the author on the end, so strip it off
+                    if (level == 'species'):
+                        this_taxonomy[level] = ' '.join(temp_lev[0:2])
+                    else:
+                        this_taxonomy[level] = temp_lev[0]       
+            except KeyError as e:
+                logging.exception("Key not found records")
+                continue
+        # add the taxon at right level too
+        try:
+            if datapbdb.has_key('records'):
+                current_level = datapbdb['records'][0]['rank']
+                this_taxonomy[current_level] = datapbdb['records'][0]['taxon_name']
+        except KeyError as e:
+            pass
+
+    return this_taxonomy
+
+def get_taxonomy_for_taxon_eol(taxon):
+
+    """Fetches taxonomic infor a single taxon from the EOL database
+     Return: dictionary of taxonomic levels ready to put in a taxonomy dictionary
+     """
+
+    taxonq = quote_plus(taxon)
+    URL = "http://eol.org/api/search/1.0.json?q="+taxonq
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    data = json.load(f)
+    
+    if data['results'] == []:
+        return {}
+    ID = str(data['results'][0]['id']) # take first hit
+    # Now look for taxonomies
+    URL = "http://eol.org/api/pages/1.0/"+ID+".json"
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    data = json.load(f)
+    if len(data['taxonConcepts']) == 0:
+        return {}
+    TID = str(data['taxonConcepts'][0]['identifier']) # take first hit
+    # Note EOL can have other databases as sources, so we use that as the provider
+    currentdb = str(data['taxonConcepts'][0]['nameAccordingTo'])
+    # loop through and get preferred one if specified
+    # now get taxonomy        
+    for db in data['taxonConcepts']:
+        currentdb = db['nameAccordingTo'].lower()
+        TID = str(db['identifier'])
+        break
+    URL="http://eol.org/api/hierarchy_entries/1.0/"+TID+".json"
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    data = json.load(f)
+    taxonomy = {}
+    taxonomy['provider'] = currentdb
+    for a in data['ancestors']:
+        try:
+            if a.has_key('taxonRank') :
+                temp_level = a['taxonRank'].encode("ascii","ignore")
+                if (temp_level in taxonomy_levels):
+                    # note the dump into ASCII
+                    temp_name = a['scientificName'].encode("ascii","ignore")
+                    temp_name = temp_name.split(" ")
+                    if (temp_level == 'species'):
+                        taxonomy[temp_level] = " ".join(temp_name[0:2])
+                        
+                    else:
+                        taxonomy[temp_level] = temp_name[0]  
+        except KeyError as e:
+            logging.exception("Key not found: taxonRank")
+            continue
+    try:
+        # add taxonomy in to the taxonomy!
+        # This adds the actuall taxon being searched for to the taxonomy
+        # sub-species will be ignored here, giving two entries for the same species, but under different OTUs
+        temp_name = taxon.split(" ")            
+        if data.has_key('taxonRank') :
+            if (data['taxonRank'].lower() != 'species' and 
+               data['taxonRank'].lower() in taxonomy_levels):
+                taxonomy[data['taxonRank'].lower()] = temp_name[0]
+            elif data['taxonRank'].lower() in taxonomy_levels:
+                taxonomy[data['taxonRank'].lower()] = ' '.join(temp_name[0:2])
+    except KeyError as e:
+       return taxonomy 
+
+    return taxonomy
+
+
+
+def get_taxonomy_for_taxon_worms(taxon):
+
+    from SOAPpy import WSDL    
+    wsdlObjectWoRMS = WSDL.Proxy('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
+
+    taxon_data = wsdlObjectWoRMS.getAphiaRecords(taxon.replace('_',' '))
+    if taxon_data == None:
+        return {}
+
+    taxon_id = taxon_data[0]['valid_AphiaID'] # there might be records that aren't valid - they point to the valid one though
+    # call it again via the ID this time to make sure we've got the right one.
+    taxon_data = wsdlObjectWoRMS.getAphiaRecordByID(taxon_id)
+    # add data to taxonomy dictionary
+    # get the taxonomy of this species
+    classification = wsdlObjectWoRMS.getAphiaClassificationByID(taxon_id)
+    # construct array
+    tax_array = {}
+    if (classification == ""):
+        return {}
+    # classification is a nested dictionary, so we need to iterate down it
+    current_child = classification.child
+    while True:
+        tax_array[current_child.rank.lower()] = current_child.scientificname
+        current_child = current_child.child
+        if current_child == '': # empty one is a string for some reason
+            break
+    return tax_array
+
+
+def get_taxonomy_for_taxon_itis(taxon):
+
+    URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(taxon.replace('_',' ').strip())
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)    
+    string = unicode(f.read(),"ISO-8859-1")
+    this_item = json.loads(string)
+    if this_item['scientificNames'] == [None]: # not found
+        return {}
+    tsn = this_item['scientificNames'][0]['tsn'] # there might be records that aren't valid - they point to the valid one though
+    # so call another function to get any valid names
+    URL="http://www.itis.gov/ITISWebService/jsonservice/getAcceptedNamesFromTSN?tsn="+tsn
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    string = unicode(f.read(),"ISO-8859-1")
+    this_item = json.loads(string)
+    if not this_item['acceptedNames'] == [None]:
+        tsn = this_item['acceptedNames'][0]['acceptedTsn']
+
+    URL="http://www.itis.gov/ITISWebService/jsonservice/getFullHierarchyFromTSN?tsn="+str(tsn)
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    string = unicode(f.read(),"ISO-8859-1")
+    data = json.loads(string)
+    # construct array
+    this_taxonomy = {}
+    for level in data['hierarchyList']:
+        if level['rankName'].lower() in taxonomy_levels:
+            # note the dump into ASCII            
+            this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
+
+    return this_taxonomy
+
+
+
+def get_taxonomy_eol(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
+        
+    # this is the recursive function
+    def get_children(taxonomy, ID, aphiaIDsDone):
+
+        # get data
+        URL="http://eol.org/api/hierarchy_entries/1.0/"+str(ID)+".json?common_names=false&synonyms=false&cache_ttl="
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        string = unicode(f.read(),"ISO-8859-1")
+        this_item = json.loads(string)
+        if this_item == None:
+            return taxonomy  
+        if this_item['taxonRank'].lower().strip() == 'species':
+            # add data to taxonomy dictionary
+            taxon = this_item['scientificName'].split()[0:2] # just the first two words
+            taxon = " ".join(taxon[0:2])
+            # NOTE following line means existing items are *not* updated
+            if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
+                this_taxonomy = {}
+                for level in this_item['ancestors']:
+                    if level['taxonRank'].lower() in taxonomy_levels:
+                        # note the dump into ASCII            
+                        this_taxonomy[level['taxonRank'].lower().encode("ascii","ignore")] = level['scientificName'].encode("ascii","ignore")
+                # add species:
+                this_taxonomy['species'] = taxon.replace(" ","_")
+                if verbose:
+                    print "\tAdding "+taxon
+                taxonomy[taxon] = this_taxonomy
+                if not tmpfile == None:
+                    stk.save_taxonomy(taxonomy,tmpfile)
+                return taxonomy
+            else:
+                return taxonomy
+        all_children = []
+        for level in this_item['children']:
+            if not level == None:
+                all_children.append(level['taxonID'])
+        
+        if (len(all_children) == 0):
+            return taxonomy
+
+        for child in all_children:
+            if child in aphiaIDsDone: # we get stuck sometime
+                continue
+            aphiaIDsDone.append(child)
+            taxonomy = get_children(taxonomy, child, aphiaIDsDone)
+        return taxonomy
+            
+
+    # main bit of the get_taxonomy_eol function
+    taxonq = quote_plus(start_otu)
+    URL = "http://eol.org/api/search/1.0.json?q="+taxonq
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    data = json.load(f)
+    start_id = str(data['results'][0]['id']) # this is the page ID. We get the species ID next
+    URL = "http://eol.org/api/pages/1.0/"+start_id+".json"
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    data = json.load(f)
+    if len(data['taxonConcepts']) == 0:
+        print "Error finding you start taxa. Spelling?"
+        return None  
+    start_id = data['taxonConcepts'][0]['identifier']
+    start_taxonomy_level = data['taxonConcepts'][0]['taxonRank'].lower()
+
+    aphiaIDsDone = []
+    if not skip:
+        taxonomy = get_children(taxonomy,start_id,aphiaIDsDone)
+
+    return taxonomy, start_taxonomy_level
+
+
+
+def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
+    import simplejson as json
+        
+    # this is the recursive function
+    def get_children(taxonomy, ID, aphiaIDsDone):
+
+        # get data
+        URL="http://www.itis.gov/ITISWebService/jsonservice/getFullRecordFromTSN?tsn="+ID
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        string = unicode(f.read(),"ISO-8859-1")
+        this_item = json.loads(string)
+        if this_item == None:
+            return taxonomy
+        if not this_item['usage']['taxonUsageRating'].lower() == 'valid':
+            print "rejecting " , this_item['scientificName']['combinedName']
+            return taxonomy        
+        if this_item['taxRank']['rankName'].lower().strip() == 'species':
+            # add data to taxonomy dictionary
+            taxon = this_item['scientificName']['combinedName']
+            # NOTE following line means existing items are *not* updated
+            if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
+                # get the taxonomy of this species
+                tsn = this_item["scientificName"]["tsn"]
+                URL="http://www.itis.gov/ITISWebService/jsonservice/getFullHierarchyFromTSN?tsn="+tsn
+                req = urllib2.Request(URL)
+                opener = urllib2.build_opener()
+                f = opener.open(req)
+                string = unicode(f.read(),"ISO-8859-1")
+                data = json.loads(string)
+                this_taxonomy = {}
+                for level in data['hierarchyList']:
+                    if level['rankName'].lower() in taxonomy_levels:
+                        # note the dump into ASCII            
+                        this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
+                if verbose:
+                    print "\tAdding "+taxon
+                taxonomy[taxon] = this_taxonomy
+                if not tmpfile == None:
+                    stk.save_taxonomy(taxonomy,tmpfile)
+                return taxonomy
+            else:
+                return taxonomy
+
+        all_children = []
+        URL="http://www.itis.gov/ITISWebService/jsonservice/getHierarchyDownFromTSN?tsn="+ID
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        string = unicode(f.read(),"ISO-8859-1")
+        this_item = json.loads(string)
+        if this_item == None:
+            return taxonomy
+
+        for level in this_item['hierarchyList']:
+            if not level == None:
+                all_children.append(level['tsn'])
+        
+        if (len(all_children) == 0):
+            return taxonomy
+
+        for child in all_children:
+            if child in aphiaIDsDone: # we get stuck sometime
+                continue
+            aphiaIDsDone.append(child)
+            taxonomy = get_children(taxonomy, child, aphiaIDsDone)
+            
+        return taxonomy
+            
+
+    # main bit of the get_taxonomy_worms function
+    URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(start_otu.strip())
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    string = unicode(f.read(),"ISO-8859-1")
+    this_item = json.loads(string)
+    start_id = this_item['scientificNames'][0]['tsn'] # there might be records that aren't valid - they point to the valid one though
+    # call it again via the ID this time to make sure we've got the right one.
+    # so call another function to get any valid names
+    URL="http://www.itis.gov/ITISWebService/jsonservice/getAcceptedNamesFromTSN?tsn="+start_id
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    string = unicode(f.read(),"ISO-8859-1")
+    this_item = json.loads(string)
+    if not this_item['acceptedNames'] == [None]:
+        start_id = this_item['acceptedNames'][0]['acceptedTsn']
+
+    URL="http://www.itis.gov/ITISWebService/jsonservice/getFullRecordFromTSN?tsn="+start_id
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    string = unicode(f.read(),"ISO-8859-1")
+    this_item = json.loads(string)
+    start_taxonomy_level = this_item['taxRank']['rankName'].lower()
+
+    aphiaIDsDone = []
+    if not skip:
+        taxonomy = get_children(taxonomy,start_id,aphiaIDsDone)
+
+    return taxonomy, start_taxonomy_level
+
+
+
+
+def get_taxonomy_worms(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
+    """ Gets and processes a taxon from the queue to get its taxonomy."""
+    from SOAPpy import WSDL    
+
+    wsdlObjectWoRMS = WSDL.Proxy('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
+
+    # this is the recursive function
+    def get_children(taxonomy, ID, aphiaIDsDone):
+
+        # get data
+        this_item = wsdlObjectWoRMS.getAphiaRecordByID(ID)
+        if this_item == None:
+            return taxonomy
+        if not this_item['status'].lower() == 'accepted':
+            print "rejecting " , this_item.valid_name
+            return taxonomy        
+        if this_item['rank'].lower() == 'species':
+            # add data to taxonomy dictionary
+            taxon = this_item.valid_name
+            # NOTE following line means existing items are *not* updated
+            if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
+                # get the taxonomy of this species
+                classification = wsdlObjectWoRMS.getAphiaClassificationByID(ID)
+                # construct array
+                tax_array = {}
+                # classification is a nested dictionary, so we need to iterate down it
+                current_child = classification.child
+                while True:
+                    if taxonomy_levels.index(current_child.rank.lower()) <= taxonomy_levels.index(start_taxonomy_level):
+                        # we need this - we're closer to the tips of the tree than we started                    
+                        tax_array[current_child.rank.lower()] = current_child.scientificname
+                    current_child = current_child.child
+                    if current_child == '': # empty one is a string for some reason
+                        break
+                if verbose:
+                    print "\tAdding "+this_item.scientificname
+                taxonomy[this_item.valid_name] = tax_array
+                if not tmpfile == None:
+                    stk.save_taxonomy(taxonomy,tmpfile)
+                return taxonomy
+            else:
+                return taxonomy
+
+        all_children = []
+        start = 1
+        while True:
+            children = wsdlObjectWoRMS.getAphiaChildrenByID(ID, start, False)
+            if (children is None or children == None):
+                break
+            if (len(children) < 50):
+                all_children.extend(children)
+                break
+            all_children.extend(children)
+            start += 50
+
+        if (len(all_children) == 0):
+            return taxonomy
+
+        for child in all_children:
+            if child['valid_AphiaID'] in aphiaIDsDone: # we get stuck sometime
+                continue
+            aphiaIDsDone.append(child['valid_AphiaID'])
+            taxonomy = get_children(taxonomy, child['valid_AphiaID'], aphiaIDsDone)
+            
+        return taxonomy
+            
+
+    # main bit of the get_taxonomy_worms function
+    try:
+        start_taxa = wsdlObjectWoRMS.getAphiaRecords(start_otu)
+        start_id = start_taxa[0]['valid_AphiaID'] # there might be records that aren't valid - they point to the valid one though
+        # call it again via the ID this time to make sure we've got the right one.
+        start_taxa = wsdlObjectWoRMS.getAphiaRecordByID(start_id)
+        if start_taxa == None:
+            start_taxonomy_level = 'infraorder'
+        else:
+            start_taxonomy_level = start_taxa['rank'].lower()
+    except urllib2.HTTPError:
+        print "Error finding start_otu taxonomic level. Do you have an internet connection?"
+        sys.exit(-1)
+
+    aphiaIDsDone = []
+    if not skip:
+        taxonomy = get_children(taxonomy,start_id,aphiaIDsDone)
+
+    return taxonomy, start_taxonomy_level
 
