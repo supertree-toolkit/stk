@@ -244,17 +244,13 @@ class TaxonomyFetcher(threading.Thread):
         self.verbose = verbose
         self.pref_db = pref_db
         self.ignoreWarnings = ignoreWarnings
+        self.check_fossil = check_fossil
 
     def run(self):
         """ Gets and processes a taxon from the queue to get its taxonomy."""
         while True :
-            if self.verbose :
-                logging.getLogger().setLevel(logging.INFO)
             #get taxon from queue
             taxon = self.queue.get()
-
-            logging.debug("Starting {} with thread #{} remaining ~{}".format(taxon,str(self.id),str(self.queue.qsize())))
-             
             #Lock access to the taxonomy
             self.lock.acquire()
             if not taxon in self.taxonomy: # is a new taxon, not previously in the taxonomy
@@ -262,25 +258,22 @@ class TaxonomyFetcher(threading.Thread):
                 self.lock.release()
                 if (self.verbose):
                     print "Looking up ", taxon
-                    logging.info("Loolking up taxon: {}".format(str(taxon)))
-                if pref_db == 'eol':
+                if self.pref_db == 'eol':
                     this_taxonomy = get_taxonomy_for_taxon_eol(taxon)
-                elif pref_db == 'worms':
+                elif self.pref_db == 'worms':
                     this_taxonomy = get_taxonomy_for_taxon_worms(taxon)
-                elif pref_db == 'itis':
+                elif self.pref_db == 'itis':
                     this_taxonomy = get_taxonomy_for_taxon_itis(taxon)
-                elif pref_db == 'pbdb':
+                elif self.pref_db == 'pbdb':
                     this_taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
                 else:
                     # raise something
                     continue
-                if (check_fossil and this_taxonomy == None and pref_db != 'pbdb'):
+                if (self.check_fossil and this_taxonomy == {} and self.pref_db != 'pbdb'):
                     this_taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
-                
-                
+
                 if this_taxonomy == None:
                     self.queue.task_done()
-                    logging.exception("Key not found: taxonRank")
                     continue
                 
                 with self.lock:
@@ -293,7 +286,6 @@ class TaxonomyFetcher(threading.Thread):
             self.queue.task_done()
 
 
-
 def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, threadNumber=5):
     """Uses the taxa provided to generate a taxonomy for all the taxon available. 
     :param taxa: list of the taxa.
@@ -303,19 +295,15 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, 
     :type taxonomy: dictionary
     :param pref_db: Gives priority to database. Seems it is unused.
     :type pref_db: string 
-    :param verbose: Show verbose messages during execution, will also define 
-    level of logging. True will set logging level to INFO.
+    :param verbose: Show verbose messages during execution
     :type verbose: boolean
-    :param ignoreWarnings: Ignore warnings and errors during execution? Errors 
-    will be logged with ERROR level on the logging output.
+    :param ignoreWarnings: Ignore warnings and errors during execution?
     :type ignoreWarnings: boolean 
     :param threadNumber: Maximum number of threads to use for taxonomy processing.
     :type threadNumber: int
     :returns: dictionary with resulting taxonomy for each taxon (keys) 
     :rtype: dictionary 
     """
-    if verbose :
-        logging.getLogger().setLevel(logging.INFO)
     if taxonomy is None:
         taxonomy = {}
 
@@ -334,7 +322,8 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, 
     
     #Wait till everyone finishes
     queue.join()
-    logging.getLogger().setLevel(logging.WARNING)
+
+    return t.taxonomy
 
 
 def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, fill=False):
@@ -361,7 +350,7 @@ def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbos
 
     taxa = get_taxa_from_tree_for_taxonomy(tree, pretty=True)
     
-    create_taxonomy_from_taxa(taxa, taxonomy)
+    taxonomy = create_taxonomy_from_taxa(taxa, taxonomy)
     if fill:
         taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings, pref_db)
     
@@ -391,80 +380,44 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
 
 
 
-def create_extended_taxonomy(taxonomy, starttime, verbose=False, ignoreWarnings=False):
-    """Bring extra taxonomy terms from other databases, shared method for completing the taxonomy
-    both for trees comming from XML or directly from trees.
+def create_extended_taxonomy(taxonomy, pref_db='eol', verbose=False, ignoreWarnings=False, threadNumber=5):
+    """Bring extra taxonomy terms from other databases, but pref_db is maintained
     :param taxonomy: Dictionary with the relationship for taxa and taxonomy terms.
     :type taxonomy: dictionary
-    :param starttime: time to keep track of processing time.
-    :type starttime: long
     :param verbose: Flag for verbosity.
     :type verbose: boolean
     :param ignoreWarnings: Flag for exception processing.
     :type ignoreWarnings: boolean
+    :param threadNumber: Maximum number of threads to use for taxonomy processing.
+    :type threadNumber: int
     :returns: the modified taxonomy
     :rtype: dictionary
     """
-    
-    if (verbose):
-        logging.info('Done basic taxonomy, getting more info from ITIS')
-        print("Time elapsed {}".format(str(time.time() - starttime)))
-        print "Done basic taxonomy, getting more info from ITIS"
-    # fill in the rest of the taxonomy
-    # get all genera
-    genera = []
-    for t in taxonomy:
-        if t in taxonomy:
-            if GENUS in taxonomy[t]:
-                genera.append(taxonomy[t][GENUS])
-    genera = stk_internals._uniquify(genera)
-    # We then use ITIS to fill in missing info based on the genera only - that saves us a species level search
-    # and we can fill in most of the EoL missing data
-    for g in genera:
-        if (verbose):
-            print "Looking up ", g
-            logging.info("Looking up {}".format(str(g)))
-        try:
-            URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(g.strip())
-        except:
-            continue
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
-        try:
-            f = opener.open(req)
-        except urllib2.HTTPError:
-            continue
-        string = unicode(f.read(),"ISO-8859-1")
-        data = json.loads(string)
-        if data['scientificNames'][0] == None:
-            continue
-        tsn = data["scientificNames"][0]["tsn"]
-        URL="http://www.itis.gov/ITISWebService/jsonservice/getFullHierarchyFromTSN?tsn="+str(tsn)
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
-        f = opener.open(req)
-        try:
-            string = unicode(f.read(),"ISO-8859-1")
-        except:
-            continue
-        data = json.loads(string)
-        this_taxonomy = {}
-        for level in data['hierarchyList']:
-            if not level['rankName'].lower() in current_taxonomy_levels:
-                # note the dump into ASCII            
-                if level['rankName'].lower() == 'species':
-                    this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = ' '.join.level['taxonName'][0:2].encode("ascii","ignore")
-                else:
-                    this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
 
+    def update_taxonomy(taxonomy,additions):
+
+        uber_taxonomy = {}
         for t in taxonomy:
-            if t in taxonomy:
-                if GENUS in taxonomy[t]:
-                    if taxonomy[t][GENUS] == g:
-                        taxonomy[t].update(this_taxonomy)
+            if t in additions:
+                additions[t].update(taxonomy[t])
+                uber_taxonomy[t] = additions[t]
+            else:
+                uber_taxonomy[t] = taxonomy[t]
 
+        return uber_taxonomy
+    
+    # get taxa from existing taxonomy
+    taxa = taxonomy.keys()
+
+    if pref_db == 'eol':
+        temp_taxonomy = create_taxonomy_from_taxa(taxa, pref_db = 'itis')
+        taxonomy = update_taxonomy(taxonomy,temp_taxonomy)
+        temp_taxonomy = create_taxonomy_from_taxa(taxa, pref_db = 'worms')
+        taxonomy = update_taxonomy(taxonomy,temp_taxonomy)        
+        temp_taxonomy = create_taxonomy_from_taxa(taxa, pref_db = 'pbdb')
+        taxonomy = update_taxonomy(taxonomy,temp_taxonomy)
+    
     return taxonomy
-
 
 
 def tree_from_taxonomy(top_level, tree_taxonomy):
