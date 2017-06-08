@@ -34,6 +34,77 @@ Similar returns are typically a tree_string or list of these.
 import stk.p4 as p4
 
 
+
+def parse_trees(tree_block):
+    """ Parse a string containing multiple trees 
+        to a list of p4 tree objects
+    """
+   
+    try:
+        p4.var.doRepairDupedTaxonNames = 2
+        p4.var.warnReadNoFile = False
+        p4.var.nexus_warnSkipUnknownBlock = False
+        p4.var.trees = []
+        p4.read(tree_block)
+        p4.var.nexus_warnSkipUnknownBlock = True
+        p4.var.warnReadNoFile = True
+        p4.var.doRepairDupedTaxonNames = 0
+    except p4.Glitch as detail:
+        raise excp.TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree_block[0:128] )
+    trees = p4.var.trees
+    p4.var.trees = []
+    return trees
+
+def parse_tree(tree,fixDuplicateTaxa=False):
+    """ Parse a newick string to p4 tree object
+    """
+
+    try:
+        if (fixDuplicateTaxa):
+            p4.var.doRepairDupedTaxonNames = 2
+        p4.var.warnReadNoFile = False
+        p4.var.nexus_warnSkipUnknownBlock = False
+        p4.var.trees = []
+        p4.read(tree)
+        p4.var.nexus_warnSkipUnknownBlock = True
+        p4.var.warnReadNoFile = True
+        if (fixDuplicateTaxa):
+            p4.var.doRepairDupedTaxonNames = 0
+    except p4.Glitch as detail:
+        raise excp.TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree[0:128] )
+
+    t = p4.var.trees[0]
+    p4.var.trees = []
+    return t
+
+def trees_equal(t1,t2):
+    """ compare two trees using Robinson-Foulds metric
+    """
+
+    tree_1 = parse_tree(t1)
+    tree_2 = parse_tree(t2)
+    
+    # add the taxanames
+    # Sort, otherwose p4 things the txnames are different
+    names = tree_1.getAllLeafNames(tree_1.root)
+    names.sort()
+    tree_1.taxNames = names
+    names = tree_2.getAllLeafNames(tree_2.root)
+    names.sort()
+    tree_2.taxNames = names
+
+    same = False
+    try:
+        if (tree_1.topologyDistance(tree_2) == 0):
+            same = True # yep, the same
+            # but also check the root
+            if not tree_1.root.getNChildren() == tree_2.root.getNChildren():
+                same = False
+    except:
+        same = False # different taxa, so can't be the same!
+
+    return same
+
 def assemble_tree_matrix(tree_string, verbose=False):
     """ Assembles the MRP matrix for an individual tree
 
@@ -385,34 +456,6 @@ def getTaxaFromNewick(tree):
         taxa.append(t.replace(" ","_"))
 
     return taxa
-
-def trees_equal(t1,t2):
-    """ compare two trees using Robinson-Foulds metric
-    """
-
-    tree_1 = _parse_tree(t1)
-    tree_2 = _parse_tree(t2)
-    
-    # add the taxanames
-    # Sort, otherwose p4 things the txnames are different
-    names = tree_1.getAllLeafNames(tree_1.root)
-    names.sort()
-    tree_1.taxNames = names
-    names = tree_2.getAllLeafNames(tree_2.root)
-    names.sort()
-    tree_2.taxNames = names
-
-    same = False
-    try:
-        if (tree_1.topologyDistance(tree_2) == 0):
-            same = True # yep, the same
-            # but also check the root
-            if not tree_1.root.getNChildren() == tree_2.root.getNChildren():
-                same = False
-    except:
-        same = False # different taxa, so can't be the same!
-
-    return same
 
 def create_matrix(trees, taxa, format="hennig", quote=False, weights=None, verbose=False):
     """
