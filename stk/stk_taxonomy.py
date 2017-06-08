@@ -689,9 +689,9 @@ def get_taxonomy_for_taxon_worms(taxon):
     while True:
         if current_child.rank.lower() in taxonomy_levels:
             taxonomy[current_child.rank.lower()] = current_child.scientificname
-            current_child = current_child.child
-            if current_child == '': # empty one is a string for some reason
-                break
+        current_child = current_child.child
+        if current_child == '': # empty one is a string for some reason
+            break
     return taxonomy
 
 
