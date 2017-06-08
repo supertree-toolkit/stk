@@ -416,7 +416,21 @@ def create_extended_taxonomy(taxonomy, pref_db='eol', verbose=False, ignoreWarni
         taxonomy = update_taxonomy(taxonomy,temp_taxonomy)        
         temp_taxonomy = create_taxonomy_from_taxa(taxa, pref_db = 'pbdb')
         taxonomy = update_taxonomy(taxonomy,temp_taxonomy)
-    
+    if pref_db == 'itis':
+        temp_taxonomy = create_taxonomy_from_taxa(taxa, pref_db = 'eol')
+        taxonomy = update_taxonomy(taxonomy,temp_taxonomy)
+        temp_taxonomy = create_taxonomy_from_taxa(taxa, pref_db = 'worms')
+        taxonomy = update_taxonomy(taxonomy,temp_taxonomy)        
+        temp_taxonomy = create_taxonomy_from_taxa(taxa, pref_db = 'pbdb')
+        taxonomy = update_taxonomy(taxonomy,temp_taxonomy) 
+    if pref_db == 'worms':
+        temp_taxonomy = create_taxonomy_from_taxa(taxa, pref_db = 'itis')
+        taxonomy = update_taxonomy(taxonomy,temp_taxonomy)
+        temp_taxonomy = create_taxonomy_from_taxa(taxa, pref_db = 'eol')
+        taxonomy = update_taxonomy(taxonomy,temp_taxonomy)        
+        temp_taxonomy = create_taxonomy_from_taxa(taxa, pref_db = 'pbdb')
+        taxonomy = update_taxonomy(taxonomy,temp_taxonomy)
+
     return taxonomy
 
 
