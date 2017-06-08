@@ -35,6 +35,37 @@ import stk.p4 as p4
 
 
 
+def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, fill=False):
+    """ Generates the taxonomy from a tree. Uses a similar method to the XML version but works directly on a string with the tree.
+    :param tree: list of the taxa.
+    :type tree : list 
+    :param existing_taxonomy: list of the taxa.
+    :type existing_taxonomy: list 
+    :param pref_db: Gives priority to database. Seems it is unused.
+    :type pref_db: string 
+    :param verbose: Flag for verbosity.
+    :type verbose: boolean
+    :param ignoreWarnings: Flag for exception processing.
+    :type ignoreWarnings: boolean
+    :returns: the modified taxonomy
+    :rtype: dictionary
+    """
+    starttime = time.time()
+
+    if(existing_taxonomy is None) :
+        taxonomy = {}
+    else :
+        taxonomy = existing_taxonomy
+
+    taxa = get_taxa_from_tree_for_taxonomy(tree, pretty=True)
+    
+    taxonomy = create_taxonomy_from_taxa(taxa, taxonomy)
+    if fill:
+        taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings, pref_db)
+    
+    return taxonomy
+
+
 def parse_trees(tree_block):
     """ Parse a string containing multiple trees 
         to a list of p4 tree objects

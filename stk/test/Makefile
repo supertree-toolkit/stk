@@ -5,15 +5,7 @@
 # so that the tests get run
 #
 UNIT_TESTS = \
-_set_source_name.py \
-_bibliography.py \
-_trees.py \
-_supertree_toolkit.py \
-_import_export.py \
-_schema_validation.py \
-_substitute_taxa.py \
-_create_subsets.py \
-_taxonomy.py
+_stk_taxonomy.py
 
 # default case (and test). Loop through all
 # tests listed above and run them

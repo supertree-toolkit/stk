@@ -48,7 +48,7 @@ import simplejson as json
 
 taxonomy_levels = ['species','subgenus','genus','tribe','subfamily','family','superfamily','subsection','section','parvorder','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
-def taxonomic_checker_list(name_list,existing_data=None,verbose=False):
+def taxonomic_checker(name_list,existing_data=None,verbose=False):
     """ For each name in the database generate a database of the original name,
     possible synonyms and if the taxon is not know, signal that. We do this by
     using the EoL API to grab synonyms of each taxon.  """
@@ -324,60 +324,6 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, 
     queue.join()
 
     return t.taxonomy
-
-
-def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, fill=False):
-    """ Generates the taxonomy from a tree. Uses a similar method to the XML version but works directly on a string with the tree.
-    :param tree: list of the taxa.
-    :type tree : list 
-    :param existing_taxonomy: list of the taxa.
-    :type existing_taxonomy: list 
-    :param pref_db: Gives priority to database. Seems it is unused.
-    :type pref_db: string 
-    :param verbose: Flag for verbosity.
-    :type verbose: boolean
-    :param ignoreWarnings: Flag for exception processing.
-    :type ignoreWarnings: boolean
-    :returns: the modified taxonomy
-    :rtype: dictionary
-    """
-    starttime = time.time()
-
-    if(existing_taxonomy is None) :
-        taxonomy = {}
-    else :
-        taxonomy = existing_taxonomy
-
-    taxa = get_taxa_from_tree_for_taxonomy(tree, pretty=True)
-    
-    taxonomy = create_taxonomy_from_taxa(taxa, taxonomy)
-    if fill:
-        taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings, pref_db)
-    
-    return taxonomy
-
-
-
-def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
-    """Generates a taxonomy of the data from EoL data. This is stored as a
-    dictionary of taxonomy for each taxon in the dataset. Missing data are
-    encoded as '' (blank string). It's up to the calling function to store this
-    data to file or display it."""
-    
-    starttime = time.time()
-
-    if not ignoreWarnings:
-        stk_internals._check_data(XML)
-
-    if (existing_taxonomy is None):
-        taxonomy = {}
-    else:
-        taxonomy = existing_taxonomy
-    taxa = get_all_taxa(XML, pretty=True)
-    create_taxonomy_from_taxa(taxa, taxonomy)
-    return taxonomy
-
-
 
 
 def create_extended_taxonomy(taxonomy, pref_db='eol', verbose=False, ignoreWarnings=False, threadNumber=5):
