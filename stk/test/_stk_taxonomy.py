@@ -26,7 +26,7 @@ sys.path.insert(0,"../")
 import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-from stk_taxonomy import get_taxonomy_for_taxon_eol, get_taxonomy_for_taxon_itis, get_taxonomy_for_taxon_worms
+from stk_taxonomy import get_taxonomy_for_taxon_eol, get_taxonomy_for_taxon_itis, get_taxonomy_for_taxon_worms, get_taxonomy_for_taxon_pbdb
 from stk.stk_internals import internet_on
 from lxml import etree
 from util import *
@@ -176,6 +176,26 @@ class TestSTKTaxonomy(unittest.TestCase):
             taxon = "No chance!"
             expected = {}
             taxonomy = get_taxonomy_for_taxon_worms(taxon)
+            self.assertEqual(taxonomy, expected)
+
+        else:
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_for_taxon_eol function"
+        return
+
+
+    def test_get_taxonomy_for_taxon_pbdb(self):
+
+        if (internet_on()):
+            # Let's check an easy one!
+            taxon = "Tyrannosaurus rex"
+            expected = {'kingdom': 'Animalia', 'family': 'Tyrannosauridae', 'order': 'Avetheropoda', 'phylum': 'Chordata', 'provider': 'PBDB', 'species': 'Tyrannosaurus rex', 'class': 'Saurischia'}
+            taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
+            self.assertEqual(taxonomy, expected)
+
+            # Now a null value
+            taxon = "No chance!"
+            expected = {}
+            taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
             self.assertEqual(taxonomy, expected)
 
         else:

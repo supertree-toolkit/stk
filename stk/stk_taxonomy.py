@@ -551,22 +551,18 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
 
 def get_taxonomy_for_taxon_pbdb(taxon):
 
-    this_taxonomy = {}
-    # try PBDB as it might be a fossil
+    taxonomy = {}
+    taxonq = quote_plus(taxon) 
     URL = "http://paleobiodb.org/data1.1/taxa/single.json?name="+taxonq+"&show=phylo&vocab=pbdb"
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
     f = opener.open(req)
     datapbdb = json.load(f)
     if (len(datapbdb['records']) == 0):
-        # no idea!
-        with self.lock:
-            self.taxonomy[taxon] = {}
-        self.queue.task_done()
+        return taxonomy   
     # otherwise, let's fill in info here - only if extinct!
     if datapbdb['records'][0]['is_extant'] == 0:
-        this_taxonomy = {}
-        this_taxonomy['provider'] = 'PBDB'
+        taxonomy['provider'] = 'PBDB'
         for level in taxonomy_levels:
             try:
                 if datapbdb.has_key('records'):
@@ -574,21 +570,20 @@ def get_taxonomy_for_taxon_pbdb(taxon):
                     temp_lev = pbdb_lev.split(" ")
                     # they might have the author on the end, so strip it off
                     if (level == 'species'):
-                        this_taxonomy[level] = ' '.join(temp_lev[0:2])
+                        taxonomy[level] = ' '.join(temp_lev[0:2])
                     else:
-                        this_taxonomy[level] = temp_lev[0]       
+                        taxonomy[level] = temp_lev[0]       
             except KeyError as e:
-                logging.exception("Key not found records")
-                continue
+                pass
         # add the taxon at right level too
         try:
             if datapbdb.has_key('records'):
                 current_level = datapbdb['records'][0]['rank']
-                this_taxonomy[current_level] = datapbdb['records'][0]['taxon_name']
+                taxonomy[current_level] = datapbdb['records'][0]['taxon_name']
         except KeyError as e:
             pass
 
-    return this_taxonomy
+    return taxonomy
 
 def get_taxonomy_for_taxon_eol(taxon):
 
@@ -661,8 +656,6 @@ def get_taxonomy_for_taxon_eol(taxon):
        return taxonomy 
 
     return taxonomy
-
-
 
 def get_taxonomy_for_taxon_worms(taxon):
 
