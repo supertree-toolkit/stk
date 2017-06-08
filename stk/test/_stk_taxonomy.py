@@ -26,7 +26,7 @@ sys.path.insert(0,"../")
 import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-from stk_taxonomy import get_taxonomy_for_taxon_eol
+from stk_taxonomy import get_taxonomy_for_taxon_eol, get_taxonomy_for_taxon_itis
 from stk.stk_internals import internet_on
 from lxml import etree
 from util import *
@@ -126,6 +126,30 @@ class TestSTKTaxonomy(unittest.TestCase):
             taxon = "No chance!"
             expected = {}
             taxonomy = get_taxonomy_for_taxon_eol(taxon)
+            self.assertEqual(taxonomy, expected)
+
+        else:
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_for_taxon_eol function"
+        return
+
+    def test_get_taxonomy_for_taxon_itis(self):
+
+        if (internet_on()):
+            # Let's check an easy one!
+            taxon = "Gallus gallus"
+            expected = {'kingdom': 'Animalia', 'genus': 'Gallus', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'order': 'Galliformes', 'phylum': 'Chordata', 'superclass': 'Tetrapoda', 'species': 'Gallus gallus', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'subfamily': 'Phasianinae', 'class': 'Aves', 'provider': 'ITIS'}
+            taxonomy = get_taxonomy_for_taxon_itis(taxon)
+            self.assertEqual(taxonomy, expected)
+
+            # Now a subspecies
+            taxon = "Gallus gallus bankiva"
+            taxonomy = get_taxonomy_for_taxon_itis(taxon)
+            self.assertEqual(taxonomy, expected)
+
+            # Now a null value
+            taxon = "No chance!"
+            expected = {}
+            taxonomy = get_taxonomy_for_taxon_itis(taxon)
             self.assertEqual(taxonomy, expected)
 
         else:

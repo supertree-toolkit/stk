@@ -680,17 +680,19 @@ def get_taxonomy_for_taxon_worms(taxon):
     # get the taxonomy of this species
     classification = wsdlObjectWoRMS.getAphiaClassificationByID(taxon_id)
     # construct array
-    tax_array = {}
+    taxonomy = {}
     if (classification == ""):
         return {}
     # classification is a nested dictionary, so we need to iterate down it
     current_child = classification.child
+    taxonomy['provider'] = 'WoRMS'
     while True:
-        tax_array[current_child.rank.lower()] = current_child.scientificname
-        current_child = current_child.child
-        if current_child == '': # empty one is a string for some reason
-            break
-    return tax_array
+        if current_child.rank.lower() in taxonomy_levels:
+            taxonomy[current_child.rank.lower()] = current_child.scientificname
+            current_child = current_child.child
+            if current_child == '': # empty one is a string for some reason
+                break
+    return taxonomy
 
 
 def get_taxonomy_for_taxon_itis(taxon):
@@ -721,13 +723,14 @@ def get_taxonomy_for_taxon_itis(taxon):
     string = unicode(f.read(),"ISO-8859-1")
     data = json.loads(string)
     # construct array
-    this_taxonomy = {}
+    taxonomy = {}
+    taxonomy['provider'] = 'ITIS'    
     for level in data['hierarchyList']:
         if level['rankName'].lower() in taxonomy_levels:
             # note the dump into ASCII            
-            this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
+            taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
 
-    return this_taxonomy
+    return taxonomy
 
 
 
