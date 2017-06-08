@@ -2,7 +2,7 @@
 #
 #    Supertree Toolkit. Software for managing and manipulating sources
 #    trees ready for supretree construction.
-#    Copyright (C) 2013, Jon Hill, Katie Davis
+#    Copyright (C) 2017, Jon Hill, Katie Davis
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,7 +17,19 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#    Jon Hill. jon.hill@imperial.ac.uk. 
+#    Jon Hill. jon.hill@york.ac.uk
+"""stk_taxonomy
+
+This module contains the taxonomy-processing and getting functions in the STK.
+Most of these are not user-facing unless they are writing their own scripts.
+The functions are generally called by the main supertree_toolkit functions and
+require a taxonomy of some kind. 
+
+Taxonomy is stored as a dictionary. I/O is done in a CSV file.
+
+Most functions return the taxonomy dictionary.
+
+"""
 from StringIO import StringIO
 import os
 import sys
@@ -556,4 +568,90 @@ def create_extended_taxonomy(taxonomy, starttime, verbose=False, ignoreWarnings=
                         taxonomy[t].update(this_taxonomy)
 
     return taxonomy
+
+
+
+def tree_from_taxonomy(top_level, tree_taxonomy):
+    """ Create a tree from a taxonomy hash. Supply the starting level (e.g. Order) and the taxonomy.
+        Will only work if most of the taxonomic information is filled in, but will search 2 levels up to complete 
+        the taxonomy if required
+        Returns: tree string
+    """
+    from ete2 import Tree
+    
+    start_level = taxonomy_levels.index(top_level)
+    new_taxa = tree_taxonomy.keys()
+
+    tl_types = []
+    for tt in tree_taxonomy:
+        tl_types.append(tree_taxonomy[tt][top_level])
+
+    tl_types = stk_internals._uniquify(tl_types)
+    levels_to_worry_about = taxonomy_levels[0:taxonomy_levels.index(top_level)+1]
+        
+    t = Tree()
+    nodes = {}
+    nodes[top_level] = []
+    for tl in tl_types:
+        n = t.add_child(name=tl)
+        nodes[top_level].append({tl:n})
+
+    for l in levels_to_worry_about[-2::-1]:
+        names = []
+        nodes[l] = []
+        ci = levels_to_worry_about.index(l)
+        for tt in tree_taxonomy:
+            try:
+                names.append(tree_taxonomy[tt][l])
+            except KeyError:
+                pass
+        names = stk_internals._uniquify(names)
+        for n in names:
+            # find my parent
+            parent = None
+            for tt in tree_taxonomy:
+                try:
+                    if tree_taxonomy[tt][l] == n:
+                        for jj in range(1,len(taxonomy_levels)-ci+1): # rest of taxonomy levels available
+                            try:
+                                parent = tree_taxonomy[tt][levels_to_worry_about[ci+jj]]
+                                level = ci+jj
+                                break # break the loop and jj get fixed < len(taxonomy_levels)-ci+1
+                            
+                            except KeyError: # this will loop until we find something
+                                pass
+                       
+                            if jj == len(taxonomy_levels)-ci+1: # we completed the loop and found nothing!
+                                print "ERROR: tried to find some taxonomic info for "+tt+" from tree_taxonomy file/downloaded data."
+                                print "I went a few levels up, but failed find any info."
+                                print "This is the taxonomy info I have for "+tt
+                                print tree_taxonomy[tt]
+                                sys.exit(1)
+
+                        k = []
+                        for nd in nodes[levels_to_worry_about[level]]:
+                            k.extend(nd.keys())
+                        i = 0
+                        for kk in k:
+                            if kk == parent:
+                                break
+                            i += 1
+                        parent_id = i
+                        break
+                except KeyError:
+                    pass # no data at this level for this beastie
+            # find out where to attach it
+            node_id = nodes[levels_to_worry_about[level]][parent_id][parent]
+            nd = node_id.add_child(name=n.replace(" ","_"))
+            nodes[l].append({n:nd})
+
+    tree = t.write(format=9)  
+    tree = stk_internals._collapse_nodes(tree)
+    tree = stk_internals._collapse_nodes(tree)
+    tree = stk_internals._collapse_nodes(tree)
+    
+
+    
+    return tree
+
 
