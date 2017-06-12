@@ -572,31 +572,32 @@ def get_taxonomy_for_taxon_eol(taxon):
 
 def get_taxonomy_for_taxon_worms(taxon):
 
-    from SOAPpy import WSDL    
-    wsdlObjectWoRMS = WSDL.Proxy('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
+    import zeep
 
-    taxon_data = wsdlObjectWoRMS.getAphiaRecords(taxon.replace('_',' '))
-    if taxon_data == None:
+    wsdlObjectWoRMS = zeep.Client(wsdl='http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
+
+    taxon_data = wsdlObjectWoRMS.service.getAphiaRecords(taxon.replace('_',' '), like='false', fuzzy='false', marine_only='false', offset=0)
+    if len(taxon_data) == 0:
         return {}
 
     taxon_id = taxon_data[0]['valid_AphiaID'] # there might be records that aren't valid - they point to the valid one though
     # call it again via the ID this time to make sure we've got the right one.
-    taxon_data = wsdlObjectWoRMS.getAphiaRecordByID(taxon_id)
+    taxon_data = wsdlObjectWoRMS.service.getAphiaRecordByID(taxon_id)
     # add data to taxonomy dictionary
     # get the taxonomy of this species
-    classification = wsdlObjectWoRMS.getAphiaClassificationByID(taxon_id)
+    classification = wsdlObjectWoRMS.service.getAphiaClassificationByID(taxon_id)
     # construct array
     taxonomy = {}
     if (classification == ""):
         return {}
     # classification is a nested dictionary, so we need to iterate down it
-    current_child = classification.child
+    current_child = classification["child"]
     taxonomy['provider'] = 'WoRMS'
     while True:
-        if current_child.rank.lower() in taxonomy_levels:
-            taxonomy[current_child.rank.lower()] = current_child.scientificname
-        current_child = current_child.child
-        if current_child == '': # empty one is a string for some reason
+        if current_child['rank'].lower() in taxonomy_levels:
+            taxonomy[current_child['rank'].lower()] = current_child['scientificname']
+        current_child = current_child['child']
+        if current_child['rank'] == None: 
             break
     return taxonomy
 
@@ -840,41 +841,42 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
 
 def get_taxonomy_worms(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
     """ Gets and processes a taxon from the queue to get its taxonomy."""
-    from SOAPpy import WSDL    
+    import zeep 
 
-    wsdlObjectWoRMS = WSDL.Proxy('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
+    wsdlObjectWoRMS = zeep.Client('http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
 
     # this is the recursive function
     def get_children(taxonomy, ID, aphiaIDsDone):
 
         # get data
-        this_item = wsdlObjectWoRMS.getAphiaRecordByID(ID)
+        this_item = wsdlObjectWoRMS.service.getAphiaRecordByID(ID)
         if this_item == None:
             return taxonomy
         if not this_item['status'].lower() == 'accepted':
-            print "rejecting " , this_item.valid_name
+            if verbose:
+                print "rejecting " , this_item['scientificname']
             return taxonomy        
         if this_item['rank'].lower() == 'species':
             # add data to taxonomy dictionary
-            taxon = this_item.valid_name
+            taxon = this_item['valid_name']
             # NOTE following line means existing items are *not* updated
             if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
                 # get the taxonomy of this species
-                classification = wsdlObjectWoRMS.getAphiaClassificationByID(ID)
+                classification = wsdlObjectWoRMS.service.getAphiaClassificationByID(ID)
                 # construct array
                 tax_array = {}
                 # classification is a nested dictionary, so we need to iterate down it
-                current_child = classification.child
+                current_child = classification['child']
                 while True:
-                    if taxonomy_levels.index(current_child.rank.lower()) <= taxonomy_levels.index(start_taxonomy_level):
-                        # we need this - we're closer to the tips of the tree than we started                    
-                        tax_array[current_child.rank.lower()] = current_child.scientificname
-                    current_child = current_child.child
-                    if current_child == '': # empty one is a string for some reason
+                    if taxonomy_levels.index(current_child['rank'].lower()) <= taxonomy_levels.index(start_taxonomy_level):
+                        # we need this - we're closer to the tips of the tree than we started
+                        tax_array[current_child['rank'].lower()] = current_child['scientificname']
+                    current_child = current_child['child']
+                    if current_child['rank'] == None: 
                         break
                 if verbose:
                     print "\tAdding "+this_item.scientificname
-                taxonomy[this_item.valid_name] = tax_array
+                taxonomy[this_item['valid_name']] = tax_array
                 if not tmpfile == None:
                     stk.save_taxonomy(taxonomy,tmpfile)
                 return taxonomy
@@ -884,7 +886,7 @@ def get_taxonomy_worms(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
         all_children = []
         start = 1
         while True:
-            children = wsdlObjectWoRMS.getAphiaChildrenByID(ID, start, False)
+            children = wsdlObjectWoRMS.service.getAphiaChildrenByID(ID, start, False)
             if (children is None or children == None):
                 break
             if (len(children) < 50):
@@ -897,24 +899,25 @@ def get_taxonomy_worms(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
             return taxonomy
 
         for child in all_children:
+            if child['valid_AphiaID'] == None:
+                continue
             if child['valid_AphiaID'] in aphiaIDsDone: # we get stuck sometime
                 continue
             aphiaIDsDone.append(child['valid_AphiaID'])
             taxonomy = get_children(taxonomy, child['valid_AphiaID'], aphiaIDsDone)
-            
         return taxonomy
             
 
     # main bit of the get_taxonomy_worms function
     try:
-        start_taxa = wsdlObjectWoRMS.getAphiaRecords(start_otu)
+        start_taxa = wsdlObjectWoRMS.service.getAphiaRecords(start_otu.replace('_',' ') , like='false', fuzzy='false', marine_only='false', offset=0)
+        if len(start_taxa) == 0:
+            return {}
+
         start_id = start_taxa[0]['valid_AphiaID'] # there might be records that aren't valid - they point to the valid one though
         # call it again via the ID this time to make sure we've got the right one.
-        start_taxa = wsdlObjectWoRMS.getAphiaRecordByID(start_id)
-        if start_taxa == None:
-            start_taxonomy_level = 'infraorder'
-        else:
-            start_taxonomy_level = start_taxa['rank'].lower()
+        start_taxa = wsdlObjectWoRMS.service.getAphiaRecordByID(start_id)
+        start_taxonomy_level = start_taxa['rank'].lower()
     except urllib2.HTTPError:
         print "Error finding start_otu taxonomic level. Do you have an internet connection?"
         sys.exit(-1)
