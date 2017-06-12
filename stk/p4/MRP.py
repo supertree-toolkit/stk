@@ -120,8 +120,8 @@ def mrp(trees, taxNames=None):
         t.taxBits = x
 
     if nSplits == 0:
-        for t in trees:
-            t.write()
+        #for t in trees:
+        #    t.write()
         gm = ["mrp().  No splits were found in the input trees."]
         gm.append("That does not work.")
         raise Glitch, gm

@@ -34,6 +34,230 @@ Similar returns are typically a tree_string or list of these.
 import stk.p4 as p4
 import re
 import stk_exceptions as excp
+import stk_internals
+from cStringIO import StringIO
+import string
+import stk.p4.MRP as MRP
+import numpy
+
+
+def import_trees(filename):
+    """ Return an array of all trees in a file. 
+        All formats are supported that we've come across
+        but submit a bug if a (common-ish) tree file shows up that can't be
+        parsed.
+    """
+    f = open(filename)
+    content = f.read() # read entire file into memory
+    f.close()    
+
+    # translate to ascii
+    content = str(stk_internals.replace_utf(content))
+    
+    # Need to add checks on the file. Problems include:
+# TNT: outputs Phyllip format or something - basically a Newick
+# string without commas, so add 'em back in
+    m = re.search(r'proc.;', content)
+    if (m != None):
+        # TNT output tree
+        # Done on a Mac? Replace ^M with a newline
+        content = string.replace( content, '\r', '\n' )
+        h = StringIO(content)
+        counter = 1
+        content  = "#NEXUS\n"
+        content += "begin trees;\n"
+        add_to = False
+        for line in h:
+            if (line.startswith('(')):
+                add_to = True
+            if (line.startswith('proc') and add_to):
+                add_to = False
+                break
+            if (add_to):
+                line = line.strip() + ";"
+                if line == ";":
+                    continue
+                m = re.findall("([a-zA-Z0-9_\.]+)\s+([a-zA-Z0-9_\.]+)", line)
+                treedata = line
+                for i in range(0,len(m)):
+                    treedata = re.sub(m[i][0]+"\s+"+m[i][1],m[i][0]+", "+m[i][1],treedata)
+                m = re.findall("([a-zA-Z0-9_\.]+)\s+([a-zA-Z0-9_\.]+)", treedata)
+                for i in range(0,len(m)):
+                    treedata = re.sub(m[i][0]+"\s+"+m[i][1],m[i][0]+","+m[i][1],treedata)
+                m = re.findall("(\))\s*(\()", treedata)
+                if (m != None):
+                    for i in range(0,len(m)):
+                        treedata = re.sub("(\))\s*(\()",m[i][0]+", "+m[i][1],treedata,count=1)
+                m = re.findall("([a-zA-Z0-9_\.]+)\s*(\()", treedata)
+                if (m != None):
+                    for i in range(0,len(m)):
+                        treedata = re.sub("([a-zA-Z0-9_\.]+)\s*(\()",m[i][0]+", "+m[i][1],treedata,count=1)
+                m = re.findall("(\))\s*([a-zA-Z0-9_\.]+)", treedata)
+                if (m != None):
+                    for i in range(0,len(m)):
+                        treedata = re.sub("(\))\s*([a-zA-Z0-9_\.]+)",m[i][0]+", "+m[i][1],treedata,count=1)
+                # last swap - no idea why, but some times the line ends in '*'; remove it
+                treedata = treedata.replace('*;',';')
+                treedata = treedata.replace(';;',';')
+                treedata += "\n"
+                treedata = "\ntree tree_"+str(counter)+" = [&U] " + treedata
+                counter += 1
+                content += treedata
+
+        content += "\nend;\n"
+
+# TreeView (Page, 1996):
+# TreeView create a tree with the following description:
+#
+#   UTREE * tree_1 = ((1,(2,(3,(4,5)))),(6,7));
+# UTREE * is not a supported part of the NEXUS format.
+# so we need to replace the above with:
+#   tree_1 = [&u] ((1,(2,(3,(4,5)))),(6,7));
+#
+    m = re.search(r'\UTREE\s?\*\s?(.+)\s?=\s', content)
+    if (m != None):
+        treedata = re.sub("\UTREE\s?\*\s?(.+)\s?=\s","tree "+m.group(1)+" = [&u] ", content)
+        content = treedata
+# Now check for Macclade. easy to spot, has MacClade in the text
+# MacClade has a whole heap of other stuff, we just want the tree...
+# Mesquite is similar, but need more processing - see later
+    m = re.search(r'MacClade',content)
+    if (m!=None):
+        # Done on a Mac? Replace ^M with a newline
+        content = string.replace( content, '\r', '\n' )
+        h = StringIO(content)
+        content  = "#NEXUS\n"
+        add_to = False
+        for line in h:
+            if (line.startswith('BEGIN TREES')):
+                add_to = True
+            if (add_to):
+                content += line
+            if (line.startswith('END') and add_to):
+                add_to = False
+                break
+        # tidy up and remove the *
+        content = string.replace( content, '* ', '')
+
+# Mesquite is similar to MacClade, but need more processing
+    m = re.search(r'Mesquite',content)
+    if (m!=None):
+        # Done on a Mac? Replace ^M with a newline
+        content = string.replace( content, '\r', '\n' )
+        h = StringIO(content)
+        content  = "#NEXUS\n"
+        add_to = False
+        for line in h:
+            if (line.startswith('BEGIN TREES')):
+                add_to = True
+            if (add_to):
+                # do not add the LINK line
+                mq = re.search(r'LINK',line)
+                if (mq == None):
+                    content += line
+            if (line.startswith('END') and add_to):
+                add_to = False
+                break
+
+# Dendroscope produces non-Nexus trees. but the tree is easy to pick out
+#{TREE 'tree_1'
+#((Taxon_c:1.0,(Taxon_a:1.0,Taxon_b:1.0):1.0):0.5,(Taxon_d:1.0,Taxon_e:1.0):0.5);
+#}
+    m = re.search(r'#DENDRO',content)
+    if (m!=None):
+        h = StringIO(content)
+        content = "#NEXUS\n"
+        content += "begin trees;\ntree tree_1 = [&U] "
+        add_to = False
+        for line in h:
+            if (line.startswith('}') and add_to):
+                add_to = False
+            if (add_to):
+                content += line+"\n"
+            if (line.startswith('{TREE')):
+                add_to = True
+        content += "\nend;"
+        #remove nodal branch lengths
+        content = re.sub("\):\d.\d+","):0.0", content)
+
+# Comments. This is p4's issue as it uses glob.glob to find out if
+# the incoming "thing" is a file or string. Comments in nexus files are
+# [ ], which in glob.glob means something, so we need to delete content
+# that is between the [] before passing to p4. We're going to cheat and 
+# just pull out the tree
+    m = re.search(r'\[\!',content)
+    if (m!=None):
+        h = StringIO(content)
+        content = "#NEXUS\n"
+        content += "begin trees;\n"
+        add_to = False
+        for line in h:
+            if (line.strip().lower().startswith('end')):
+                add_to = False
+            if (line.strip().lower().startswith('tree')):
+                add_to = True
+            if (line.strip().lower().startswith('translate')):
+                add_to=True
+            if (add_to):
+                content += line+"\n"
+        content += "\nend;"
+
+    treedata = content
+    trees = parse_trees(treedata)
+    r_trees = []
+    for t in trees:
+        tree = correctly_quote_taxa(t.writeNewick(fName=None,toString=True).strip())
+        r_trees.append(tree)
+
+    return r_trees
+
+
+def import_tree(filename, gui=False, tree_no = -1):
+    """Takes a NEXUS formatted file and returns a list containing the tree
+    strings"""
+    
+    import gtk
+  
+    trees = import_trees(filename)
+    if (len(trees) == 1):
+        tree_no = 0
+
+    if (len(trees) > 1 and tree_no == -1):
+        message = "Found "+str(len(trees))+" trees. Which one do you want to load (1-"+str(len(trees))+")?"
+        if (not gui):
+            tree_no = int(raw_input(message))
+            # assume the user counts from 1 to n
+            tree_no -= 1
+        else:
+            #base this on a message dialog
+            dialog = gtk.MessageDialog(
+		        None,
+		        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+		        gtk.MESSAGE_QUESTION,
+		        gtk.BUTTONS_OK,
+		        None)
+            dialog.set_markup(message)
+            #create the text input field
+            entry = gtk.Entry()
+            #allow the user to press enter to do ok
+            #responseToDialog = 0
+            #entry.connect("activate", responseToDialog, dialog, gtk.RESPONSE_OK)
+            #create a horizontal box to pack the entry and a label
+            hbox = gtk.HBox()
+            hbox.pack_start(gtk.Label("Tree number:"), False, 5, 5)
+            hbox.pack_end(entry)
+            #add it and show it
+            dialog.vbox.pack_end(hbox, True, True, 0)
+            dialog.show_all()
+            #go go go
+            dialog.run()
+            text = entry.get_text()
+            dialog.destroy()
+            tree_no = int(text) - 1
+    
+    tree = trees[tree_no]
+    return tree
+
 
 def collapse_nodes(in_tree):
     """ Collapses nodes where the siblings are actually the same
@@ -197,8 +421,8 @@ def assemble_tree_matrix(tree_string, verbose=False):
             adjmat.append(chars)
 
         adjmat = numpy.array(adjmat)
-    except p4.Glitch:
-        names = _getTaxaFromNewick(tree_string)
+    except p4.Glitch as e:
+        names = getTaxa(tree_string)
         adjmat = []
         for i in range(0,len(names)):
             adjmat.append([1])
@@ -208,6 +432,132 @@ def assemble_tree_matrix(tree_string, verbose=False):
         print "Warning: Found uninformative tree in data. Including it in the matrix anyway"
 
     return adjmat, names
+
+
+def permute_tree(tree,matrix="hennig",treefile=None,verbose=False):
+    """ Permute a tree where there is uncertianty in taxa location.
+    Output either a tree file or matrix file of all possible 
+    permutations.
+
+    Note this is a recursive algorithm.
+    """
+
+    # check format strings
+
+    permuted_trees = {} # The output of the recursive permute algorithm
+    output_string = "" # what we pass back
+    tree = correctly_quote_taxa(tree)
+
+    # first thing is to get hold of the unique taxa names
+    # i.e. without % on them
+    tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\=\.\? ]*) (?P<taxon2>[a-zA-Z0-9_\+\=\.\? %]*)'","\g<taxon>_\g<taxon2>",tree)
+
+    all_taxa = getTaxa(tree)
+
+    names_d = [] # our duplicated list of names
+    names = [] # our unique names (without any %)
+    for name in all_taxa:
+        if ( not name.find('%') == -1 ):
+            # strip number and %
+            name = name[0:name.find('%')]
+            names_d.append(name)
+            names.append(name)
+        else:
+            names.append(name)
+    # we now uniquify these arrays
+    names_d_unique = stk_internals.uniquify(names_d)
+    names_unique = stk_internals.uniquify(names)
+    names = []
+    names_d = []
+    non_unique_numbers = []
+    # count the number of each of the non-unique taxa
+    for i in range(0,len(names_unique)):
+        count = 0
+        for name in all_taxa:
+            if not name.find('%') == -1:
+                name = name[0:name.find('%')]
+                if name == names_unique[i]:
+                    count += 1
+        non_unique_numbers.append(count)
+
+    total = 1
+    for n in non_unique_numbers:
+        if (n > 0):
+            total = total * n
+
+    if (verbose):
+        print "This tree requires a of "+str(total)+ " permutations"
+
+    trees_saved = []
+    # I hate recursive functions, but it actually is the
+    # best way to do this.
+    # We permute until we have replaced all % taxa with one of the
+    # possible choices, then we back ourselves out, swapping taxa
+    # in and out until we hit all permutations and pop out
+    # of the recursion
+    # Note: scope of variables in nested functions here (another evil thing)
+    # Someone more intelligent than me should rewrite this so it's
+    # easier to follow.
+    def _permute(n,temp):
+    
+        tempTree = temp
+
+        if ( n < len(names_unique) and non_unique_numbers[n] == 0 ):
+            _permute( ( n + 1 ), tempTree );
+        else:
+            if ( n < len(names_unique) ):
+                for i in range(1,non_unique_numbers[n]+1):
+                    tempTree = temp;
+                    taxa = getTaxa(tree)
+                    # iterate over nodes
+                    for name in taxa:
+                        index = name.find('%')
+                        short_name = name[0:index]
+                        current_unique_name = names_unique[n]
+                        current_unique_name = current_unique_name.replace(' ','_')
+                        if ( index > 0 and short_name == current_unique_name ):
+                            if ( not name == current_unique_name + "%" + str(i) ):
+                                tempTree = delete_taxon(name, tempTree)
+                    if ( n < len(names_unique) ):
+                        _permute( ( n + 1 ), tempTree )
+            else:
+                tempTree = re.sub('%\d+','',tempTree)
+                trees_saved.append(tempTree)
+
+    if (len(trees_saved) == 0):
+        # we now call the recursive function (above) to start the process
+        _permute(0,tree)
+
+    # check none are actually equal and store as dictionary
+    count = 1
+    for i in range(0,len(trees_saved)):
+        equal = False
+        for j in range(i+1,len(trees_saved)):
+            if (trees_equal(trees_saved[i],trees_saved[j])):
+                equal = True
+                break
+        if (not equal):
+            permuted_trees["tree_"+str(count)] = trees_saved[i]
+            count += 1
+            
+
+    # out pops a dictionary of trees - either amalgamte in a single treefile (same taxa)
+    # or create a matrix.
+    if (treefile == None):
+        # create matrix
+        # taxa are all the same in each tree
+        taxa = []
+        taxa.append("MRP_Outgroup")
+        taxa.extend(names_unique)
+        output_string = create_matrix(permuted_trees,taxa,format=matrix)
+    else:
+        output_string = amalgamate_trees(permuted_trees,format=treefile) 
+
+    # Either way we output a string that the caller can save or display or pass to tnt, or burn;
+    # it's up to them, really.
+    return output_string
+
+
 
 def sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
     """Swap the taxa in the old_taxa array for the ones in the
@@ -249,11 +599,11 @@ def sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
                         count += 1 
                 # we are deleting taxa - we might need multiple iterations
                 for t in range(0,count):
-                    tree = _delete_taxon(taxon, tree)
+                    tree = delete_taxon(taxon, tree)
 
             else:
                 # we are substituting
-                tree = _sub_taxon(taxon, new_taxa[i], tree, skip_existing=skip_existing)
+                tree = sub_taxon(taxon, new_taxa[i], tree, skip_existing=skip_existing)
         i += 1
 
     tree = _collapse_nodes(tree)
@@ -345,7 +695,7 @@ def sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
 
     import csv
 
-    taxa_in_tree = _getTaxaFromNewick(tree)
+    taxa_in_tree = getTaxa(tree)
     # we might have to add quotes back in
     for i in range(0,len(taxa_in_tree)):
         m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', taxa_in_tree[i])
@@ -361,7 +711,7 @@ def sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
     # remove duplicates in the new taxa
     for row in csv.reader([new_taxon],delimiter=',', quotechar="'"):
         taxa = row
-    taxa = _uniquify(taxa)
+    taxa = stk_internals.uniquify(taxa)
  
     # we might have to add quotes back in
     for i in range(0,len(taxa)):
@@ -392,7 +742,7 @@ def sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
 
     if (len(new_taxon) == 0):
         # we need to delete instead
-        return _delete_taxon(old_taxon,tree)
+        return delete_taxon(old_taxon,tree)
 
     old_taxon = re.escape(old_taxon)    
     # check old taxon isn't quoted
@@ -414,7 +764,7 @@ def sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
     # we might now need a final collapse - e.g. we might get ...(taxon1,taxon2),... due
     # to replacements, but they didn't collapse, so let's do this
     for i in range(10): # do at most 10 iterations
-        new_tree = _collapse_nodes(new_tree)
+        new_tree = collapse_nodes(new_tree)
 
     return new_tree
 
@@ -454,7 +804,7 @@ def remove_single_poly_taxa(tree):
     """ Count the numbers after % in taxa names """
 
     try:
-        taxa = _getTaxaFromNewick(tree)
+        taxa = getTaxa(tree)
     except excp.TreeParseError:
         return tree
 
@@ -477,7 +827,7 @@ def remove_single_poly_taxa(tree):
     
     return tree
 
-def getTaxaFromNewick(tree):
+def getTaxa(tree):
     """ Get the terminal nodes from a Newick string"""
 
     t_obj = parse_tree(tree)
@@ -509,7 +859,7 @@ def create_matrix(trees, taxa, format="hennig", quote=False, weights=None, verbo
         if (not weights == None):
             weight = weights[key]
         names.append(key)
-        submatrix, tree_taxa = _assemble_tree_matrix(trees[key], verbose=verbose)
+        submatrix, tree_taxa = assemble_tree_matrix(trees[key], verbose=verbose)
         nChars = len(submatrix[0,:])
         # loop over characters in the submatrix
         for i in range(1,nChars):
@@ -554,7 +904,7 @@ def create_matrix(trees, taxa, format="hennig", quote=False, weights=None, verbo
         matrix_string += "\n"
         if (not weights == None):
             # get unique weights
-            unique_weights = _uniquify(weights)
+            unique_weights = stk_internals.uniquify(weights)
             for uw in unique_weights:
                 # The float for the weight cannot start with 0, even if it's 0.5
                 # so we strip of the 0 to make .5 instead (lstrip). TNT is weird with formats...
