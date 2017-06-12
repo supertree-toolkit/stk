@@ -5,4 +5,3 @@ simplejson
 pygraphviz
 numpy
 ete2
-soappy
