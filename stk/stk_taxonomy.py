@@ -40,6 +40,7 @@ from collections import defaultdict
 import stk.p4 as p4
 import stk.p4.MRP as MRP
 import stk_internals
+import stk_trees
 import Queue
 import threading
 import urllib2
@@ -129,7 +130,7 @@ def taxonomic_checker(name_list,existing_data=None,verbose=False):
                 if (s['relationship'] == "synonym"):
                     ts = ts.replace(" ","_")
                     synonyms.append(ts)
-            synonyms = stk_internals._uniquify(synonyms)
+            synonyms = stk_internals.uniquify(synonyms)
             # we need to put the correct name at the top of the list now
             if (correct_name in synonyms):
                 synonyms.insert(0, synonyms.pop(synonyms.index(correct_name)))
@@ -395,7 +396,7 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
     for tt in tree_taxonomy:
         tl_types.append(tree_taxonomy[tt][top_level])
 
-    tl_types = stk_internals._uniquify(tl_types)
+    tl_types = stk_internals.uniquify(tl_types)
     levels_to_worry_about = taxonomy_levels[0:taxonomy_levels.index(top_level)+1]
         
     t = Tree()
@@ -414,7 +415,7 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
                 names.append(tree_taxonomy[tt][l])
             except KeyError:
                 pass
-        names = stk_internals._uniquify(names)
+        names = stk_internals.uniquify(names)
         for n in names:
             # find my parent
             parent = None
@@ -455,9 +456,9 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
             nodes[l].append({n:nd})
 
     tree = t.write(format=9)  
-    tree = stk_internals._collapse_nodes(tree)
-    tree = stk_internals._collapse_nodes(tree)
-    tree = stk_internals._collapse_nodes(tree)
+    tree = stk_trees.collapse_nodes(tree)
+    tree = stk_trees.collapse_nodes(tree)
+    tree = stk_trees.collapse_nodes(tree)
         
     return tree
 
@@ -525,7 +526,6 @@ def get_taxonomy_for_taxon_eol(taxon):
     TID = str(data['taxonConcepts'][0]['identifier']) # take first hit
     # Note EOL can have other databases as sources, so we use that as the provider
     currentdb = str(data['taxonConcepts'][0]['nameAccordingTo'])
-    # loop through and get preferred one if specified
     # now get taxonomy        
     for db in data['taxonConcepts']:
         currentdb = db['nameAccordingTo'].lower()
@@ -639,8 +639,8 @@ def get_taxonomy_for_taxon_itis(taxon):
     return taxonomy
 
 
-
-def get_taxonomy_eol(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
+# retuns any fossil taxa too. Can't turn this off.
+def get_taxonomy_eol(taxonomy, start_otu, verbose=False, tmpfile=None, skip=False):
         
     # this is the recursive function
     def get_children(taxonomy, ID, aphiaIDsDone):
@@ -653,28 +653,35 @@ def get_taxonomy_eol(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
         string = unicode(f.read(),"ISO-8859-1")
         this_item = json.loads(string)
         if this_item == None:
-            return taxonomy  
-        if this_item['taxonRank'].lower().strip() == 'species':
-            # add data to taxonomy dictionary
-            taxon = this_item['scientificName'].split()[0:2] # just the first two words
-            taxon = " ".join(taxon[0:2])
-            # NOTE following line means existing items are *not* updated
-            if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
-                this_taxonomy = {}
-                for level in this_item['ancestors']:
-                    if level['taxonRank'].lower() in taxonomy_levels:
-                        # note the dump into ASCII            
-                        this_taxonomy[level['taxonRank'].lower().encode("ascii","ignore")] = level['scientificName'].encode("ascii","ignore")
-                # add species:
-                this_taxonomy['species'] = taxon.replace(" ","_")
-                if verbose:
-                    print "\tAdding "+taxon
-                taxonomy[taxon] = this_taxonomy
-                if not tmpfile == None:
-                    stk.save_taxonomy(taxonomy,tmpfile)
-                return taxonomy
-            else:
-                return taxonomy
+            return taxonomy 
+        try:
+            if this_item['taxonRank'].lower().strip() == 'species':
+                # add data to taxonomy dictionary
+                taxon = this_item['scientificName'].split()[0:2] # just the first two words
+                taxon = " ".join(taxon[0:2])
+                # NOTE following line means existing items are *not* updated
+                if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
+                    this_taxonomy = {}
+                    for level in this_item['ancestors']:
+                        if level['taxonRank'].lower() in taxonomy_levels:
+                            # note the dump into ASCII            
+                            temp_name = level['scientificName'].encode("ascii","ignore").split(" ")
+                            temp_name = temp_name[0]
+                            this_taxonomy[level['taxonRank'].lower().encode("ascii","ignore")] = temp_name
+                    # add species:
+                    this_taxonomy['species'] = taxon.encode("ascii","ignore").replace("_"," ")
+                    this_taxonomy['provider'] = 'EOL'
+                    if verbose:
+                        print "\tAdding "+taxon
+                    taxonomy[taxon.encode("ascii","ignore")] = this_taxonomy
+                    if not tmpfile == None:
+                        stk.save_taxonomy(taxonomy,tmpfile)
+                    return taxonomy
+                else:
+                    return taxonomy
+        except KeyError:
+            pass
+
         all_children = []
         for level in this_item['children']:
             if not level == None:
@@ -698,18 +705,24 @@ def get_taxonomy_eol(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
     opener = urllib2.build_opener()
     f = opener.open(req)
     data = json.load(f)
-    start_id = str(data['results'][0]['id']) # this is the page ID. We get the species ID next
-    URL = "http://eol.org/api/pages/1.0/"+start_id+".json"
-    req = urllib2.Request(URL)
-    opener = urllib2.build_opener()
-    f = opener.open(req)
-    data = json.load(f)
-    if len(data['taxonConcepts']) == 0:
-        print "Error finding you start taxa. Spelling?"
-        return None  
-    start_id = data['taxonConcepts'][0]['identifier']
-    start_taxonomy_level = data['taxonConcepts'][0]['taxonRank'].lower()
+    highest_rank = taxonomy_levels.index('species')
+    high_level_start_id = 0000000
+    # ignores pages. FIXME
+    for ids in range(0,data['totalResults']):
+        start_id = str(data['results'][ids]['id']) # this is the page ID. We get the OTU ID next
+        URL = "http://eol.org/api/pages/1.0/"+start_id+".json"
+        req = urllib2.Request(URL)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        data2 = json.load(f)
+        if len(data2['taxonConcepts']) == 0:
+            continue
+        start_id = data2['taxonConcepts'][0]['identifier']
+        start_taxonomy_level = data2['taxonConcepts'][0]['taxonRank'].lower()
+        if taxonomy_levels.index(start_taxonomy_level) > highest_rank:
+            high_level_start_id = start_id
 
+    start_id = high_level_start_id
     aphiaIDsDone = []
     if not skip:
         taxonomy = get_children(taxonomy,start_id,aphiaIDsDone)

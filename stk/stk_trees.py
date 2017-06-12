@@ -32,8 +32,47 @@ Similar returns are typically a tree_string or list of these.
 
 
 import stk.p4 as p4
+import re
+import stk_exceptions as excp
 
+def collapse_nodes(in_tree):
+    """ Collapses nodes where the siblings are actually the same
+        taxon, denoted by taxon1, taxon2, etc
+    """
 
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)  
+    try:
+        tree = parse_tree(modified_tree,fixDuplicateTaxa=True)
+    except excp.TreeParseError:
+        tree = ""
+        return tree
+    taxa = tree.getAllLeafNames(0)
+    
+    for t in taxa:
+        # we might have removed the current taxon in a previous loop
+        try:
+            siblings = get_all_siblings(tree.node(t))
+        except p4.Glitch:
+            continue
+        m = re.match('([a-zA-Z0-9_\+\=\?\. ]*)%[0-9]+', t)
+        if (not m == None):
+            t = m.group(1)
+        for s in siblings:
+            orig_s = s
+            m = re.match('([a-zA-Z0-9_\+\=\?\. ]*)%[0-9]+', s)
+            if (not m == None):
+                s = m.group(1)
+            if t == s:
+                # remove this
+                tree.removeNode(tree.node(orig_s),alsoRemoveSingleChildParentNode=True,alsoRemoveBiRoot=False)
+
+    # Remove all the empty nodes we left laying around
+    tree.getPreAndPostOrderAboveRoot()
+    for n in tree.iterPostOrder():
+        if n.getNChildren() == 1 and n.isLeaf == 0:
+            tree.collapseNode(n)
+
+    return tree.writeNewick(fName=None,toString=True).strip()    
 
 def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, fill=False):
     """ Generates the taxonomy from a tree. Uses a similar method to the XML version but works directly on a string with the tree.
@@ -198,7 +237,7 @@ def sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
         taxon = taxon.replace(" ","_")
         if (tree_contains(taxon,tree)):
             if (new_taxa == None or new_taxa[i] == None):
-                p4tree = _parse_tree(tree) 
+                p4tree = parse_tree(tree) 
                 terminals = p4tree.getAllLeafNames(p4tree.root) 
                 count = 0
                 taxon_temp = taxon.replace("'","")
@@ -228,7 +267,7 @@ def tree_contains(taxon,tree):
 
     taxon = taxon.replace(" ","_")
     try:
-        tree = _parse_tree(tree) 
+        tree = parse_tree(tree) 
     except excp.TreeParseError:
         return False
     terminals = tree.getAllLeafNames(tree.root)
@@ -255,7 +294,7 @@ def delete_taxon(taxon, tree):
         return tree #raise exception?
 
     # Remove all the empty nodes we left laying around
-    tree_obj = _parse_tree(tree)    
+    tree_obj = parse_tree(tree)    
     tree_obj.getPreAndPostOrderAboveRoot()
     for n in tree_obj.iterPostOrder():
         if n.getNChildren() == 1 and n.isLeaf == 0:
@@ -386,7 +425,7 @@ def correctly_quote_taxa(tree):
     """
 
     # get taxa from tree
-    t_obj = _parse_tree(tree)
+    t_obj = parse_tree(tree)
     taxa = t_obj.getAllLeafNames(0)
 
     new_taxa = {}
@@ -410,45 +449,6 @@ def correctly_quote_taxa(tree):
         modified_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+look_for+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new+'\g<posttaxon>',modified_tree)
 
     return modified_tree
-
-def collapse_nodes(in_tree):
-    """ Collapses nodes where the siblings are actually the same
-        taxon, denoted by taxon1, taxon2, etc
-    """
-
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)  
-    try:
-        tree = _parse_tree(modified_tree,fixDuplicateTaxa=True)
-    except excp.TreeParseError:
-        tree = ""
-        return tree
-    taxa = tree.getAllLeafNames(0)
-    
-    for t in taxa:
-        # we might have removed the current taxon in a previous loop
-        try:
-            siblings = _get_all_siblings(tree.node(t))
-        except p4.Glitch:
-            continue
-        m = re.match('([a-zA-Z0-9_\+\=\?\. ]*)%[0-9]+', t)
-        if (not m == None):
-            t = m.group(1)
-        for s in siblings:
-            orig_s = s
-            m = re.match('([a-zA-Z0-9_\+\=\?\. ]*)%[0-9]+', s)
-            if (not m == None):
-                s = m.group(1)
-            if t == s:
-                # remove this
-                tree.removeNode(tree.node(orig_s),alsoRemoveSingleChildParentNode=True,alsoRemoveBiRoot=False)
-
-    # Remove all the empty nodes we left laying around
-    tree.getPreAndPostOrderAboveRoot()
-    for n in tree.iterPostOrder():
-        if n.getNChildren() == 1 and n.isLeaf == 0:
-            tree.collapseNode(n)
-
-    return tree.writeNewick(fName=None,toString=True).strip()    
 
 def remove_single_poly_taxa(tree):
     """ Count the numbers after % in taxa names """
@@ -480,7 +480,7 @@ def remove_single_poly_taxa(tree):
 def getTaxaFromNewick(tree):
     """ Get the terminal nodes from a Newick string"""
 
-    t_obj = _parse_tree(tree)
+    t_obj = parse_tree(tree)
     terminals = t_obj.getAllLeafNames(0)
     taxa = []
     for t in terminals:

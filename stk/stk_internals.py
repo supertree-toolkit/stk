@@ -23,7 +23,11 @@ import unicodedata
 import os
 import stk_exceptions as excp
 
-""" This file contains the internal functionality of the STK
+"""stk_internals
+
+This file contains some useful internal functionality of the STK
+
+They might be useful for other things, but not necessarily!
 """
 
 replacements =     {

@@ -170,15 +170,6 @@ def import_old_data(input_dir, verbose=False):
     return phyml
 
 
-def locate(pattern, root=os.curdir):
-    """Locate all files matching the pattern with the root dir and
-    all subdirectories
-    """
-    import fnmatch
-    for path, dirs, files in os.walk(os.path.abspath(root)):
-        for filename in fnmatch.filter(files,pattern):
-            yield os.path.join(path, filename)
-
 
 def convert_to_phyml_source(xml_root):
     """ Converts old STK XML to a new STK source XML block
