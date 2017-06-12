@@ -28,6 +28,7 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir,
 sys.path.insert(0, stk_path)
 from stk_taxonomy import get_taxonomy_for_taxon_eol, get_taxonomy_for_taxon_itis, get_taxonomy_for_taxon_worms, get_taxonomy_for_taxon_pbdb
 from stk_taxonomy import create_taxonomy_from_taxa, create_extended_taxonomy, load_taxonomy, tree_from_taxonomy, taxonomic_checker
+from stk_taxonomy import get_taxonomy_eol
 from stk.stk_internals import internet_on
 from stk.stk_trees import trees_equal
 from lxml import etree
@@ -200,6 +201,16 @@ class TestSTKTaxonomy(unittest.TestCase):
         else:
             print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_for_taxon_eol function"
         return
+
+
+    def test_get_taxonomy_eol(self):
+        taxonomy, start_level = get_taxonomy_eol({},'Balaenopteridae ', verbose=False)
+        self.assertEqual(start_level, 'family')
+
+
+    def test_get_taxonomy_eol(self):
+        taxonomy, start_level = get_taxonomy_eol({},'Balaenopteridae ', verbose=False)
+        self.assertEqual(start_level, 'family')
 
 
 if __name__ == '__main__':
