@@ -92,6 +92,10 @@ class TestInternals(unittest.TestCase):
         self.assertIn(os.path.join(cwd,"data","input","multiple_trees.tre"), files)
         self.assertIn(os.path.join(cwd,"data","input","mrca.tre"), files)
 
+    def test_removeNonAscii(self):
+        stringy = u"hello a\u00C6\u00D0b\u00FE\u2018c"
+        new_stringy = removeNonAscii(stringy)
+        self.assert_(new_stringy == "hello abc")
 
     
 if __name__ == '__main__':
