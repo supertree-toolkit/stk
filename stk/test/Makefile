@@ -7,6 +7,7 @@
 UNIT_TESTS = \
 _stk_taxonomy.py \
 _stk_util.py \
+_stk_trees.py \
 _stk_internals.py
 
 # default case (and test). Loop through all

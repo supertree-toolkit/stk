@@ -760,38 +760,6 @@ def read_matrix(filename):
     return matrix,taxa
 
 
-############################## NOT TESTED ##################
-
-
-def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, fill=False):
-    """ Generates the taxonomy from a tree. Uses a similar method to the XML version but works directly on a string with the tree.
-    :param tree: list of the taxa.
-    :type tree : list 
-    :param existing_taxonomy: list of the taxa.
-    :type existing_taxonomy: list 
-    :param pref_db: Gives priority to database. Seems it is unused.
-    :type pref_db: string 
-    :param verbose: Flag for verbosity.
-    :type verbose: boolean
-    :param ignoreWarnings: Flag for exception processing.
-    :type ignoreWarnings: boolean
-    :returns: the modified taxonomy
-    :rtype: dictionary
-    """
-    starttime = time.time()
-
-    if(existing_taxonomy is None) :
-        taxonomy = {}
-    else :
-        taxonomy = existing_taxonomy
-
-    taxa = get_taxa_from_tree_for_taxonomy(tree, pretty=True)
-    
-    taxonomy = create_taxonomy_from_taxa(taxa, taxonomy)
-    if fill:
-        taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings, pref_db)
-    
-    return taxonomy
 
 
 def parse_trees(tree_block):
@@ -839,6 +807,39 @@ def parse_tree(tree,fixDuplicateTaxa=False):
     return t
 
 
+############################## NOT TESTED ##################
+
+
+def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, fill=False):
+    """ Generates the taxonomy from a tree. Uses a similar method to the XML version but works directly on a string with the tree.
+    :param tree: list of the taxa.
+    :type tree : list 
+    :param existing_taxonomy: list of the taxa.
+    :type existing_taxonomy: list 
+    :param pref_db: Gives priority to database. Seems it is unused.
+    :type pref_db: string 
+    :param verbose: Flag for verbosity.
+    :type verbose: boolean
+    :param ignoreWarnings: Flag for exception processing.
+    :type ignoreWarnings: boolean
+    :returns: the modified taxonomy
+    :rtype: dictionary
+    """
+    starttime = time.time()
+
+    if(existing_taxonomy is None) :
+        taxonomy = {}
+    else :
+        taxonomy = existing_taxonomy
+
+    taxa = get_taxa_from_tree_for_taxonomy(tree, pretty=True)
+    
+    taxonomy = create_taxonomy_from_taxa(taxa, taxonomy)
+    if fill:
+        taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings, pref_db)
+    
+    return taxonomy
+
 
 def sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
     """Swap the taxa in the old_taxa array for the ones in the
@@ -847,7 +848,7 @@ def sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
     If the new_taxa array is missing, simply delete the old_taxa
     """
   
-    tree = _correctly_quote_taxa(tree)
+    tree = correctly_quote_taxa(tree)
     # are the input values lists or simple strings?
     if (isinstance(old_taxa,str)):
         old_taxa = [old_taxa]
@@ -887,13 +888,10 @@ def sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
                 tree = sub_taxon(taxon, new_taxa[i], tree, skip_existing=skip_existing)
         i += 1
 
-    tree = _collapse_nodes(tree)
-    tree = _remove_single_poly_taxa(tree)
+    tree = collapse_nodes(tree)
+    tree = remove_single_poly_taxa(tree)
 
     return tree 
-
-
-    return siblings
 
 
 def correctly_quote_taxa(tree):

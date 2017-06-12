@@ -4,13 +4,14 @@ import sys
 sys.path.insert(0,"../../")
 from stk.stk_trees import import_tree, import_trees, trees_equal, tree_contains, assemble_tree_matrix
 from stk.stk_trees import delete_taxon, sub_taxon, permute_tree, getTaxa, collapse_nodes
-from stk.stk_trees import get_all_siblings, read_matrix, parse_tree
+from stk.stk_trees import get_all_siblings, read_matrix, parse_tree, parse_trees, sub_taxa_in_tree
 import numpy
 import os
 from lxml import etree
 import stk.p4 as p4
 # our test dataset
 import tempfile
+import stk.stk_exceptions as excp
 
 standard_tre = "data/input/test_tree.tre"
 single_source_input = "data/input/single_source.phyml"
@@ -22,6 +23,41 @@ parser = etree.XMLParser(remove_blank_text=True)
 
 # Test the loading and saving of trees files in various forms
 class TestImportExportTree(unittest.TestCase):
+
+    def test_parse_tree(self):
+        tree = expected_tree
+        try:
+            t = parse_tree(tree)
+            self.assert_(True)
+        except excp.TreeParseError:
+            self.assert_(False)
+
+    
+    def test_parse_tree_fail(self):
+        tree = "dvqwvwvefvfevfevefv34f!@JNn21@"
+        try:
+            t = parse_tree(tree)
+            self.assert_(False)
+        except excp.TreeParseError:
+            self.assert_(True)
+
+    def test_parse_treess(self):
+        tree = expected_tree
+        try:
+            t = parse_trees(tree)
+            self.assert_(True)
+        except excp.TreeParseError:
+            self.assert_(False)
+
+    
+    def test_parse_trees_fail(self):
+        tree = "dvqwvwvefvfevfevefv34f!@JNn21@"
+        try:
+            t = parse_trees(tree)
+            self.assert_(False)
+        except excp.TreeParseError:
+            self.assert_(True)
+
 
     def test_import_quoted_tree(self):
         test_file = "data/input/quoted_taxa.tre"
@@ -150,7 +186,6 @@ class TestTreeManipulation(unittest.TestCase):
         self.assert_(matrix.all() == expected_matrix.all())
         self.assert_(expected_taxa == taxa)
 
-
     def test_delete_taxa(self):
         t = "((A_1,B_1),F_1,E_1,(G_1,H_1));"
         new_tree = delete_taxon("H_1", t)
@@ -162,7 +197,6 @@ class TestTreeManipulation(unittest.TestCase):
         new_tree =  delete_taxon("G%1", new_tree)
         new_tree =  delete_taxon("E%2", new_tree)
         self.assert_(new_tree == "(A, (G%2, (F, D, H, E%3)));")
-
 
     def test_delete_taxa_missing(self):
         t = "((A_1:1.00000,B_1:1.00000)0.00000:0.00000,F_1:1.00000,E_1:1.00000,(G_1:1.00000,H_1:1.00000)0.00000:0.00000)0.00000:0.00000;"
@@ -179,7 +213,7 @@ class TestTreeManipulation(unittest.TestCase):
         new_tree = sub_taxon("Fred", "Blah",  t)
         self.assert_(trees_equal(new_tree, "((A_1,B_1),F_1,E_1,(G_1,H_1));"))
 
-    def test_trees_equal(self):
+    def testtrees_equal(self):
         test_file = "data/input/multiple_trees.tre"
         trees = import_trees(test_file)
         self.assert_(trees_equal(trees[0],trees[0])==True)
@@ -190,19 +224,17 @@ class TestTreeManipulation(unittest.TestCase):
         trees = import_trees(test_file)
         self.assert_(trees_equal(trees[1],trees[0])==False)
 
-    def test_trees_equal2(self):
+    def testtrees_equal2(self):
         test_file = "data/input/equal_trees.new"
         trees = import_trees(test_file)
         self.assert_(trees_equal(trees[1],trees[0])==True)
         self.assert_(trees_equal(trees[3],trees[2])==False)
-
 
     def test_collapse_with_quotes(self):
         tree = "(Proteroiulus_fuscus, (Craterostigmus_tasmanianus, ((Scolopendra_viridis,(Lithobius_variegatus, (Paralamyctes_validus, Anopsobius_neozelanicus))),(Sphendononema_guildingii, ((Scutigerina_weberi%1, (Scutigerina_weberi%2,(Scutigerina_malagassa, Scutigerina_hova))), (Scutigera_coleoptrata,((Thereuopoda_longicornis, 'Thereuopodina, sp. nov.', (Thereuonema_tuberculata,Thereuonema_turkestana, Thereuopoda_clunifera)), (Allothereua_bidenticulata,Allothereua_serrulata, Parascutigera_festiva, Parascutigera_latericia))))))));"
         output = permute_tree(tree,treefile="newick")
         expected_tree = "(Proteroiulus_fuscus, (Craterostigmus_tasmanianus,((Scolopendra_viridis,(Lithobius_variegatus,(Paralamyctes_validus,Anopsobius_neozelanicus))),(Sphendononema_guildingii,((Scutigerina_weberi,(Scutigerina_malagassa, Scutigerina_hova)), (Scutigera_coleoptrata,((Thereuopoda_longicornis, 'Thereuopodina, sp. nov.', (Thereuonema_tuberculata,Thereuonema_turkestana, Thereuopoda_clunifera)), (Allothereua_bidenticulata,Allothereua_serrulata, Parascutigera_festiva, Parascutigera_latericia))))))));"
         self.assert_(trees_equal(output,expected_tree))
-
 
     def test_permute_tree_quoted(self):
         """Test an awkward tree to permute"""
@@ -218,12 +250,207 @@ class TestTreeManipulation(unittest.TestCase):
         taxa = getTaxa(tree)
         self.assert_("Lithobius_variegatus_rubriceps" in taxa)
 
-
     def test_collapse_nodes(self):
         in_tree = "(taxa_a, (taxa_b, taxa_c), taxa_d, (taxa_e, taxa_h%3, (taxa_f, (taxa_g, taxa_h%1, taxa_h%2))));"
         answer = "(taxa_a, (taxa_b, taxa_c), taxa_d, (taxa_e, taxa_h%1, (taxa_f, (taxa_g, taxa_h%2))));"
         new_tree = collapse_nodes(in_tree);
         self.assert_(trees_equal(new_tree, answer), "Correctly collapse nodes")
+
+
+    def test_delete_percent_taxa(self):
+        tree = "(A%3, B, (C, D), E, F, G, (A%1, A%2));"
+        new_tree = sub_taxa_in_tree(tree,"A")
+        expected_tree = "(B, (C, D), E, F, G);"
+        self.assert_(trees_equal(expected_tree,new_tree))
+
+    def test_delete_and_collapse(self):
+        tree = "(A%3, B, (C, D), E, F, G, (A%1, A%2));"
+        new_tree = sub_taxa_in_tree(tree,"B")
+        expected_tree = "(A%1, (C, D), E, F, G, A%2);"
+        self.assert_(trees_equal(expected_tree,new_tree))
+
+
+    def old_stk_replace_taxa_tests(self):
+        original_trees = "((((Catharacta_maccormicki,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);";
+        tree1 = "((((replaced_taxon,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);"
+        tree2 = "((((Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);"
+        tree3 = "((((taxon_1,taxon_2,taxon_3,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);"
+
+        polytomy = "taxon_1,taxon_2,taxon_3"
+        polytomy2 = "Skua_blah,Parasiticus_oops"
+        polytomy3 = "Catharacta_chilensis,replaced_taxon"
+        new_tree = sub_taxa_in_tree(original_trees,'Catharacta_maccormicki','replaced_taxon')
+        self.assert_(trees_equal(new_tree,tree1))
+        
+        new_tree = sub_taxa_in_tree(original_trees,'Catharacta_maccormicki')
+        self.assert_(trees_equal(new_tree,tree2), "Correctly deleted taxon")
+
+        new_tree = sub_taxa_in_tree(original_trees,'Catharacta_maccormicki',polytomy)
+        self.assert_(trees_equal(new_tree,tree3),"Correctly replaced with polytomy");
+
+        new_tree = sub_taxa_in_tree(original_trees,'Catharacta maccormicki')
+        self.assert_(trees_equal(new_tree, tree2), "Correctly deleted taxon with space in name");
+
+        new_tree = sub_taxa_in_tree(original_trees,'Catharacta_Maccormicki');
+        self.assert_((not trees_equal(new_tree, tree2)), "Didn't delete taxon with incorrect case");
+        self.assert_(trees_equal(new_tree, original_trees), "Didn't delete taxon with incorrect case");
+
+        new_tree = sub_taxa_in_tree(original_trees,'Catharacta maccormicki','replaced_taxon');
+        self.assert_(trees_equal(new_tree, tree1), "Correctly replaced taxon with spaces in name");
+
+        new_tree = sub_taxa_in_tree(original_trees,'Catharacta_Maccormicki',polytomy);
+        self.assert_((not trees_equal(new_tree, tree3)), "Didn't replace taxon with incorrect case");
+        self.assert_(trees_equal(new_tree, original_trees), "Didn't replace taxon with incorrect case");
+
+        # check for partial replacement which we don't want
+        new_tree = sub_taxa_in_tree(original_trees,'skua',polytomy2)
+        self.assert_(trees_equal(new_tree, original_trees), "Correctly skipped partial match")
+
+        # checking for adding duplicate taxa
+        new_tree = sub_taxa_in_tree(original_trees,'Catharacta_maccormicki',polytomy3)
+        self.assert_(trees_equal(new_tree, tree1), "Correctly substituted but no duplicates with polytomy");
+
+        new_tree = sub_taxa_in_tree(original_trees,"Catharacta_maccormicki",'Catharacta_chilensis')
+        self.assert_(trees_equal(new_tree, tree2), "Correctly substituted but no duplicates with single")
+
+
+    def test_sub_quoted_taxa(self):
+
+        quote_taxa_tree = "(taxa_1, 'taxa_n=taxa_2', taxa_3, taxa_4);";
+        original_trees = "((((Catharacta_maccormicki,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);";
+        polytomy4 = "taxon_1,taxon_1,taxon_2,taxon_3"
+        tree3 = "(((((taxon_1,taxon_2,taxon_3),Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);"
+        
+        # checking for correct subbing of quoted taxa
+        new_tree = sub_taxa_in_tree(quote_taxa_tree,"'taxa_n=taxa_2'",'taxa_2')
+        self.assert_(trees_equal(new_tree,"(taxa_1,taxa_2,taxa_3,taxa_4);"),"Correctly substituted quoted taxa") 
+
+        # quoted with + in it
+        new_tree = sub_taxa_in_tree("(taxa_1, 'taxa_n+taxa_2', taxa_3, taxa_4);","'taxa_n+taxa_2'",'taxa_2');
+        self.assert_(trees_equal(new_tree,"(taxa_1,taxa_2,taxa_3,taxa_4);"),"Correctly substituted quoted taxa") 
+
+        # don't sub partial match of quoted taxa
+        new_tree = sub_taxa_in_tree(quote_taxa_tree,"taxa_2",'taxa_8');
+        answer = "(taxa_1,'taxa_n=taxa_2',taxa_3,taxa_4);"
+        self.assert_(trees_equal(new_tree, answer), "Didn't substitute part of quoted taxa")
+
+        # don't sub in repeated taxa
+        new_tree = sub_taxa_in_tree(original_trees,'Catharacta_maccormicki',polytomy4)
+        self.assert_(trees_equal(new_tree, tree3), "Didn't add repeated names");
+
+        # checking removal of quoted taxa
+        new_tree = sub_taxa_in_tree("(taxa_1, 'taxa_n+taxa_2', taxa_3, taxa_4);","'taxa_n+taxa_2'");
+        self.assert_(trees_equal(new_tree, "(taxa_1,taxa_3,taxa_4);"), "Dealt with quoted taxa");
+
+        new_tree = sub_taxa_in_tree("(taxa_1, 'taxa_n+taxa_2', 'taxa_3=taxa5', taxa_4);","'taxa_3=taxa5'");
+        self.assert_(trees_equal(new_tree, "(taxa_1,'taxa_n+taxa_2',taxa_4);"), "Dealt with double quoted tacxa");
+
+        polytomy5 = "taxon_n,'taxon_n+taxon_2',taxon_2,taxon_3"
+        tree_in = "(taxa_n, 'taxa_n+taxa_2', 'taxa_3=taxa5', taxa_4);"
+        new_tree = sub_taxa_in_tree(tree_in,"taxa_4", polytomy5)
+        answer = "(taxa_n,'taxa_n+taxa_2','taxa_3=taxa5',(taxon_n,'taxon_n+taxon_2',taxon_2,taxon_3));"
+        self.assert_(trees_equal(new_tree, answer), "Dealt with double quoted taxa");
+
+
+    def test_sub_bug_fixes(self):
+        tree4 = "(Apsaravis,Hesperornis,Ichthyornis,(Vegavis_iaai,(('Cathartidae=Ciconiidae',Modern_birds),('Recurvirostridae=Charadriidae',Protopteryx_fengningensis))));";
+        tree4_result = "(Apsaravis,Hesperornis,Ichthyornis,(Vegavis_iaai,(('Cathartidae=Ciconiidae',Modern_birds%1),(Modern_birds%2,Protopteryx_fengningensis))));"
+        original_trees = "((((Catharacta_maccormicki,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);"
+
+        # This is a different result to the old STK, but is actualy correct - you're replacing
+        # in a non-monophyletic group.
+        new_tree = sub_taxa_in_tree(tree4,"'Recurvirostridae=Charadriidae'",'Modern_birds');
+        self.assert_(trees_equal(new_tree, tree4_result), "Correct replacement of taxa that already exists");
+
+        ## New bug: replacing with the same taxa 
+        new_tree = sub_taxa_in_tree(original_trees,"Catharacta_maccormicki",'Catharacta_maccormicki');
+        self.assert_(trees_equal(new_tree,original_trees), "Correct ignored taxa replaced with itself");
+    
+    
+    def test_collapse_tree(self):
+
+        original_trees = "((((Catharacta_maccormicki,Catharacta_chilensis,Catharacta_antarctica),(Catharacta_skua,Stercorarius_pomarinus)),Stercorarius_parasiticus,Stercorarius_longicaudus),Larus_argentatus);"
+
+        ## Trying out new function to collapse clades when going from specific to generic
+        tree1 = "(((Catharacta%1,(Catharacta%2,Stercorarius%1)),Stercorarius%2),Larus);"
+        new_tree = sub_taxa_in_tree(original_trees,"Catharacta_maccormicki",'Catharacta');
+        new_tree = sub_taxa_in_tree(new_tree, "Catharacta_chilensis",'Catharacta');
+        new_tree = sub_taxa_in_tree(new_tree, "Catharacta_antarctica",'Catharacta');
+        new_tree = sub_taxa_in_tree(new_tree, "Catharacta_skua",'Catharacta');
+        new_tree = sub_taxa_in_tree(new_tree, "Stercorarius_pomarinus",'Stercorarius');
+        new_tree = sub_taxa_in_tree(new_tree, "Stercorarius_parasiticus",'Stercorarius');
+        new_tree = sub_taxa_in_tree(new_tree, "Stercorarius_longicaudus",'Stercorarius');
+        new_tree = sub_taxa_in_tree(new_tree, "Larus_argentatus",'Larus');
+        self.assert_(trees_equal(new_tree, tree1), "Correctly collapse tree")
+
+
+        hard_tree = "(Daphnia,Drosophila,Euphausia,Exopheticus,Petrolisthes,Pinnotherelia,Tritodynamia,(Ligia,(Armadillidium,Eocarcinus,Metapenaeus,((((((Himalayapotamon,Jasus,Polycheles,(Enoplometopus,((Pemphix,(((Thaumastocheles,(Acanthacaris,Enoplometopus1,Eryma,Homarus,Metanephrops,Nephropides,Nephrops,Nephropsis,Thaumastocheles1,Thaumastochelopsis,((Euastacus,(Astacoides,Geocharax,(Paranephrops,(Astacopsis,(Ombrastacoides,(Gramastacus,Cherax))))),(Parastacus,(Samastacus,Virilastacus))))))))))))))))))));";
+        answer = "(Daphnia,Drosophila,Euphausia,Exopheticus,Petrolisthes,Pinnotherelia,Tritodynamia,(Ligia,(Armadillidium,Eocarcinus,Metapenaeus,(Himalayapotamon,Jasus,Polycheles,(Enoplometopus,(Pemphix,(Thaumastocheles,(Acanthacaris,Enoplometopus1,Eryma,Homarus,Metanephrops,Nephropides,Nephrops,Nephropsis,Thaumastocheles1,Thaumastochelopsis,(Euastacus,(Parastacidae%1,Geocharax,(Parastacidae%2,(Astacopsis,Parastacidae%3))),Parastacidae%4)))))))));";
+        new_tree = sub_taxa_in_tree(hard_tree,"Astacoides",'Parastacidae');
+        new_tree = sub_taxa_in_tree(new_tree,"Astacoides1",'Parastacidae');
+        new_tree = sub_taxa_in_tree(new_tree,"Cherax",'Parastacidae');
+        new_tree = sub_taxa_in_tree(new_tree,"Cherax1",'Parastacidae');
+        new_tree = sub_taxa_in_tree(new_tree,"Gramastacus",'Parastacidae');
+        new_tree = sub_taxa_in_tree(new_tree,"Ombrastacoides",'Parastacidae');
+        new_tree = sub_taxa_in_tree(new_tree,"Paranephrops",'Parastacidae');
+        new_tree = sub_taxa_in_tree(new_tree,"Parastacus",'Parastacidae');
+        new_tree = sub_taxa_in_tree(new_tree,"Samastacus",'Parastacidae');
+        new_tree = sub_taxa_in_tree(new_tree,"Virilastacus",'Parastacidae');
+        self.assert_(trees_equal(new_tree, answer), "Correctly collapse tree")
+
+
+        
+
+    def test_specific_to_generic(self):
+        """Checks the correct change of taxonomic level from specific to generic"""
+        in_tree=import_tree("data/input/large_tree_snippet.tre")
+        subs_old_taxa = ["Phylloscopus_trochilus", "Phylloscopus_brehmi", "Phylloscopus_canariensis", "Phylloscopus_collybita",
+                         "Phylloscopus_sindianus", "Phylloscopus_fuligiventer", "Phylloscopus_fuscatus", "Phylloscopus_orientalis",
+                         "Phylloscopus_bonelli", "Phylloscopus_sibilatrix", "Phylloscopus_yunnanensis", "Phylloscopus_subviridis", 
+                         "Phylloscopus_chloronotus", "Phylloscopus_proregulus", "Phylloscopus_humei", "Phylloscopus_inornatus", 
+                         "Phylloscopus_maculipennis", "Phylloscopus_pulcher", "Phylloscopus_trivirgatus", "Phylloscopus_sarasinorum", 
+                         "Phylloscopus_amoenus", "Phylloscopus_poliocephalus", "Phylloscopus_presbytes","Phylloscopus_borealis",
+                         "Phylloscopus_magnirostris","Phylloscopus_borealoides","Phylloscopus_tenellipes","Phylloscopus_emeiensis", 
+                         "Phylloscopus_nitidus","Phylloscopus_plumbeitarsus","Phylloscopus_trochiloides","Phylloscopus_cebuensis", 
+                         "Phylloscopus_coronatus","Phylloscopus_ijimae","Phylloscopus_ruficapillus","Phylloscopus_umbrovirens"]
+        subs_new_taxa = ["Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus",
+                         "Phylloscopus", "Phylloscopus", "Phylloscopus", "Phylloscopus"]
+        new_tree = sub_taxa_in_tree(in_tree,subs_old_taxa,subs_new_taxa);
+        # Fixes a random bug where Phylloscopus0 would appear, followed by Phylloscopus00 in subsequent subs
+        self.assert_(new_tree.find("Phylloscopus0") == -1)
+
+
+    def test_not_replace_partial(self):
+        quote_taxa_tree = "(taxa_1, taxa_n_taxa_2, taxa_3, taxa_4);";
+        new_tree = sub_taxa_in_tree(quote_taxa_tree,"taxa_2",'taxa_8');
+        answer = "(taxa_1, taxa_n_taxa_2, taxa_3, taxa_4);"
+        self.assert_(trees_equal(new_tree, answer), "Didn't substitute part of taxa")
+
+    def test_replace_with_quotes(self):
+        quote_taxa_tree = "(taxa_1, taxa_2, 'taxa_(blah)_foo', taxa_4);"
+        new_tree = sub_taxa_in_tree(quote_taxa_tree,"taxa_2",'taxa_8');
+        answer = "(taxa_1, taxa_8, 'taxa_(blah)_foo', taxa_4);"
+        self.assert_(trees_equal(new_tree, answer), "Did a sub with quoted taxa")
+
+    def test_replace_with_quoted(self):
+        quote_taxa_tree = "(taxa_1, taxa_2, 'taxa_(blah)_foo', taxa_4);"
+        new_tree = sub_taxa_in_tree(quote_taxa_tree,"taxa_(blah)_foo",'taxa_8');
+        answer = "(taxa_1, taxa_2, taxa_8, taxa_4);"
+        self.assert_(trees_equal(new_tree, answer), "Did a sub on quoted taxa")
+    
+    def test_replace_with_quoted(self):
+        quote_taxa_tree = "(taxa_1, taxa_2, 'taxa_(blah)_foo', taxa_4);"
+        new_tree = sub_taxa_in_tree(quote_taxa_tree,"taxa_(blah)_foo");
+        answer = "(taxa_1, taxa_2, taxa_4);"
+        self.assert_(trees_equal(new_tree, answer), "Deleted quoted taxa")
+
 
 
 class TestTreeFunctions(unittest.TestCase):

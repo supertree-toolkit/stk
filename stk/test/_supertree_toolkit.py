@@ -418,54 +418,6 @@ class TestSTK(unittest.TestCase):
         # let's just settle with the correct datetime being found
         self.assertRegexpMatches(XML2, now1)
 
-    def test_read_matrix_nexus(self):
-        matrix,taxa = read_matrix("data/input/matrix.nex")
-        expected_taxa = ['MRPOutgroup','A','B','B_b','C','D','E','F']
-        expected_matrix = [
-                            ["0","0","0","0","0","0"],
-                            ["1","0","1","0","1","0"],
-                            ["1","0","?","?","1","0"],
-                            ["?","?","1","0","?","?"],
-                            ["0","1","0","1","?","?"],
-                            ["0","1","0","1","?","?"],
-                            ["?","?","?","?","0","1"],
-                            ["?","?","?","?","0","1"]
-                          ]
-        self.assertListEqual(expected_taxa,taxa)
-        self.assertListEqual(expected_matrix,matrix)
-
-    def test_read_matrix_tnt(self):
-        matrix,taxa = read_matrix("data/input/matrix.tnt")
-        expected_taxa = ['MRPOutgroup','A','B','B_b','C','D','E','F']
-        expected_matrix = [
-                            ["0","0","0","0","0","0"],
-                            ["1","0","1","0","1","0"],
-                            ["1","0","?","?","1","0"],
-                            ["?","?","1","0","?","?"],
-                            ["0","1","0","1","?","?"],
-                            ["0","1","0","1","?","?"],
-                            ["?","?","?","?","0","1"],
-                            ["?","?","?","?","0","1"]
-                          ]
-        self.assertListEqual(expected_taxa,taxa)
-        self.assertListEqual(expected_matrix,matrix)
-
-    def test_read_matrix_nexus_p4(self):
-        matrix,taxa = read_matrix("data/input/matrix_p4.nex")
-        expected_taxa = ['MRPOutgroup','A','B','B_b','C','D','E','F']
-        expected_matrix = [
-                            ["0","0","0","0","0","0"],
-                            ["1","0","1","0","1","0"],
-                            ["1","0","?","?","1","0"],
-                            ["?","?","1","0","?","?"],
-                            ["0","1","0","1","?","?"],
-                            ["0","1","0","1","?","?"],
-                            ["?","?","?","?","0","1"],
-                            ["?","?","?","?","0","1"]
-                          ]
-        self.assertListEqual(expected_taxa,taxa)
-        self.assertListEqual(expected_matrix,matrix)
-
     def test_clean_data(self):
         XML = etree.tostring(etree.parse('data/input/clean_data.phyml',parser),pretty_print=True)
         XML = clean_data(XML)
@@ -529,14 +481,6 @@ class TestSTK(unittest.TestCase):
         self.assertListEqual(expected_old,old_taxa)
         self.assertListEqual(expected_new,new_taxa)
 
-    def test_get_all_siblings(self):
-        t = _parse_tree("(A,B,C,D,E,F,G,H,I,J);")
-        siblings = _get_all_siblings(t.node(1))
-        expected = ["B","C","D","E","F","G","H","I","J"]
-        self.assertListEqual(siblings,expected)
-        siblings = _get_all_siblings(t.node(3)) # selects C - so tests we get left siblings too
-        expected = ["A","B","D","E","F","G","H","I","J"]
-        self.assertListEqual(siblings,expected)
 
     def test_get_weights(self):
         XML = etree.tostring(etree.parse('data/input/weighted_trees.phyml',parser),pretty_print=True)
