@@ -85,6 +85,12 @@ class TestInternals(unittest.TestCase):
         expected = ["A_a, A_b", 'B_a', 'G_g']
         self.assertItemsEqual(expected, nnew_taxa)
 
+    def test_locate(self):
+        pattern = "*.tre"
+        files = list(locate(pattern, "data/input")) # convert to list for testing
+        cwd = os.getcwd()
+        self.assertIn(os.path.join(cwd,"data","input","multiple_trees.tre"), files)
+        self.assertIn(os.path.join(cwd,"data","input","mrca.tre"), files)
 
 
     
