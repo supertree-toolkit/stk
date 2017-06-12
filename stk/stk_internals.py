@@ -59,10 +59,16 @@ replacements =     {
 
 def replace_utf(content):
 
+    try:
+        # not a unicode string passed in
+        content = unicode(content, 'utf-8')
+    except TypeError:
+        pass # already a unicode string
     for c in replacements:
         content = content.replace(c,replacements[c])
 
     return content
+
 
 def internet_on(host="8.8.8.8", port=443, timeout=5):
     import socket
@@ -79,6 +85,7 @@ def internet_on(host="8.8.8.8", port=443, timeout=5):
     except Exception as ex:
         print ex.message
         return False   
+
 
 def uniquify(l):
     """

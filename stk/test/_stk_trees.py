@@ -3,7 +3,8 @@ import sys
 # so we import local stk before any other
 sys.path.insert(0,"../../")
 from stk.stk_trees import import_tree, import_trees, trees_equal, tree_contains, assemble_tree_matrix
-from stk.stk_trees import delete_taxon, sub_taxon, permute_tree, getTaxa
+from stk.stk_trees import delete_taxon, sub_taxon, permute_tree, getTaxa, collapse_nodes
+from stk.stk_trees import get_all_siblings, read_matrix, parse_tree
 import numpy
 import os
 from lxml import etree
@@ -216,6 +217,78 @@ class TestTreeManipulation(unittest.TestCase):
         tree = "((Bothropolys_multidentatus, Lithobius_obscurus, 'Lithobius variegatus rubriceps', Lithobius_forficatus, Australobius_scabrior, Eupolybothrus_fasciatus), (Shikokuobius_japonicus, (Dichelobius_flavens, Dichelobius_ACT, (Anopsobius_TAS, (Anopsobius_neozelanicus, Anopsobius_NSW))), (Zygethobius_pontis, Cermatobius_japonicus, (Henicops_brevilabiatus, Henicops_dentatus, Henicops_SEQLD, (Lamyctes_emarginatus, Lamyctes_coeculus, Lamyctes_inermipes, Lamyctes_africanus, Lamyctes_hellyeri), (Henicops_maculatus_TAS, (Henicops_maculatus_NSW, Henicops_maculatus_NZ))), ('Paralamyctes (Paralamyctes) spenceri', 'Paralamyctes (Paralamyctes) weberi', 'Paralamyctes (Paralamyctes) asperulus', 'Paralamyctes (Paralamyctes) prendinii', 'Paralamyctes (Paralamyctes) tridens', 'Paralamyctes (Paralamyctes) neverneverensis', 'Paralamyctes (Paralamyctes) harrisi', 'Paralamyctes (Paralamyctes) monteithi SEQLD', 'Paralamyctes (Paralamyctes) monteithi NEQLD', 'Paralamyctes (Paralamyctes) monteithi MEQLD', ('Paralamyctes (Haasiella) trailli', 'Paralamyctes (Haasiella) subicolus'), ('Paralamyctes chilensis', 'Paralamyctes wellingtonensis'), ('Paralamyctes (Nothofagobius) cassisi', 'Paralamyctes (Nothofagobius) mesibovi'), ('Paralamyctes (Thingathinga) ?grayi', ('Paralamyctes (Thingathinga) grayi NSW1', 'Paralamyctes (Thingathinga) grayi NSW2')), ('Paralamyctes (Thingathinga) validus NZ3', ('Paralamyctes (Thingathinga) validus NZ1', 'Paralamyctes (Thingathinga) validus NZ2'))))));"
         taxa = getTaxa(tree)
         self.assert_("Lithobius_variegatus_rubriceps" in taxa)
+
+
+    def test_collapse_nodes(self):
+        in_tree = "(taxa_a, (taxa_b, taxa_c), taxa_d, (taxa_e, taxa_h%3, (taxa_f, (taxa_g, taxa_h%1, taxa_h%2))));"
+        answer = "(taxa_a, (taxa_b, taxa_c), taxa_d, (taxa_e, taxa_h%1, (taxa_f, (taxa_g, taxa_h%2))));"
+        new_tree = collapse_nodes(in_tree);
+        self.assert_(trees_equal(new_tree, answer), "Correctly collapse nodes")
+
+
+class TestTreeFunctions(unittest.TestCase):
+
+    
+    def test_get_all_siblings(self):
+        t = parse_tree("(A,B,C,D,E,F,G,H,I,J);")
+        siblings = get_all_siblings(t.node(1))
+        expected = ["B","C","D","E","F","G","H","I","J"]
+        self.assertListEqual(siblings,expected)
+        siblings = get_all_siblings(t.node(3)) # selects C - so tests we get left siblings too
+        expected = ["A","B","D","E","F","G","H","I","J"]
+        self.assertListEqual(siblings,expected)
+
+
+class TestMatrixMethods(unittest.TestCase):
+
+    
+    def test_read_matrix_nexus(self):
+        matrix,taxa = read_matrix("data/input/matrix.nex")
+        expected_taxa = ['MRPOutgroup','A','B','B_b','C','D','E','F']
+        expected_matrix = [
+                            ["0","0","0","0","0","0"],
+                            ["1","0","1","0","1","0"],
+                            ["1","0","?","?","1","0"],
+                            ["?","?","1","0","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["?","?","?","?","0","1"],
+                            ["?","?","?","?","0","1"]
+                          ]
+        self.assertListEqual(expected_taxa,taxa)
+        self.assertListEqual(expected_matrix,matrix)
+
+    def test_read_matrix_tnt(self):
+        matrix,taxa = read_matrix("data/input/matrix.tnt")
+        expected_taxa = ['MRPOutgroup','A','B','B_b','C','D','E','F']
+        expected_matrix = [
+                            ["0","0","0","0","0","0"],
+                            ["1","0","1","0","1","0"],
+                            ["1","0","?","?","1","0"],
+                            ["?","?","1","0","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["?","?","?","?","0","1"],
+                            ["?","?","?","?","0","1"]
+                          ]
+        self.assertListEqual(expected_taxa,taxa)
+        self.assertListEqual(expected_matrix,matrix)
+
+    def test_read_matrix_nexus_p4(self):
+        matrix,taxa = read_matrix("data/input/matrix_p4.nex")
+        expected_taxa = ['MRPOutgroup','A','B','B_b','C','D','E','F']
+        expected_matrix = [
+                            ["0","0","0","0","0","0"],
+                            ["1","0","1","0","1","0"],
+                            ["1","0","?","?","1","0"],
+                            ["?","?","1","0","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["0","1","0","1","?","?"],
+                            ["?","?","?","?","0","1"],
+                            ["?","?","?","?","0","1"]
+                          ]
+        self.assertListEqual(expected_taxa,taxa)
+        self.assertListEqual(expected_matrix,matrix)
 
 
 if __name__ == '__main__':

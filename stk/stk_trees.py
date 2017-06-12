@@ -39,6 +39,19 @@ from cStringIO import StringIO
 import string
 import stk.p4.MRP as MRP
 import numpy
+import csv
+
+
+def getTaxa(tree):
+    """ Get the terminal nodes from a Newick string"""
+
+    t_obj = parse_tree(tree)
+    terminals = t_obj.getAllLeafNames(0)
+    taxa = []
+    for t in terminals:
+        taxa.append(t.replace(" ","_"))
+
+    return taxa
 
 
 def import_trees(filename):
@@ -55,8 +68,8 @@ def import_trees(filename):
     content = str(stk_internals.replace_utf(content))
     
     # Need to add checks on the file. Problems include:
-# TNT: outputs Phyllip format or something - basically a Newick
-# string without commas, so add 'em back in
+    # TNT: outputs Phyllip format or something - basically a Newick
+    # string without commas, so add 'em back in
     m = re.search(r'proc.;', content)
     if (m != None):
         # TNT output tree
@@ -106,21 +119,22 @@ def import_trees(filename):
 
         content += "\nend;\n"
 
-# TreeView (Page, 1996):
-# TreeView create a tree with the following description:
-#
-#   UTREE * tree_1 = ((1,(2,(3,(4,5)))),(6,7));
-# UTREE * is not a supported part of the NEXUS format.
-# so we need to replace the above with:
-#   tree_1 = [&u] ((1,(2,(3,(4,5)))),(6,7));
-#
+    # TreeView (Page, 1996):
+    # TreeView create a tree with the following description:
+    #
+    #   UTREE * tree_1 = ((1,(2,(3,(4,5)))),(6,7));
+    # UTREE * is not a supported part of the NEXUS format.
+    # so we need to replace the above with:
+    #   tree_1 = [&u] ((1,(2,(3,(4,5)))),(6,7));
+    #
     m = re.search(r'\UTREE\s?\*\s?(.+)\s?=\s', content)
     if (m != None):
         treedata = re.sub("\UTREE\s?\*\s?(.+)\s?=\s","tree "+m.group(1)+" = [&u] ", content)
         content = treedata
-# Now check for Macclade. easy to spot, has MacClade in the text
-# MacClade has a whole heap of other stuff, we just want the tree...
-# Mesquite is similar, but need more processing - see later
+    
+    # Now check for Macclade. easy to spot, has MacClade in the text
+    # MacClade has a whole heap of other stuff, we just want the tree...
+    # Mesquite is similar, but need more processing - see later
     m = re.search(r'MacClade',content)
     if (m!=None):
         # Done on a Mac? Replace ^M with a newline
@@ -139,7 +153,7 @@ def import_trees(filename):
         # tidy up and remove the *
         content = string.replace( content, '* ', '')
 
-# Mesquite is similar to MacClade, but need more processing
+    # Mesquite is similar to MacClade, but need more processing
     m = re.search(r'Mesquite',content)
     if (m!=None):
         # Done on a Mac? Replace ^M with a newline
@@ -159,10 +173,10 @@ def import_trees(filename):
                 add_to = False
                 break
 
-# Dendroscope produces non-Nexus trees. but the tree is easy to pick out
-#{TREE 'tree_1'
-#((Taxon_c:1.0,(Taxon_a:1.0,Taxon_b:1.0):1.0):0.5,(Taxon_d:1.0,Taxon_e:1.0):0.5);
-#}
+    # Dendroscope produces non-Nexus trees. but the tree is easy to pick out
+    #{TREE 'tree_1'
+    #((Taxon_c:1.0,(Taxon_a:1.0,Taxon_b:1.0):1.0):0.5,(Taxon_d:1.0,Taxon_e:1.0):0.5);
+    #}
     m = re.search(r'#DENDRO',content)
     if (m!=None):
         h = StringIO(content)
@@ -180,11 +194,11 @@ def import_trees(filename):
         #remove nodal branch lengths
         content = re.sub("\):\d.\d+","):0.0", content)
 
-# Comments. This is p4's issue as it uses glob.glob to find out if
-# the incoming "thing" is a file or string. Comments in nexus files are
-# [ ], which in glob.glob means something, so we need to delete content
-# that is between the [] before passing to p4. We're going to cheat and 
-# just pull out the tree
+    # Comments. This is p4's issue as it uses glob.glob to find out if
+    # the incoming "thing" is a file or string. Comments in nexus files are
+    # [ ], which in glob.glob means something, so we need to delete content
+    # that is between the [] before passing to p4. We're going to cheat and 
+    # just pull out the tree
     m = re.search(r'\[\!',content)
     if (m!=None):
         h = StringIO(content)
@@ -216,7 +230,6 @@ def import_tree(filename, gui=False, tree_no = -1):
     """Takes a NEXUS formatted file and returns a list containing the tree
     strings"""
     
-    import gtk
   
     trees = import_trees(filename)
     if (len(trees) == 1):
@@ -229,6 +242,8 @@ def import_tree(filename, gui=False, tree_no = -1):
             # assume the user counts from 1 to n
             tree_no -= 1
         else:
+            # Not super keen on this approach, but hey, you do better :p
+            import gtk
             #base this on a message dialog
             dialog = gtk.MessageDialog(
 		        None,
@@ -259,118 +274,6 @@ def import_tree(filename, gui=False, tree_no = -1):
     return tree
 
 
-def collapse_nodes(in_tree):
-    """ Collapses nodes where the siblings are actually the same
-        taxon, denoted by taxon1, taxon2, etc
-    """
-
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)  
-    try:
-        tree = parse_tree(modified_tree,fixDuplicateTaxa=True)
-    except excp.TreeParseError:
-        tree = ""
-        return tree
-    taxa = tree.getAllLeafNames(0)
-    
-    for t in taxa:
-        # we might have removed the current taxon in a previous loop
-        try:
-            siblings = get_all_siblings(tree.node(t))
-        except p4.Glitch:
-            continue
-        m = re.match('([a-zA-Z0-9_\+\=\?\. ]*)%[0-9]+', t)
-        if (not m == None):
-            t = m.group(1)
-        for s in siblings:
-            orig_s = s
-            m = re.match('([a-zA-Z0-9_\+\=\?\. ]*)%[0-9]+', s)
-            if (not m == None):
-                s = m.group(1)
-            if t == s:
-                # remove this
-                tree.removeNode(tree.node(orig_s),alsoRemoveSingleChildParentNode=True,alsoRemoveBiRoot=False)
-
-    # Remove all the empty nodes we left laying around
-    tree.getPreAndPostOrderAboveRoot()
-    for n in tree.iterPostOrder():
-        if n.getNChildren() == 1 and n.isLeaf == 0:
-            tree.collapseNode(n)
-
-    return tree.writeNewick(fName=None,toString=True).strip()    
-
-def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, fill=False):
-    """ Generates the taxonomy from a tree. Uses a similar method to the XML version but works directly on a string with the tree.
-    :param tree: list of the taxa.
-    :type tree : list 
-    :param existing_taxonomy: list of the taxa.
-    :type existing_taxonomy: list 
-    :param pref_db: Gives priority to database. Seems it is unused.
-    :type pref_db: string 
-    :param verbose: Flag for verbosity.
-    :type verbose: boolean
-    :param ignoreWarnings: Flag for exception processing.
-    :type ignoreWarnings: boolean
-    :returns: the modified taxonomy
-    :rtype: dictionary
-    """
-    starttime = time.time()
-
-    if(existing_taxonomy is None) :
-        taxonomy = {}
-    else :
-        taxonomy = existing_taxonomy
-
-    taxa = get_taxa_from_tree_for_taxonomy(tree, pretty=True)
-    
-    taxonomy = create_taxonomy_from_taxa(taxa, taxonomy)
-    if fill:
-        taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings, pref_db)
-    
-    return taxonomy
-
-
-def parse_trees(tree_block):
-    """ Parse a string containing multiple trees 
-        to a list of p4 tree objects
-    """
-   
-    try:
-        p4.var.doRepairDupedTaxonNames = 2
-        p4.var.warnReadNoFile = False
-        p4.var.nexus_warnSkipUnknownBlock = False
-        p4.var.trees = []
-        p4.read(tree_block)
-        p4.var.nexus_warnSkipUnknownBlock = True
-        p4.var.warnReadNoFile = True
-        p4.var.doRepairDupedTaxonNames = 0
-    except p4.Glitch as detail:
-        raise excp.TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree_block[0:128] )
-    trees = p4.var.trees
-    p4.var.trees = []
-    return trees
-
-def parse_tree(tree,fixDuplicateTaxa=False):
-    """ Parse a newick string to p4 tree object
-    """
-
-    try:
-        if (fixDuplicateTaxa):
-            p4.var.doRepairDupedTaxonNames = 2
-        p4.var.warnReadNoFile = False
-        p4.var.nexus_warnSkipUnknownBlock = False
-        p4.var.trees = []
-        p4.read(tree)
-        p4.var.nexus_warnSkipUnknownBlock = True
-        p4.var.warnReadNoFile = True
-        if (fixDuplicateTaxa):
-            p4.var.doRepairDupedTaxonNames = 0
-    except p4.Glitch as detail:
-        raise excp.TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree[0:128] )
-
-    t = p4.var.trees[0]
-    p4.var.trees = []
-    return t
-
 def trees_equal(t1,t2):
     """ compare two trees using Robinson-Foulds metric
     """
@@ -398,6 +301,7 @@ def trees_equal(t1,t2):
         same = False # different taxa, so can't be the same!
 
     return same
+
 
 def assemble_tree_matrix(tree_string, verbose=False):
     """ Assembles the MRP matrix for an individual tree
@@ -558,81 +462,6 @@ def permute_tree(tree,matrix="hennig",treefile=None,verbose=False):
     return output_string
 
 
-
-def sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
-    """Swap the taxa in the old_taxa array for the ones in the
-    new_taxa array
-    
-    If the new_taxa array is missing, simply delete the old_taxa
-    """
-  
-    tree = _correctly_quote_taxa(tree)
-    # are the input values lists or simple strings?
-    if (isinstance(old_taxa,str)):
-        old_taxa = [old_taxa]
-    if (new_taxa == None):
-        new_taxa = len(old_taxa)*[None]
-    elif (new_taxa and isinstance(new_taxa,str)):
-        new_taxa = [new_taxa]
-
-    # check they are same lengths now
-    if (new_taxa):
-        if (len(old_taxa) != len(new_taxa)):
-            print "Substitution failed. Old and new are different lengths"
-            return # need to raise exception here
-
-    i = 0
-    for taxon in old_taxa:
-        # tree contains the old_taxon, do something with it
-        taxon = taxon.replace(" ","_")
-        if (tree_contains(taxon,tree)):
-            if (new_taxa == None or new_taxa[i] == None):
-                p4tree = parse_tree(tree) 
-                terminals = p4tree.getAllLeafNames(p4tree.root) 
-                count = 0
-                taxon_temp = taxon.replace("'","")
-                for t in terminals:
-                    t = t.replace(" ","_")
-                    if (t == taxon_temp):
-                        count += 1
-                    if (t.startswith(taxon_temp+"%")):
-                        count += 1 
-                # we are deleting taxa - we might need multiple iterations
-                for t in range(0,count):
-                    tree = delete_taxon(taxon, tree)
-
-            else:
-                # we are substituting
-                tree = sub_taxon(taxon, new_taxa[i], tree, skip_existing=skip_existing)
-        i += 1
-
-    tree = _collapse_nodes(tree)
-    tree = _remove_single_poly_taxa(tree)
-
-    return tree 
-
-def tree_contains(taxon,tree):
-    """ Returns if a taxon is contained in the tree
-    """
-
-    taxon = taxon.replace(" ","_")
-    try:
-        tree = parse_tree(tree) 
-    except excp.TreeParseError:
-        return False
-    terminals = tree.getAllLeafNames(tree.root)
-    # p4 strips off ', so we need to do so for the input taxon
-    taxon = taxon.replace("'","")
-    for t in terminals:
-        t = t.replace(" ","_")
-        if (t == taxon):
-            return True
-        if (t.startswith(taxon+"%")):
-            return True # match potential non-monophyletic taxa
-
-    return False
-
-
 def delete_taxon(taxon, tree):
     """ Delete a taxon from a tree string
     """
@@ -658,42 +487,9 @@ def delete_taxon(taxon, tree):
     return tree_obj.writeNewick(fName=None,toString=True).strip()
 
 
-def get_all_siblings(node):
-    """ Get all siblings of a node
-    """
-
-    # p4 returns the rightmost sibling, so we need to get all the right siblings,
-    # and the leftSiblings
-    siblings = []
-    siblings_left = True
-    newNode = node
-    while siblings_left:
-        newNode = newNode.sibling
-        if not newNode == None:
-            if not newNode.name == None:
-                siblings.append(newNode.name)
-        else:
-            siblings_left = False
-    # now the left siblings
-    siblings_left = True
-    newNode = node
-    while siblings_left:
-        newNode = newNode.leftSibling()
-        if not newNode == None:
-            if not newNode.name == None:
-                siblings.append(newNode.name)
-        else:
-            siblings_left = False
-    
-    siblings.sort()
-    return siblings
-
-
 def sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
-    """ Simple swap of taxa
+    """ Simple, sorry, that should be "simple", swap of taxa
     """
-
-    import csv
 
     taxa_in_tree = getTaxa(tree)
     # we might have to add quotes back in
@@ -768,6 +564,338 @@ def sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
 
     return new_tree
 
+
+def tree_contains(taxon,tree):
+    """ Returns if a taxon is contained in the tree
+    """
+
+    taxon = taxon.replace(" ","_")
+    try:
+        tree = parse_tree(tree) 
+    except excp.TreeParseError:
+        return False
+    terminals = tree.getAllLeafNames(tree.root)
+    # p4 strips off ', so we need to do so for the input taxon
+    taxon = taxon.replace("'","")
+    for t in terminals:
+        t = t.replace(" ","_")
+        if (t == taxon):
+            return True
+        if (t.startswith(taxon+"%")):
+            return True # match potential non-monophyletic taxa
+
+    return False
+
+def collapse_nodes(in_tree):
+    """ Collapses nodes where the siblings are actually the same
+        taxon, denoted by taxon1, taxon2, etc
+    """
+
+    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)  
+    try:
+        tree = parse_tree(modified_tree,fixDuplicateTaxa=True)
+    except excp.TreeParseError:
+        tree = ""
+        return tree
+    taxa = tree.getAllLeafNames(0)
+    
+    for t in taxa:
+        # we might have removed the current taxon in a previous loop
+        try:
+            siblings = get_all_siblings(tree.node(t))
+        except p4.Glitch:
+            continue
+        m = re.match('([a-zA-Z0-9_\+\=\?\. ]*)%[0-9]+', t)
+        if (not m == None):
+            t = m.group(1)
+        for s in siblings:
+            orig_s = s
+            m = re.match('([a-zA-Z0-9_\+\=\?\. ]*)%[0-9]+', s)
+            if (not m == None):
+                s = m.group(1)
+            if t == s:
+                # remove this
+                tree.removeNode(tree.node(orig_s),alsoRemoveSingleChildParentNode=True,alsoRemoveBiRoot=False)
+
+    # Remove all the empty nodes we left laying around
+    tree.getPreAndPostOrderAboveRoot()
+    for n in tree.iterPostOrder():
+        if n.getNChildren() == 1 and n.isLeaf == 0:
+            tree.collapseNode(n)
+
+    return tree.writeNewick(fName=None,toString=True).strip()    
+
+
+def get_all_siblings(node):
+    """ Get all siblings of a node
+    """
+
+    # p4 returns the rightmost sibling, so we need to get all the right siblings,
+    # and the leftSiblings
+    siblings = []
+    siblings_left = True
+    newNode = node
+    while siblings_left:
+        newNode = newNode.sibling
+        if not newNode == None:
+            if not newNode.name == None:
+                siblings.append(newNode.name)
+        else:
+            siblings_left = False
+    # now the left siblings
+    siblings_left = True
+    newNode = node
+    while siblings_left:
+        newNode = newNode.leftSibling()
+        if not newNode == None:
+            if not newNode.name == None:
+                siblings.append(newNode.name)
+        else:
+            siblings_left = False
+    
+    siblings.sort()
+    return siblings
+
+def read_matrix(filename):
+    """
+    Read a Nexus or Hennig formatted matrix file. Returns the matrix and taxa.
+    """
+    def _read_nexus_matrix(filename):
+        """ Read in essential info from a NEXUS matrix file
+            This does not include the charset as we don't actually use it
+            for anything and is not saved in TNT format anyway
+        """
+
+        taxa = []
+        matrix = []
+        f = open(filename,"r")
+        inData = False
+        for line in f:
+            linel = line.lower()
+            if linel.find(";") > -1:
+                inData = False
+            if (inData):
+                linel = linel.strip()
+                if len(linel) == 0:
+                    continue # empty line
+                
+                data = line.split()
+                taxa.append(data[0])
+                char_row = []
+                for n in range(0,len(data[1])):
+                    char_row.append(data[1][n])
+                matrix.append(char_row)
+            if (linel.find('matrix') > -1):
+                inData = True
+
+        return matrix,taxa
+
+    def _read_hennig_matrix(filename):
+        """ Read in essential info from a TNT matrix file
+        """
+
+        taxa = []
+        matrix = []
+        f = open(filename,"r")
+        inData = False
+        for line in f:
+            linel = line.lower()
+            if linel.find(";") > -1:
+                inData = False
+            if (inData):
+                linel = linel.strip()
+                if len(linel) == 0:
+                    continue # empty line
+                
+                data = line.split()
+                taxa.append(data[0])
+                char_row = []
+                for n in range(0,len(data[1])):
+                    char_row.append(data[1][n])
+                matrix.append(char_row)
+            m = re.match('\d+ \d+', linel)
+            if (not m == None):
+                inData = True
+
+        return matrix,taxa
+    
+    
+    matrix = []
+    taxa = []
+
+    try:
+        p4.var.alignments = []
+        p4.var.doCheckForDuplicateSequences = False
+        p4.read(filename)
+        p4.var.doCheckForDuplicateSequences = True
+        # get data out
+        a = p4.var.alignments[0]
+        a.setNexusSets()
+        sequences = a.sequences
+        matrix = []
+        taxa = []
+        p4.var.alignments = []
+        # Also need to reset nexusSets...subtle! Only spotted after running all tests
+        p4.var.nexusSets = None
+        for s in sequences:
+            char_row = []
+            for i in range(0,len(s.sequence)):
+                char_row.append(s.sequence[i])
+            matrix.append(char_row)
+            taxa.append(s.name)
+    except:
+        # Raises exception with STK-type nexus matrix and with Hennig
+        # open file and find out type
+        f = open(filename,"r")
+        data = f.read()
+        data = data.lower()
+        f.close()
+        if (data.find("#nexus") > -1):
+            matrix,taxa = _read_nexus_matrix(filename)
+        elif (data.find("xread") > -1):
+            matrix,taxa = _read_hennig_matrix(filename)
+        else:
+            raise MatrixError("Invalid matrix format")
+
+    return matrix,taxa
+
+
+############################## NOT TESTED ##################
+
+
+def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, fill=False):
+    """ Generates the taxonomy from a tree. Uses a similar method to the XML version but works directly on a string with the tree.
+    :param tree: list of the taxa.
+    :type tree : list 
+    :param existing_taxonomy: list of the taxa.
+    :type existing_taxonomy: list 
+    :param pref_db: Gives priority to database. Seems it is unused.
+    :type pref_db: string 
+    :param verbose: Flag for verbosity.
+    :type verbose: boolean
+    :param ignoreWarnings: Flag for exception processing.
+    :type ignoreWarnings: boolean
+    :returns: the modified taxonomy
+    :rtype: dictionary
+    """
+    starttime = time.time()
+
+    if(existing_taxonomy is None) :
+        taxonomy = {}
+    else :
+        taxonomy = existing_taxonomy
+
+    taxa = get_taxa_from_tree_for_taxonomy(tree, pretty=True)
+    
+    taxonomy = create_taxonomy_from_taxa(taxa, taxonomy)
+    if fill:
+        taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings, pref_db)
+    
+    return taxonomy
+
+
+def parse_trees(tree_block):
+    """ Parse a string containing multiple trees 
+        to a list of p4 tree objects
+    """
+   
+    try:
+        p4.var.doRepairDupedTaxonNames = 2
+        p4.var.warnReadNoFile = False
+        p4.var.nexus_warnSkipUnknownBlock = False
+        p4.var.trees = []
+        p4.read(tree_block)
+        p4.var.nexus_warnSkipUnknownBlock = True
+        p4.var.warnReadNoFile = True
+        p4.var.doRepairDupedTaxonNames = 0
+    except p4.Glitch as detail:
+        raise excp.TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree_block[0:128] )
+    trees = p4.var.trees
+    p4.var.trees = []
+    return trees
+
+
+
+def parse_tree(tree,fixDuplicateTaxa=False):
+    """ Parse a newick string to p4 tree object
+    """
+
+    try:
+        if (fixDuplicateTaxa):
+            p4.var.doRepairDupedTaxonNames = 2
+        p4.var.warnReadNoFile = False
+        p4.var.nexus_warnSkipUnknownBlock = False
+        p4.var.trees = []
+        p4.read(tree)
+        p4.var.nexus_warnSkipUnknownBlock = True
+        p4.var.warnReadNoFile = True
+        if (fixDuplicateTaxa):
+            p4.var.doRepairDupedTaxonNames = 0
+    except p4.Glitch as detail:
+        raise excp.TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree[0:128] )
+
+    t = p4.var.trees[0]
+    p4.var.trees = []
+    return t
+
+
+
+def sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
+    """Swap the taxa in the old_taxa array for the ones in the
+    new_taxa array
+    
+    If the new_taxa array is missing, simply delete the old_taxa
+    """
+  
+    tree = _correctly_quote_taxa(tree)
+    # are the input values lists or simple strings?
+    if (isinstance(old_taxa,str)):
+        old_taxa = [old_taxa]
+    if (new_taxa == None):
+        new_taxa = len(old_taxa)*[None]
+    elif (new_taxa and isinstance(new_taxa,str)):
+        new_taxa = [new_taxa]
+
+    # check they are same lengths now
+    if (new_taxa):
+        if (len(old_taxa) != len(new_taxa)):
+            print "Substitution failed. Old and new are different lengths"
+            return # need to raise exception here
+
+    i = 0
+    for taxon in old_taxa:
+        # tree contains the old_taxon, do something with it
+        taxon = taxon.replace(" ","_")
+        if (tree_contains(taxon,tree)):
+            if (new_taxa == None or new_taxa[i] == None):
+                p4tree = parse_tree(tree) 
+                terminals = p4tree.getAllLeafNames(p4tree.root) 
+                count = 0
+                taxon_temp = taxon.replace("'","")
+                for t in terminals:
+                    t = t.replace(" ","_")
+                    if (t == taxon_temp):
+                        count += 1
+                    if (t.startswith(taxon_temp+"%")):
+                        count += 1 
+                # we are deleting taxa - we might need multiple iterations
+                for t in range(0,count):
+                    tree = delete_taxon(taxon, tree)
+
+            else:
+                # we are substituting
+                tree = sub_taxon(taxon, new_taxa[i], tree, skip_existing=skip_existing)
+        i += 1
+
+    tree = _collapse_nodes(tree)
+    tree = _remove_single_poly_taxa(tree)
+
+    return tree 
+
+
+    return siblings
+
+
 def correctly_quote_taxa(tree):
     """ In order for the subs to work, we need to only quote taxa that need it, as otherwise 
         we might have have the same taxon, e.g. 'Gallus gallus' and Gallus_gallus being
@@ -826,17 +954,6 @@ def remove_single_poly_taxa(tree):
                 tree = re.sub(t,m.group(1),tree) 
     
     return tree
-
-def getTaxa(tree):
-    """ Get the terminal nodes from a Newick string"""
-
-    t_obj = parse_tree(tree)
-    terminals = t_obj.getAllLeafNames(0)
-    taxa = []
-    for t in terminals:
-        taxa.append(t.replace(" ","_"))
-
-    return taxa
 
 def create_matrix(trees, taxa, format="hennig", quote=False, weights=None, verbose=False):
     """

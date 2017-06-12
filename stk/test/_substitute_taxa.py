@@ -542,11 +542,7 @@ class TestSubs(unittest.TestCase):
         new_tree = _sub_taxa_in_tree(new_tree,"Virilastacus",'Parastacidae');
         self.assert_(_trees_equal(new_tree, answer), "Correctly collapse tree")
 
-    def test_collapse_nodes(self):
-        in_tree = "(taxa_a, (taxa_b, taxa_c), taxa_d, (taxa_e, taxa_h%3, (taxa_f, (taxa_g, taxa_h%1, taxa_h%2))));"
-        answer = "(taxa_a, (taxa_b, taxa_c), taxa_d, (taxa_e, taxa_h%1, (taxa_f, (taxa_g, taxa_h%2))));"
-        new_tree = _collapse_nodes(in_tree);
-        self.assert_(_trees_equal(new_tree, answer), "Correctly collapse nodes")
+
         
 
     def test_specific_to_generic(self):
