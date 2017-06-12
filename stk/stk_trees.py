@@ -807,39 +807,6 @@ def parse_tree(tree,fixDuplicateTaxa=False):
     return t
 
 
-############################## NOT TESTED ##################
-
-
-def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, fill=False):
-    """ Generates the taxonomy from a tree. Uses a similar method to the XML version but works directly on a string with the tree.
-    :param tree: list of the taxa.
-    :type tree : list 
-    :param existing_taxonomy: list of the taxa.
-    :type existing_taxonomy: list 
-    :param pref_db: Gives priority to database. Seems it is unused.
-    :type pref_db: string 
-    :param verbose: Flag for verbosity.
-    :type verbose: boolean
-    :param ignoreWarnings: Flag for exception processing.
-    :type ignoreWarnings: boolean
-    :returns: the modified taxonomy
-    :rtype: dictionary
-    """
-    starttime = time.time()
-
-    if(existing_taxonomy is None) :
-        taxonomy = {}
-    else :
-        taxonomy = existing_taxonomy
-
-    taxa = get_taxa_from_tree_for_taxonomy(tree, pretty=True)
-    
-    taxonomy = create_taxonomy_from_taxa(taxa, taxonomy)
-    if fill:
-        taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings, pref_db)
-    
-    return taxonomy
-
 
 def sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
     """Swap the taxa in the old_taxa array for the ones in the
@@ -892,6 +859,7 @@ def sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
     tree = remove_single_poly_taxa(tree)
 
     return tree 
+
 
 
 def correctly_quote_taxa(tree):
@@ -952,6 +920,40 @@ def remove_single_poly_taxa(tree):
                 tree = re.sub(t,m.group(1),tree) 
     
     return tree
+
+############################## NOT TESTED ##################
+
+
+def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, fill=False):
+    """ Generates the taxonomy from a tree. Uses a similar method to the XML version but works directly on a string with the tree.
+    :param tree: list of the taxa.
+    :type tree : list 
+    :param existing_taxonomy: list of the taxa.
+    :type existing_taxonomy: list 
+    :param pref_db: Gives priority to database. Seems it is unused.
+    :type pref_db: string 
+    :param verbose: Flag for verbosity.
+    :type verbose: boolean
+    :param ignoreWarnings: Flag for exception processing.
+    :type ignoreWarnings: boolean
+    :returns: the modified taxonomy
+    :rtype: dictionary
+    """
+    starttime = time.time()
+
+    if(existing_taxonomy is None) :
+        taxonomy = {}
+    else :
+        taxonomy = existing_taxonomy
+
+    taxa = get_taxa_from_tree_for_taxonomy(tree, pretty=True)
+    
+    taxonomy = create_taxonomy_from_taxa(taxa, taxonomy)
+    if fill:
+        taxonomy = create_extended_taxonomy(taxonomy, starttime, verbose, ignoreWarnings, pref_db)
+    
+    return taxonomy
+
 
 def create_matrix(trees, taxa, format="hennig", quote=False, weights=None, verbose=False):
     """
@@ -1113,108 +1115,4 @@ def amalgamate_trees(trees,format,anonymous=False):
         output_string += "\n\nproc-;"
 
     return output_string
-
-
-def read_nexus_matrix(filename):
-    """ Read in essential info from a NEXUS matrix file
-        This does not include the charset as we don't actually use it
-        for anything and is not saved in TNT format anyway
-    """
-
-    taxa = []
-    matrix = []
-    f = open(filename,"r")
-    inData = False
-    for line in f:
-        linel = line.lower()
-        if linel.find(";") > -1:
-            inData = False
-        if (inData):
-            linel = linel.strip()
-            if len(linel) == 0:
-                continue # empty line
-            
-            data = line.split()
-            taxa.append(data[0])
-            char_row = []
-            for n in range(0,len(data[1])):
-                char_row.append(data[1][n])
-            matrix.append(char_row)
-        if (linel.find('matrix') > -1):
-            inData = True
-
-    return matrix,taxa
-
-def read_hennig_matrix(filename):
-    """ Read in essential info from a TNT matrix file
-    """
-
-    taxa = []
-    matrix = []
-    f = open(filename,"r")
-    inData = False
-    for line in f:
-        linel = line.lower()
-        if linel.find(";") > -1:
-            inData = False
-        if (inData):
-            linel = linel.strip()
-            if len(linel) == 0:
-                continue # empty line
-            
-            data = line.split()
-            taxa.append(data[0])
-            char_row = []
-            for n in range(0,len(data[1])):
-                char_row.append(data[1][n])
-            matrix.append(char_row)
-        m = re.match('\d+ \d+', linel)
-        if (not m == None):
-            inData = True
-
-    return matrix,taxa
-
-
-
-def parse_trees(tree_block):
-    """ Parse a string containing multiple trees 
-        to a list of p4 tree objects
-    """
-   
-    try:
-        p4.var.doRepairDupedTaxonNames = 2
-        p4.var.warnReadNoFile = False
-        p4.var.nexus_warnSkipUnknownBlock = False
-        p4.var.trees = []
-        p4.read(tree_block)
-        p4.var.nexus_warnSkipUnknownBlock = True
-        p4.var.warnReadNoFile = True
-        p4.var.doRepairDupedTaxonNames = 0
-    except p4.Glitch as detail:
-        raise excp.TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree_block[0:128] )
-    trees = p4.var.trees
-    p4.var.trees = []
-    return trees
-
-def parse_tree(tree,fixDuplicateTaxa=False):
-    """ Parse a newick string to p4 tree object
-    """
-
-    try:
-        if (fixDuplicateTaxa):
-            p4.var.doRepairDupedTaxonNames = 2
-        p4.var.warnReadNoFile = False
-        p4.var.nexus_warnSkipUnknownBlock = False
-        p4.var.trees = []
-        p4.read(tree)
-        p4.var.nexus_warnSkipUnknownBlock = True
-        p4.var.warnReadNoFile = True
-        if (fixDuplicateTaxa):
-            p4.var.doRepairDupedTaxonNames = 0
-    except p4.Glitch as detail:
-        raise excp.TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree[0:128] )
-
-    t = p4.var.trees[0]
-    p4.var.trees = []
-    return t
 
