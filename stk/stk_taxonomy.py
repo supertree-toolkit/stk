@@ -828,7 +828,7 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
     f = opener.open(req)
     string = unicode(f.read(),"ISO-8859-1")
     this_item = json.loads(string)
-    start_taxonomy_level = this_item['taxRank']['rankName'].lower()
+    start_taxonomy_level = this_item['taxRank']['rankName'].lower().strip()
 
     aphiaIDsDone = []
     if not skip:
