@@ -1,101 +1,33 @@
 import unittest
 import math
 import sys
+import os
 sys.path.insert(0,"../../")
 sys.path.insert(0,"../")
-from stk.supertree_toolkit import _check_uniqueness, parse_subs_file, _check_taxa, _check_data, get_all_characters, safe_taxonomic_reduction
-import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-from stk.supertree_toolkit import _check_uniqueness, _check_taxa, _check_data, get_all_characters, data_independence, add_weights
-from stk.supertree_toolkit import get_fossil_taxa, get_publication_years, data_summary, get_character_numbers, get_analyses_used
-from stk.supertree_toolkit import data_overlap, read_matrix, subs_file_from_str, clean_data, obtain_trees, get_all_source_names
-from stk.supertree_toolkit import add_historical_event, _sort_data, _parse_xml, _check_sources, _swap_tree_in_XML, replace_genera
-from stk.supertree_toolkit import get_all_taxa, _get_all_siblings, _parse_tree, get_characters_used, _trees_equal, get_weights
-from stk.supertree_toolkit import get_outgroup, set_all_tree_names, create_tree_name, load_equivalents, get_all_tree_names
+from stk.supertree_toolkit import create_taxonomy, safe_taxonomic_reduction, subs_file_from_str
+from stk.supertree_toolkit import amalgamate_trees, create_matrix, substitute_taxa
+from stk.supertree_toolkit import substitute_taxa_in_trees, data_summary, taxonomic_checker, load_equivalents
+from stk.supertree_toolkit import generate_species_level_data, data_overlap, data_independence, add_historical_event
+from stk.supertree_toolkit import clean_data, replace_genera, create_subset, tree_from_taxonomy, check_data
+from stk.supertree_toolkit import import_bibliography, export_bibliography
 from lxml import etree
-from util import *
-from stk.stk_exceptions import *
-from collections import defaultdict
+import StringIO
 import tempfile
-parser = etree.XMLParser(remove_blank_text=True)
 import re
-
-# Class to test all those loverly internal methods
-# or stuff that doesn't fit within the other tests
+import stk.stk_exceptions as excp
+import stk.stk_phyml as stk_phyml
+import stk.stk_trees as stk_trees
+import stk.stk_util as stk_util
+parser = etree.XMLParser(remove_blank_text=True)
 
 class TestSTK(unittest.TestCase):
-
-
 
     def test_amalgamate_trees_anonymous(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
         output_string = amalgamate_trees(XML,format="nexus",anonymous=True)
-        trees = obtain_trees(XML)
-        # save the file and read it back in. Then we check correct format (i.e. readable) and
-        # we can check the trees are correct
-        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
-        f = open(temp_file,"w")
-        f.write(output_string)
-        f.close()
-        try:
-            trees_read = import_trees(temp_file)
-        except:
-            self.assert_(False)
-            # we should get no error
-        os.remove(temp_file)
-        self.assert_(len(trees)==len(trees_read))
-        names = trees.keys()
-        for i in range(0,len(trees)):
-            self.assert_(_trees_equal(trees_read[i],trees[names[i]]))
-
-
-    def test_amalgamate_trees_nexus(self):
-        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
-        output_string = amalgamate_trees(XML,format="nexus",anonymous=False)
-        trees = obtain_trees(XML)
-        # save the file and read it back in. Then we check correct format (i.e. readable) and
-        # we can check the trees are correct
-        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
-        f = open(temp_file,"w")
-        f.write(output_string)
-        f.close()
-        try:
-            trees_read = import_trees(temp_file)
-        except:
-            self.assert_(False)
-            # we should get no error
-        os.remove(temp_file)
-        self.assert_(len(trees)==len(trees_read))
-        names = trees.keys()
-        for i in range(0,len(trees)):
-            self.assert_(_trees_equal(trees_read[i],trees[names[i]]))
-
-    def test_amalgamate_trees_newick(self):
-        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
-        output_string = amalgamate_trees(XML,format="newick")
-        trees = obtain_trees(XML)
-        # save the file and read it back in. Then we check correct format (i.e. readable) and
-        # we can check the trees are correct
-        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
-        f = open(temp_file,"w")
-        f.write(output_string)
-        f.close()
-        try:
-            trees_read = import_trees(temp_file)
-        except:
-            self.assert_(False)
-            # we should get no error
-        os.remove(temp_file)
-        self.assert_(len(trees)==len(trees_read))
-        names = trees.keys()
-        for i in range(0,len(trees)):
-            self.assert_(_trees_equal(trees_read[i],trees[names[i]]))
-
-    def test_amalgamate_trees_tnt(self):
-        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
-        output_string = amalgamate_trees(XML,format="tnt")
-        trees = get_all_trees(XML)
+        trees = stk_phyml.get_all_trees(XML)
         # save the file and read it back in. Then we check correct format (i.e. readable) and
         # we can check the trees are correct
         temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
@@ -111,16 +43,76 @@ class TestSTK(unittest.TestCase):
         self.assert_(len(trees)==len(trees_read))
         names = trees.keys()
         for i in range(0,len(trees)):
-            self.assert_(_trees_equal(trees_read[i],trees[names[i]]))
+            self.assert_(stk_trees.trees_equal(trees_read[i],trees[names[i]]))
+
+    def test_amalgamate_trees_nexus(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        output_string = amalgamate_trees(XML,format="nexus",anonymous=False)
+        trees = stk_phyml.get_all_trees(XML)
+        # save the file and read it back in. Then we check correct format (i.e. readable) and
+        # we can check the trees are correct
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
+        f = open(temp_file,"w")
+        f.write(output_string)
+        f.close()
+        try:
+            trees_read = stk_trees.import_trees(temp_file)
+        except:
+            self.assert_(False)
+            # we should get no error
+        os.remove(temp_file)
+        self.assert_(len(trees)==len(trees_read))
+        names = trees.keys()
+        for i in range(0,len(trees)):
+            self.assert_(stk_trees.trees_equal(trees_read[i],trees[names[i]]))
+
+    def test_amalgamate_trees_newick(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        output_string = amalgamate_trees(XML,format="newick")
+        trees = stk_phyml.get_all_trees(XML)
+        # save the file and read it back in. Then we check correct format (i.e. readable) and
+        # we can check the trees are correct
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
+        f = open(temp_file,"w")
+        f.write(output_string)
+        f.close()
+        try:
+            trees_read = stk_trees.import_trees(temp_file)
+        except:
+            self.assert_(False)
+            # we should get no error
+        os.remove(temp_file)
+        self.assert_(len(trees)==len(trees_read))
+        names = trees.keys()
+        for i in range(0,len(trees)):
+            self.assert_(stk_trees.trees_equal(trees_read[i],trees[names[i]]))
+
+    def test_amalgamate_trees_tnt(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        output_string = amalgamate_trees(XML,format="tnt")
+        trees = stk_phyml.get_all_trees(XML)
+        # save the file and read it back in. Then we check correct format (i.e. readable) and
+        # we can check the trees are correct
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
+        f = open(temp_file,"w")
+        f.write(output_string)
+        f.close()
+        try:
+            trees_read = stk_trees.import_trees(temp_file)
+        except:
+            self.assert_(False)
+            # we should get no error
+        os.remove(temp_file)
+        self.assert_(len(trees)==len(trees_read))
+        names = trees.keys()
+        for i in range(0,len(trees)):
+            self.assert_(stk_trees.trees_equal(trees_read[i],trees[names[i]]))
 
     def test_amalgamate_trees_unknown_format(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
         output_string = amalgamate_trees(XML,format="PHYXML")
         self.assert_(output_string==None)
 
-
-
-
     def test_create_nexus_matrix(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         matrix = create_matrix(XML,format="nexus")
@@ -146,7 +138,6 @@ class TestSTK(unittest.TestCase):
         matrix = create_matrix(XML)
         self.assert_(matrix.find('ccode +[/1. 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27;'))
         self.assert_(matrix.find('ccode +[/2. 28 29;'))
-
 
     def test_create_nexus_matrix_outgroups(self):
         XML = etree.tostring(etree.parse('data/input/weighted_trees.phyml',parser),pretty_print=True)
@@ -181,99 +172,29 @@ class TestSTK(unittest.TestCase):
         self.assert_(matrix.find('ccode +[/1. 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27;'))
         self.assert_(matrix.find('ccode +[/2. 28 29;'))
 
-
     def test_create_nexus_matrix_outgroups(self):
         XML = etree.tostring(etree.parse('data/input/weighted_trees.phyml',parser),pretty_print=True)
         matrix = create_matrix(XML,outgroups=True)
         self.assert_(matrix.find('Jacana_jacana') == -1)
         self.assert_(matrix.find('Uraeginthus_cyanocephalus') == -1)
         self.assert_(matrix.find('Uraeginthus_bengalus') == -1)
-
-    def test_permute_trees_2(self):
-        XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
-        trees = obtain_trees(XML)
-        output = permute_tree(trees['Davis_2011_1'],treefile="newick")
-        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".new")
-        f = open(temp_file,"w")
-        f.write(output)
-        f.close()
-        output_trees = import_trees(temp_file)
-        expected_trees = import_trees("data/output/permute_trees_2.nex")
-        os.remove(temp_file)
-        self.assert_(len(output_trees)==len(expected_trees))
-
-
-    def test_parse_subs_file(self):
-        """ tests a very standard subs file with some 
-            deletes and subs
-        """
-        second_sub = "Anomalopteryx_didiformis,Megalapteryx_benhami,Megalapteryx_didinus,Pachyornis_australis,Pachyornis_elephantopus,Pachyornis_mappini,Euryapteryx_curtus,Euryapteryx_geranoides,Emeus_crassus,Dinornis_giganteus,Dinornis_novaezealandiae"
-        third_subs = "Avisaurus_archibaldi,Avisaurus_gloriae,Cathayornis,Concornis_lacustris,Enantiornis_leali,Eoalulavis,Gobipteryx_minuta,Iberomesornis,Lectavis_bretincola,Neuquenornis_volans,Noguerornis,Sinornis_santensis,Soroavisaurus_australis,Two_medicine_form,Yungavolucris_brevipedalis"
-        
-        old_taxa, new_taxa = parse_subs_file('data/input/sub_files/subs1.txt')
-        self.assert_(old_taxa[0] == "MRPoutgroup")
-        self.assert_(new_taxa[0] == None)
-        self.assert_(new_taxa[1] == second_sub);
-        self.assert_(old_taxa[1] == "Dinornithidae")
-        self.assert_(old_taxa[2] == "Enantiornithes")
-        self.assert_(new_taxa[2] == third_subs)
-
-    def test_parse_subs_correct_but_badly_formatted(self):
-        """ This file is correct, but difficult to parse
-        """
-
-        edge1 = "taxa2,taxa3,taxa2,taxa4"
-        edge2 = "taxa11,'taxa12=taxa13','taxa14+taxa15'"
-        edge3 = "some_thing"
-        edge2In = "taxa9+taxa10"
-        edge4In = "'already=quoted'"
-        bad2 = "taxa5,taxa6"
-        edge4 =  "taxa3,taxa6,taxa4,taxa5"
-
-        old_taxa, new_taxa = parse_subs_file('data/input/sub_files/subs_edge.txt')
-
-        self.assert_(len(old_taxa) == len(new_taxa))
-        self.assert_(len(old_taxa) == 7)
-        self.assert_(old_taxa[1] == edge2In)
-        self.assert_(old_taxa[3] == edge4In)
-        self.assert_(new_taxa[0] == edge1)
-        self.assert_(new_taxa[1] == edge2)
-        self.assert_(new_taxa[2] == edge3)
-        self.assert_(new_taxa[4] == edge4)
-        self.assert_(new_taxa[5] == edge4)
-        self.assert_(new_taxa[6] == edge4)
-
-    def test_bad_subs_file(self):
-        """ Tests what happens when an incorrectly formatted subs file is passed in
-        """
-
-        #this test should die, so wrap it up...
-        try:
-            old_taxa, new_taxa = parse_subs_file('data/input/nonsense.dat'); 
-        except UnableToParseSubsFile:
-            self.assert_(True)
-            return
-        self.assert_(False)
 
 
     def test_check_data(self):
         """Tests the _check_data function
         """
-
         #this test should pass, but wrap it up anyway
         try:
-            _check_data(etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)); 
-        except InvalidSTKData as e:
+            check_data(etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)); 
+        except excp.InvalidSTKData as e:
             print e.msg
             self.assert_(False)
             return
-        except NotUniqueError as e:
+        except excp.NotUniqueError as e:
             print e.msg
             self.assert_(False)
             return
         self.assert_(True)
-
-
 
 
     def test_str(self):
@@ -299,16 +220,13 @@ class TestSTK(unittest.TestCase):
     def test_str_from_matrix(self):
         """Test STR function from matrix
         """
-        matrix,taxa = read_matrix("data/input/matrix.nex")
+        matrix,taxa = stk_trees.read_matrix("data/input/matrix.nex")
         output, can_replace = safe_taxonomic_reduction(XML=None,matrix=matrix,taxa=taxa); 
         substitutions = subs_file_from_str(output)
         expected_can_replace = ["B","B_b","D","F"]
         expected_substitutions = ['A = B,B_b,A']
         self.assertListEqual(expected_can_replace,can_replace)
         self.assertListEqual(expected_substitutions,substitutions)
-
-
-
 
 
     def test_data_summary(self):
@@ -323,7 +241,6 @@ class TestSTK(unittest.TestCase):
         self.assertRegexpMatches(simple_summary,'Number of fossil taxa: 2')
         self.assertRegexpMatches(simple_summary,'Number of analyses: 2')
         self.assertRegexpMatches(simple_summary,'Data spans: 2010 - 2011')
-
         self.assertRegexpMatches(full_summary,'Number of taxa: 8')
         self.assertRegexpMatches(full_summary,'Number of characters: 2')
         self.assertRegexpMatches(full_summary,'Number of character types: 2')
@@ -334,6 +251,7 @@ class TestSTK(unittest.TestCase):
         self.assertRegexpMatches(full_summary,'     morphological')
         self.assertRegexpMatches(full_summary,'     molecular')
         self.assertRegexpMatches(full_summary,'Taxa List')
+
 
     def test_data_summary_incomplete(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
@@ -362,12 +280,11 @@ class TestSTK(unittest.TestCase):
         self.assertRegexpMatches(new_xml,re.escape('((A:1.00000,B:1.00000)0.00000:0.00000,F:1.00000,E:1.00000,(G:1.00000,H:1.00000)0.00000:0.00000)0.00000:0.00000;'))
         # check that the first tree is removed
         self.assertNotRegexpMatches(new_xml,re.escape('((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000)0.00000:0.00000)0.00000:0.00000;'))
-
-
         expected_weights = [str(1.0/3.0), str(1.0/3.0), str(1.0/3.0), str(0.5), str(0.5)]
         weights_in_xml = []
         # now check weights have been added to the correct part of the tree
-        xml_root = _parse_xml(XML)
+        xml_root = stk_phyml.parse_xml(new_xml)
+        # don't use stk_phyml.get_weights as it refactors for making the matrix
         i = 0
         for ei in expected_idents:
             for tree in ei:
@@ -377,12 +294,9 @@ class TestSTK(unittest.TestCase):
                     if t.attrib['name'] == tree:
                         # check len(trees) == 0
                         weights_in_xml.append(t.xpath("tree/weight/real_value")[0].text)
-
         self.assertListEqual(expected_weights,weights_in_xml) 
-            
-        
-
     
+
     def test_overlap(self):
         XML = etree.tostring(etree.parse('data/input/check_overlap_ok.phyml',parser),pretty_print=True)
         overlap_ok,keys = data_overlap(XML)
@@ -398,6 +312,7 @@ class TestSTK(unittest.TestCase):
         overlap_ok,keys = data_overlap(XML,filename=temp_file)
         self.assert_(overlap_ok)
         os.remove(temp_file)
+
 
     def test_data_overlap_against_old_stk(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
@@ -452,7 +367,6 @@ class TestSTK(unittest.TestCase):
         self.assert_("Baker_etal_2007a_1" in keys[0])
 
 
-
     def test_add_event(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         import datetime
@@ -471,28 +385,30 @@ class TestSTK(unittest.TestCase):
         # let's just settle with the correct datetime being found
         self.assertRegexpMatches(XML2, now1)
 
+
     def test_clean_data(self):
         XML = etree.tostring(etree.parse('data/input/clean_data.phyml',parser),pretty_print=True)
         XML = clean_data(XML)
-        trees = obtain_trees(XML)
+        trees = stk_phyml.get_all_trees(XML)
         self.assert_(len(trees) == 2)
         expected_trees = {'Hill_2011_2': '(A,B,(C,D,E));', 'Hill_2011_1': '(A, B, C, (D, E, F));'}
         for t in trees:
-            self.assert_(_trees_equal(trees[t],expected_trees[t]))
-
+            self.assert_(stk_trees.trees_equal(trees[t],expected_trees[t]))
         # check only one source remains
-        names = get_all_source_names(XML)
+        names = stk_phyml.get_all_source_names(XML)
         self.assert_(len(names) == 1)
         self.assert_(names[0] == "Hill_2011")
-       
+    
+
     def test_check_data(self):
         XML = etree.tostring(etree.parse('data/input/clean_data.phyml',parser),pretty_print=True)
-        self.assertRaises(UninformativeTreeError,_check_data,XML)
+        self.assertRaises(excp.UninformativeTreeError,check_data,XML)
         try:
-            _check_data(XML)
-        except UninformativeTreeError as e:
+            check_data(XML)
+        except excp.UninformativeTreeError as e:
             self.assertRegexpMatches(e.msg,"contains only 2 taxa and is not informative")
             self.assertRegexpMatches(e.msg,"doesn't contain any clades and is not informative")
+
 
     def test_replace_genera(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
@@ -507,11 +423,12 @@ class TestSTK(unittest.TestCase):
         self.assertListEqual(expected_genera,generic)
         self.assertListEqual(expected_subs,subs)
 
+
     def test_replace_genera2(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
         XML,generic,subs = replace_genera(XML)
         # see above for answer
-        taxa = get_all_taxa(XML)
+        taxa = stk_phyml.get_all_taxa(XML)
         self.assertNotIn('Gallus',taxa)
         self.assertNotIn('Larus',taxa)
         self.assertNotIn('Struthio',taxa)
@@ -528,12 +445,11 @@ class TestSTK(unittest.TestCase):
             f.write(g+" = "+subs[i]+"\n")
             i+=1
         f.close()
-        old_taxa, new_taxa = parse_subs_file(temp_file)
+        old_taxa, new_taxa = stk_util.load_subs_file(temp_file)
         expected_old = ['Gallus','Larus','Struthio']
-        expected_new = ['Gallus_gallus','Larus_argentatus,Larus_marinus','Struthio_camelus']                
+        expected_new = ['Gallus_gallus','Larus_argentatus,Larus_marinus','Struthio_camelus']        
         self.assertListEqual(expected_old,old_taxa)
         self.assertListEqual(expected_new,new_taxa)
-
 
 
     def test_load_equivalents(self):
@@ -545,7 +461,6 @@ class TestSTK(unittest.TestCase):
                     }
         equivalents = load_equivalents(csv_file)
         self.assertDictEqual(equivalents, expected)
-
 
 
 if __name__ == '__main__':

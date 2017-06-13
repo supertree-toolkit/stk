@@ -172,10 +172,31 @@ def locate(pattern, root=os.curdir):
             yield os.path.join(path, filename)
 
 
-
-
 def removeNonAscii(s): 
     """
     Removes any non-ascii characters from string, s.
     """
     return "".join(i for i in s if ord(i)<128)
+
+
+def already_in_data(new_source, sources):
+    """
+    Is the new source already in the dataset?
+
+    Determine this by searching for the paper title.
+
+    Returns the source which matches the new one and True if a match is found
+    or None, False if not.
+    """
+
+    find = etree.XPath('//title/string_value')
+    new_source_title = find(new_source)[0].text
+    current_sources = find(sources)
+    for title in current_sources:
+        t = title.text
+        if t == new_source_title:
+            return title.getparent().getparent().getparent().getparent(), True
+
+    return None, False
+
+

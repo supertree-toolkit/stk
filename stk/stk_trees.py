@@ -40,6 +40,8 @@ import string
 import stk.p4.MRP as MRP
 import numpy
 import csv
+import sys
+sys.setrecursionlimit(50000)
 
 
 def get_taxa(tree):
@@ -326,7 +328,7 @@ def assemble_tree_matrix(tree_string, verbose=False):
 
         adjmat = numpy.array(adjmat)
     except p4.Glitch as e:
-        names = getTaxa(tree_string)
+        names = get_taxa(tree_string)
         adjmat = []
         for i in range(0,len(names)):
             adjmat.append([1])
@@ -356,7 +358,7 @@ def permute_tree(tree,matrix="hennig",treefile=None,verbose=False):
     # i.e. without % on them
     tree = re.sub(r"'(?P<taxon>[a-zA-Z0-9_\+\=\.\? ]*) (?P<taxon2>[a-zA-Z0-9_\+\=\.\? %]*)'","\g<taxon>_\g<taxon2>",tree)
 
-    all_taxa = getTaxa(tree)
+    all_taxa = get_taxa(tree)
 
     names_d = [] # our duplicated list of names
     names = [] # our unique names (without any %)
@@ -412,7 +414,7 @@ def permute_tree(tree,matrix="hennig",treefile=None,verbose=False):
             if ( n < len(names_unique) ):
                 for i in range(1,non_unique_numbers[n]+1):
                     tempTree = temp;
-                    taxa = getTaxa(tree)
+                    taxa = get_taxa(tree)
                     # iterate over nodes
                     for name in taxa:
                         index = name.find('%')
@@ -491,7 +493,7 @@ def sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
     """ Simple, sorry, that should be "simple", swap of taxa
     """
 
-    taxa_in_tree = getTaxa(tree)
+    taxa_in_tree = get_taxa(tree)
     # we might have to add quotes back in
     for i in range(0,len(taxa_in_tree)):
         m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', taxa_in_tree[i])
@@ -898,7 +900,7 @@ def remove_single_poly_taxa(tree):
     """ Count the numbers after % in taxa names """
 
     try:
-        taxa = getTaxa(tree)
+        taxa = get_taxa(tree)
     except excp.TreeParseError:
         return tree
 
@@ -1021,7 +1023,7 @@ def create_matrix(trees, taxa, format="hennig", quote=False, weights=None, verbo
         matrix_string += "\n"
         if (not weights == None):
             # get unique weights
-            unique_weights = stk_internals.uniquify(weights)
+            unique_weights = stk_internals.uniquify(weights.values())
             for uw in unique_weights:
                 # The float for the weight cannot start with 0, even if it's 0.5
                 # so we strip of the 0 to make .5 instead (lstrip). TNT is weird with formats...

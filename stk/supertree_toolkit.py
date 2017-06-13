@@ -29,68 +29,35 @@ sys.path.insert(0,"../../")
 import stk.yapbib.biblist as biblist
 import stk.yapbib.bibparse as bibparse
 import stk.yapbib.bibitem as bibitem
-import string
 import stk_exceptions as excp
-from stk_taxonomy import *
+import stk_taxonomy
+import stk_phyml
+import stk_trees
 import traceback
-from cStringIO import StringIO
-from collections import defaultdict
+import stk_internals
 import stk.p4 as p4
 import re
 import operator
 import networkx as nx
 import datetime
 import indent
-import unicodedata
-import stk_internals
+import csv
 from copy import deepcopy
 import time
 import types
 
 #plt.ion()
 
-sys.setrecursionlimit(50000)
 # GLOBAL VARIABLES
 IDENTICAL = 0
 SUBSET = 1
 PLATFORM = sys.platform
-#Logging
-import logging
-logging.basicConfig(filename='supertreetoolkit.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
-
-# taxonomy levels
-# What we get from EOL
-current_taxonomy_levels = ['species','genus','tribe','subfamily','family','superfamily','order','superorder','class','superclass','phylum','subkingdom','kingdom']
-# And the extra ones from ITIS
-extra_taxonomy_levels = ['superfamily','infraorder','suborder','superorder','subclass','subphylum','superphylum','infrakingdom','subkingdom']
-# all of them in order
-taxonomy_levels = ['species','subgenus','genus','tribe','subfamily','family','superfamily','subsection','section','parvorder','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
-
-
-SPECIES = taxonomy_levels[0]
-GENUS = taxonomy_levels[1]
-FAMILY = taxonomy_levels[2]
-SUPERFAMILY = taxonomy_levels[3]
-INFRAORDER = taxonomy_levels[4]
-SUBORDER = taxonomy_levels[5]
-ORDER = taxonomy_levels[6]
-SUPERORDER = taxonomy_levels[7]
-SUBCLASS = taxonomy_levels[8]
-CLASS = taxonomy_levels[9]
-SUBPHYLUM = taxonomy_levels[10]
-PHYLUM = taxonomy_levels[11]
-SUPERPHYLUM = taxonomy_levels[12] 
-INFRAKINGDOM = taxonomy_levels[13]
-SUBKINGDOM = taxonomy_levels[14]
-KINGDOM = taxonomy_levels[15]
 
 # supertree_toolkit is the backend for the STK. Loaded by both the GUI and
 # CLI, this contains all the functions to actually *do* something
 #
 # All functions take XML and a list of other arguments, process the data and return
 # it back to the user interface handler to save it somewhere
-
-
 
 
 def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
@@ -106,8 +73,8 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
         taxonomy = {}
     else:
         taxonomy = existing_taxonomy
-    taxa = get_all_taxa(XML, pretty=True)
-    create_taxonomy_from_taxa(taxa, taxonomy)
+    taxa = stk_phyml.get_all_taxa(XML, pretty=True)
+    taxonomy = stk_taxonomy.create_taxonomy_from_taxa(taxa, taxonomy)
     return taxonomy
 
 
@@ -136,12 +103,11 @@ def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=N
         # create matrix code
         # *******REFACTOR: Split create_matrix into multiple 
         # functions, so we can just call them here and in create_matrix
-        # get all trees
-        trees = obtain_trees(XML)
+        trees = stk_phyml.get_all_trees(XML)
         # and the taxa
         taxa = []
         taxa.append("MRP_Outgroup")
-        taxa.extend(get_all_taxa(XML))
+        taxa.extend(stk_phyml.get_all_taxa(XML))
         # our matrix, we'll then append the submatrix
         # to this to make a 2D matrix
         # Our matrix is of length nTaxa on the i dimension
@@ -152,7 +118,7 @@ def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=N
         for key in trees:
             if (verbose):
                 print "Reading tree: "+key
-            submatrix, tree_taxa = stk_internals._assemble_tree_matrix(trees[key])
+            submatrix, tree_taxa = stk_trees.assemble_tree_matrix(trees[key])
             nChars = len(submatrix[0,:])
             # loop over characters in the submatrix
             for i in range(1,nChars):
@@ -323,6 +289,7 @@ def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=N
         queue.put([output_string, can_replace])
         return
 
+
 def subs_file_from_str(str_output):
     """From the textual output from STR (safe_taxonomic_reduction), create
     the subs file to put the C category taxa back into
@@ -382,7 +349,6 @@ def amalgamate_trees(XML,format="nexus",anonymous=False,ignoreWarnings=False):
         Any errors and None is returned - check for this as this is the 
         callers responsibility
     """
-
     if not ignoreWarnings:
         check_data(XML)
 
@@ -392,40 +358,9 @@ def amalgamate_trees(XML,format="nexus",anonymous=False,ignoreWarnings=False):
         format == "tnt")):
             return None
 
-    trees = obtain_trees(XML)
+    trees = stk_phyml.get_all_trees(XML)
 
-    return stk_internals._amalgamate_trees(trees,format,anonymous)
-        
-def get_taxa_from_tree_for_taxonomy(tree, pretty=False, ignoreErrors=False):
-    """Returns a list of all taxa available for the tree passed as argument.
-    :param tree: string with the data for the tree in Newick format.
-    :type tree: string
-    :param pretty: defines if '_' in taxa names should be replaced with spaces. 
-    :type pretty: boolean
-    :param ignoreErrors: should execution continue on error?
-    :type ignoreErrors: boolean
-    :returns: list of strings with the taxa names, sorted alphabetically
-    :rtype: list
-    """
-    taxa_list = []
-
-    try:
-        taxa_list.extend(stk_internals._getTaxaFromNewick(tree))
-    except excp.TreeParseError as detail:
-        if (ignoreErrors):
-            logging.warning(detail.msg)
-            pass
-        else:
-            raise TreeParseError( detail.msg )
-
-    # now uniquify the list of taxa
-    taxa_list = stk_internals._uniquify(taxa_list)
-    taxa_list.sort()
-
-    if (pretty):
-        taxa_list = [x.replace('_', ' ') for x in taxa_list]
-
-    return taxa_list
+    return stk_trees.amalgamate_trees(trees,format,anonymous)
 
 
 
@@ -439,59 +374,42 @@ def create_matrix(XML,format="hennig",quote=False,taxonomy=None,outgroups=False,
     weights = None
 
     # get all trees
-    trees = obtain_trees(XML)
+    trees = stk_phyml.get_all_trees(XML)
     if (not taxonomy == None):
         trees['taxonomy'] = taxonomy
 
 
     # return weights for each tree
-    weights = get_weights(XML)
+    weights = stk_phyml.get_weights(XML)
     # if all weights are 1, then just set back to None, so we don't add to matrix file
     w = weights.values()
-    w = stk_internals._uniquify(w)
+    w = stk_internals.uniquify(w)
     if w == [1]:
         weights = None
 
     if (outgroups):
-        outgroup_data = get_outgroup(XML)
+        outgroup_data = stk_phyml.get_outgroup(XML)
         for t in trees:
             try:
                 current_og = outgroup_data[t]
                 # we need to delete any outgroups
                 for o in current_og:
-                    trees[t] = stk_internals._delete_taxon(o, trees[t])
+                    trees[t] = stk_trees.delete_taxon(o, trees[t])
             except KeyError:
                 pass
 
     # and the taxa
     taxa = []
     for t in trees:
-        taxa.extend(stk_internals._getTaxaFromNewick(trees[t]))
-    taxa = stk_internals._uniquify(taxa)
+        taxa.extend(stk_trees.get_taxa(trees[t]))
+    taxa = stk_internals.uniquify(taxa)
     if (not taxonomy == None):
-        taxa.extend(stk_internals._getTaxaFromNewick(taxonomy))
-        taxa = stk_internals._uniquify(taxa)
+        taxa.extend(stk_trees.get_taxa(taxonomy))
+        taxa = stk_internals.uniquify(taxa)
         taxa.sort()
     taxa.insert(0,"MRP_Outgroup")
         
-    return stk_internals._create_matrix(trees, taxa, format=format, quote=quote, weights=weights,verbose=verbose)
-
-
-def create_matrix_from_trees(trees,format="hennig"):
-    """ Given a dictionary of trees, create a matrix
-    """
-
-    taxa = []
-    for t in trees:
-        tree = stk_internals._parse_tree(trees[t])
-        terminals = tree.getAllLeafNames(tree.root)
-        for term in terminals:
-            taxa.append(str(term))
-    
-    taxa = stk_internals._uniquify(taxa)
-
-    return stk_internals._create_matrix(trees, taxa, format=format)
-
+    return stk_trees.create_matrix(trees, taxa, format=format, quote=quote, weights=weights,verbose=verbose)
 
 
 def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWarnings=False, verbose=False, skip_existing=False, generic_match=False):
@@ -510,30 +428,29 @@ def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWar
 
     if not ignoreWarnings:
         check_data(XML)
-
     
-    old_taxa, new_taxa = _sort_sub_taxa(old_taxa,new_taxa)
+    old_taxa, new_taxa = stk_internals.sort_sub_taxa(old_taxa,new_taxa)
 
     # Sort incoming taxa
     if (only_existing):
-        existing_taxa = get_all_taxa(XML)
-        new_taxa = _sub_deal_with_existing_only(existing_taxa,old_taxa, new_taxa, generic_match)
+        existing_taxa = stk_phyml.get_all_taxa(XML)
+        new_taxa = stk_internals.sub_deal_with_existing_only(existing_taxa,old_taxa, new_taxa, generic_match)
 
     # need to check for uniquessness of souce names - error is not unique
-    check_uniqueness(XML)
+    stk_phyml.check_uniqueness(XML)
 
     # grab all trees and store as bio.phylo.tree objects
-    trees = obtain_trees(XML)
+    trees = stk_phyml.get_all_trees(XML)
 
     for name in trees.iterkeys():
         tree = trees[name]
-        new_tree = _sub_taxa_in_tree(tree,old_taxa,new_taxa,skip_existing=skip_existing)
-        XML = stk_internals._swap_tree_in_XML(XML,new_tree,name)
+        new_tree = stk_trees.sub_taxa_in_tree(tree,old_taxa,new_taxa,skip_existing=skip_existing)
+        XML = stk_phyml.swap_tree_in_XML(XML,new_tree,name)
  
     # now loop over all taxon elements in the XML, and 
     # remove/sub as necessary
     i = 0
-    xml_root = stk_internals._parse_xml(XML)
+    xml_root = stk_phyml.parse_xml(XML)
     xml_taxa = []
     xml_outgroup = []
     # grab all taxon elements and store
@@ -626,24 +543,21 @@ def substitute_taxa_in_trees(trees, old_taxa, new_taxa=None, only_existing = Fal
     do something sensible with this infomation
     """
 
-    old_taxa, new_taxa = _sort_sub_taxa(old_taxa,new_taxa)
+    old_taxa, new_taxa = stk_internals.sort_sub_taxa(old_taxa,new_taxa)
 
     # Sort incoming taxa
     if (only_existing):
         existing_taxa = []
         for tree in trees:
-            existing_taxa.extend(stk_internals._getTaxaFromNewick(tree))
-        existing_taxa = stk_internals._uniquify(existing_taxa)
-        new_taxa = _sub_deal_with_existing_only(existing_taxa,old_taxa, new_taxa, generic_match)
+            existing_taxa.extend(stk_trees.get_taxa(tree))
+        existing_taxa = stk_internals.uniquify(existing_taxa)
+        new_taxa = stk_internals.sub_deal_with_existing_only(existing_taxa,old_taxa, new_taxa, generic_match)
     
     new_trees = []
     for tree in trees:
-        new_trees.append(_sub_taxa_in_tree(tree,old_taxa,new_taxa))
+        new_trees.append(stk_trees.sub_taxa_in_tree(tree,old_taxa,new_taxa))
  
     return new_trees
-
-
-
 
 
 def data_summary(XML,detailed=False,ignoreWarnings=False):
@@ -657,20 +571,20 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
     if not ignoreWarnings:
         check_data(XML)
 
-    xml_root = stk_internals._parse_xml(XML)
-    proj_name = get_project_name(XML)
+    xml_root = stk_phyml.parse_xml(XML)
+    proj_name = stk_phyml.get_project_name(XML)
 
     output_string  = "======================\n"
     output_string += " Data summary of: " + proj_name + "\n" 
     output_string += "======================\n\n"
 
-    trees = obtain_trees(XML)
-    taxa = get_all_taxa(XML, pretty=False, ignoreErrors=True)
-    characters = get_all_characters(XML,ignoreErrors=True)
-    char_numbers = get_character_numbers(XML,ignoreErrors=True)
-    fossils = get_fossil_taxa(XML)
-    publication_years = get_publication_years(XML)
-    analyses = get_analyses_used(XML,ignoreErrors=True)
+    trees = stk_phyml.get_all_trees(XML)
+    taxa = stk_phyml.get_all_taxa(XML, pretty=False, ignoreErrors=True)
+    characters = stk_phyml.get_all_characters(XML,ignoreErrors=True)
+    char_numbers = stk_phyml.get_character_numbers(XML,ignoreErrors=True)
+    fossils = stk_phyml.get_fossil_taxa(XML)
+    publication_years = stk_phyml.get_publication_years(XML)
+    analyses = stk_phyml.get_analyses_used(XML,ignoreErrors=True)
     years = publication_years.keys()
     years.sort()
     chars = char_numbers.keys()
@@ -723,36 +637,20 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
     return output_string
 
 
-def taxonomic_checker_tree(tree_file,existing_data=None,verbose=False):
-    """ For each name in the database generate a database of the original name,
-    possible synonyms and if the taxon is not know, signal that. We do this by
-    using the EoL API to grab synonyms of each taxon.  """
-
-    tree = import_tree(tree_file)
-    p4tree = stk_internals._parse_tree(tree) 
-    taxa = p4tree.getAllLeafNames(p4tree.root) 
-    if existing_data == None:
-        equivalents = {}
-    else:
-        equivalents = existing_data
-
-    equivalents = taxonomic_checker_list(taxa,existing_data,verbose)
-    return equivalents
-
 def taxonomic_checker(XML,existing_data=None,verbose=False):
     """ For each name in the database generate a database of the original name,
     possible synonyms and if the taxon is not know, signal that. We do this by
     using the EoL API to grab synonyms of each taxon.  """
 
     # grab all taxa
-    taxa = get_all_taxa(XML)
+    taxa = stk_phyml.get_all_taxa(XML)
 
     if existing_data == None:
         equivalents = {}
     else:
         equivalents = existing_data
 
-    equivalents = taxonomic_checker_list(taxa,existing_data,verbose)
+    equivalents = stk_taxonomy.taxonomic_checker_list(taxa,existing_data,verbose)
     return equivalents
 
 
@@ -761,8 +659,6 @@ def load_equivalents(equiv_csv):
         Structure is key, with a list that is array of synonyms, followed by status ('green',
         'yellow' or 'red').
     """
-
-    import csv
 
     equivalents = {}
 
@@ -774,6 +670,7 @@ def load_equivalents(equiv_csv):
             equivalents[row[0]] = [row[1].split(';'),row[2]]
     
     return equivalents
+
 
 def generate_species_level_data(XML, taxonomy, ignoreWarnings=False, verbose=False):
     """ Based on a taxonomy data set, amend the data to be at species level as
@@ -789,18 +686,18 @@ def generate_species_level_data(XML, taxonomy, ignoreWarnings=False, verbose=Fal
 
     # if taxonomic checker not done, warn
     if (not taxonomy):
-        raise NoneCompleteTaxonomy("Taxonomy is empty. Create a taxonomy first. You'll probably need to hand edit the file to complete")
+        raise excp.NoneCompleteTaxonomy("Taxonomy is empty. Create a taxonomy first. You'll probably need to hand edit the file to complete")
         return
 
     # if missing data in taxonomy, warn
-    taxa = get_all_taxa(XML)
+    taxa = stk_phyml.get_all_taxa(XML)
     keys = taxonomy.keys()
     if (not ignoreWarnings):
         for t in taxa:
             t = t.replace("_"," ")
             if not t in keys:
                 # This idea here is that the caller will catch this, then re-run with ignoreWarnings set to True
-                raise NoneCompleteTaxonomy("Taxonomy is not complete. I will soldier on anyway, but this might not work as intended")
+                raise excp.NoneCompleteTaxonomy("Taxonomy is not complete. I will soldier on anyway, but this might not work as intended")
 
     # get all taxa - see above!
     # for each taxa, if not at species level
@@ -809,7 +706,7 @@ def generate_species_level_data(XML, taxonomy, ignoreWarnings=False, verbose=Fal
     for t in taxa:
         subs = []
         t = t.replace("_"," ")
-        if (not SPECIES in taxonomy[t]): # the current taxon is not a species, but higher level taxon
+        if (not 'species' in taxonomy[t]): # the current taxon is not a species, but higher level taxon
             # work out which level - should we encode this in the data to start with?
             for tl in taxonomy_levels:
                 try:
@@ -821,7 +718,7 @@ def generate_species_level_data(XML, taxonomy, ignoreWarnings=False, verbose=Fal
                     # find all species in the taxonomy that match this level
                     for taxon in taxa:
                         taxon = taxon.replace("_"," ")
-                        if (SPECIES in taxonomy[taxon]):
+                        if ('species' in taxonomy[taxon]):
                             try:
                                 if taxonomy[taxon][current_level] == t: # our current taxon
                                     subs.append(taxon.replace(" ","_"))
@@ -838,6 +735,8 @@ def generate_species_level_data(XML, taxonomy, ignoreWarnings=False, verbose=Fal
     new_XML = clean_data(new_XML)
     
     return new_XML
+
+
 
 def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=False, verbose=False, ignoreWarnings=False):
     """ Calculate the amount of taxonomic overlap between source trees.
@@ -872,7 +771,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
 
     # First grab all trees
     try:
-        trees = obtain_trees(XML)
+        trees = stk_phyml.get_all_trees(XML)
     except:
         return
 
@@ -891,14 +790,14 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
     # loop over trees (i=0, N)
     for i in range(0,nTrees):
         # Grab the taxa from tree i
-        taxa_list_i = stk_internals._getTaxaFromNewick(trees[tree_keys[i]])
+        taxa_list_i = stk_trees.get_taxa(trees[tree_keys[i]])
         taxa_set = set(taxa_list_i)
 
         # loop over tree i+1 to end (j=i+1,N)
         for j in range(i+1,nTrees):
             matches = 0
             # grab the taxa from tree j
-            taxa_list_j = stk_internals._getTaxaFromNewick(trees[tree_keys[j]])
+            taxa_list_j = stk_trees.get_taxa(trees[tree_keys[j]])
 
             # Inspired by: http://stackoverflow.com/questions/1388818/how-can-i-compare-two-lists-in-python-and-return-matches
             matches = len(taxa_set.intersection(taxa_list_j)) 
@@ -1071,10 +970,10 @@ def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
     # The two jones_2008 trees are not independent.  jones_2008_2 is retained
     data_ind = []
 
-    trees = obtain_trees(XML)
+    trees = stk_phyml.get_all_trees(XML)
     for tree_name in trees:
-        taxa = get_taxa_from_tree(XML, tree_name, sort=True)
-        characters = get_characters_from_tree(XML, tree_name, sort=True)
+        taxa = stk_phyml.get_taxa_from_tree(XML, tree_name, sort=True)
+        characters = stk_phyml.get_characters_from_tree(XML, tree_name, sort=True)
         data_ind.append([tree_name, characters, taxa])
     
     # Then sort based on the character string and taxa_list as secondary sort
@@ -1126,13 +1025,13 @@ def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
         new_xml = XML
         # deal with subsets
         for s in subsets:
-            new_xml = stk_internals._swap_tree_in_XML(new_xml,None,s[1]) 
+            new_xml = stk_phyml.swap_tree_in_XML(new_xml,None,s[1]) 
         new_xml = clean_data(new_xml)
         # deal with identical - weight them, if there's 3, weights are 0.3, i.e. 
         # weights are 1/no of identical trees
         for i in identical:
             weight = 1.0 / float(len(i))
-            new_xml = add_weights(new_xml, i, weight)
+            new_xml = stk_phyml.add_weights(new_xml, i, weight)
 
         return identical, subsets, new_xml
     else:
@@ -1147,7 +1046,7 @@ def add_historical_event(XML, event_description):
     """
 
     now  = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    xml_root = stk_internals._parse_xml(XML)
+    xml_root = stk_phyml.parse_xml(XML)
 
     find = etree.XPath("//history")
     history = find(xml_root)[0]
@@ -1165,6 +1064,7 @@ def add_historical_event(XML, event_description):
 
     return XML
 
+
 def clean_data(XML):
     """ Cleans up (i.e. deletes) non-informative trees and empty sources
         Same function as check data, but instead of raising message, simply fixes the problems.
@@ -1172,38 +1072,38 @@ def clean_data(XML):
 
     # check all names are unique - this is easy...
     try:
-        check_uniqueness(XML) # this will raise an error is the test is not passed
+        stk_phyml.check_uniqueness(XML) # this will raise an error is the test is not passed
     except excp.NotUniqueError:
-        XML = set_unique_names(XML)
+        XML = stk_phyml.set_unique_names(XML)
 
     # now the taxa
-    XML = stk_internals._check_taxa(XML,delete=True) 
+    XML = stk_phyml.check_taxa(XML,delete=True) 
 
     # check trees are informative
-    XML = stk_internals._check_informative_trees(XML,delete=True)
+    XML = stk_phyml.check_informative_trees(XML,delete=True)
 
     
     # check sources
-    XML = stk_internals._check_sources(XML,delete=True)
-    XML = all_sourcenames(XML)
+    XML = stk_phyml.check_sources(XML,delete=True)
+    XML = stk_phyml.all_sourcenames(XML)
     
     # fix tree names
-    XML = set_unique_names(XML)
-    XML = set_all_tree_names(XML,overwrite=True)
+    XML = stk_phyml.set_unique_names(XML)
+    XML = stk_phyml.set_all_tree_names(XML,overwrite=True)
     
 
     # unpermutable trees
-    permutable_trees = stk_internals._find_trees_for_permuting(XML)
-    all_trees = obtain_trees(XML)
+    permutable_trees = stk_phyml.find_trees_for_permuting(XML)
+    all_trees = stk_phyml.get_all_trees(XML)
     for t in permutable_trees:
         new_tree = permutable_trees[t]
         for i in range(10): # do at most 10 iterations
-            new_tree = stk_internals._collapse_nodes(new_tree)
+            new_tree = stk_trees.collapse_nodes(new_tree)
         
-        if (not stk_internals._trees_equal(new_tree,permutable_trees[t])):
-           XML = stk_internals._swap_tree_in_XML(XML,new_tree,t) 
+        if (not stk_trees.trees_equal(new_tree,permutable_trees[t])):
+           XML = stk_phyml.swap_tree_in_XML(XML,new_tree,t) 
 
-    XML = stk_internals._check_informative_trees(XML,delete=True)
+    XML = stk_phyml.check_informative_trees(XML,delete=True)
 
     return XML
 
@@ -1218,7 +1118,7 @@ def replace_genera(XML,dry_run=False,ignoreWarnings=False):
         check_data(XML)
 
     # get all the taxa
-    taxa = get_all_taxa(XML)
+    taxa = stk_phyml.get_all_taxa(XML)
 
     generic = []
     # find all the generic and build an internal subs file
@@ -1250,7 +1150,7 @@ def replace_genera(XML,dry_run=False,ignoreWarnings=False):
 
     XML = clean_data(XML)
 
-    return XML,generic_to_replace,subs
+    return XML, generic_to_replace, subs
 
 
 def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWarnings=False):
@@ -1308,8 +1208,8 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
     # Easiest way to do this is to remove all sources from the incoming XML (after taking a copy!)
     # and add them back if they match the request requirements. That way, we keep the history, etc, etc
     original_XML = XML
-    xml_root = stk_internals._parse_xml(XML)
-    orig_xml_root = stk_internals._parse_xml(original_XML)
+    xml_root = stk_phyml.parse_xml(XML)
+    orig_xml_root = stk_phyml.parse_xml(original_XML)
 
     # remove sources
     # Find all "source" trees
@@ -1321,7 +1221,7 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
         s.getparent().remove(s)
 
     # edit name (append _subset)
-    proj_name = get_project_name(XML)
+    proj_name = stk_phyml.get_project_name(XML)
     proj_name += "_subset"
     xml_root.xpath('/phylo_storage/project_name/string_value')[0].text = proj_name
 
@@ -1547,14 +1447,14 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
     """
     from ete2 import Tree
     
-    start_level = taxonomy_levels.index(top_level)
+    start_level = stk_taxonomy.taxonomy_levels.index(top_level)
     new_taxa = tree_taxonomy.keys()
 
     tl_types = []
     for tt in tree_taxonomy:
         tl_types.append(tree_taxonomy[tt][top_level])
 
-    tl_types = stk_internals._uniquify(tl_types)
+    tl_types = stk_internals.uniquify(tl_types)
     levels_to_worry_about = taxonomy_levels[0:taxonomy_levels.index(top_level)+1]
         
     t = Tree()
@@ -1573,7 +1473,7 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
                 names.append(tree_taxonomy[tt][l])
             except KeyError:
                 pass
-        names = stk_internals._uniquify(names)
+        names = stk_internals.uniquify(names)
         for n in names:
             # find my parent
             parent = None
@@ -1614,34 +1514,14 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
             nodes[l].append({n:nd})
 
     tree = t.write(format=9)  
-    tree = stk_internals._collapse_nodes(tree)
-    tree = stk_internals._collapse_nodes(tree)
-    tree = stk_internals._collapse_nodes(tree)
     
-
+    for i in range(0,3):
+        # 2 isn't enough, three seems to do it most times
+        tree = stk_trees.collapse_nodes(tree)
     
     return tree
+   
 
-
-def already_in_data(new_source,sources):
-    """
-    Is the new source already in the dataset?
-
-    Determine this by searching for the paper title.
-
-    Returns the source which matches the new one and True if a match is found
-    or None, False if not.
-    """
-
-    find = etree.XPath('//title/string_value')
-    new_source_title = find(new_source)[0].text
-    current_sources = find(sources)
-    for title in current_sources:
-        t = title.text
-        if t == new_source_title:
-            return title.getparent().getparent().getparent().getparent(), True
-
-    return None, False
 
 def check_data(XML):
     """ Function to check various aspects of the dataset, including:
@@ -1650,190 +1530,18 @@ def check_data(XML):
     """
 
     # check all names are unique - this is easy...
-    check_uniqueness(XML) # this will raise an error is the test is not passed
+    stk_phyml.check_uniqueness(XML) # this will raise an error is the test is not passed
 
     # now the taxa
-    _check_taxa(XML) # again will raise an error if test fails
+    stk_phyml.check_taxa(XML) # again will raise an error if test fails
 
     # check trees are informative
-    _check_informative_trees(XML)
+    stk_phyml.check_informative_trees(XML)
 
     # check sources
-    _check_sources(XML,delete=False)
+    stk_phyml.check_sources(XML,delete=False)
 
     return
-
-def _create_matrix(trees, taxa, format="hennig", quote=False, weights=None, verbose=False):
-    """
-    Does the hard work on creating a matrix
-    """
-
-    # our matrix, we'll then append the submatrix
-    # to this to make a 2D matrix
-    # Our matrix is of length nTaxa on the i dimension
-    # and nCharacters in the j direction
-    matrix = []
-    charsets = []
-    if (weights == None):
-        weights_per_char = None
-    else:
-        weights_per_char = []
-    names = []
-    current_char = 1
-    for key in trees:
-        if (not weights == None):
-            weight = weights[key]
-        names.append(key)
-        submatrix, tree_taxa = _assemble_tree_matrix(trees[key], verbose=verbose)
-        nChars = len(submatrix[0,:])
-        # loop over characters in the submatrix
-        for i in range(1,nChars):
-            if (not weights == None):
-                weights_per_char.append(weight)
-            # loop over taxa. Add '?' for an "unknown" taxa, otherwise
-            # get 0 or 1 from submatrix. May as well turn into a string whilst
-            # we're at it
-            current_row = []
-            for taxon in taxa:
-                if (taxon in tree_taxa):
-                    # get taxon index
-                    t_index = tree_taxa.index(taxon)
-                    # then get correct matrix entry - note:
-                    # submatrix transposed wrt main matrix
-                    current_row.append(str(int(submatrix[t_index,i])))
-                elif (taxon == "MRP_Outgroup"):
-                    current_row.append('0')
-                else:
-                    current_row.append('?')
-            matrix.append(current_row)
-        charsets.append(str(current_char) + "-" + str(current_char + nChars-2))
-        current_char += nChars-1
-
-    matrix = numpy.array(matrix)
-    matrix = matrix.transpose()
-
-    return _create_matrix_string(matrix,taxa,charsets=charsets,names=names,
-                                 format=format,quote=quote,weights=weights_per_char)
-
-
-def _create_matrix_string(matrix,taxa,charsets=None,names=None,
-                          format='hennig',quote=False,weights=None):
-    """
-    Turns a matrix into a string
-    """
-
-    last_char = len(matrix[0])    
-    if (format == 'hennig'):
-        matrix_string = "xread\n"
-        matrix_string += str(last_char) + " "+str(len(taxa))+"\n"
-
-        i = 0
-        for taxon in taxa:
-            matrix_string += taxon + "\t"
-            string = ""
-            for t in matrix[i][:]:
-                string += t
-            matrix_string += string + "\n"
-            i += 1
-            
-        matrix_string += "\n"
-        if (not weights == None):
-            # get unique weights
-            unique_weights = _uniquify(weights)
-            for uw in unique_weights:
-                # The float for the weight cannot start with 0, even if it's 0.5
-                # so we strip of the 0 to make .5 instead (lstrip). TNT is weird with formats...
-                # We also strip off trailing zeros for neatness (rstrip)
-                matrix_string += "ccode +[/"+("%.3f"%uw).lstrip('0').rstrip('0')
-                i = 0
-                for w in weights:
-                    if (w == uw):
-                        matrix_string += " " + str(i)
-                    i += 1
-                matrix_string += ";\n"
-        matrix_string += "proc /;"
-    elif (format == 'nexus'):
-        matrix_string = "#nexus\n\nbegin data;\n"
-        matrix_string += "\tdimensions ntax = "+str(len(taxa)) +" nchar = "+str(last_char)+";\n"
-        matrix_string += "\tformat missing = ?"
-        matrix_string += ";\n"
-        matrix_string += "\n\tmatrix\n\n"
-
-        i = 0
-        for taxon in taxa:
-            if (quote):
-                matrix_string += "'" + taxon + "'\t"
-            else:
-                matrix_string += taxon + "\t"
-            string = ""
-            for t in matrix[i][:]:
-                string += t
-            matrix_string += string + "\n"
-            i += 1
-        if (not charsets == None):
-            
-            matrix_string += "\t;\nend;\n\n"
-            matrix_string += "begin sets;\n"
-            if (names == None):
-                names = []
-                i = 1
-                for c in charset:
-                    names.append("chars_"+str(i))
-            i = 0
-            for char in charsets:
-                matrix_string += "\tcharset "+names[i] + " "
-                matrix_string += char + "\n"
-                i += 1
-        matrix_string += "end;\n\n"
-    else:
-        raise MatrixError("Invalid matrix format")
-
-    return matrix_string
-
-    
-def _amalgamate_trees(trees,format,anonymous=False):
-    """
-    Does all the hard work of amalgamating trees
-    """
-    
-    # all trees are in Newick string format already
-    # For each format, Newick, Nexus and TNT this format
-    # is adequate. 
-    # Newick: Do nothing - write one tree per line
-    # Nexus: Add header, write one tree per line, prepending tree info, taking into acount annonymous flag
-    # TNT: strip commas, write one tree per line
-    output_string = ""
-    if format.lower() == "nexus":
-        output_string += "#NEXUS\n\nBEGIN TREES;\n\n"
-    if format.lower() == "tnt":
-        output_string += "tread 'tree(s) from TNT, for data in Matrix.tnt'\n"
-    tree_count = 0
-    for tree in trees:
-        if format.lower() == "nexus":
-            if anonymous:
-                output_string += "\tTREE tree_"+str(tree_count)+" = "+trees[tree]+"\n"
-            else:
-                output_string += "\tTREE "+tree+" = "+trees[tree]+"\n"
-        elif format.lower() == "newick":
-            output_string += trees[tree]+"\n"
-        elif format.lower() == "tnt":
-            t = trees[tree];
-            t = t.replace(",","");
-            t = t.replace(";","");
-            if (tree_count < len(trees)-1):
-                output_string += t+"*\n"
-            else:
-                output_string += t+";\n"
-        tree_count += 1
-    # Footer
-    if format.lower() == "nexus":
-        output_string += "\n\nEND;"
-    elif format.lower() == "tnt":
-        output_string += "\n\nproc-;"
-
-    return output_string
-
-
 
 
 def import_bibliography(XML, bibfile, skip=False):
@@ -1845,7 +1553,7 @@ def import_bibliography(XML, bibfile, skip=False):
     # Our bibliography parser
     b = biblist.BibList()
 
-    xml_root = stk_internals._parse_xml(XML)
+    xml_root = stk_phyml.parse_xml(XML)
     
     # Track back along xpath to find the sources where we're about to add a new source
     sources = xml_root.xpath('sources')[0]
@@ -1945,10 +1653,11 @@ def import_bibliography(XML, bibfile, skip=False):
                                 " try again. You can add the offending entry manually.\n\n"+msg)
 
     # sort sources in alphabetical order
-    xml_root = stk_internals._sort_data(xml_root)
+    xml_root = stk_phyml.sort_data(xml_root)
     XML = etree.tostring(xml_root,pretty_print=True)
     
     return XML
+
 
 ## Note: this is different to all other STK functions as
 ## it saves the file, rather than passing back a string for the caller to save
@@ -1973,7 +1682,7 @@ def export_bibliography(XML,filename,format="bibtex"):
     # our bibliography
     bibliography = biblist.BibList()
    
-    xml_root = stk_internals._parse_xml(XML)    
+    xml_root = stk_phyml.parse_xml(XML)    
     find = etree.XPath("//article")
     articles = find(xml_root)
     # loop through all articles
@@ -2116,7 +1825,6 @@ def export_bibliography(XML,filename,format="bibtex"):
 
         bib_it = bibitem.BibItem(bib_dict)
         bibliography.add_item(bib_it)
-
 
 
     find = etree.XPath("//in_collection")

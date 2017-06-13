@@ -31,6 +31,7 @@ from stk_taxonomy import create_taxonomy_from_taxa, create_extended_taxonomy, lo
 from stk_taxonomy import get_taxonomy_eol, get_taxonomy_worms, get_taxonomy_itis
 from stk.stk_internals import internet_on
 from stk.stk_trees import trees_equal
+import stk.stk_phyml as stk_phyml
 from lxml import etree
 from util import *
 parser = etree.XMLParser(remove_blank_text=True)
@@ -76,7 +77,6 @@ class TestSTKTaxonomy(unittest.TestCase):
             print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
         return
 
-    @unittest.skip("Skip until refactor of stk.stk_phyml done")
     def test_taxonomy_checker2(self):
         XML = etree.tostring(etree.parse('data/input/check_taxonomy_fixes.phyml',parser),pretty_print=True)
         if (internet_on()):

@@ -9,7 +9,8 @@ _stk_taxonomy.py \
 _stk_util.py \
 _stk_trees.py \
 _stk_internals.py \
-_stk_phyml
+_stk_phyml.py \
+_supertree_toolkit.py
 
 # default case (and test). Loop through all
 # tests listed above and run them

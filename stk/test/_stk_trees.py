@@ -3,12 +3,13 @@ import sys
 # so we import local stk before any other
 sys.path.insert(0,"../../")
 from stk.stk_trees import import_tree, import_trees, trees_equal, tree_contains, assemble_tree_matrix
-from stk.stk_trees import delete_taxon, sub_taxon, permute_tree, getTaxa, collapse_nodes
+from stk.stk_trees import delete_taxon, sub_taxon, permute_tree, get_taxa, collapse_nodes
 from stk.stk_trees import get_all_siblings, read_matrix, parse_tree, parse_trees, sub_taxa_in_tree
 from stk.stk_trees import correctly_quote_taxa, remove_single_poly_taxa
 import numpy
 import os
 from lxml import etree
+import tempfile
 import stk.p4 as p4
 # our test dataset
 import tempfile
@@ -249,7 +250,7 @@ class TestTreeManipulation(unittest.TestCase):
 
     def test_getTaxaFromNewick_quoted(self):
         tree = "((Bothropolys_multidentatus, Lithobius_obscurus, 'Lithobius variegatus rubriceps', Lithobius_forficatus, Australobius_scabrior, Eupolybothrus_fasciatus), (Shikokuobius_japonicus, (Dichelobius_flavens, Dichelobius_ACT, (Anopsobius_TAS, (Anopsobius_neozelanicus, Anopsobius_NSW))), (Zygethobius_pontis, Cermatobius_japonicus, (Henicops_brevilabiatus, Henicops_dentatus, Henicops_SEQLD, (Lamyctes_emarginatus, Lamyctes_coeculus, Lamyctes_inermipes, Lamyctes_africanus, Lamyctes_hellyeri), (Henicops_maculatus_TAS, (Henicops_maculatus_NSW, Henicops_maculatus_NZ))), ('Paralamyctes (Paralamyctes) spenceri', 'Paralamyctes (Paralamyctes) weberi', 'Paralamyctes (Paralamyctes) asperulus', 'Paralamyctes (Paralamyctes) prendinii', 'Paralamyctes (Paralamyctes) tridens', 'Paralamyctes (Paralamyctes) neverneverensis', 'Paralamyctes (Paralamyctes) harrisi', 'Paralamyctes (Paralamyctes) monteithi SEQLD', 'Paralamyctes (Paralamyctes) monteithi NEQLD', 'Paralamyctes (Paralamyctes) monteithi MEQLD', ('Paralamyctes (Haasiella) trailli', 'Paralamyctes (Haasiella) subicolus'), ('Paralamyctes chilensis', 'Paralamyctes wellingtonensis'), ('Paralamyctes (Nothofagobius) cassisi', 'Paralamyctes (Nothofagobius) mesibovi'), ('Paralamyctes (Thingathinga) ?grayi', ('Paralamyctes (Thingathinga) grayi NSW1', 'Paralamyctes (Thingathinga) grayi NSW2')), ('Paralamyctes (Thingathinga) validus NZ3', ('Paralamyctes (Thingathinga) validus NZ1', 'Paralamyctes (Thingathinga) validus NZ2'))))));"
-        taxa = getTaxa(tree)
+        taxa = get_taxa(tree)
         self.assert_("Lithobius_variegatus_rubriceps" in taxa)
 
     def test_collapse_nodes(self):
@@ -544,15 +545,30 @@ class TestMatrixMethods(unittest.TestCase):
         os.remove(temp_file)
         self.assert_(len(output_trees)==len(expected_trees))
         for i in range(0,len(output_trees)):
-            self.assert_(_trees_equal(output_trees[i],expected_trees[i]))
+            self.assert_(trees_equal(output_trees[i],expected_trees[i]))
 
-    
+
+    def test_permute_trees_2(self):
+        XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
+        trees = stk_phyml.get_all_trees(XML)
+        output = permute_tree(trees['Davis_2011_1'],treefile="newick")
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".new")
+        f = open(temp_file,"w")
+        f.write(output)
+        f.close()
+        output_trees = import_trees(temp_file)
+        expected_trees = import_trees("data/output/permute_trees_2.nex")
+        os.remove(temp_file)
+        self.assert_(len(output_trees)==len(expected_trees))
+   
+
     def test_permute_trees_3(self):
         XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
         trees = stk_phyml.get_all_trees(XML)
         # contains quoted taxa too
         output = permute_tree(trees['Hill_Davis_2011_2'],treefile="newick")
-        self.assert_(_trees_equal(output,"(A, (B, (C, D, E_E, F, G)));"))
+        self.assert_(trees_equal(output,"(A, (B, (C, D, E_E, F, G)));"))
+
 
 if __name__ == '__main__':
     unittest.main()
