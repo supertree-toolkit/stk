@@ -42,7 +42,7 @@ import numpy
 import csv
 
 
-def getTaxa(tree):
+def get_taxa(tree):
     """ Get the terminal nodes from a Newick string"""
 
     t_obj = parse_tree(tree)

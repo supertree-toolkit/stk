@@ -91,577 +91,25 @@ KINGDOM = taxonomy_levels[15]
 # it back to the user interface handler to save it somewhere
 
 
-def get_project_name(XML):
-    """
-    Get the name of the dataset currently being worked on
-    """
-
-    xml_root = stk_internals._parse_xml(XML)
-
-    return xml_root.xpath('/phylo_storage/project_name/string_value')[0].text 
 
 
-def create_name(authors, year, append=''):
-    """ 
-    Construct a sensible from a list of authors and a year for a 
-    source name.
-    Input: authors - list of last (family, sur) names (string).
-           year - the year (string).
-           append - append something onto the end of the name.
-    Output: source_name - (string)
-    """
+def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
+    """Generates a taxonomy of the data from EoL data. This is stored as a
+    dictionary of taxonomy for each taxon in the dataset. Missing data are
+    encoded as '' (blank string). It's up to the calling function to store this
+    data to file or display it."""
+    
+    if not ignoreWarnings:
+        check_data(XML)
 
-    source_name = None
-    if (authors[0] == None):
-        # No authors yet!
-        raise NoAuthors("No authors found to sort") 
-    if (len(authors) == 1):
-        # single name: name_year
-        source_name = authors[0] + "_" + year + append
-    elif (len(authors) == 2):
-        source_name = authors[0] + "_" + authors[1] + "_" + year + append
+    if (existing_taxonomy is None):
+        taxonomy = {}
     else:
-        source_name = authors[0] + "_etal_" + year + append
+        taxonomy = existing_taxonomy
+    taxa = get_all_taxa(XML, pretty=True)
+    create_taxonomy_from_taxa(taxa, taxonomy)
+    return taxonomy
 
-    return source_name
-
-
-def single_sourcename(XML,append=''):
-    """ Create a sensible source name based on the 
-    bibliographic data.
-    XML should contain the xml_root for the source that is to be
-    altered only.
-    NOTE: It is the responsibility of the calling process of this 
-          function to check for name uniqueness.
-    """
-
-    xml_root = stk_internals._parse_xml(XML)
-
-    find = etree.XPath("//authors")
-    authors_ele = find(xml_root)[0]
-    authors = []
-    for ele in authors_ele.iter():
-        if (ele.tag == "surname"):
-            authors.append(ele.xpath('string_value')[0].text)
-    
-    find = etree.XPath("//year/integer_value")
-    year = find(xml_root)[0].text
-    source_name = create_name(authors, year,append)
-    
-    attributes = xml_root.attrib
-    attributes["name"] = source_name
-
-    XML = etree.tostring(xml_root,pretty_print=True)
-
-    # Return the XML stub with the correct name
-    return XML
-
-def all_sourcenames(XML, trees=False):
-    """
-    Create a sensible sourcename for all sources in the current
-    dataset. This includes appending a, b, etc for duplicate names.
-    """
-
-    xml_root = stk_internals._parse_xml(XML)
-
-    # Find all "source" trees
-    sources = []
-    for ele in xml_root.iter():
-        if (ele.tag == "source"):
-            sources.append(ele)
-
-    for s in sources:
-        xml_snippet = etree.tostring(s,pretty_print=True)
-        xml_snippet = single_sourcename(xml_snippet)
-        parent = s.getparent()
-        ele_T = stk_internals._parse_xml(xml_snippet)
-        parent.replace(s,ele_T)
-
-    XML = etree.tostring(xml_root,pretty_print=True)
-    # gah: the replacement has got rid of line breaks for some reason
-    XML = string.replace(XML,"</source><source ", "</source>\n    <source ")
-    XML = string.replace(XML,"</source></sources", "</source>\n  </sources") 
-    XML = set_unique_names(XML)
-    if (trees):
-        XML = set_all_tree_names(XML,overwrite=True)
-    
-    return XML
-
-def get_all_source_names(XML):
-    """ From a full XML-PHYML string, extract all source names.
-    """
-
-    xml_root = stk_internals._parse_xml(XML)
-    find = etree.XPath("//source")
-    sources = find(xml_root)
-    names = []
-    for s in sources:
-        attr = s.attrib
-        name = attr['name']
-        names.append(name)
-    
-    return names
-
-def get_all_tree_names(XML):
-    """ From a full XML-PHYML string, extract all tree names.
-    """
-
-    xml_root = stk_internals._parse_xml(XML)
-    find = etree.XPath("//source")
-    sources = find(xml_root)
-    names = []
-    for s in sources:
-        for st in s.xpath("source_tree"):
-            if 'name' in st.attrib and not st.attrib['name'] == "":
-                names.append(st.attrib['name'])
-    
-    return names
-
-
-def set_unique_names(XML):
-    """ Ensures all sources have unique names.
-    """
-    
-    xml_root = stk_internals._parse_xml(XML)
-
-    # All source names
-    source_names = get_all_source_names(XML)
-
-    # The list is stored as a dict, with the key being the name
-    # The value is the number of times this names occurs
-    unique_source_names = defaultdict(int)
-    for n in source_names:
-        unique_source_names[n] += 1
-
-    # if they are unique (i.e. == 1), then make it == 0
-    for k in unique_source_names.iterkeys():
-        if unique_source_names[k] == 1:
-            unique_source_names[k] = 0
-    
-    # Find all "source" trees
-    sources = []
-    for ele in xml_root.iter():
-        if (ele.tag == "source"):
-            sources.append(ele)
-
-    last_name = ''
-    for s in sources:
-        current_name = s.attrib['name']
-        if (unique_source_names[current_name] > 0):
-            number = unique_source_names[current_name]
-            # if there are two entries for this name, we should get 'a' and 'b'
-            # 'a' + 1 == b
-            # 'a' + 0 == a
-            letter = chr(ord('a')+(number-1)) 
-            xml_snippet = etree.tostring(s,pretty_print=True)
-            xml_snippet = single_sourcename(xml_snippet,append=letter)
-            parent = s.getparent()
-            ele_T = stk_internals._parse_xml(xml_snippet)
-            parent.replace(s,ele_T)
-            # decrement the value so our letter is not the
-            # same as last time
-            unique_source_names[current_name] -=1
-
-    # sort new name
-    xml_root = stk_internals._sort_data(xml_root)
-
-    XML = etree.tostring(xml_root,pretty_print=True)
-
-    return XML
-
-def create_tree_name(XML,source_tree_element):
-
-    """
-    Creates a tree name for a given source
-    Simply the source_name with a number added
-    source_tree_element is the element that contains the source tree, 
-    i.e. sources/source/source_tree
-    """
-
-    xml_root = stk_internals._parse_xml(XML)
-    source = source_tree_element.getparent()
-    # count current trees
-    tree_count = 1
-    for t in source.xpath("source_tree"):
-        if 'name' in t.attrib and not t.attrib['name'] == "":
-                tree_count += 1
-    try:
-        tree_name = source.attrib['name'] + "_" + str(tree_count)
-    except KeyError:
-        # no name set for source
-        tree_name = str(tree_count)
-
-    return tree_name
-
-def set_all_tree_names(XML,overwrite=False):
-
-    """Set all *unset* tree names
-    """
-
-    xml_root = stk_internals._parse_xml(XML)
-
-    # Find all "source" trees
-    sources = []
-    for ele in xml_root.iter():
-        if (ele.tag == "source"):
-            sources.append(ele)
-
-    if overwrite:
-        # remove all the names first
-        for s in sources:
-            for st in s.xpath("source_tree"):
-                if 'name' in st.attrib:
-                    del st.attrib['name']
-
-
-    for s in sources:
-        for st in s.xpath("source_tree"):
-            if not'name' in st.attrib:
-                tree_name = create_tree_name(XML,st)
-                st.attrib['name'] = tree_name
-   
-    XML = etree.tostring(xml_root,pretty_print=True)    
-    return XML
-
-
-
-def import_bibliography(XML, bibfile, skip=False):
-    """
-    Create a bunch of sources from a bibtex file. This includes setting the sourcenames 
-    for each source.
-    """
-    
-    # Our bibliography parser
-    b = biblist.BibList()
-
-    xml_root = stk_internals._parse_xml(XML)
-    
-    # Track back along xpath to find the sources where we're about to add a new source
-    sources = xml_root.xpath('sources')[0]
-    sources.tail="\n      "
-    if (bibfile == None):
-        raise BibImportError("Error importing bib file. There was an error with the file")
-
-    try: 
-        b.import_bibtex(bibfile,True,False)
-    except bibparse.BibAuthorError as e:
-        # This seems to be raised if the authors aren't formatted correctly
-        raise BibImportError("Error importing bib file. Check all your authors for correct format: " + e.msg)
-    except bibparse.BibKeyError as e:
-        raise BibImportError("Error importing bib file. " + e.msg)
-    except AttributeError as e:
-        # This seems to occur if the keys are not set for the entry
-        raise BibImportError("Error importing bib file. Check all your entry keys. "+e.msg)
-    except:
-        raise BibImportError("Error importing bibliography") 
-
-    items= b.sortedList[:]
-
-    for entry in items:
-        # for each bibliographic entry, create the XML stub and
-        # add it to the main XML
-        it= b.get_item(entry)
-        xml_snippet = it.to_xml()
-        if xml_snippet != None:
-            # turn this into an etree
-            publication = stk_internals._parse_xml(xml_snippet)
-            # create top of source
-            source = etree.Element("source")
-            # now attach our publication
-            source.append(publication)
-            new_source = single_sourcename(etree.tostring(source,pretty_print=True))
-            source = stk_internals._parse_xml(new_source)
-            
-            # now create tail of source
-            s_tree = etree.SubElement(source, "source_tree")
-            s_tree.tail="\n      "
-            # Tree data
-            tree = etree.SubElement(s_tree,"tree")
-            tree.tail="\n      "
-            tree_string = etree.SubElement(tree,"tree_string")
-            tree_string.tail="\n      "
-            tree_string_string = etree.SubElement(tree_string,"string_value")
-            tree_string_string.tail="\n      "
-            tree_string_string.attrib['lines'] = "1"
-            # Figure and page number stuff
-            figure_legend = etree.SubElement(tree,"figure_legend")
-            figure_legend.tail="\n      "
-            figure_legend_string = etree.SubElement(figure_legend,"string_value")
-            figure_legend_string.tail="\n      "
-            figure_legend_string.attrib['lines'] = "1"
-            figure_number = etree.SubElement(tree,"figure_number")
-            figure_number.tail="\n      "
-            figure_number_string = etree.SubElement(figure_number,"string_value")
-            figure_number_string.tail="\n      "
-            figure_number_string.attrib['lines'] = "1"
-            page_number = etree.SubElement(tree,"page_number")
-            page_number.tail="\n      "
-            page_number_string = etree.SubElement(page_number,"string_value")
-            page_number_string.tail="\n      "
-            page_number_string.attrib['lines'] = "1"
-            tree_inference = etree.SubElement(tree,"tree_inference")
-            # taxa data
-            taxa = etree.SubElement(s_tree,"taxa_data")
-            taxa.tail="\n      "
-            # Note: we do not add all elements as otherwise they get set to some option
-            # rather than remaining blank (and hence blue in the interface)
-
-            # append our new source to the main tree
-            # if sources has no valid source, overwrite,
-            # else append
-            valid = True
-            i = 0
-            for ele in sources:
-                try:
-                    ele.attrib['name']
-                    i += 1
-                    continue
-                except:
-                    valid = False
-            if not valid:
-                sources[i] = source
-            else:
-                sources.append(source)
-            
-        else:
-            if (skip):
-                continue
-
-            msg = entry
-            raise BibImportError("Error with one of the entries in the bib file."+
-                                " Note the name is mangled to generate a unique ID "+
-                                "(but should include the name and the year). Remove this and"+
-                                " try again. You can add the offending entry manually.\n\n"+msg)
-
-    # sort sources in alphabetical order
-    xml_root = stk_internals._sort_data(xml_root)
-    XML = etree.tostring(xml_root,pretty_print=True)
-    
-    return XML
-
-## Note: this is different to all other STK functions as
-## it saves the file, rather than passing back a string for the caller to save
-## This is becuase yapbib saves the file and rather than re-write, I thought
-## I'd go with it as in this case I would only ever save the file
-def export_bibliography(XML,filename,format="bibtex"):
-    """ 
-    Export all source papers as a bibliography in 
-    either bibtex, xml, html, short or long formats
-    """
-
-    #check format
-    if (not (format == "xml" or
-             format == "html" or
-             format == "bibtex" or
-             format == "short" or
-             format == "latex" or
-             format == "long")):
-        return 
-        # raise error here
-
-    # our bibliography
-    bibliography = biblist.BibList()
-   
-    xml_root = stk_internals._parse_xml(XML)    
-    find = etree.XPath("//article")
-    articles = find(xml_root)
-    # loop through all articles
-    for a in articles: 
-        name = a.getparent().getparent().attrib['name']
-        # get authors
-        authors = []
-        for auths in a.xpath("authors/author"):
-            surname = auths.xpath("surname/string_value")[0].text
-            first = auths.xpath("other_names/string_value")[0].text
-            authors.append(["", surname,first,''])
-        title   = a.xpath("title/string_value")[0].text
-        year    = a.xpath("year/integer_value")[0].text
-        bib_dict = {
-                "_code"  : name,
-                "_type"  : 'article',
-                "author" : authors,
-                "title"  : title,
-                "year"   : year,
-                }
-        # these are optional in the schema
-        if (a.xpath("journal/string_value")):
-            if (not a.xpath("journal/string_value") == None):
-                journal = a.xpath("journal/string_value")[0].text
-                bib_dict['journal']=journal
-        if (a.xpath("volume/string_value")):
-            if (not a.xpath("volume/string_value") == None):
-                volume  = a.xpath("volume/string_value")[0].text
-                bib_dict['volume']=volume
-        if (a.xpath("pages/string_value")):
-            if (not a.xpath("pages/string_value")[0].text == None):
-                firstpage, lastpage = bibparse.process_pages(a.xpath("pages/string_value")[0].text)
-                bib_dict['firstpage']=firstpage
-                bib_dict['lastpage']=lastpage
-        if (a.xpath("issue/string_value")):
-            if (not a.xpath("issue/string_value") == None):
-                issue   = a.xpath("issue/string_value")[0].text
-                bib_dict['issue']=issue
-        if (a.xpath("doi/string_value")):
-            if (not a.xpath("doi/string_value") == None):
-                doi     = a.xpath("doi/string_value")[0].text
-                bib_dict['doi']=doi
-        if (a.xpath("number/string_value")):
-            if (not a.xpath("number/string_value") == None):
-                number  = a.xpath("number/string_value")[0].text
-                bib_dict['number']=number
-        if (a.xpath("url/string_value")):
-            if (not a.xpath("url/string_value") == None):
-                url     = a.xpath("url/string_value")[0].text
-                bib_dict['url']=url
-        
-        bib_it = bibitem.BibItem(bib_dict)
-        bibliography.add_item(bib_it)
-
-    find = etree.XPath("//book")
-    books = find(xml_root)
-    # loop through all books
-    for b in books: 
-        name = b.getparent().getparent().attrib['name']
-        # get authors
-        authors = []
-        for auths in b.xpath("authors/author"):
-            surname = auths.xpath("surname/string_value")[0].text
-            first = auths.xpath("other_names/string_value")[0].text
-            authors.append(["", surname,first,''])
-        title   = b.xpath("title/string_value")[0].text
-        year    = b.xpath("year/integer_value")[0].text
-        bib_dict = {
-                "_code"  : name,
-                "_type"  : 'book',
-                "author" : authors,
-                "title"  : title,
-                "year"   : year,
-                }
-        # these are optional in the schema
-        if (b.xpath("editors")):
-            editors = []
-            for eds in b.xpath("editors/editor"):
-                surname = eds.xpath("surname/string_value")[0].text
-                first = eds.xpath("other_names/string_value")[0].text
-                editors.append(["", surname,first,''])
-            bib_dict["editor"]=editors
-        if (b.xpath("series/string_value")):
-            series = b.xpath("series/string_value")[0].text
-            bib_dict['series']=series
-        if (b.xpath("publisher/string_value")):
-            publisher  = b.xpath("publisher/string_value")[0].text
-            bib_dict['publisher']=publisher
-        if (b.xpath("doi/string_value")):
-            doi     = b.xpath("doi/string_value")[0].text
-            bib_dict['doi']=doi
-        if (b.xpath("url/string_value")):
-            url     = b.xpath("url/string_value")[0].text
-            bib_dict['url']=url
-        
-        bib_it = bibitem.BibItem(bib_dict)
-        bibliography.add_item(bib_it)
-
-
-    find = etree.XPath("//in_book")
-    inbook = find(xml_root)
-    # loop through all in book 
-    for i in inbook: 
-        name = i.getparent().getparent().attrib['name']
-        # get authors
-        authors = []
-        for auths in i.xpath("authors/author"):
-            surname = auths.xpath("surname/string_value")[0].text
-            first = auths.xpath("other_names/string_value")[0].text
-            authors.append(["", surname,first,''])
-        title   = i.xpath("title/string_value")[0].text
-        year    = i.xpath("year/integer_value")[0].text
-        editors = []
-        for eds in i.xpath("editors/editor"):
-            surname = eds.xpath("surname/string_value")[0].text
-            first = eds.xpath("other_names/string_value")[0].text
-            editors.append(["", surname,first,''])
-        bib_dict = {
-                "_code"  : name,
-                "_type"  : 'inbook',
-                "author" : authors,
-                "title"  : title,
-                "year"   : year,
-                "editor" : editors
-                }
-        # these are optional in the schema
-        if (i.xpath("series/string_value")):
-            series = i.xpath("series/string_value")[0].text
-            bib_dict['series']=series
-        if (i.xpath("publisher/string_value")):
-            publisher  = i.xpath("publisher/string_value")[0].text
-            bib_dict['publisher']=publisher
-        if (i.xpath("pages/string_value")):
-            firstpage, lastpage = bibparse.process_pages(i.xpath("pages/string_value")[0].text)
-            bib_dict['firstpage']=firstpage
-            bib_dict['lastpage']=lastpage
-        if (i.xpath("doi/string_value")):
-            doi     = i.xpath("doi/string_value")[0].text
-            bib_dict['doi']=doi
-
-        bib_it = bibitem.BibItem(bib_dict)
-        bibliography.add_item(bib_it)
-
-
-
-    find = etree.XPath("//in_collection")
-    incollections = find(xml_root)
-    # loop through all in collections 
-    for i in incollections: 
-        name = i.getparent().getparent().attrib['name']
-        # get authors
-        authors = []
-        for auths in i.xpath("authors/author"):
-            surname = auths.xpath("surname/string_value")[0].text
-            first = auths.xpath("other_names/string_value")[0].text
-            authors.append(["", surname,first,''])
-        title   = i.xpath("title/string_value")[0].text
-        year    = i.xpath("year/integer_value")[0].text
-        bib_dict = {
-                "_code"  : name,
-                "_type"  : 'incollection',
-                "author" : authors,
-                "title"  : title,
-                "year"   : year,
-                }
-        # these are optional in the schema
-        if (i.xpath("editors")):
-            editors = []
-            for eds in i.xpath("editors/editor"):
-                surname = eds.xpath("surname/string_value")[0].text
-                first = eds.xpath("other_names/string_value")[0].text
-                editors.append(["", surname,first,''])
-            bib_dict["editor"]=editors
-        if (i.xpath("booktitle/string_value")):
-            booktitle = i.xpath("booktitle/string_value")[0].text
-            bib_dict['booktitle']=booktitle
-        if (i.xpath("series/string_value")):
-            series = i.xpath("series/string_value")[0].text
-            bib_dict['series']=series
-        if (i.xpath("publisher/string_value")):
-            publisher  = i.xpath("publisher/string_value")[0].text
-            bib_dict['publisher']=publisher
-        if (i.xpath("pages/string_value")):
-            firstpage, lastpage = bibparse.process_pages(i.xpath("pages/string_value")[0].text)
-            bib_dict['firstpage']=firstpage
-            bib_dict['lastpage']=lastpage
-        if (i.xpath("doi/string_value")):
-            doi     = i.xpath("doi/string_value")[0].text
-            bib_dict['doi']=doi
-        if (i.xpath("url/string_value")):
-            url     = i.xpath("url/string_value")[0].text
-            bib_dict['url']=url
-
-        bib_it = bibitem.BibItem(bib_dict)
-        bibliography.add_item(bib_it)
-    
-    bibliography.output(fout=filename,formato=format,verbose=False)
-    
-    return
 
 def safe_taxonomic_reduction(XML, matrix=None, taxa=None, verbose=False, queue=None, ignoreWarnings=False):
     """ Perform STR on data to remove taxa that 
@@ -926,308 +374,6 @@ def subs_file_from_str(str_output):
     return replacements
 
 
-def get_all_characters(XML,ignoreErrors=False):
-    """Returns a dictionary containing a list of characters within each 
-    character type"""
-
-    xml_root = stk_internals._parse_xml(XML)
-    find = etree.XPath("//character")
-    characters = find(xml_root)
-
-    # grab all character types first
-    types = []
-    for c in characters:
-        try:
-            types.append(c.attrib['type'])
-        except KeyError:
-            if (ignoreErrors):
-                pass
-            else:
-                raise KeyError("Error getting character type. Incomplete data")
-
-    u_types = stk_internals._uniquify(types)
-    u_types.sort()
-
-    char_dict = {}
-    for t in u_types:
-        char = []
-        for c in characters:
-            try:
-                if (c.attrib['type'] == t):
-                    if (not c.attrib['name'] in char):
-                        char.append(c.attrib['name'])
-            except KeyError:
-                if (ignoreErrors):
-                    pass
-                else:
-                    raise KeyError("Error getting character type. Incomplete data")
-
-        char_dict[t] = char       
-
-    return char_dict
-
-def get_publication_year_tree(XML,name):
-    """Return a dictionary of years and the number of publications
-    within that year
-    """
-
-    # Our input tree has name source_no, so find the source by stripping off the number
-    source_name, number = name.rsplit("_",1)
-    number = int(number.replace("_",""))
-    xml_root = stk_internals._parse_xml(XML)
-    # By getting source, we can then loop over each source_tree
-    find = etree.XPath("//source")
-    sources = find(xml_root)
-    # loop through all sources
-    for s in sources:
-        # for each source, get source name
-        name = s.attrib['name']
-        if source_name == name:
-            # found the bugger!
-            tree_no = 1
-            for t in s.xpath("source_tree/tree/tree_string"):
-                if tree_no == number:
-                    # and now we have the correct tree. 
-                    # Now we can get the year for this tree
-                    if not t.getparent().getparent().getparent().xpath("bibliographic_information/article") == None:
-                        year = int(t.getparent().getparent().getparent().xpath("bibliographic_information/article/year/integer_value")[0].text)
-                    elif not t.getparent().getparent().getparent().xpath("bibliographic_information/book") == None:
-                        year = int(t.getparent().getparent().getparent().xpath("bibliographic_information/book/year/integer_value")[0].text)
-                    elif not t.getparent().getparent().getparent().xpath("bibliographic_information/in_book") == None:
-                        year = int(t.getparent().getparent().getparent().xpath("bibliographic_information/in_book/year/integer_value")[0].text)
-                    elif not t.getparent().getparent().getparent().xpath("bibliographic_information/in_collection") == None:
-                        year = int(t.getparent().getparent().getparent().xpath("bibliographic_information/in_collection/year/integer_value")[0].text)
-                    return year
-                tree_no += 1
-
-    # should raise exception here
-    return None
-
-def get_characters_from_tree(XML,name,sort=False):
-    """Get the characters that were used in a particular tree
-    """
-
-    characters = []
-    # Our input tree has name source_no, so find the source by stripping off the number
-    source_name, number = name.rsplit("_",1)
-    number = int(number.replace("_",""))
-    xml_root = stk_internals._parse_xml(XML)
-    # By getting source, we can then loop over each source_tree
-    find = etree.XPath("//source")
-    sources = find(xml_root)
-    # loop through all sources
-    for s in sources:
-        # for each source, get source name
-        name = s.attrib['name']
-        if source_name == name:
-            # found the bugger!
-            tree_no = 1
-            for t in s.xpath("source_tree/tree/tree_string"):
-                if tree_no == number:
-                    # and now we have the correct tree. 
-                    # Now we can get the characters for this tree
-                    chars = t.getparent().getparent().xpath("character_data/character")
-                    for c in chars:
-                        characters.append(c.attrib['name'])
-                    if (sort):
-                        characters.sort()
-                    return characters
-                tree_no += 1
-
-    # should raise exception here
-    return characters
-
-def get_character_types_from_tree(XML,name,sort=False):
-    """Get the character types that were used in a particular tree
-    """
-
-    characters = []
-    # Our input tree has name source_no, so find the source by stripping off the number
-    source_name, number = name.rsplit("_",1)
-    number = int(number.replace("_",""))
-    xml_root = stk_internals._parse_xml(XML)
-    # By getting source, we can then loop over each source_tree
-    find = etree.XPath("//source")
-    sources = find(xml_root)
-    # loop through all sources
-    for s in sources:
-        # for each source, get source name
-        name = s.attrib['name']
-        if source_name == name:
-            # found the bugger!
-            tree_no = 1
-            for t in s.xpath("source_tree/tree/tree_string"):
-                if tree_no == number:
-                    # and now we have the correct tree. 
-                    # Now we can get the characters for this tree
-                    chars = t.getparent().getparent().xpath("character_data/character")
-                    for c in chars:
-                        characters.append(c.attrib['type'])
-                    if (sort):
-                        characters.sort()
-                    return characters
-                tree_no += 1
-
-    # should raise exception here
-    return characters
-
-
-def get_characters_used(XML):
-    """ Return a sorted, unique array of all character names used
-    in this dataset
-    """
- 
-    c_ = []
- 
-    xml_root = stk_internals._parse_xml(XML)
-    find = etree.XPath("//character")
-    chars = find(xml_root)
-
-    for c in chars:
-        name = c.attrib['name']
-        ctype = c.attrib['type']
-        c_.append((name,ctype))
- 
-    characters = stk_internals._uniquify(c_) 
-    characters.sort(key=lambda x: x[0].lower())
- 
-    return characters
-
-def get_character_numbers(XML,ignoreErrors=False):
-    """ Return the number of trees that use each character
-    """
-
-    xml_root = stk_internals._parse_xml(XML)
-    find = etree.XPath("//character")
-    characters = find(xml_root)
-
-    char_numbers = defaultdict(int)
-
-    for c in characters:
-        try:
-            char_numbers[c.attrib['name']] += 1
-        except KeyError:
-            if (ignoreErrors):
-                pass
-            else:
-                raise KeyError("Error getting character type. Incomplete data")
-
-    return char_numbers
-
-def get_taxa_from_tree(XML, tree_name, sort=False):
-    """Return taxa from a single tree based on name
-    """
-
-    trees = obtain_trees(XML)
-    taxa_list = []
-    for t in trees:
-        if t == tree_name:
-            tree = stk_internals._parse_tree(trees[t]) 
-            terminals = tree.getAllLeafNames(tree.root)
-            for term in terminals:
-                taxa_list.append(str(term))
-            if (sort):
-                taxa_list.sort()
-            return taxa_list
-
-    # actually need to raise exception here
-    # and catch it in calling function
-    return taxa_list
-
-
-def get_fossil_taxa(XML):
-    """Return a list of fossil taxa
-    """
-
-    f_ = []
-
-    xml_root = stk_internals._parse_xml(XML)
-    find = etree.XPath("//fossil")
-    fossils = find(xml_root)
-
-    for f in fossils:
-        try:
-            name = f.getparent().attrib['name']
-            f_.append(name)
-        except KeyError:
-            pass
-
-    fossil_taxa = stk_internals._uniquify(f_) 
-    
-    return fossil_taxa
-
-def get_analyses_used(XML,ignoreErrors=False):
-    """ Return a sorted, unique array of all analyses types used
-    in this dataset
-    """
-
-    a_ = []
-
-    xml_root = stk_internals._parse_xml(XML)
-    find = etree.XPath("//optimality_criterion")
-    analyses = find(xml_root)
-
-    for a in analyses:
-        try:
-            name = a.attrib['name']
-            a_.append(name)
-        except KeyError:
-            if (ignoreErrors):
-                pass
-            else:
-                raise KeyError("Error parsing analyses. Incomplete data")
-
-    analyses = stk_internals._uniquify(a_) 
-    analyses.sort()
-
-    return analyses
-
-def get_publication_years(XML):
-    """Return a dictionary of years and the number of publications
-    within that year
-    """
-
-    year_dict = defaultdict(int)
-    xml_root = stk_internals._parse_xml(XML)
-    find = etree.XPath("//year")
-    years = find(xml_root)
-
-    for y in years:
-        try:
-            year = int(y.xpath('integer_value')[0].text)
-            year_dict[year] += 1
-        except TypeError:
-            pass
-
-    return year_dict
-
-def obtain_trees(XML):
-    """ Parse the XML and obtain all tree strings
-    Output: dictionary of tree strings, with key indicating treename (unique)
-    """
-
-    xml_root = stk_internals._parse_xml(XML)
-    # By getting source, we can then loop over each source_tree
-    # within that source and construct a unique name
-    find = etree.XPath("//source")
-    sources = find(xml_root)
-    trees = {}
-
-    # loop through all sources
-    for s in sources:
-        for t in s.xpath("source_tree/tree/tree_string"):
-            try:
-                t_name = t.getparent().getparent().attrib['name']
-            except KeyError:
-                # no name, so make one!
-                t_name = create_tree_name(XML,t.getparent().getparent())
-                t.getparent().getparent().attrib['name'] = t_name
-            # append to dictionary, with source_name_tree_no = tree_string
-            if (not t.xpath("string_value")[0].text == None):
-                trees[t_name] = t.xpath("string_value")[0].text
-
-    return trees
-
 def amalgamate_trees(XML,format="nexus",anonymous=False,ignoreWarnings=False):
     """ Create a string containing all trees in the XML.
         String can be formatted to one of Nexus, Newick or TNT.
@@ -1281,105 +427,6 @@ def get_taxa_from_tree_for_taxonomy(tree, pretty=False, ignoreErrors=False):
 
     return taxa_list
 
-def get_all_taxa(XML, pretty=False, ignoreErrors=False):
-    """ Produce a taxa list by scanning all trees within 
-    a PHYML file. 
-
-    The list is return sorted (alphabetically).
-
-    Setting pretty=True means all underscores will be
-    replaced by spaces"""
-
-    trees = obtain_trees(XML)
-
-    taxa_list = []
-
-    for tname in trees.keys():
-        t = trees[tname]
-        try:
-            taxa_list.extend(stk_internals._getTaxaFromNewick(t))
-        except excp.TreeParseError as detail:
-            if (ignoreErrors):
-                logging.warning(detail.msg)
-                pass
-            else:
-                raise TreeParseError( detail.msg )
-
-    # now uniquify the list of taxa
-    taxa_list = stk_internals._uniquify(taxa_list)
-    taxa_list.sort()
-
-    if (pretty): #Remove underscores from names
-        taxa_list = [x.replace('_', ' ') for x in taxa_list]
-
-    return taxa_list
-
-
-def get_weights(XML):
-    """ Get weights for each tree. Returns dictionary of tree name (key) and weights
-        (value)
-    """
-
-    xml_root = stk_internals._parse_xml(XML)
-    # By getting source, we can then loop over each source_tree
-    # within that source and construct a unique name
-    find = etree.XPath("//source")
-    sources = find(xml_root)
-
-    weights = {}
-
-    # loop through all sources
-    for s in sources:
-        # for each source, get source name
-        name = s.attrib['name']
-        for t in s.xpath("source_tree"):
-            tree_name = t.attrib['name']
-            if (len(t.xpath("tree/weight/real_value")) > 0):
-                weights[tree_name] = float(t.xpath("tree/weight/real_value")[0].text)
-            else:
-                weights[tree_name] = 1.0
-
-    min_weight = min(weights.values())
-    factor = 1.0/min_weight
-    for w in weights:
-        weights[w] = weights[w]*factor
-    
-    return weights
-
-
-def get_outgroup(XML):
-    """ For each tree, get the outgroup defined in the schema
-    """
-    xml_root = stk_internals._parse_xml(XML)
-    # By getting source, we can then loop over each source_tree
-    # within that source and construct a unique name
-    find = etree.XPath("//source")
-    sources = find(xml_root)
-
-    outgroups = {}
-
-    # loop through all sources
-    for s in sources:
-        # for each source, get source name
-        name = s.attrib['name']
-        # get trees
-        tree_no = 1
-        for t in s.xpath("source_tree/tree"):
-            t_name = name+"_"+str(tree_no)
-            if (len(t.xpath("topology/outgroup/string_value")) > 0):
-                temp_outgp = t.xpath("topology/outgroup/string_value")[0].text
-                temp_outgp = temp_outgp.replace("\n", ",")
-                temp_outgp = temp_outgp.split(",")
-                outgroups[t_name] = temp_outgp                
-            tree_no += 1
-
-    # replace spaces with _ in outgroup names
-    for key in outgroups:
-        og = outgroups[key]
-        og = [o.strip().replace(' ', '_') for o in og]
-        outgroups[key] = og
-
-    return outgroups
 
 
 def create_matrix(XML,format="hennig",quote=False,taxonomy=None,outgroups=False,ignoreWarnings=False, verbose=False):
@@ -1444,14 +491,6 @@ def create_matrix_from_trees(trees,format="hennig"):
     taxa = stk_internals._uniquify(taxa)
 
     return stk_internals._create_matrix(trees, taxa, format=format)
-
-
-def load_phyml(filename):
-    """ Super simple function that returns XML
-        string from PHYML file
-    """
-    parser = etree.XMLParser(remove_blank_text=True)
-    return etree.tostring(etree.parse(filename,parser),pretty_print=True)
 
 
 
@@ -2100,35 +1139,6 @@ def data_independence(XML,make_new_xml=False,ignoreWarnings=False):
         return identical, subsets
 
 
-def add_weights(XML, names, weight):
-    """ Add weights for tree, supply array of names and a weight, they get set
-        Returns a new XML
-    """
-
-    xml_root = stk_internals._parse_xml(XML)
-    # By getting source, we can then loop over each source_tree
-    find = etree.XPath("//source_tree")
-    sources = find(xml_root)
-    for s in sources:
-        s_name = s.attrib['name']
-        for n in names:
-            if s_name == n:
-                if s.xpath("tree/weight/real_value") == []:
-                    # add weights
-                    weights_element = etree.Element("weight")
-                    weights_element.tail="\n"
-                    real_value = etree.SubElement(weights_element,'real_value')
-                    real_value.attrib['rank'] = '0'
-                    real_value.tail = '\n'
-                    real_value.text = str(weight)
-                    t = s.xpath("tree")[0]                    
-                    t.append(weights_element)
-                else:
-                    s.xpath("tree/weight/real_value")[0].text = str(weight)
-
-    return etree.tostring(xml_root,pretty_print=True)
-
-
 def add_historical_event(XML, event_description):
     """
     Add a historial_event element to the XML. 
@@ -2241,20 +1251,6 @@ def replace_genera(XML,dry_run=False,ignoreWarnings=False):
     XML = clean_data(XML)
 
     return XML,generic_to_replace,subs
-
-
-
-def get_all_genera(XML):
-
-    taxa = get_all_taxa(XML)
-
-    generic = []
-    for t in taxa:
-        t = t.replace('"','')
-        generic.append(t.split("_")[0])
-
-    return generic
-    
 
 
 def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWarnings=False):
@@ -2667,581 +1663,6 @@ def check_data(XML):
 
     return
 
-
-def check_uniqueness(XML):
-    """ This funciton is an error check for uniqueness in 
-    the keys of the sources
-    """
-
-    try:
-        xml_root = stk_internals._parse_xml(XML)
-        # By getting source, we can then loop over each source_tree
-        # within that source and construct a unique name
-        find = etree.XPath("//source")
-        sources = find(xml_root)
-    except:
-        raise excp.InvalidSTKData("Error parsing the data to check uniqueness")
-    
-    names = []
-    message = ""
-    # loop through all sources
-    try:
-        for s in sources:
-            # for each source, get source name
-            names.append(s.attrib['name'])
-    except:
-        raise excp.InvalidSTKData("Error parsing the data to check uniqueness")
-
-    names.sort()
-    last_name = "" # This will actually throw an non-unique error if a name is empty
-    # not great, but still an error!
-    for name in names:
-        if name == last_name:
-            # if non-unique throw exception
-            message = message + \
-                    "The source names in the dataset are not unique. Please run the auto-name function on these data. Name: "+name+"\n"
-        last_name = name
-
-    # do same for tree names:
-    names = get_all_tree_names(XML)
-    names.sort()
-    last_name = "" # This will actually throw an non-unique error if a name is empty
-    # not great, but still an error!
-    for name in names:
-        if name == last_name:
-            # if non-unique throw exception
-            message = message + \
-                    "The tree names in the dataset are not unique. Please run the auto-name function on these data with replace or edit by hand. Name: "+name+"\n"
-        last_name = name
-
-    if (not message == ""):
-        raise excp.NotUniqueError(message)
-
-    return
-
-
-
-
-def _assemble_tree_matrix(tree_string, verbose=False):
-    """ Assembles the MRP matrix for an individual tree
-
-        returns: matrix (2D numpy array: taxa on i, nodes on j)
-                 taxa list: in same order as in the matrix
-    """
-
-    tree = _parse_tree(tree_string)
-    try:
-        mrp = MRP.mrp([tree])
-        adjmat = []
-        names = []
-        for i in range(0,mrp.nTax):
-            seq = (mrp.sequences[i].sequence)
-            names.append(mrp.taxNames[i])
-            chars = []
-            chars.append(1)
-            for c in seq:
-                chars.append(int(c))
-            adjmat.append(chars)
-
-        adjmat = numpy.array(adjmat)
-    except p4.Glitch:
-        names = _getTaxaFromNewick(tree_string)
-        adjmat = []
-        for i in range(0,len(names)):
-            adjmat.append([1])
-        adjmat = numpy.array(adjmat)
-    if verbose:
-        print "Warning: Found uninformative tree in data. Including it in the matrix anyway"
-
-    return adjmat, names
-
-def _sub_taxa_in_tree(tree,old_taxa,new_taxa=None,skip_existing=False):
-    """Swap the taxa in the old_taxa array for the ones in the
-    new_taxa array
-    
-    If the new_taxa array is missing, simply delete the old_taxa
-    """
-  
-    tree = _correctly_quote_taxa(tree)
-    # are the input values lists or simple strings?
-    if (isinstance(old_taxa,str)):
-        old_taxa = [old_taxa]
-    if (new_taxa == None):
-        new_taxa = len(old_taxa)*[None]
-    elif (new_taxa and isinstance(new_taxa,str)):
-        new_taxa = [new_taxa]
-
-    # check they are same lengths now
-    if (new_taxa):
-        if (len(old_taxa) != len(new_taxa)):
-            print "Substitution failed. Old and new are different lengths"
-            return # need to raise exception here
-
-    i = 0
-    for taxon in old_taxa:
-        # tree contains the old_taxon, do something with it
-        taxon = taxon.replace(" ","_")
-        if (_tree_contains(taxon,tree)):
-            if (new_taxa == None or new_taxa[i] == None):
-                p4tree = _parse_tree(tree) 
-                terminals = p4tree.getAllLeafNames(p4tree.root) 
-                count = 0
-                taxon_temp = taxon.replace("'","")
-                for t in terminals:
-                    t = t.replace(" ","_")
-                    if (t == taxon_temp):
-                        count += 1
-                    if (t.startswith(taxon_temp+"%")):
-                        count += 1 
-                # we are deleting taxa - we might need multiple iterations
-                for t in range(0,count):
-                    tree = _delete_taxon(taxon, tree)
-
-            else:
-                # we are substituting
-                tree = _sub_taxon(taxon, new_taxa[i], tree, skip_existing=skip_existing)
-        i += 1
-
-    tree = _collapse_nodes(tree)
-    tree = _remove_single_poly_taxa(tree)
-
-    return tree 
-
-def _tree_contains(taxon,tree):
-    """ Returns if a taxon is contained in the tree
-    """
-
-    taxon = taxon.replace(" ","_")
-    try:
-        tree = _parse_tree(tree) 
-    except excp.TreeParseError:
-        return False
-    terminals = tree.getAllLeafNames(tree.root)
-    # p4 strips off ', so we need to do so for the input taxon
-    taxon = taxon.replace("'","")
-    for t in terminals:
-        t = t.replace(" ","_")
-        if (t == taxon):
-            return True
-        if (t.startswith(taxon+"%")):
-            return True # match potential non-monophyletic taxa
-
-    return False
-
-
-def _delete_taxon(taxon, tree):
-    """ Delete a taxon from a tree string
-    """
-
-    taxon = taxon.replace(" ","_")
-    taxon = taxon.replace("'","")
-    # check if taxa is in there first
-    if (tree.find(taxon) == -1): # should find, even if non-monophyletic
-        return tree #raise exception?
-
-    # Remove all the empty nodes we left laying around
-    tree_obj = _parse_tree(tree)    
-    tree_obj.getPreAndPostOrderAboveRoot()
-    for n in tree_obj.iterPostOrder():
-        if n.getNChildren() == 1 and n.isLeaf == 0:
-            tree_obj.collapseNode(n)
-
-    for node in tree_obj.iterNodes():
-        if node.name == taxon or (not node.name == None and node.name.startswith(taxon+"%")):
-            tree_obj.removeNode(node.nodeNum,alsoRemoveBiRoot=False)
-            break
-
-    return tree_obj.writeNewick(fName=None,toString=True).strip()
-
-
-def _get_all_siblings(node):
-    """ Get all siblings of a node
-    """
-
-    # p4 returns the rightmost sibling, so we need to get all the right siblings,
-    # and the leftSiblings
-    siblings = []
-    siblings_left = True
-    newNode = node
-    while siblings_left:
-        newNode = newNode.sibling
-        if not newNode == None:
-            if not newNode.name == None:
-                siblings.append(newNode.name)
-        else:
-            siblings_left = False
-    # now the left siblings
-    siblings_left = True
-    newNode = node
-    while siblings_left:
-        newNode = newNode.leftSibling()
-        if not newNode == None:
-            if not newNode.name == None:
-                siblings.append(newNode.name)
-        else:
-            siblings_left = False
-    
-    siblings.sort()
-    return siblings
-
-
-def _sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
-    """ Simple swap of taxa
-    """
-
-    import csv
-
-    taxa_in_tree = _getTaxaFromNewick(tree)
-    # we might have to add quotes back in
-    for i in range(0,len(taxa_in_tree)):
-        m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', taxa_in_tree[i])
-        if (not m == None):
-            if taxa_in_tree[i].find("'") == -1:
-                taxa_in_tree[i] = "'"+taxa_in_tree[i]+"'" 
-    
-    # swap spaces for _, as we're dealing with Newick strings here
-    new_taxa = [s.strip() for s in new_taxon.split(",")]
-    new_taxon = ",".join(new_taxa)
-    new_taxon = new_taxon.replace(" ","_")
-
-    # remove duplicates in the new taxa
-    for row in csv.reader([new_taxon],delimiter=',', quotechar="'"):
-        taxa = row
-    taxa = _uniquify(taxa)
- 
-    # we might have to add quotes back in
-    for i in range(0,len(taxa)):
-        m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', taxa[i])
-        if (not m == None):
-            if taxa[i].find("'") == -1:
-                taxa[i] = "'"+taxa[i]+"'" 
-
-    new_taxa = []
-    if skip_existing:
-        # now remove new taxa that are already in the tree
-        for t in taxa:
-            if not t in taxa_in_tree:
-                new_taxa.append(t)
-    else:
-        new_taxa = taxa
-
-    # Here's the plan - strip the duplicated taxa marker, _\d from the
-    # taxa. We can then just swap taxa in plan text.
-    # When done, p4 can fix duplicated taxa by adding back on _\d
-    # Then we collapse the nodes, taking into account duplicated taxa
-    # This will need several iterations.
-
-    modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',tree)
-    new_taxon = ",".join(new_taxa)
-    if (len(new_taxa) > 1):
-        new_taxon = "("+new_taxon+")"
-
-    if (len(new_taxon) == 0):
-        # we need to delete instead
-        return _delete_taxon(old_taxon,tree)
-
-    old_taxon = re.escape(old_taxon)    
-    # check old taxon isn't quoted
-    m = re.search('[\(|\)|\.|\?|"|=|,|&|^|$|@|+]', old_taxon)
-    match = re.search(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",modified_tree)
-    if (not m == None and match == None):
-        old_taxon = "'"+old_taxon+"'" 
-        # given we've just quoted it, the _ might be spaces after all
-        # search for this (it is in the tree, we just don't know the form)
-        match = re.search(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",modified_tree)
-        if (match == None):
-            old_taxon = old_taxon.replace("_"," ")
-            match = re.search(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",modified_tree)
-            if (match == None):
-                raise excp.InvalidSTKData("Tried to find "+old_taxon+" in "+modified_tree+" and failed")
-
-    # simple text swap
-    new_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+old_taxon+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new_taxon+'\g<posttaxon>', modified_tree)
-    # we might now need a final collapse - e.g. we might get ...(taxon1,taxon2),... due
-    # to replacements, but they didn't collapse, so let's do this
-    for i in range(10): # do at most 10 iterations
-        new_tree = _collapse_nodes(new_tree)
-
-    return new_tree
-
-def _correctly_quote_taxa(tree):
-    """ In order for the subs to work, we need to only quote taxa that need it, as otherwise 
-        we might have have the same taxon, e.g. 'Gallus gallus' and Gallus_gallus being
-        considered as different
-    """
-
-    # get taxa from tree
-    t_obj = _parse_tree(tree)
-    taxa = t_obj.getAllLeafNames(0)
-
-    new_taxa = {}
-    # set the taxon name correctly, including in quotes, if needed...
-    for t in taxa:
-       m = re.search('[\(|\)|\?|"|=|,|&|^|$|@|+]', t)
-       if (m == None):
-          new_taxa[t] = t.replace(" ","_")
-       else:
-          new_taxa[t] = "'" + t + "'"
-
-    # search for the taxa in the tree now, check if quoted already
-    modified_tree = tree
-    for t in taxa:
-        new = new_taxa[t]
-        look_for = re.escape(t)
-        modified_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+look_for+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new+'\g<posttaxon>',modified_tree)
-        # new try with quotes on original - they get stripped by p4
-        t = "'" + t + "'"
-        look_for = re.escape(t)
-        modified_tree = re.sub(r"(?P<pretaxon>\(|,|\)| )"+look_for+r"(?P<posttaxon>\(|,|\)| |:)",'\g<pretaxon>'+new+'\g<posttaxon>',modified_tree)
-
-    return modified_tree
-
-
-
-def _remove_single_poly_taxa(tree):
-    """ Count the numbers after % in taxa names """
-
-    try:
-        taxa = _getTaxaFromNewick(tree)
-    except excp.TreeParseError:
-        return tree
-
-    numbers = {}
-    for t in taxa:
-        m = re.match('([a-zA-Z0-9_\+\= ]*)%([0-9]+)', t)
-        if (not m == None):
-            if (m.group(1) in numbers):
-                numbers[m.group(1)] = numbers[m.group(1)]+1
-            else:
-                numbers[m.group(1)] = 1
-        else:
-            numbers[t] = 1
-
-    for t in taxa:
-        m = re.match('([a-zA-Z0-9_\+\= ]*)%([0-9]+)', t)
-        if (not m == None):
-            if numbers[m.group(1)] == 1:
-                tree = re.sub(t,m.group(1),tree) 
-    
-    return tree
-
-
-def _swap_tree_in_XML(XML, tree, name, delete=False):
-    """ Swap tree with name, 'name' with this new one.
-        If tree is None, name is removed.
-        If source no longer contains any trees, the source is removed
-    """
-
-    # tree name has the tree number attached to the source name
-    # The calling function should make sure the names are unique
-    # First thing is to do is find the source name that corresponds to this tree
-
-    # Our input tree has name source_no, so find the source by stripping off the number
-    source_name, number = name.rsplit("_",1)
-    number = int(number.replace("_",""))
-    xml_root = _parse_xml(XML)
-    # By getting source, we can then loop over each source_tree
-    find = etree.XPath("//source")
-    sources = find(xml_root)
-    # loop through all sources
-    for s in sources:
-        # for each source, get source name
-        s_name = s.attrib['name']
-        if source_name == s_name:
-            # found the bugger!
-            for t in s.xpath("source_tree"):
-                tree_name = t.attrib['name']
-                if (tree_name == name):
-                    if (not tree == None): 
-                        t.xpath("tree/tree_string/string_value")[0].text = tree
-                        # We can return as we're only replacing one tree
-                        return etree.tostring(xml_root,pretty_print=True)
-                    else:
-                        s.remove(t)
-                        if (delete):
-                            # we now need to check the source to check if there are
-                            # any trees in this source now, if not, remove
-                            if (len(s.xpath("source_tree")) == 0):
-                                s.getparent().remove(s)
-                        return etree.tostring(xml_root,pretty_print=True)
-
-    return XML
-
-
-def _check_taxa(XML,delete=False):
-    """ Checks that taxa in the XML are in the tree for the source thay are added to
-    """
-
-    try:
-        # grab all sources
-        xml_root = _parse_xml(XML)
-        find = etree.XPath("//source")
-        sources = find(xml_root)
-    except:
-        raise excp.InvalidSTKData("Error parsing the data to check taxa")
-    
-    message = ""
-
-    # for each source
-    for s in sources:
-        # get a list of taxa in the XML
-        this_source = _parse_xml(etree.tostring(s))
-        trees = obtain_trees(etree.tostring(this_source))
-        s_name = s.attrib['name']
-        taxa_ele = []
-        for name in trees.iterkeys():
-            tree_no = 1
-            for t in s.xpath("source_tree"):
-                try:
-                    t_name = t.attrib['name']
-                except KeyError:
-                    message = message + "Tree in "+s_name+" is not named. Run the name_trees function"+"\n"
-                    continue
-                if (t_name == name):
-                    find = etree.XPath(".//taxon")
-                    taxa_ele = find(t)
-
-            tree = trees[name]
-            # are the XML taxa in the tree?
-            for t in taxa_ele:
-                xml_taxon = t.attrib['name']
-                if (tree.find(xml_taxon) == -1):
-                    if (delete):
-                        # remove
-                        t.getparent().remove(t)
-                    else:
-                        # no - raise an error!
-                        message = message + "Taxon: "+xml_taxon+" is not in the tree "+name+"\n"
-    if not delete:               
-        if (not message==""):
-            raise excp.InvalidSTKData(message)
-        else:
-            return
-    else:
-        return etree.tostring(xml_root,pretty_print=True)        
-
-
-def _check_sources(XML,delete=True):
-    """ Check that all sources in the dataset have at least one tree_string associated
-        with them
-    """
-
-    try:
-        xml_root = _parse_xml(XML)
-        # By getting source, we can then loop over each source_tree
-        # within that source and construct a unique name
-        find = etree.XPath("//source")
-        sources = find(xml_root)
-    except:
-        raise excp.InvalidSTKData("Error parsing the data to check source")
-            
-    message = ""
-    # for each source
-    for s in sources:
-        # get a list of taxa in the XML
-        this_source = _parse_xml(etree.tostring(s))
-        name = s.attrib['name']
-        trees = obtain_trees(etree.tostring(this_source))
-        if (len(trees) < 1):
-            if (not delete):
-                message =+ "Source "+name+" has no trees\n"
-            else:
-                s.getparent().remove(s)
-
-    if not delete:
-        if (not message == ""):
-            raise excp.InvalidSTKData(message)
-        else:
-            return
-    else:
-        return etree.tostring(xml_root,pretty_print=True)        
-
-
-
-def _parse_xml(xml_string):
-    """ Lxml cannot parse non-unicode characters 
-    so we're wrapping this up so we can strip these characters
-    beforehand. We can then send it to lxml.parser as normal
-    """
-
-    xml_string = _removeNonAscii(xml_string)
-    XML = etree.fromstring(xml_string)
-    return XML
-
-
-def _getTaxaFromNewick(tree):
-    """ Get the terminal nodes from a Newick string"""
-
-    t_obj = _parse_tree(tree)
-    terminals = t_obj.getAllLeafNames(0)
-    taxa = []
-    for t in terminals:
-        taxa.append(t.replace(" ","_"))
-
-    return taxa
-
-
-def _sort_data(xml_root):
-    """ Grab all source names and sort them alphabetically, 
-    spitting out a new XML """
-
-    container = xml_root.find("sources")
-
-    data = []
-    for elem in container:
-        key = elem.attrib['name']
-        data.append((key, elem))
-
-    data.sort()
-
-    # insert the last item from each tuple
-    container[:] = [item[-1] for item in data]
-    
-    return xml_root
-
-
-def _trees_equal(t1,t2):
-    """ compare two trees using Robinson-Foulds metric
-    """
-
-    tree_1 = _parse_tree(t1)
-    tree_2 = _parse_tree(t2)
-    
-    # add the taxanames
-    # Sort, otherwose p4 things the txnames are different
-    names = tree_1.getAllLeafNames(tree_1.root)
-    names.sort()
-    tree_1.taxNames = names
-    names = tree_2.getAllLeafNames(tree_2.root)
-    names.sort()
-    tree_2.taxNames = names
-
-    same = False
-    try:
-        if (tree_1.topologyDistance(tree_2) == 0):
-            same = True # yep, the same
-            # but also check the root
-            if not tree_1.root.getNChildren() == tree_2.root.getNChildren():
-                same = False
-    except:
-        same = False # different taxa, so can't be the same!
-
-    return same
-
-def _find_trees_for_permuting(XML):
-    """
-    Returns any trees that contain %, i.e. non-monophyly
-    """
-
-    trees = obtain_trees(XML)
-    permute_trees = {}
-    for t in trees:
-        if trees[t].find('%') > -1:
-            # tree needs permuting - we store the 
-            permute_trees[t] = trees[t]
-
-    return permute_trees
-
 def _create_matrix(trees, taxa, format="hennig", quote=False, weights=None, verbose=False):
     """
     Does the hard work on creating a matrix
@@ -3415,82 +1836,341 @@ def _amalgamate_trees(trees,format,anonymous=False):
 
 
 
-
-def _check_informative_trees(XML,delete=False):
-    """ Checks that all trees in the data set are informative and raises error if not
+def import_bibliography(XML, bibfile, skip=False):
     """
+    Create a bunch of sources from a bibtex file. This includes setting the sourcenames 
+    for each source.
+    """
+    
+    # Our bibliography parser
+    b = biblist.BibList()
 
-    try:
-        trees = obtain_trees(XML)
+    xml_root = stk_internals._parse_xml(XML)
+    
+    # Track back along xpath to find the sources where we're about to add a new source
+    sources = xml_root.xpath('sources')[0]
+    sources.tail="\n      "
+    if (bibfile == None):
+        raise BibImportError("Error importing bib file. There was an error with the file")
+
+    try: 
+        b.import_bibtex(bibfile,True,False)
+    except bibparse.BibAuthorError as e:
+        # This seems to be raised if the authors aren't formatted correctly
+        raise BibImportError("Error importing bib file. Check all your authors for correct format: " + e.msg)
+    except bibparse.BibKeyError as e:
+        raise BibImportError("Error importing bib file. " + e.msg)
+    except AttributeError as e:
+        # This seems to occur if the keys are not set for the entry
+        raise BibImportError("Error importing bib file. Check all your entry keys. "+e.msg)
     except:
-        raise excp.InvalidSTKData("Error parsing the data to check trees")
-    remove = []
-    message=""
-    for t in trees:
-        tree = trees[t]
-        tree = _parse_tree(tree)
+        raise BibImportError("Error importing bibliography") 
 
-        # check if tree contains more than two taxa
-        terminals = tree.getAllLeafNames(tree.root)
-        if (len(terminals) < 3):
-            message = message+"\nTree "+t+" contains only 2 taxa and is not informative"
-            remove.append(t)
-        # if tree contains three or more taxa, check it's rooted somewhere
-        elif (tree.getDegree(tree.root) == len(terminals)):
-            message = message+"\nTree "+t+" doesn't contain any clades and is not informative"
-            remove.append(t)
+    items= b.sortedList[:]
 
-    if (not delete):
-        if (not message == ""):
-            raise excp.UninformativeTreeError(message)
+    for entry in items:
+        # for each bibliographic entry, create the XML stub and
+        # add it to the main XML
+        it= b.get_item(entry)
+        xml_snippet = it.to_xml()
+        if xml_snippet != None:
+            # turn this into an etree
+            publication = stk_internals._parse_xml(xml_snippet)
+            # create top of source
+            source = etree.Element("source")
+            # now attach our publication
+            source.append(publication)
+            new_source = single_sourcename(etree.tostring(source,pretty_print=True))
+            source = stk_internals._parse_xml(new_source)
+            
+            # now create tail of source
+            s_tree = etree.SubElement(source, "source_tree")
+            s_tree.tail="\n      "
+            # Tree data
+            tree = etree.SubElement(s_tree,"tree")
+            tree.tail="\n      "
+            tree_string = etree.SubElement(tree,"tree_string")
+            tree_string.tail="\n      "
+            tree_string_string = etree.SubElement(tree_string,"string_value")
+            tree_string_string.tail="\n      "
+            tree_string_string.attrib['lines'] = "1"
+            # Figure and page number stuff
+            figure_legend = etree.SubElement(tree,"figure_legend")
+            figure_legend.tail="\n      "
+            figure_legend_string = etree.SubElement(figure_legend,"string_value")
+            figure_legend_string.tail="\n      "
+            figure_legend_string.attrib['lines'] = "1"
+            figure_number = etree.SubElement(tree,"figure_number")
+            figure_number.tail="\n      "
+            figure_number_string = etree.SubElement(figure_number,"string_value")
+            figure_number_string.tail="\n      "
+            figure_number_string.attrib['lines'] = "1"
+            page_number = etree.SubElement(tree,"page_number")
+            page_number.tail="\n      "
+            page_number_string = etree.SubElement(page_number,"string_value")
+            page_number_string.tail="\n      "
+            page_number_string.attrib['lines'] = "1"
+            tree_inference = etree.SubElement(tree,"tree_inference")
+            # taxa data
+            taxa = etree.SubElement(s_tree,"taxa_data")
+            taxa.tail="\n      "
+            # Note: we do not add all elements as otherwise they get set to some option
+            # rather than remaining blank (and hence blue in the interface)
+
+            # append our new source to the main tree
+            # if sources has no valid source, overwrite,
+            # else append
+            valid = True
+            i = 0
+            for ele in sources:
+                try:
+                    ele.attrib['name']
+                    i += 1
+                    continue
+                except:
+                    valid = False
+            if not valid:
+                sources[i] = source
+            else:
+                sources.append(source)
+            
         else:
-            return
-    else:
-        remove.sort(reverse=True)
-        for t in remove:
-            XML = _swap_tree_in_XML(XML,None,t,delete=True)
+            if (skip):
+                continue
 
-        return XML
+            msg = entry
+            raise BibImportError("Error with one of the entries in the bib file."+
+                                " Note the name is mangled to generate a unique ID "+
+                                "(but should include the name and the year). Remove this and"+
+                                " try again. You can add the offending entry manually.\n\n"+msg)
 
-def _parse_trees(tree_block):
-    """ Parse a string containing multiple trees 
-        to a list of p4 tree objects
+    # sort sources in alphabetical order
+    xml_root = stk_internals._sort_data(xml_root)
+    XML = etree.tostring(xml_root,pretty_print=True)
+    
+    return XML
+
+## Note: this is different to all other STK functions as
+## it saves the file, rather than passing back a string for the caller to save
+## This is becuase yapbib saves the file and rather than re-write, I thought
+## I'd go with it as in this case I would only ever save the file
+def export_bibliography(XML,filename,format="bibtex"):
+    """ 
+    Export all source papers as a bibliography in 
+    either bibtex, xml, html, short or long formats
     """
+
+    #check format
+    if (not (format == "xml" or
+             format == "html" or
+             format == "bibtex" or
+             format == "short" or
+             format == "latex" or
+             format == "long")):
+        return 
+        # raise error here
+
+    # our bibliography
+    bibliography = biblist.BibList()
    
-    try:
-        p4.var.doRepairDupedTaxonNames = 2
-        p4.var.warnReadNoFile = False
-        p4.var.nexus_warnSkipUnknownBlock = False
-        p4.var.trees = []
-        p4.read(tree_block)
-        p4.var.nexus_warnSkipUnknownBlock = True
-        p4.var.warnReadNoFile = True
-        p4.var.doRepairDupedTaxonNames = 0
-    except p4.Glitch as detail:
-        raise excp.TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree_block[0:128] )
-    trees = p4.var.trees
-    p4.var.trees = []
-    return trees
+    xml_root = stk_internals._parse_xml(XML)    
+    find = etree.XPath("//article")
+    articles = find(xml_root)
+    # loop through all articles
+    for a in articles: 
+        name = a.getparent().getparent().attrib['name']
+        # get authors
+        authors = []
+        for auths in a.xpath("authors/author"):
+            surname = auths.xpath("surname/string_value")[0].text
+            first = auths.xpath("other_names/string_value")[0].text
+            authors.append(["", surname,first,''])
+        title   = a.xpath("title/string_value")[0].text
+        year    = a.xpath("year/integer_value")[0].text
+        bib_dict = {
+                "_code"  : name,
+                "_type"  : 'article',
+                "author" : authors,
+                "title"  : title,
+                "year"   : year,
+                }
+        # these are optional in the schema
+        if (a.xpath("journal/string_value")):
+            if (not a.xpath("journal/string_value") == None):
+                journal = a.xpath("journal/string_value")[0].text
+                bib_dict['journal']=journal
+        if (a.xpath("volume/string_value")):
+            if (not a.xpath("volume/string_value") == None):
+                volume  = a.xpath("volume/string_value")[0].text
+                bib_dict['volume']=volume
+        if (a.xpath("pages/string_value")):
+            if (not a.xpath("pages/string_value")[0].text == None):
+                firstpage, lastpage = bibparse.process_pages(a.xpath("pages/string_value")[0].text)
+                bib_dict['firstpage']=firstpage
+                bib_dict['lastpage']=lastpage
+        if (a.xpath("issue/string_value")):
+            if (not a.xpath("issue/string_value") == None):
+                issue   = a.xpath("issue/string_value")[0].text
+                bib_dict['issue']=issue
+        if (a.xpath("doi/string_value")):
+            if (not a.xpath("doi/string_value") == None):
+                doi     = a.xpath("doi/string_value")[0].text
+                bib_dict['doi']=doi
+        if (a.xpath("number/string_value")):
+            if (not a.xpath("number/string_value") == None):
+                number  = a.xpath("number/string_value")[0].text
+                bib_dict['number']=number
+        if (a.xpath("url/string_value")):
+            if (not a.xpath("url/string_value") == None):
+                url     = a.xpath("url/string_value")[0].text
+                bib_dict['url']=url
+        
+        bib_it = bibitem.BibItem(bib_dict)
+        bibliography.add_item(bib_it)
 
-def _parse_tree(tree,fixDuplicateTaxa=False):
-    """ Parse a newick string to p4 tree object
-    """
+    find = etree.XPath("//book")
+    books = find(xml_root)
+    # loop through all books
+    for b in books: 
+        name = b.getparent().getparent().attrib['name']
+        # get authors
+        authors = []
+        for auths in b.xpath("authors/author"):
+            surname = auths.xpath("surname/string_value")[0].text
+            first = auths.xpath("other_names/string_value")[0].text
+            authors.append(["", surname,first,''])
+        title   = b.xpath("title/string_value")[0].text
+        year    = b.xpath("year/integer_value")[0].text
+        bib_dict = {
+                "_code"  : name,
+                "_type"  : 'book',
+                "author" : authors,
+                "title"  : title,
+                "year"   : year,
+                }
+        # these are optional in the schema
+        if (b.xpath("editors")):
+            editors = []
+            for eds in b.xpath("editors/editor"):
+                surname = eds.xpath("surname/string_value")[0].text
+                first = eds.xpath("other_names/string_value")[0].text
+                editors.append(["", surname,first,''])
+            bib_dict["editor"]=editors
+        if (b.xpath("series/string_value")):
+            series = b.xpath("series/string_value")[0].text
+            bib_dict['series']=series
+        if (b.xpath("publisher/string_value")):
+            publisher  = b.xpath("publisher/string_value")[0].text
+            bib_dict['publisher']=publisher
+        if (b.xpath("doi/string_value")):
+            doi     = b.xpath("doi/string_value")[0].text
+            bib_dict['doi']=doi
+        if (b.xpath("url/string_value")):
+            url     = b.xpath("url/string_value")[0].text
+            bib_dict['url']=url
+        
+        bib_it = bibitem.BibItem(bib_dict)
+        bibliography.add_item(bib_it)
 
-    try:
-        if (fixDuplicateTaxa):
-            p4.var.doRepairDupedTaxonNames = 2
-        p4.var.warnReadNoFile = False
-        p4.var.nexus_warnSkipUnknownBlock = False
-        p4.var.trees = []
-        p4.read(tree)
-        p4.var.nexus_warnSkipUnknownBlock = True
-        p4.var.warnReadNoFile = True
-        if (fixDuplicateTaxa):
-            p4.var.doRepairDupedTaxonNames = 0
-    except p4.Glitch as detail:
-        raise excp.TreeParseError("Error parsing tree\n"+detail.msg+"\n"+tree[0:128] )
 
-    t = p4.var.trees[0]
-    p4.var.trees = []
-    return t
+    find = etree.XPath("//in_book")
+    inbook = find(xml_root)
+    # loop through all in book 
+    for i in inbook: 
+        name = i.getparent().getparent().attrib['name']
+        # get authors
+        authors = []
+        for auths in i.xpath("authors/author"):
+            surname = auths.xpath("surname/string_value")[0].text
+            first = auths.xpath("other_names/string_value")[0].text
+            authors.append(["", surname,first,''])
+        title   = i.xpath("title/string_value")[0].text
+        year    = i.xpath("year/integer_value")[0].text
+        editors = []
+        for eds in i.xpath("editors/editor"):
+            surname = eds.xpath("surname/string_value")[0].text
+            first = eds.xpath("other_names/string_value")[0].text
+            editors.append(["", surname,first,''])
+        bib_dict = {
+                "_code"  : name,
+                "_type"  : 'inbook',
+                "author" : authors,
+                "title"  : title,
+                "year"   : year,
+                "editor" : editors
+                }
+        # these are optional in the schema
+        if (i.xpath("series/string_value")):
+            series = i.xpath("series/string_value")[0].text
+            bib_dict['series']=series
+        if (i.xpath("publisher/string_value")):
+            publisher  = i.xpath("publisher/string_value")[0].text
+            bib_dict['publisher']=publisher
+        if (i.xpath("pages/string_value")):
+            firstpage, lastpage = bibparse.process_pages(i.xpath("pages/string_value")[0].text)
+            bib_dict['firstpage']=firstpage
+            bib_dict['lastpage']=lastpage
+        if (i.xpath("doi/string_value")):
+            doi     = i.xpath("doi/string_value")[0].text
+            bib_dict['doi']=doi
+
+        bib_it = bibitem.BibItem(bib_dict)
+        bibliography.add_item(bib_it)
+
+
+
+    find = etree.XPath("//in_collection")
+    incollections = find(xml_root)
+    # loop through all in collections 
+    for i in incollections: 
+        name = i.getparent().getparent().attrib['name']
+        # get authors
+        authors = []
+        for auths in i.xpath("authors/author"):
+            surname = auths.xpath("surname/string_value")[0].text
+            first = auths.xpath("other_names/string_value")[0].text
+            authors.append(["", surname,first,''])
+        title   = i.xpath("title/string_value")[0].text
+        year    = i.xpath("year/integer_value")[0].text
+        bib_dict = {
+                "_code"  : name,
+                "_type"  : 'incollection',
+                "author" : authors,
+                "title"  : title,
+                "year"   : year,
+                }
+        # these are optional in the schema
+        if (i.xpath("editors")):
+            editors = []
+            for eds in i.xpath("editors/editor"):
+                surname = eds.xpath("surname/string_value")[0].text
+                first = eds.xpath("other_names/string_value")[0].text
+                editors.append(["", surname,first,''])
+            bib_dict["editor"]=editors
+        if (i.xpath("booktitle/string_value")):
+            booktitle = i.xpath("booktitle/string_value")[0].text
+            bib_dict['booktitle']=booktitle
+        if (i.xpath("series/string_value")):
+            series = i.xpath("series/string_value")[0].text
+            bib_dict['series']=series
+        if (i.xpath("publisher/string_value")):
+            publisher  = i.xpath("publisher/string_value")[0].text
+            bib_dict['publisher']=publisher
+        if (i.xpath("pages/string_value")):
+            firstpage, lastpage = bibparse.process_pages(i.xpath("pages/string_value")[0].text)
+            bib_dict['firstpage']=firstpage
+            bib_dict['lastpage']=lastpage
+        if (i.xpath("doi/string_value")):
+            doi     = i.xpath("doi/string_value")[0].text
+            bib_dict['doi']=doi
+        if (i.xpath("url/string_value")):
+            url     = i.xpath("url/string_value")[0].text
+            bib_dict['url']=url
+
+        bib_it = bibitem.BibItem(bib_dict)
+        bibliography.add_item(bib_it)
+    
+    bibliography.output(fout=filename,formato=format,verbose=False)
+    
+    return
 

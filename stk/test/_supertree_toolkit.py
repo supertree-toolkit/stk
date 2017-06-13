@@ -26,25 +26,182 @@ import re
 
 class TestSTK(unittest.TestCase):
 
-    def test_check_uniqueness(self):
-        non_unique_names = etree.parse("data/input/non_unique_names.phyml")
-        try:
-            _check_uniqueness(etree.tostring(non_unique_names))
-        except NotUniqueError:
-            self.assert_(True)
-            return
-            
-        self.assert_(False)
 
-    def test_check_nonuniquess_pass(self):
-        new_xml = etree.parse("data/input/full_tree.phyml")
+
+    def test_amalgamate_trees_anonymous(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        output_string = amalgamate_trees(XML,format="nexus",anonymous=True)
+        trees = obtain_trees(XML)
+        # save the file and read it back in. Then we check correct format (i.e. readable) and
+        # we can check the trees are correct
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
+        f = open(temp_file,"w")
+        f.write(output_string)
+        f.close()
         try:
-            _check_uniqueness(etree.tostring(new_xml))
+            trees_read = import_trees(temp_file)
         except:
             self.assert_(False)
-            return
-            
-        self.assert_(True)
+            # we should get no error
+        os.remove(temp_file)
+        self.assert_(len(trees)==len(trees_read))
+        names = trees.keys()
+        for i in range(0,len(trees)):
+            self.assert_(_trees_equal(trees_read[i],trees[names[i]]))
+
+
+    def test_amalgamate_trees_nexus(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        output_string = amalgamate_trees(XML,format="nexus",anonymous=False)
+        trees = obtain_trees(XML)
+        # save the file and read it back in. Then we check correct format (i.e. readable) and
+        # we can check the trees are correct
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
+        f = open(temp_file,"w")
+        f.write(output_string)
+        f.close()
+        try:
+            trees_read = import_trees(temp_file)
+        except:
+            self.assert_(False)
+            # we should get no error
+        os.remove(temp_file)
+        self.assert_(len(trees)==len(trees_read))
+        names = trees.keys()
+        for i in range(0,len(trees)):
+            self.assert_(_trees_equal(trees_read[i],trees[names[i]]))
+
+    def test_amalgamate_trees_newick(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        output_string = amalgamate_trees(XML,format="newick")
+        trees = obtain_trees(XML)
+        # save the file and read it back in. Then we check correct format (i.e. readable) and
+        # we can check the trees are correct
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
+        f = open(temp_file,"w")
+        f.write(output_string)
+        f.close()
+        try:
+            trees_read = import_trees(temp_file)
+        except:
+            self.assert_(False)
+            # we should get no error
+        os.remove(temp_file)
+        self.assert_(len(trees)==len(trees_read))
+        names = trees.keys()
+        for i in range(0,len(trees)):
+            self.assert_(_trees_equal(trees_read[i],trees[names[i]]))
+
+    def test_amalgamate_trees_tnt(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        output_string = amalgamate_trees(XML,format="tnt")
+        trees = get_all_trees(XML)
+        # save the file and read it back in. Then we check correct format (i.e. readable) and
+        # we can check the trees are correct
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tre")
+        f = open(temp_file,"w")
+        f.write(output_string)
+        f.close()
+        try:
+            trees_read = stk_trees.import_trees(temp_file)
+        except:
+            self.assert_(False)
+            # we should get no error
+        os.remove(temp_file)
+        self.assert_(len(trees)==len(trees_read))
+        names = trees.keys()
+        for i in range(0,len(trees)):
+            self.assert_(_trees_equal(trees_read[i],trees[names[i]]))
+
+    def test_amalgamate_trees_unknown_format(self):
+        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
+        output_string = amalgamate_trees(XML,format="PHYXML")
+        self.assert_(output_string==None)
+
+
+
+
+    def test_create_nexus_matrix(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML,format="nexus")
+        handle = StringIO.StringIO(matrix)
+        
+    def test_create_tnt_matrix(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML)
+
+    def test_create_tnt_matrix_with_taxonomy(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        taxonomy = stk_trees.import_tree('data/input/paup_tree.tre')
+        matrix = create_matrix(XML,taxonomy=taxonomy)
+        self.assertRegexpMatches(matrix,'Mimus_gilvus')
+
+    def test_create_nexus_matrix_quote(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML,format="nexus",quote=True)
+        self.assert_(not matrix.find("'") == -1)
+
+    def test_create_nexus_matrix_weights(self):
+        XML = etree.tostring(etree.parse('data/input/weighted_trees.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML)
+        self.assert_(matrix.find('ccode +[/1. 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27;'))
+        self.assert_(matrix.find('ccode +[/2. 28 29;'))
+
+
+    def test_create_nexus_matrix_outgroups(self):
+        XML = etree.tostring(etree.parse('data/input/weighted_trees.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML,outgroups=True)
+        self.assert_(matrix.find('Jacana_jacana') == -1)
+        self.assert_(matrix.find('Uraeginthus_cyanocephalus') == -1)
+        self.assert_(matrix.find('Uraeginthus_bengalus') == -1)
+
+    def test_create_nexus_matrix(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML,format="nexus")
+        handle = StringIO.StringIO(matrix)
+        
+    def test_create_tnt_matrix(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML)
+
+    def test_create_tnt_matrix_with_taxonomy(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        taxonomy = stk_trees.import_tree('data/input/paup_tree.tre')
+        matrix = create_matrix(XML,taxonomy=taxonomy)
+        self.assertRegexpMatches(matrix,'Mimus_gilvus')
+
+    def test_create_nexus_matrix_quote(self):
+        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML,format="nexus",quote=True)
+        self.assert_(not matrix.find("'") == -1)
+
+    def test_create_nexus_matrix_weights(self):
+        XML = etree.tostring(etree.parse('data/input/weighted_trees.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML)
+        self.assert_(matrix.find('ccode +[/1. 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27;'))
+        self.assert_(matrix.find('ccode +[/2. 28 29;'))
+
+
+    def test_create_nexus_matrix_outgroups(self):
+        XML = etree.tostring(etree.parse('data/input/weighted_trees.phyml',parser),pretty_print=True)
+        matrix = create_matrix(XML,outgroups=True)
+        self.assert_(matrix.find('Jacana_jacana') == -1)
+        self.assert_(matrix.find('Uraeginthus_cyanocephalus') == -1)
+        self.assert_(matrix.find('Uraeginthus_bengalus') == -1)
+
+    def test_permute_trees_2(self):
+        XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
+        trees = obtain_trees(XML)
+        output = permute_tree(trees['Davis_2011_1'],treefile="newick")
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".new")
+        f = open(temp_file,"w")
+        f.write(output)
+        f.close()
+        output_trees = import_trees(temp_file)
+        expected_trees = import_trees("data/output/permute_trees_2.nex")
+        os.remove(temp_file)
+        self.assert_(len(output_trees)==len(expected_trees))
+
 
     def test_parse_subs_file(self):
         """ tests a very standard subs file with some 
@@ -99,30 +256,6 @@ class TestSTK(unittest.TestCase):
         self.assert_(False)
 
 
-    def test_taxa_tree(self):
-        """Tests the _check_taxa function
-        """
-
-        #this test should pass, but wrap it up anyway
-        try:
-            _check_taxa(etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)); 
-        except InvalidSTKData as e:
-            print e.msg
-            self.assert_(False)
-            return
-        self.assert_(True)
-
-    def test_incorrect_taxa_tree(self):
-        """Tests the _check_taxa function
-        """
-
-        try:
-            _check_taxa(etree.tostring(etree.parse('data/input/check_taxa.phyml',parser),pretty_print=True)); 
-        except InvalidSTKData:
-            self.assert_(True)
-            return
-        self.assert_(False)
-
     def test_check_data(self):
         """Tests the _check_data function
         """
@@ -141,25 +274,6 @@ class TestSTK(unittest.TestCase):
         self.assert_(True)
 
 
-    def test_check_sources(self):
-        """Tests the _check_source function
-        """
-        #this test should pass, but wrap it up anyway
-        try:
-            # remove some sources first - this should pass
-            XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
-            name = "Hill_Davis_2011_1"
-            new_xml = _swap_tree_in_XML(XML, None, name)
-            _check_sources(new_xml); 
-        except InvalidSTKData as e:
-            print e.msg
-            self.assert_(False)
-            return
-        except NotUniqueError as e:
-            self.assert_(False)
-            print e.msg
-            return
-        self.assert_(True)
 
 
     def test_str(self):
@@ -192,35 +306,10 @@ class TestSTK(unittest.TestCase):
         expected_substitutions = ['A = B,B_b,A']
         self.assertListEqual(expected_can_replace,can_replace)
         self.assertListEqual(expected_substitutions,substitutions)
-  
-    def test_get_all_characters(self):
-        """ Check the characters dictionary
-        """
-        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
-        characters = get_all_characters(XML)
-        expected_keys = ['molecular', 'morphological']
-        key = characters.keys()
-        key.sort()
-        self.assertListEqual(key,expected_keys)
-        
-        self.assertListEqual(characters['molecular'],['12S'])
-        self.assertListEqual(characters['morphological'],['feathers'])
 
 
-    def test_get_fossil_taxa(self):
-        """ Check the fossil taxa function
-        """
-        XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
-        fossils = get_fossil_taxa(XML)
-        expected_fossils = ['A','B']
-        self.assertListEqual(fossils,expected_fossils)
-        
-    def test_get_publication_years(self):
-        XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
-        years = get_publication_years(XML)
-        self.assert_(years[2011] == 2)
-        self.assert_(years[2010] == 1)
-        self.assert_(years[2009] == 0) 
+
+
 
     def test_data_summary(self):
         XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
@@ -253,18 +342,6 @@ class TestSTK(unittest.TestCase):
         simple_summary2 = data_summary(XML,ignoreWarnings=True)
         self.assert_(simple_summary == simple_summary2)
 
-    def test_character_numbers(self):
-        XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
-        characters = get_character_numbers(XML)
-        self.assert_(characters['feathers'] == 1)
-        self.assert_(characters['12S'] == 2)
-        self.assert_(characters['nonsense'] == 0)
-
-    def test_analyses(self):
-        XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
-        analyses = get_analyses_used(XML)
-        expected_analyses = ['Bayesian','Maximum Parsimony']
-        self.assertListEqual(analyses,expected_analyses)
     
     def test_data_independence(self):
         XML = etree.tostring(etree.parse('data/input/check_data_ind.phyml',parser),pretty_print=True)
@@ -286,15 +363,6 @@ class TestSTK(unittest.TestCase):
         # check that the first tree is removed
         self.assertNotRegexpMatches(new_xml,re.escape('((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000)0.00000:0.00000)0.00000:0.00000;'))
 
-    def test_add_weights(self):
-        """Add weights to a bunch of trees"""
-        XML = etree.tostring(etree.parse('data/input/check_data_ind.phyml',parser),pretty_print=True)
-        # see above
-        expected_idents = [['Hill_Davis_2011_2', 'Hill_Davis_2011_1', 'Hill_Davis_2011_3'], ['Hill_Davis_2013_1', 'Hill_Davis_2013_2']]
-        # so the first should end up with a weight of 0.33333 and the second with 0.5
-        for ei in expected_idents:
-            weight = 1.0/float(len(ei))
-            XML = add_weights(XML, ei, weight)
 
         expected_weights = [str(1.0/3.0), str(1.0/3.0), str(1.0/3.0), str(0.5), str(0.5)]
         weights_in_xml = []
@@ -383,21 +451,6 @@ class TestSTK(unittest.TestCase):
         self.assert_("Andersson_1999a_1" in keys[0])
         self.assert_("Baker_etal_2007a_1" in keys[0])
 
-    def test_sort_data(self):
-        XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
-        xml_root = _parse_xml(XML)
-        xml_root = _sort_data(xml_root)
-        # By getting source, we can then loop over each source_tree
-        # within that source and construct a unique name
-        find = etree.XPath("//source")
-        sources = find(xml_root)
-        names = []
-        for s in sources:
-            # for each source, get source name
-            names.append(s.attrib['name'])
-
-        expected_names = ['Davis_2011','Hill_2011','Hill_Davis_2011']
-        self.assertListEqual(names,expected_names)
 
 
     def test_add_event(self):
@@ -482,60 +535,6 @@ class TestSTK(unittest.TestCase):
         self.assertListEqual(expected_new,new_taxa)
 
 
-    def test_get_weights(self):
-        XML = etree.tostring(etree.parse('data/input/weighted_trees.phyml',parser),pretty_print=True)
-        weights = get_weights(XML)
-        expected = {"Baker_etal_2007_1":2, "Baptista_Visser_1999_1":1,
-                "Baptista_Visser_1999_2":1}
-        self.assertDictEqual(weights,expected)
-        return
-
-    def test_get_outgroups(self):
-        XML = etree.tostring(etree.parse('data/input/weighted_trees.phyml',parser),pretty_print=True)
-        outgroups = get_outgroup(XML)
-        expected = {"Baker_etal_2007_1":['Jacana_jacana'],
-                "Baptista_Visser_1999_1":['Uraeginthus_bengalus', 'Uraeginthus_cyanocephalus'],
-                "Baptista_Visser_1999_2":['Uraeginthus_bengalus', 'Uraeginthus_cyanocephalus']}
-        self.assertDictEqual(outgroups,expected)
-        return
-
-    def test_get_characters_used(self):
-        XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
-        characters = get_characters_used(XML)
-        expected_characters = [('12S','molecular'),
-         ('16S','molecular'), 
-         ('ATPase 6','molecular'),
-         ('ATPase 8','molecular'),
-         ('Alleles','molecular'),
-         ('Body size','morphological'),
-         ('Breeding','behavioural'),
-         ('COI','molecular'),
-         ('COIII','molecular'),
-         ('Calls','behavioural'),
-         ('Displays','behavioural'),
-         ('Molecular','molecular'),
-         ('Morphometrics','morphological'),
-         ('ND2','molecular'),
-         ('ND3','molecular'),
-         ('ND4','molecular'),
-         ('ND5','molecular'),
-         ('Osteology','morphological'),
-         ('Parasites','morphological'),
-         ('Plumage','morphological'),
-         ('RAG1','molecular'),
-         ('behaviour','behavioural'), # NOTE the repetition here :)
-         ('behaviour','morphological'),
-         ('cytb','molecular'),
-         ('mt control region','molecular'),
-         ('oology','morphological'),
-         ('soft tissue','morphological'),
-         ('tRNA-Lys','molecular')
-             ]
-        for c in characters:
-            self.assert_(c in expected_characters)
-        self.assert_(len(characters) == len(expected_characters))
-
-
 
     def test_load_equivalents(self):
         csv_file = "data/input/equivalents.csv"
@@ -547,30 +546,6 @@ class TestSTK(unittest.TestCase):
         equivalents = load_equivalents(csv_file)
         self.assertDictEqual(equivalents, expected)
 
-
-    def test_name_tree(self):
-        XML = etree.tostring(etree.parse('data/input/single_source_no_names.phyml',parser),pretty_print=True)
-        xml_root = _parse_xml(XML)
-        source_tree_element = xml_root.xpath('/phylo_storage/sources/source/source_tree')[0]
-        tree_name = create_tree_name(XML, source_tree_element)
-        self.assert_(tree_name == 'Hill_2011_1')
-
-    def test_all_name_tree(self):
-        XML = etree.tostring(etree.parse('data/input/single_source_no_names.phyml',parser),pretty_print=True)
-        new_xml = set_all_tree_names(XML)
-        XML = etree.tostring(etree.parse('data/input/single_source.phyml',parser),pretty_print=True)
-        self.assert_(isEqualXML(new_xml,XML))
-
-    def test_all_rename_tree(self):
-        XML = etree.tostring(etree.parse('data/input/single_source_same_tree_name.phyml',parser),pretty_print=True)
-        new_xml = set_all_tree_names(XML,overwrite=True)
-        XML = etree.tostring(etree.parse('data/output/single_source_same_tree_name.phyml',parser),pretty_print=True)
-        self.assert_(isEqualXML(new_xml,XML))
-
-    def test_get_all_tree_names(self):
-        XML = etree.tostring(etree.parse('data/input/single_source_same_tree_name.phyml',parser),pretty_print=True)
-        names = get_all_tree_names(XML)
-        self.assertListEqual(names,['Hill_2011_2','Hill_2011_2'])
 
 
 if __name__ == '__main__':

@@ -31,8 +31,6 @@ from lxml import etree
 from util import *
 parser = etree.XMLParser(remove_blank_text=True)
 
-import sys
-
 class TestInternals(unittest.TestCase):
 
     def test_replace_utf(self):

@@ -13,6 +13,7 @@ import stk.p4 as p4
 # our test dataset
 import tempfile
 import stk.stk_exceptions as excp
+import stk.stk_phyml as stk_phyml
 
 standard_tre = "data/input/test_tree.tre"
 single_source_input = "data/input/single_source.phyml"
@@ -528,6 +529,30 @@ class TestMatrixMethods(unittest.TestCase):
         self.assertListEqual(expected_taxa,taxa)
         self.assertListEqual(expected_matrix,matrix)
 
+
+    def test_permute_trees(self):
+        XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
+        trees = stk_phyml.get_all_trees(XML)
+        # contains quoted taxa too
+        output = permute_tree(trees['Hill_2011_1'],treefile="newick")
+        temp_file_handle, temp_file = tempfile.mkstemp(suffix=".new")
+        f = open(temp_file,"w")
+        f.write(output)
+        f.close()
+        output_trees = import_trees(temp_file)
+        expected_trees = import_trees("data/output/permute_trees.nex")
+        os.remove(temp_file)
+        self.assert_(len(output_trees)==len(expected_trees))
+        for i in range(0,len(output_trees)):
+            self.assert_(_trees_equal(output_trees[i],expected_trees[i]))
+
+    
+    def test_permute_trees_3(self):
+        XML = etree.tostring(etree.parse('data/input/permute_trees.phyml',parser),pretty_print=True)
+        trees = stk_phyml.get_all_trees(XML)
+        # contains quoted taxa too
+        output = permute_tree(trees['Hill_Davis_2011_2'],treefile="newick")
+        self.assert_(_trees_equal(output,"(A, (B, (C, D, E_E, F, G)));"))
 
 if __name__ == '__main__':
     unittest.main()
