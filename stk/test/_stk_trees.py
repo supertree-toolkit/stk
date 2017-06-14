@@ -570,6 +570,83 @@ class TestMatrixMethods(unittest.TestCase):
         self.assert_(trees_equal(output,"(A, (B, (C, D, E_E, F, G)));"))
 
 
+    def test_delete_taxa_root(self):
+        tree_1 = "((Artemia_salina),((Kempina_mikado,Lysiosquillina_maculata,Squilla_empusa),Anchistioides_antiguensis,Atyoida_bisulcata));"
+        output = delete_taxon("Artemia_salina",tree_1)
+        expected_tree = "((Kempina_mikado,Lysiosquillina_maculata,Squilla_empusa),Anchistioides_antiguensis,Atyoida_bisulcata);"
+        self.assert_(trees_equal(output, expected_tree))
+
+
+
+
+
+    def test_collapse_permute_tree(self):
+        tree = "((Parapurcellia_silvicola, ((Austropurcellia_scoparia, Austropurcellia_forsteri), ((Pettalus_sp.%1, Pettalus_sp.%2), ((Purcellia_illustrans, Chileogovea_sp.), ((Neopurcellia_salmoni, Karripurcellia_harveyi), ((Aoraki_inerma, Aoraki_denticulata), (Rakaia_antipodiana, (Rakaia_stewartiensis, Rakaia_florensis)))))))), (((Stylocellus_lydekkeri, (Stylocellus_sp.%1, Stylocellus_sp.%2)), ((Stylocellus_sp.%3, Stylocellus_sp.%4), (Fangensis_insulanus, (Fangensis_spelaeus, Fangensis_cavernarum)))), (((Paramiopsalis_ramulosus, (Cyphophthalmus_sp., (Cyphophthalmus_gjorgjevici, Cyphophthalmus_duricorius))), ((Siro_valleorum, Siro_rubens), (Siro_acaroides, (Siro_kamiakensis, Siro_exilis)))), (Suzukielus_sauteri, (Parasiro_coiffaiti, ((Troglosiro_longifossa, Troglosiro_aelleni), (Metasiro_americanus, ((Huitaca_sp., (Neogovea_sp., Metagovea_sp.)), (Paragovia_sp.%1, (Paragovia_sp.%2, (Paragovia_sp.%3, Paragovia_sironoides)))))))))));"
+        expected_tree = "((Parapurcellia_silvicola, ((Austropurcellia_scoparia, Austropurcellia_forsteri), (Pettalus_sp.%1, ((Purcellia_illustrans, Chileogovea_sp.), ((Neopurcellia_salmoni, Karripurcellia_harveyi), ((Aoraki_inerma, Aoraki_denticulata), (Rakaia_antipodiana, (Rakaia_stewartiensis, Rakaia_florensis)))))))), (((Stylocellus_lydekkeri, Stylocellus_sp.%1), (Stylocellus_sp.%3, (Fangensis_insulanus, (Fangensis_spelaeus, Fangensis_cavernarum)))), (((Paramiopsalis_ramulosus, (Cyphophthalmus_sp., (Cyphophthalmus_gjorgjevici, Cyphophthalmus_duricorius))), ((Siro_valleorum, Siro_rubens), (Siro_acaroides, (Siro_kamiakensis, Siro_exilis)))), (Suzukielus_sauteri, (Parasiro_coiffaiti, ((Troglosiro_longifossa, Troglosiro_aelleni), (Metasiro_americanus, ((Huitaca_sp., (Neogovea_sp., Metagovea_sp.)), (Paragovia_sp.%1, (Paragovia_sp.%2, (Paragovia_sp.%3, Paragovia_sironoides)))))))))));"
+        new_tree = collapse_nodes(tree);
+        self.assert_(trees_equal(expected_tree,new_tree)) 
+
+
+    def test_tree_contains_odd(self):
+        tree = """(Proteroiulus_fuscus, (((Scolopendra_viridis, Craterostigmus_tasmanianus),
+        (Lithobius_variegatus_rubriceps, (Anopsobius_neozelanicus, Paralamyctes_validus))),
+        (Madagassophora_hova, Scutigerina_malagassa, Scutigerina_cf._weberi, Scutigerina_weberi,
+        ((Dendrothereua_homa, Dendrothereua_nubila), (Parascutigera_nubila, (Ballonema_gracilipes,
+        (((Sphendononema_rugosa, 'Sphendononema guildingii%1', 'Sphendononema guildingii%2'),
+        ('"Scutigera" nossibei', ('Scutigera coleoptrata%1', 'Scutigera coleoptrata%2', 'Scutigera coleoptrata%3'), (Thereuopodina_sp._nov, Tachythereua_sp., (Pilbarascutigera_incola,
+        (Seychellonema_gerlachi, (Thereuopoda_longicornis, Thereuopoda_clunifera)))))),
+        ((Thereuonema_turkestana, Thereuonema_tuberculata), (Parascutigera_cf._sphinx,
+            Parascutigera_latericia, Parascutigera_festiva, Allothereua_serrulata,
+            Allothereua_bidenticulata, Allothereua_linderi, ('Allothereua maculata%1',
+                Allothereua_maculata%2), (Parascutigera_sp._QLD_3, Parascutigera_sp._QLD_2,
+                    Parascutigera_sp._QLD_1, Parascutigera_guttata))))))))));"""
+        self.assert_(tree_contains('"Scutigera"_nossibei',tree))
+
+
+    def test_replace_poly_taxa(self):
+        tree = "(A_a%1, A_b%1, (A_a%2, A_b%2, A_c, A_d));"
+        new_tree = sub_taxa_in_tree(tree,"A_a", "A_f")
+        expected_tree = "(A_f%1, A_b%1, (A_f%2, A_b%2, A_c, A_d));"
+        self.assert_(trees_equal(expected_tree,new_tree))
+
+
+    def test_remove_single_poly_taxa(self):
+        """ Remove poly taxa where there's only one anyway """
+
+        tree = """(Proteroiulus_fuscus, (((Scolopendra_viridis, Craterostigmus_tasmanianus), (Lithobius_variegatus_rubriceps, (Anopsobius_neozelanicus, Paralamyctes_validus))), (Madagassophora_hova, Scutigerina_malagassa%1, Scutigerina_cf._weberi, Scutigerina_weberi, ((Dendrothereua_homa, Dendrothereua_nubila), (Parascutigera_nubila, (Ballonema_gracilipes, (((Sphendononema_rugosa, Sphendononema_guildingii%1), ('"Scutigera" nossibei', Scutigerina_malagassa%2, Scutigera_coleoptrata%1, (Thereuopodina_sp._nov, Tachythereua_sp., (Pilbarascutigera_incola, (Seychellonema_gerlachi, (Thereuopoda_longicornis, Thereuopoda_clunifera)))))), ((Thereuonema_turkestana, Thereuonema_tuberculata), (Parascutigera_cf._sphinx, Parascutigera_latericia, Parascutigera_festiva, Allothereua_serrulata, Allothereua_bidenticulata, Allothereua_linderi, Allothereua_maculata%1, (Parascutigera_sp._QLD_3, Parascutigera_sp._QLD_2, Parascutigera_sp._QLD_1, Parascutigera_guttata))))))))));"""
+        tree2 = """(Proteroiulus_fuscus, (((Scolopendra_viridis, Craterostigmus_tasmanianus), (Lithobius_variegatus_rubriceps, (Anopsobius_neozelanicus, Paralamyctes_validus))), (Madagassophora_hova, Scutigerina_malagassa%1, Scutigerina_cf._weberi, Scutigerina_weberi, ((Dendrothereua_homa, Dendrothereua_nubila), (Parascutigera_nubila, (Ballonema_gracilipes, (((Sphendononema_rugosa, Sphendononema_guildingii), ('"Scutigera" nossibei', Scutigerina_malagassa%2, Scutigera_coleoptrata, (Thereuopodina_sp._nov, Tachythereua_sp., (Pilbarascutigera_incola, (Seychellonema_gerlachi, (Thereuopoda_longicornis, Thereuopoda_clunifera)))))), ((Thereuonema_turkestana, Thereuonema_tuberculata), (Parascutigera_cf._sphinx, Parascutigera_latericia, Parascutigera_festiva, Allothereua_serrulata, Allothereua_bidenticulata, Allothereua_linderi, Allothereua_maculata, (Parascutigera_sp._QLD_3, Parascutigera_sp._QLD_2, Parascutigera_sp._QLD_1, Parascutigera_guttata))))))))));"""
+        collapsed_tree = remove_single_poly_taxa(tree)
+        self.assert_(trees_equal(tree2, collapsed_tree))
+
+
+    def test_subspecies_sub(self):
+        """ Checking the sub of sub species """
+
+        tree1 = """(taxa_1, 'taxa 2', 'taxa (blah?) foo', bob);"""
+        tree2 = """(taxa_1, taxa_2, taxa_8, bob);"""
+        new_tree = sub_taxa_in_tree(tree1,"taxa_(blah?)_foo",'taxa_8');
+        self.assert_(trees_equal(new_tree, tree2), "Did a sub on quoted odd taxon")
+        tree1 = """(taxa_1, 'taxa 2', 'taxa blah?', bob);"""
+        new_tree = sub_taxa_in_tree(tree1,"taxa_blah?",'taxa_8');
+        self.assert_(trees_equal(new_tree, tree2), "Did a sub on quoted odd taxon")
+        tree1 = """(taxa_1, 'taxa 2', 'taxa blah,sp2 nov', bob);"""
+        new_tree = sub_taxa_in_tree(tree1,"taxa_blah,sp2_nov",'taxa_8');
+        self.assert_(trees_equal(new_tree, tree2), "Did a sub on quoted odd taxon")
+
+    def test_quoted_subin(self):
+        """ sub in taxa that need quoting """
+        tree1 = """(Thereuonema_turkestana, Thereuopodina, 'Thereuopodina, sp. nov.');"""
+        answer1 = """(Thereuonema_turkestana, Thereuopodina_nov._sp., Thereuopodina_n._sp., Thereuopodina_queenslandica, Thereuopodina_sp._nov, 'Thereuopodina, sp. nov.')"""
+        tree2 = """(Thereuonema_turkestana, Thereuopodina, Bob, Fred);"""
+        answer2 = """(Thereuonema_turkestana, Thereuopodina_nov._sp., 'Thereuopodina,_sp._nov.', Thereuopodina_n._sp., Thereuopodina_queenslandica, Thereuopodina_sp._nov, Bob, Fred);"""
+        sub_in = "'Thereuopodina,_sp._nov.','Thereuopodina_n._sp.','Thereuopodina_nov._sp.',Thereuopodina_queenslandica,'Thereuopodina_sp._nov'"
+        new_tree = sub_taxa_in_tree(tree1,"Thereuopodina",sub_in,skip_existing=True);
+        self.assert_(answer1, new_tree)
+        new_tree = sub_taxa_in_tree(tree2,"Thereuopodina",sub_in,skip_existing=True);
+        self.assert_(answer2, new_tree)
+
+
+
 if __name__ == '__main__':
     unittest.main()
  

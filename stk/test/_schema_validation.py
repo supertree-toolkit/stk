@@ -20,20 +20,12 @@
 #    Jon Hill. jon.hill@imperial.ac.uk. 
 
 import unittest
-import math
 import sys
 # so we import local stk before any other
 sys.path.insert(0,"../../")
-from stk.supertree_toolkit import import_tree, obtain_trees, get_all_taxa, _assemble_tree_matrix, create_matrix, _delete_taxon, _sub_taxon
-from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa
 import os
 from lxml import etree
 from util import *
-import StringIO
-import numpy
-import stk.p4 as p4
-
-import sys
 sys.path.append("../../stk_gui/stk_gui/")
 
 from SchemaValidator import *

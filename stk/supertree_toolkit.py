@@ -708,7 +708,7 @@ def generate_species_level_data(XML, taxonomy, ignoreWarnings=False, verbose=Fal
         t = t.replace("_"," ")
         if (not 'species' in taxonomy[t]): # the current taxon is not a species, but higher level taxon
             # work out which level - should we encode this in the data to start with?
-            for tl in taxonomy_levels:
+            for tl in stk_taxonomy.taxonomy_levels:
                 try:
                     tax_data = taxonomy[t][tl]
                 except KeyError:
@@ -1379,7 +1379,7 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
                     treestring = t.xpath("tree/tree_string/string_value")[0].text
                     include = False
                     for taxon in taxa:
-                        if (stk_internals._tree_contains(taxon,treestring)):
+                        if (stk_trees.tree_contains(taxon,treestring)):
                             include = True
                             include_source = True
                             break
@@ -1583,13 +1583,13 @@ def import_bibliography(XML, bibfile, skip=False):
         xml_snippet = it.to_xml()
         if xml_snippet != None:
             # turn this into an etree
-            publication = stk_internals._parse_xml(xml_snippet)
+            publication = stk_phyml.parse_xml(xml_snippet)
             # create top of source
             source = etree.Element("source")
             # now attach our publication
             source.append(publication)
-            new_source = single_sourcename(etree.tostring(source,pretty_print=True))
-            source = stk_internals._parse_xml(new_source)
+            new_source = stk_phyml.single_sourcename(etree.tostring(source,pretty_print=True))
+            source = stk_phyml.parse_xml(new_source)
             
             # now create tail of source
             s_tree = etree.SubElement(source, "source_tree")

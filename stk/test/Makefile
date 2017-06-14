@@ -10,7 +10,9 @@ _stk_util.py \
 _stk_trees.py \
 _stk_internals.py \
 _stk_phyml.py \
-_supertree_toolkit.py
+_supertree_toolkit.py \
+_stk_import_export.py \
+_schema_validation.py
 
 # default case (and test). Loop through all
 # tests listed above and run them

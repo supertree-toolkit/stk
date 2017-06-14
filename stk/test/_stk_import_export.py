@@ -28,7 +28,7 @@ sys.path.insert(0,"../../")
 sys.path.append("../../stk_gui/stk_gui/")
 
 from stk.stk_import_export import export_to_old, import_old_data
-from stk.supertree_toolkit import _parse_xml
+from stk.stk_phyml import parse_xml
 import os
 from lxml import etree
 from util import *
@@ -78,7 +78,7 @@ class TestImportExport(unittest.TestCase):
         
         
         # parse XML and check various things
-        XML = _parse_xml(phyml)
+        XML = parse_xml(phyml)
         name = XML.xpath('/phylo_storage/project_name/string_value')[0].text
         self.assert_(name == "old_stk_test")
 
