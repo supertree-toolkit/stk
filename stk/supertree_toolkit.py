@@ -341,7 +341,7 @@ def subs_file_from_str(str_output):
     return replacements
 
 
-def amalgamate_trees(XML,format="nexus",anonymous=False,ignoreWarnings=False):
+def export_trees(XML,format="nexus",anonymous=False,ignoreWarnings=False):
     """ Create a string containing all trees in the XML.
         String can be formatted to one of Nexus, Newick or TNT.
         Only Nexus formatting takes into account the anonymous

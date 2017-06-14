@@ -957,7 +957,7 @@ def create_taxonomy_from_tree(tree, existing_taxonomy=None, pref_db=None, verbos
     return taxonomy
 
 
-def create_matrix(trees, taxa, format="hennig", quote=False, weights=None, verbose=False):
+def create_matrix_from_trees(trees, taxa, format="hennig", quote=False, weights=None, verbose=False):
     """
     Does the hard work on creating a matrix
     """

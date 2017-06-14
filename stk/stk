@@ -2,7 +2,7 @@
 #
 #    Supertree Toolkit. Software for managing and manipulating sources
 #    trees ready for supretree construction.
-#    Copyright (C) 2011-2013, Jon Hill, Katie Davis
+#    Copyright (C) 2011, Jon Hill, Katie Davis
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -35,9 +35,7 @@ if (not sys.platform.startswith("win")):
     sys.path.insert(0, stk_path)
 else:
     stk_path = os.getcwd()
-import stk.supertree_toolkit as supertree_toolkit
-import stk.stk_import_export as supertree_import_export
-from stk.stk_exceptions import *
+import stk as supertree_toolkit
 import stk.Getch as Getch
 import string
 import stk.p4 as p4
@@ -578,7 +576,7 @@ def main():
             branch = ": ("+branch+")"
         print "STK version 2."+build+branch
         print "Built "+date
-        print "Copyright (C) 2011-2013, Jon Hill, Katie Davis"
+        print "Copyright (C) 2011-2017, Jon Hill, Katie Davis"
         print "Released under GNU General Public License"
         sys.exit(1)
     
@@ -859,7 +857,8 @@ def create_matrix(args):
         XML = supertree_toolkit.load_phyml(input_file)
         if (not taxonomy == None):
             taxonomy_tree = None
-            taxonomy_tree = supertree_toolkit._parse_tree(taxonomy)
+            taxonomy_tree = supertree_toolkit.import_tree(taxonomy)
+            taxonomy = taxonomy_tree
         try:
             matrix = supertree_toolkit.create_matrix(XML,format=f_format,quote=quote,taxonomy=taxonomy,
                                                      outgroups=remove_outgroups,ignoreWarnings=ignoreWarnings)
@@ -960,7 +959,7 @@ def sub_taxa(args):
                 sys.exit(-1)
         else:
             try:
-                old_taxa, new_taxa = supertree_toolkit.parse_subs_file(subs_file)
+                old_taxa, new_taxa = supertree_toolkit.load_subs_file(subs_file)
             except UnableToParseSubsFile as e:
                 print e.msg
                 sys.exit(-1)
@@ -1028,7 +1027,7 @@ def sub_taxa(args):
 
 
     if (treefile):
-        output = supertree_toolkit._amalgamate_trees(new_trees,format='nexus')
+        output = supertree_toolkit.amalgamate_trees(new_trees,format='nexus')
         f = open(output_file,'w')
         f.write(output)
         f.close()
@@ -1255,7 +1254,7 @@ def export_trees(args):
     XML = supertree_toolkit.load_phyml(input_file)
 
     try:
-        output_string = supertree_toolkit.amalgamate_trees(XML,format=format,anonymous=anon,ignoreWarnings=ignoreWarnings)
+        output_string = supertree_toolkit.export_trees(XML,format=format,anonymous=anon,ignoreWarnings=ignoreWarnings)
     except NotUniqueError as detail:
         msg = "***Error: Failed to export trees.\n"+detail.msg
         print msg
@@ -1337,7 +1336,7 @@ def permute_trees(args):
     XML = supertree_toolkit.load_phyml(input_file)
 
     tree_list = {}
-    all_trees = supertree_toolkit.obtain_trees(XML)
+    all_trees = supertree_toolkit.get_all_trees(XML)
     if (not name == None): # user has supplied a tree name - find it
         # get tree
         for t in all_trees:
@@ -1349,7 +1348,7 @@ def permute_trees(args):
     else:
         # get all permutable trees
         try:
-            tree_list = supertree_toolkit._find_trees_for_permuting(XML)
+            tree_list = supertree_toolkit.find_trees_for_permuting(XML)
         except TreeParseError as detail:
             msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
             print msg
@@ -1559,7 +1558,7 @@ def convert_file(args):
             matrix, taxa = supertree_toolkit.read_matrix(input_file)
             if (output_format == "tnt"):
                 output_format = 'hennig'
-            output = supertree_toolkit._create_matrix_string(matrix,taxa,format=output_format)
+            output = supertree_toolkit.create_matrix_string(matrix,taxa,format=output_format)
         except:
             print "Error saving matrix"
             sys.exit(-1)
@@ -1570,9 +1569,9 @@ def convert_file(args):
             new_trees = {}
             i = 1
             for t in trees:
-                new_trees['tree_'+str(i)] = supertree_toolkit._collapse_nodes(t)
+                new_trees['tree_'+str(i)] = supertree_toolkit.collapse_nodes(t)
                 i += 1
-            output = supertree_toolkit._amalgamate_trees(new_trees,format=output_format)
+            output = supertree_toolkit.amalgamate_trees(new_trees,format=output_format)
         except TreeParseError as detail:
             print detail.msg
             sys.exit(-1)
@@ -1811,106 +1810,8 @@ def create_taxonomy(args):
         return
     
     # Now create the CSV output
-    with open(output_file, 'w') as f:
-        writer = csv.writer(f)
-        headers = []
-        headers.append("OTU")
-        headers.extend(supertree_toolkit.taxonomy_levels)
-        headers.append("Data source")
-        writer.writerow(headers)
-        for t in taxonomy:
-            otu = t
-            try:
-                species = taxonomy[t]['species']
-            except KeyError:
-                species = "-"
-            try:
-                genus = taxonomy[t]['genus']
-            except KeyError:
-                genus = "-"
-            try:
-                family = taxonomy[t]['family']
-            except KeyError:
-                family = "-"
-            try:
-                superfamily = taxonomy[t]['superfamily']
-            except KeyError:
-                superfamily = "-"
-            try:
-                infraorder = taxonomy[t]['infraorder']
-            except KeyError:
-                infraorder = "-"
-            try:
-                suborder = taxonomy[t]['suborder']
-            except KeyError:
-                suborder = "-"
-            try:
-                order = taxonomy[t]['order']
-            except KeyError:
-                order = "-"
-            try:
-                superorder = taxonomy[t]['superorder']
-            except KeyError:
-                superorder = "-"
-            try:
-                subclass = taxonomy[t]['subclass']
-            except KeyError:
-                subclass = "-"
-            try:
-                tclass = taxonomy[t]['class']
-            except KeyError:
-                tclass = "-"
-            try:
-                subphylum = taxonomy[t]['subphylum']
-            except KeyError:
-                subphylum = "-"
-            try:
-                phylum = taxonomy[t]['phylum']
-            except KeyError:
-                phylum = "-"
-            try:
-                superphylum = taxonomy[t]['superphylum']
-            except KeyError:
-                superphylum = "-"
-            try:
-                infrakingdom = taxonomy[t]['infrakingdom']
-            except:
-                infrakingdom = "-"
-            try:
-                subkingdom = taxonomy[t]['subkingdom']
-            except:
-                subkingdom = "-"
-            try:
-                kingdom = taxonomy[t]['kingdom']
-            except KeyError:
-                kingdom = "-"
-            try:
-                provider = taxonomy[t]['provider']
-            except KeyError:
-                provider = "-"
+    save_taxonomy(taxonomy, output_file)
 
-            if (isinstance(species, list)):
-                species = " ".join(species)
-            this_classification = [
-                    otu.encode('utf-8'),
-                    species.encode('utf-8'),
-                    genus.encode('utf-8'),
-                    family.encode('utf-8'),
-                    superfamily.encode('utf-8'),
-                    infraorder.encode('utf-8'),
-                    suborder.encode('utf-8'),
-                    order.encode('utf-8'),
-                    superorder.encode('utf-8'),
-                    subclass.encode('utf-8'),
-                    tclass.encode('utf-8'),
-                    subphylum.encode('utf-8'),
-                    phylum.encode('utf-8'),
-                    superphylum.encode('utf-8'),
-                    infrakingdom.encode('utf-8'),
-                    subkingdom.encode('utf-8'),
-                    kingdom.encode('utf-8'),
-                    provider.encode('utf-8')]
-            writer.writerow(this_classification)
 
 def auto_subs(args):
     """Get all OTUs to the same taxonomic level"""
@@ -1968,6 +1869,7 @@ def auto_subs(args):
     f = open(output,"w")
     f.write(newXML)
     f.close()
+
 
 def process(args):
 
@@ -2089,128 +1991,7 @@ def process(args):
     taxonomy = supertree_toolkit.create_taxonomy(phyml,existing_taxonomy=taxonomy,verbose=verbose)
     # save the taxonomy for later
     # Now create the CSV output - seperate out into function in STK (used several times)
-    with open(os.path.join(dirname,project_name+"_taxonomy.csv"), 'w') as f:
-        writer = csv.writer(f)
-        headers = []
-        headers.append("OTU")
-        headers.extend(supertree_toolkit.taxonomy_levels)
-        headers.append("Data source")
-        writer.writerow(headers)
-        for t in taxonomy:
-            otu = t
-            try:
-                species = taxonomy[t]['species']
-            except KeyError:
-                species = "-"
-            try:
-                subgenus = taxonomy[t]['subgenus']
-            except KeyError:
-                subgenus = "-"
-            try:
-                genus = taxonomy[t]['genus']
-            except KeyError:
-                genus = "-"
-            try:
-                subfamily = taxonomy[t]['subfamily']
-            except KeyError:
-                subfamily = "-"
-            try:
-                family = taxonomy[t]['family']
-            except KeyError:
-                family = "-"
-            try:
-                superfamily = taxonomy[t]['superfamily']
-            except KeyError:
-                superfamily = "-"
-            try:
-                subsection = taxonomy[t]['subsection']
-            except KeyError:
-                subsection = "-"
-            try:
-                section = taxonomy[t]['section']
-            except KeyError:
-                section = "-"
-            try:
-                infraorder = taxonomy[t]['infraorder']
-            except KeyError:
-                infraorder = "-"
-            try:
-                suborder = taxonomy[t]['suborder']
-            except KeyError:
-                suborder = "-"
-            try:
-                order = taxonomy[t]['order']
-            except KeyError:
-                order = "-"
-            try:
-                superorder = taxonomy[t]['superorder']
-            except KeyError:
-                superorder = "-"
-            try:
-                subclass = taxonomy[t]['subclass']
-            except KeyError:
-                subclass = "-"
-            try:
-                tclass = taxonomy[t]['class']
-            except KeyError:
-                tclass = "-"
-            try:
-                superclass = taxonomy[t]['superclass']
-            except KeyError:
-                superclass = "-"
-            try:
-                subphylum = taxonomy[t]['subphylum']
-            except KeyError:
-                subphylum = "-"
-            try:
-                phylum = taxonomy[t]['phylum']
-            except KeyError:
-                phylum = "-"
-            try:
-                superphylum = taxonomy[t]['superphylum']
-            except KeyError:
-                superphylum = "-"
-            try:
-                infrakingdom = taxonomy[t]['infrakingdom']
-            except:
-                infrakingdom = "-"
-            try:
-                subkingdom = taxonomy[t]['subkingdom']
-            except:
-                subkingdom = "-"
-            try:
-                kingdom = taxonomy[t]['kingdom']
-            except KeyError:
-                kingdom = "-"
-            try:
-                provider = taxonomy[t]['provider']
-            except KeyError:
-                provider = "-"
-            this_classification = [
-                    otu.encode('utf-8'),
-                    species.encode('utf-8'),
-                    subgenus.encode('utf-8'),
-                    genus.encode('utf-8'),
-                    subfamily.encode('utf-8'),
-                    family.encode('utf-8'),
-                    superfamily.encode('utf-8'),
-                    subsection.encode('utf-8'),
-                    section.encode('utf-8'),
-                    infraorder.encode('utf-8'),
-                    suborder.encode('utf-8'),
-                    order.encode('utf-8'),
-                    superorder.encode('utf-8'),
-                    subclass.encode('utf-8'),
-                    tclass.encode('utf-8'),
-                    superclass.encode('utf-8'),
-                    subphylum.encode('utf-8'),
-                    phylum.encode('utf-8'),
-                    superphylum.encode('utf-8'),
-                    infrakingdom.encode('utf-8'),
-                    subkingdom.encode('utf-8'),
-                    kingdom.encode('utf-8'),
-                    provider.encode('utf-8')]
-            writer.writerow(this_classification)
+    save_taxonomy(taxonomy, os.path.join(dirname,project_name+"_taxonomy.csv"))
 
     # 3) create species level dataset
     if verbose:
@@ -2308,7 +2089,6 @@ def process(args):
     f.write(phyml)
     f.close()
 
-
     # 5) Remove common names
     # no function to do this yet...
 
@@ -2339,7 +2119,6 @@ def process(args):
     f = open(os.path.join(dirname,project_name+"_data_tax_overlap.phyml"), "w")
     f.write(phyml)
     f.close()
-
 
     # 8) Create matrix
     if verbose:
