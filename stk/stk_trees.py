@@ -455,7 +455,7 @@ def permute_tree(tree,matrix="hennig",treefile=None,verbose=False):
         taxa = []
         taxa.append("MRP_Outgroup")
         taxa.extend(names_unique)
-        output_string = create_matrix(permuted_trees,taxa,format=matrix)
+        output_string = create_matrix_from_trees(permuted_trees,taxa,format=matrix)
     else:
         output_string = amalgamate_trees(permuted_trees,format=treefile) 
 

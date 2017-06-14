@@ -46,10 +46,11 @@ import threading
 import urllib2
 from urllib import quote_plus
 import simplejson as json
+from fuzzywuzzy import process
 
 taxonomy_levels = ['species','subgenus','genus','tribe','subfamily','family','superfamily','subsection','section','parvorder','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
-def taxonomic_checker(name_list,existing_data=None,verbose=False):
+def taxonomic_checker_list(name_list,existing_data=None,verbose=False):
     """ For each name in the database generate a database of the original name,
     possible synonyms and if the taxon is not know, signal that. We do this by
     using the EoL API to grab synonyms of each taxon.  """
@@ -138,12 +139,24 @@ def taxonomic_checker(name_list,existing_data=None,verbose=False):
                 synonyms.append(correct_name)
             else:
                 synonyms.insert(0,correct_name)
-
             if (amber):
                 equivalents[t] = [synonyms,'amber']
             else:
                 equivalents[t] = [synonyms,'yellow']
         # if our search was empty, then it's red - see above
+
+    # now do some fuzzy pattern matching to sort out extra taxa
+    taxa = equivalents.keys()
+    for t in taxa:
+        if equivalents[t][1] == "red":
+            result = process.extract(t, taxa, limit=2)
+            # returns something like
+            # [('Thyanoessa_macrura', 100), ('Thysanoessa_macrura', 97)]
+            # first hit is the taxon in question
+            # second hit is the next closest. Above 90, we assume a typo or two and pick that as a yellow instead of red
+            if results[1][1] > 90: # % fuzzy match
+                equivalents[t] = [result[1][0], "yellow"]
+
 
     # up to the calling funciton to do something sensible with this
     # we build a dictionary of names and then a list of synonyms or the original name, then a tag if it's green, yellow, red.
@@ -246,10 +259,12 @@ class TaxonomyFetcher(threading.Thread):
         self.pref_db = pref_db
         self.ignoreWarnings = ignoreWarnings
         self.check_fossil = check_fossil
+        print "hello"
 
     def run(self):
         """ Gets and processes a taxon from the queue to get its taxonomy."""
         while True :
+            print "boo"
             #get taxon from queue
             taxon = self.queue.get()
             #Lock access to the taxonomy

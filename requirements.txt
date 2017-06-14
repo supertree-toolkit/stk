@@ -6,3 +6,4 @@ pygraphviz
 numpy
 ete2
 zeep
+fuzzywuzzy

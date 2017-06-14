@@ -7,7 +7,7 @@ sys.path.insert(0,"../")
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
 from stk.supertree_toolkit import create_taxonomy, safe_taxonomic_reduction, subs_file_from_str
-from stk.supertree_toolkit import amalgamate_trees, create_matrix, substitute_taxa
+from stk.supertree_toolkit import export_trees, create_matrix, substitute_taxa
 from stk.supertree_toolkit import substitute_taxa_in_trees, data_summary, taxonomic_checker, load_equivalents
 from stk.supertree_toolkit import generate_species_level_data, data_overlap, data_independence, add_historical_event
 from stk.supertree_toolkit import clean_data, replace_genera, create_subset, tree_from_taxonomy, check_data
@@ -30,7 +30,7 @@ class TestSTK(unittest.TestCase):
 
     def test_amalgamate_trees_anonymous(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
-        output_string = amalgamate_trees(XML,format="nexus",anonymous=True)
+        output_string = export_trees(XML,format="nexus",anonymous=True)
         trees = stk_phyml.get_all_trees(XML)
         # save the file and read it back in. Then we check correct format (i.e. readable) and
         # we can check the trees are correct
@@ -51,7 +51,7 @@ class TestSTK(unittest.TestCase):
 
     def test_amalgamate_trees_nexus(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
-        output_string = amalgamate_trees(XML,format="nexus",anonymous=False)
+        output_string = export_trees(XML,format="nexus",anonymous=False)
         trees = stk_phyml.get_all_trees(XML)
         # save the file and read it back in. Then we check correct format (i.e. readable) and
         # we can check the trees are correct
@@ -72,7 +72,7 @@ class TestSTK(unittest.TestCase):
 
     def test_amalgamate_trees_newick(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
-        output_string = amalgamate_trees(XML,format="newick")
+        output_string = export_trees(XML,format="newick")
         trees = stk_phyml.get_all_trees(XML)
         # save the file and read it back in. Then we check correct format (i.e. readable) and
         # we can check the trees are correct
@@ -93,7 +93,7 @@ class TestSTK(unittest.TestCase):
 
     def test_amalgamate_trees_tnt(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
-        output_string = amalgamate_trees(XML,format="tnt")
+        output_string = export_trees(XML,format="tnt")
         trees = stk_phyml.get_all_trees(XML)
         # save the file and read it back in. Then we check correct format (i.e. readable) and
         # we can check the trees are correct
@@ -114,7 +114,7 @@ class TestSTK(unittest.TestCase):
 
     def test_amalgamate_trees_unknown_format(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
-        output_string = amalgamate_trees(XML,format="PHYXML")
+        output_string = export_trees(XML,format="PHYXML")
         self.assert_(output_string==None)
 
     def test_create_nexus_matrix(self):

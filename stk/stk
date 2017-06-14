@@ -2,7 +2,7 @@
 #
 #    Supertree Toolkit. Software for managing and manipulating sources
 #    trees ready for supretree construction.
-#    Copyright (C) 2011, Jon Hill, Katie Davis
+#    Copyright (C) 2011-2017, Jon Hill, Katie Davis
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#    Jon Hill. jon.hill@imperial.ac.uk. 
+#    Jon Hill. jon.hill@york.ac.uk. 
 
 import os
 import sys
@@ -560,6 +560,10 @@ def main():
             action='store_true',
             default=False,
             help="Overwrite the existing file without asking for confirmation")
+    parse_cm.ass_argument('--pref_db',
+            choices=['eol', 'worms', 'itis'],
+            default = 'eol'
+            )
     parser_cm.add_argument('--no_store',
             action="store_true",
             default=False,
@@ -1881,6 +1885,7 @@ def process(args):
     taxonomy_file = args.taxonomy_file
     equivalents_file = args.equivalents_file
     overwrite = args.overwrite
+    pref_dv = args.pref_db
 
     if (os.path.exists(output) and not overwrite):
         print "Output matrix file exists. Either remove the file or use the --overwrite flag."
@@ -1902,20 +1907,20 @@ def process(args):
     try:
         phyml = supertree_toolkit.load_phyml(input_file)
         project_name = supertree_toolkit.get_project_name(phyml)
-        supertree_toolkit._check_data(phyml)
-    except NotUniqueError as detail:
+        supertree_toolkit.check_data(phyml)
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to load data.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to load data.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to load data.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -1924,6 +1929,10 @@ def process(args):
         print msg
         traceback.print_exc()
         return 
+
+    if verbose:
+        "Removing subspecies"
+    phyml = _remove_subspecies(phyml) 
 
     if verbose:
         print "Checking taxa againt online databases"
@@ -1948,25 +1957,25 @@ def process(args):
     if verbose:
         print "Swapping in the corrected taxa names"    
     try:
-        old_taxa, new_taxa = supertree_toolkit.parse_subs_file(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat"))
-    except UnableToParseSubsFile as e:
+        old_taxa, new_taxa = supertree_toolkit.load_subs_file(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat"))
+    except supertree_toolkit.UnableToParseSubsFile as e:
         print e.msg
         sys.exit(-1)
     try:
         phyml = supertree_toolkit.substitute_taxa(phyml,old_taxa,new_taxa,only_existing=False,verbose=verbose)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed substituting taxa.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -1988,7 +1997,10 @@ def process(args):
         taxonomy = supertree_toolkit.load_taxonomy(taxonomy_file)
     else:
         taxonomy = None
-    taxonomy = supertree_toolkit.create_taxonomy(phyml,existing_taxonomy=taxonomy,verbose=verbose)
+    taxonomy = supertree_toolkit.create_taxonomy(phyml,existing_taxonomy=taxonomy,pref_db=pref_db,verbose=verbose)
+    if verbose:
+        print "Checking other databases to see if we can add more data to taxonomy"
+    taxonomy = supertree_toolkit.create_extended_taxonomy(taxonomy, pref_db=pref_db, verbose=verbose)
     # save the taxonomy for later
     # Now create the CSV output - seperate out into function in STK (used several times)
     save_taxonomy(taxonomy, os.path.join(dirname,project_name+"_taxonomy.csv"))
@@ -1998,11 +2010,11 @@ def process(args):
         print "Converting data to species level"
     try:
         phyml = supertree_toolkit.generate_species_level_data(phyml,taxonomy,verbose=verbose)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
         print msg
         return
@@ -2010,11 +2022,11 @@ def process(args):
         msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
-    except NoneCompleteTaxonomy as detail:
+    except supertree_toolkit.NoneCompleteTaxonomy as detail:
         msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
         print msg
         return
@@ -2032,7 +2044,7 @@ def process(args):
     # 4) Remove non-monophyletic taxa (requires TNT to be installed)
     if verbose:
         print "Removing non-monophyletic taxa via mini-supertree method"
-    tree_list = supertree_toolkit._find_trees_for_permuting(phyml)
+    tree_list = supertree_toolkit.find_trees_for_permuting(phyml)
     try:
         for t in tree_list:
             # permute
@@ -2058,16 +2070,12 @@ def process(args):
                 tnt_command = "tnt mxram 512,run "+new_output+",echo= ,timeout 00:10:00,rseed0,rseed*,hold 1000,xmult= level 0,taxname=,nelsen *,tsave *"+temp_file+",save /,quit"
                 #tnt_command = "tnt run "+new_output+",ienum,taxname=,nelsen*,tsave *"+temp_file+",save /,quit"
                 # run tnt, grab the output and store back in the data
-                #try:
-                call(tnt_command, shell=True)
-                #except CalledProcessError as e:
-                #    msg = "***Error: Failed to run TNT. Is it installed correctl?.\n"+e.msg
-                #    print msg
-                #    return
-                #ret = os.system(tnt_command)
-                #if (not ret == 0):
-                #    print "error running tnt"
-                #    return
+                try:
+                    call(tnt_command, shell=True)
+                except CalledProcessError as e:
+                    msg = "***Error: Failed to run TNT. Is it installed correctl?.\n"+e.msg
+                    print msg
+                    return
 
                 new_tree = supertree_toolkit.import_tree(temp_file)
                 phyml = supertree_toolkit._swap_tree_in_XML(phyml,new_tree,t)
@@ -2125,19 +2133,19 @@ def process(args):
         print "Creating matrix"
     try:
         matrix = supertree_toolkit.create_matrix(phyml)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to create matrix.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to create matrix.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to create matrix.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -2173,6 +2181,21 @@ def _equivalents_to_subs(equivalents):
             # the first name is always the correct one
             output_string += taxon + " = "+equivalents[taxon][0][0]+"\n"
     return output_string
+
+
+def _remove_subspecies(XML):
+
+    taxa = supertree_toolkit.get_all_taxa(XML)
+    delete_me = []
+    for t in taxa:
+        if len(t.split("_")) >= 3: # subspecies
+            delete_me.append(t)
+
+    phyml = supertree_toolkit.substitute_taxa(XML,delete_me)
+
+    return phyml
+
+
 
 if __name__ == "__main__":
     main()

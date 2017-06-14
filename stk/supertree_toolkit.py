@@ -409,7 +409,7 @@ def create_matrix(XML,format="hennig",quote=False,taxonomy=None,outgroups=False,
         taxa.sort()
     taxa.insert(0,"MRP_Outgroup")
         
-    return stk_trees.create_matrix(trees, taxa, format=format, quote=quote, weights=weights,verbose=verbose)
+    return stk_trees.create_matrix_from_trees(trees, taxa, format=format, quote=quote, weights=weights,verbose=verbose)
 
 
 def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWarnings=False, verbose=False, skip_existing=False, generic_match=False):
