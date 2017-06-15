@@ -637,7 +637,7 @@ def data_summary(XML,detailed=False,ignoreWarnings=False):
     return output_string
 
 
-def taxonomic_checker(XML,existing_data=None,verbose=False):
+def taxonomic_checker(XML,existing_data=None,pref_db="eol",verbose=False):
     """ For each name in the database generate a database of the original name,
     possible synonyms and if the taxon is not know, signal that. We do this by
     using the EoL API to grab synonyms of each taxon.  """
@@ -650,7 +650,7 @@ def taxonomic_checker(XML,existing_data=None,verbose=False):
     else:
         equivalents = existing_data
 
-    equivalents = stk_taxonomy.taxonomic_checker_list(taxa,existing_data,verbose)
+    equivalents = stk_taxonomy.taxonomic_checker_list(taxa,existing_data=existing_data,pref_db=pref_db,verbose=verbose)
     return equivalents
 
 

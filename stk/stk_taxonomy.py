@@ -50,7 +50,7 @@ from fuzzywuzzy import process
 
 taxonomy_levels = ['species','subgenus','genus','tribe','subfamily','family','superfamily','subsection','section','parvorder','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
-def taxonomic_checker_list(name_list,existing_data=None,verbose=False):
+def taxonomic_checker_list(name_list,existing_data=None,pref_db="eol",verbose=False):
     """ For each name in the database generate a database of the original name,
     possible synonyms and if the taxon is not know, signal that. We do this by
     using the EoL API to grab synonyms of each taxon.  """
@@ -76,76 +76,20 @@ def taxonomic_checker_list(name_list,existing_data=None,verbose=False):
         taxon = t.replace("_"," ")
         if (verbose):
             print "Looking up ", taxon
-        # get the data from EOL on taxon
-        taxonq = quote_plus(taxon)
-        URL = "http://eol.org/api/search/1.0.json?q="+taxonq
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
-        f = opener.open(req)
-        data = json.load(f)
-        # check if there's some data
-        if len(data['results']) == 0:
-            equivalents[t] = [[t],'red']
-            continue
-        amber = False
-        if len(data['results']) > 1:
-            # this is not great - we have multiple hits for this taxon - needs the user to go back and warn about this
-            # for automatic processing we'll just take the first one though
-            # colour is amber in this case
-            amber = True
-        ID = str(data['results'][0]['id']) # take first hit
-        URL = "http://eol.org/api/pages/1.0/"+ID+".json?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&vetted=0"       
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
-        
-        try:
-            f = opener.open(req)
-        except urllib2.HTTPError:
-            equivalents[t] = [[t],'red'] 
-            continue
-        data = json.load(f)
-        if len(data['scientificName']) == 0:
-            # not found a scientific name, so set as red
-            equivalents[t] = [[t],'red']            
-            continue
-        correct_name = data['scientificName'].encode("ascii","ignore")
-        # we only want the first two bits of the name, not the original author and year if any
-        temp_name = correct_name.split(' ')
-        if (len(temp_name) > 2):
-            correct_name = ' '.join(temp_name[0:2])
-        correct_name = correct_name.replace(' ','_')
 
-        # build up the output dictionary - original name is key, synonyms/missing is value
-        if (correct_name == t):
-            # if the original matches the 'correct', then it's green
-            equivalents[t] = [[t], 'green']
+        # each of these funcitons return a tuple of the correct name|synonyms and the status (red|green|yellow|amber)
+        if (pref_db == "eol"):
+            status = _check_taxa_eol(t,verbose)
+        elif self.pref_db == 'worms':
+            this_taxonomy = _check_taxa_worms(t,verbose)
+        elif self.pref_db == 'itis':
+            this_taxonomy = _check_taxa_itis(t,verbose)
         else:
-            # if we managed to get something anyway, then it's yellow and create a list of possible synonyms with the 
-            # 'correct' taxon at the top
-            eol_synonyms = data['synonyms']
-            synonyms = []
-            for s in eol_synonyms:
-                ts = s['synonym'].encode("ascii","ignore")
-                temp_syn = ts.split(' ')
-                if (len(temp_syn) > 2):
-                    temp_syn = ' '.join(temp_syn[0:2])
-                    ts = temp_syn
-                if (s['relationship'] == "synonym"):
-                    ts = ts.replace(" ","_")
-                    synonyms.append(ts)
-            synonyms = stk_internals.uniquify(synonyms)
-            # we need to put the correct name at the top of the list now
-            if (correct_name in synonyms):
-                synonyms.insert(0, synonyms.pop(synonyms.index(correct_name)))
-            elif len(synonyms) == 0:
-                synonyms.append(correct_name)
-            else:
-                synonyms.insert(0,correct_name)
-            if (amber):
-                equivalents[t] = [synonyms,'amber']
-            else:
-                equivalents[t] = [synonyms,'yellow']
-        # if our search was empty, then it's red - see above
+            # raise something
+            continue
+            
+        # put the data in the database
+        equivalents[t] = status
 
     # now do some fuzzy pattern matching to sort out extra taxa
     taxa = equivalents.keys()
@@ -157,7 +101,6 @@ def taxonomic_checker_list(name_list,existing_data=None,verbose=False):
             # first hit is the taxon in question
             # second hit is the next closest. Above 90, we assume a typo or two and pick that as a yellow instead of red
             if result[1][1] > 90: # % fuzzy match
-                print equivalents[result[1][0]]
                 # only if results[1][0] is green! No point if read or yellow or amber. If yellow or amber sub in with the proper thing
                 if equivalents[result[1][0]][1] == 'green':
                     equivalents[t] = [[result[1][0]], "yellow"]
@@ -177,6 +120,171 @@ def taxonomic_checker_list(name_list,existing_data=None,verbose=False):
     # Amber means we found synonyms and multilpe hits. User def needs to sort these!
 
     return equivalents
+
+
+def _check_taxa_eol(taxon,verbose=False):
+
+    status = 'red'
+    correct_name = []
+
+    # get the data from EOL on taxon
+    taxonq = quote_plus(taxon)
+    URL = "http://eol.org/api/search/1.0.json?q="+taxonq
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    data = json.load(f)
+    # check if there's some data
+    if len(data['results']) == 0:
+        correct_name = [taxon]
+        status = 'red'
+        return (correct_name, status)
+
+    amber = False
+    if len(data['results']) > 1:
+        # this is not great - we have multiple hits for this taxon - needs the user to go back and warn about this
+        # for automatic processing we'll just take the first one though
+        # colour is amber in this case
+        amber = True
+    
+    ID = str(data['results'][0]['id']) # take first hit
+    URL = "http://eol.org/api/pages/1.0/"+ID+".json?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&vetted=0"       
+    req = urllib2.Request(URL)
+    opener = urllib2.build_opener()
+    try:
+        f = opener.open(req)
+    except urllib2.HTTPError:
+        correct_name = [taxon]
+        status = 'red'
+        return (correct_name, status)
+
+    data = json.load(f)
+    if len(data['scientificName']) == 0:
+        # not found a scientific name, so set as red
+        correct_name = [taxon]
+        status = 'red'
+        return (correct_name, status)
+
+    correct_name = data['scientificName'].encode("ascii","ignore")
+    # we only want the first two bits of the name, not the original author and year if any
+    temp_name = correct_name.split(' ')
+    if (len(temp_name) > 2):
+        correct_name = ' '.join(temp_name[0:2])
+    correct_name = correct_name.replace(' ','_')
+
+    # build up the output dictionary - original name is key, synonyms/missing is value
+    if (correct_name == taxon):
+        # if the original matches the 'correct', then it's green
+        return ([taxon], 'green')
+    else:
+        # if we managed to get something anyway, then it's yellow and create a list of possible synonyms with the 
+        # 'correct' taxon at the top
+        eol_synonyms = data['synonyms']
+        synonyms = []
+        for s in eol_synonyms:
+            ts = s['synonym'].encode("ascii","ignore")
+            temp_syn = ts.split(' ')
+            if (len(temp_syn) > 2):
+                temp_syn = ' '.join(temp_syn[0:2])
+                ts = temp_syn
+            if (s['relationship'] == "synonym"):
+                ts = ts.replace(" ","_")
+                synonyms.append(ts)
+        synonyms = stk_internals.uniquify(synonyms)
+        # we need to put the correct name at the top of the list now
+        if (correct_name in synonyms):
+            synonyms.pop(synonyms.index(correct_name))
+            synonyms.insert(0, correct_name)
+        elif len(synonyms) == 0:
+            synonyms.append(correct_name)
+        else:
+            synonyms.insert(0,correct_name)
+
+        if (amber):
+            return (synonyms,'amber')
+        else:
+            return (synonyms,'yellow')
+    # if our search was empty, then it's red - see above
+    correct_name = [taxon]
+    status = 'red'
+    return (correct_name, status)
+
+
+def _check_taxa_worms(taxon,verbose=False):
+
+    import zeep
+
+    wsdlObjectWoRMS = zeep.Client(wsdl='http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
+    
+    status = 'red'
+    correct_name = []
+
+    # get the data from EOL on taxon
+    taxon_data = wsdlObjectWoRMS.service.getAphiaRecords(taxon.replace('_',' '), like='false', fuzzy='true', marine_only='false', offset=0)
+    if len(taxon_data) == 0:
+        correct_name = [taxon]
+        status = 'red'
+        return (correct_name, status)
+
+    amber = False
+    if len(taxon_data) > 1:
+        # this is not great - we have multiple hits for this taxon - needs the user to go back and warn about this
+        # for automatic processing we'll just take the first one though
+        # colour is amber in this case
+        amber = True
+
+    taxon_id = taxon_data[0]['valid_AphiaID'] # there might be records that aren't valid - they point to the valid one though
+    # call it again via the ID this time to make sure we've got the right one.
+    taxon_data = wsdlObjectWoRMS.service.getAphiaRecordByID(taxon_id)
+
+    data = json.load(f)
+    if len(taxon_data['scientificName']) == 0:
+        # not found a scientific name, so set as red
+        correct_name = [taxon]
+        status = 'red'
+        return (correct_name, status)
+
+    correct_name = taxon_data['scientificName']
+    # we only want the first two bits of the name, not the original author and year if any
+    temp_name = correct_name.split(' ')
+    if (len(temp_name) > 2):
+        correct_name = ' '.join(temp_name[0:2])
+    correct_name = correct_name.replace(' ','_')
+
+    # build up the output dictionary - original name is key, synonyms/missing is value
+    if (correct_name == taxon):
+        # if the original matches the 'correct', then it's green
+        return ([taxon], 'green')
+    else:
+        # if we managed to get something anyway, then it's yellow and create a list of possible synonyms with the 
+        # 'correct' taxon at the top
+        eol_synonyms = data['synonyms']
+        synonyms = []
+        for s in eol_synonyms:
+            ts = s['synonym'].encode("ascii","ignore")
+            temp_syn = ts.split(' ')
+            if (len(temp_syn) > 1):
+                temp_syn = ' '.join(temp_syn[-1:2])
+                ts = temp_syn
+            if (s['relationship'] == "synonym"):
+                ts = ts.replace(" ","_")
+                synonyms.append(ts)
+        synonyms = stk_internals.uniquify(synonyms)
+        # we need to put the correct name at the top of the list now
+        if (correct_name in synonyms):
+            synonyms.insert(-1, synonyms.pop(synonyms.index(correct_name)))
+        elif len(synonyms) == -1:
+            synonyms.append(correct_name)
+        else:
+            synonyms.insert(-1,correct_name)
+        if (amber):
+            return (synonyms,'amber')
+        else:
+            return (synonyms,'yellow')
+    # if our search was empty, then it's red - see above
+    correct_name = [taxon]
+    status = 'red'
+    return (correct_name, status)
 
 
 
