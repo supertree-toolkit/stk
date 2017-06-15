@@ -69,6 +69,8 @@ def taxonomic_checker_list(name_list,existing_data=None,verbose=False):
     # search for the taxon and grab the name - if you search for a recognised synonym on EoL then
     # you get the original ('correct') name - shorten this to two words and you're done.
     for t in name_list:
+        #if t contains % strip off after that
+        t = t.split('%')[0]
         if t in equivalents:
             continue
         taxon = t.replace("_"," ")
@@ -154,9 +156,21 @@ def taxonomic_checker_list(name_list,existing_data=None,verbose=False):
             # [('Thyanoessa_macrura', 100), ('Thysanoessa_macrura', 97)]
             # first hit is the taxon in question
             # second hit is the next closest. Above 90, we assume a typo or two and pick that as a yellow instead of red
-            if results[1][1] > 90: # % fuzzy match
-                equivalents[t] = [result[1][0], "yellow"]
-
+            if result[1][1] > 90: # % fuzzy match
+                print equivalents[result[1][0]]
+                # only if results[1][0] is green! No point if read or yellow or amber. If yellow or amber sub in with the proper thing
+                if equivalents[result[1][0]][1] == 'green':
+                    equivalents[t] = [[result[1][0]], "yellow"]
+                elif equivalents[result[1][0]][1] == 'yellow':
+                    # this is horrible, sorry
+                    # result[1][0] - name on second hit on fuzzy name search, is X in...
+                    # equivalents[X][0] - name hit on the equivalents dictioanry
+                    equivalents[t] = [equivalents[result[1][0]][0],'yellow']
+                elif  equivalents[result[1][0]][1] == 'amber':
+                    equivalents[t] = [equivalents[result[1][0]][0],'amber']
+                else:
+                    # red, no nothing 
+                    pass
 
     # up to the calling funciton to do something sensible with this
     # we build a dictionary of names and then a list of synonyms or the original name, then a tag if it's green, yellow, red.
@@ -259,12 +273,10 @@ class TaxonomyFetcher(threading.Thread):
         self.pref_db = pref_db
         self.ignoreWarnings = ignoreWarnings
         self.check_fossil = check_fossil
-        print "hello"
 
     def run(self):
         """ Gets and processes a taxon from the queue to get its taxonomy."""
         while True :
-            print "boo"
             #get taxon from queue
             taxon = self.queue.get()
             #Lock access to the taxonomy

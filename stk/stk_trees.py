@@ -528,7 +528,7 @@ def sub_taxon(old_taxon, new_taxon, tree, skip_existing=False):
         new_taxa = taxa
 
     # Here's the plan - strip the duplicated taxa marker, _\d from the
-    # taxa. We can then just swap taxa in plan text.
+    # taxa. We can then just swap taxa in plain text.
     # When done, p4 can fix duplicated taxa by adding back on _\d
     # Then we collapse the nodes, taking into account duplicated taxa
     # This will need several iterations.
@@ -1023,14 +1023,14 @@ def create_matrix_from_trees(trees, taxa, format="hennig", quote=False, weights=
         matrix_string += "\n"
         if (not weights == None):
             # get unique weights
-            unique_weights = stk_internals.uniquify(weights.values())
+            unique_weights = stk_internals.uniquify(weights_per_char)
             for uw in unique_weights:
                 # The float for the weight cannot start with 0, even if it's 0.5
                 # so we strip of the 0 to make .5 instead (lstrip). TNT is weird with formats...
                 # We also strip off trailing zeros for neatness (rstrip)
                 matrix_string += "ccode +[/"+("%.3f"%uw).lstrip('0').rstrip('0')
                 i = 0
-                for w in weights:
+                for w in weights_per_char:
                     if (w == uw):
                         matrix_string += " " + str(i)
                     i += 1

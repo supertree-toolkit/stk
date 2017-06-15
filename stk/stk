@@ -560,7 +560,7 @@ def main():
             action='store_true',
             default=False,
             help="Overwrite the existing file without asking for confirmation")
-    parse_cm.ass_argument('--pref_db',
+    parser_cm.add_argument('--pref_db',
             choices=['eol', 'worms', 'itis'],
             default = 'eol'
             )
@@ -1885,7 +1885,7 @@ def process(args):
     taxonomy_file = args.taxonomy_file
     equivalents_file = args.equivalents_file
     overwrite = args.overwrite
-    pref_dv = args.pref_db
+    pref_db = args.pref_db
 
     if (os.path.exists(output) and not overwrite):
         print "Output matrix file exists. Either remove the file or use the --overwrite flag."
@@ -2000,10 +2000,10 @@ def process(args):
     taxonomy = supertree_toolkit.create_taxonomy(phyml,existing_taxonomy=taxonomy,pref_db=pref_db,verbose=verbose)
     if verbose:
         print "Checking other databases to see if we can add more data to taxonomy"
-    taxonomy = supertree_toolkit.create_extended_taxonomy(taxonomy, pref_db=pref_db, verbose=verbose)
+    #taxonomy = supertree_toolkit.create_extended_taxonomy(taxonomy, pref_db=pref_db, verbose=verbose)
     # save the taxonomy for later
     # Now create the CSV output - seperate out into function in STK (used several times)
-    save_taxonomy(taxonomy, os.path.join(dirname,project_name+"_taxonomy.csv"))
+    supertree_toolkit.save_taxonomy(taxonomy, os.path.join(dirname,project_name+"_taxonomy.csv"))
 
     # 3) create species level dataset
     if verbose:
@@ -2078,7 +2078,7 @@ def process(args):
                     return
 
                 new_tree = supertree_toolkit.import_tree(temp_file)
-                phyml = supertree_toolkit._swap_tree_in_XML(phyml,new_tree,t)
+                phyml = supertree_toolkit.swap_tree_in_XML(phyml,new_tree,t)
 
     except TreeParseError as e:
         msg = "***Error permuting trees.\n"+e.msg
@@ -2122,7 +2122,7 @@ def process(args):
         for t in key_list[1::]: # skip 0
             delete_me.extend(t)
         for tree in delete_me:
-            phyml = supertree_toolkit._swap_tree_in_XML(phyml, None, tree, delete=True) # delete the tree and clean the data as we go 
+            phyml = supertree_toolkit.swap_tree_in_XML(phyml, None, tree, delete=True) # delete the tree and clean the data as we go 
     # save phyml
     f = open(os.path.join(dirname,project_name+"_data_tax_overlap.phyml"), "w")
     f.write(phyml)
@@ -2179,7 +2179,10 @@ def _equivalents_to_subs(equivalents):
     for taxon in sorted(equivalents):
         if (equivalents[taxon][1] == 'yellow'):
             # the first name is always the correct one
-            output_string += taxon + " = "+equivalents[taxon][0][0]+"\n"
+            if type(equivalents[taxon][0]) is list:
+                output_string += taxon + " = "+equivalents[taxon][0][0]+"\n"
+            else:
+                output_string += taxon + " = "+equivalents[taxon][0]+"\n"
     return output_string
 
 
@@ -2187,11 +2190,14 @@ def _remove_subspecies(XML):
 
     taxa = supertree_toolkit.get_all_taxa(XML)
     delete_me = []
+    replace_with = []
     for t in taxa:
         if len(t.split("_")) >= 3: # subspecies
             delete_me.append(t)
+            replace_with.append("_".join(t.split("_")[0:2]))
 
-    phyml = supertree_toolkit.substitute_taxa(XML,delete_me)
+
+    phyml = supertree_toolkit.substitute_taxa(XML,delete_me,replace_with)
 
     return phyml
 

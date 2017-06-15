@@ -60,7 +60,7 @@ PLATFORM = sys.platform
 # it back to the user interface handler to save it somewhere
 
 
-def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False):
+def create_taxonomy(XML, existing_taxonomy=None, pref_db='eol', verbose=False, ignoreWarnings=False):
     """Generates a taxonomy of the data from EoL data. This is stored as a
     dictionary of taxonomy for each taxon in the dataset. Missing data are
     encoded as '' (blank string). It's up to the calling function to store this
@@ -74,7 +74,7 @@ def create_taxonomy(XML, existing_taxonomy=None, pref_db=None, verbose=False, ig
     else:
         taxonomy = existing_taxonomy
     taxa = stk_phyml.get_all_taxa(XML, pretty=True)
-    taxonomy = stk_taxonomy.create_taxonomy_from_taxa(taxa, taxonomy)
+    taxonomy = stk_taxonomy.create_taxonomy_from_taxa(taxa, taxonomy, pref_db=pref_db, verbose=verbose) 
     return taxonomy
 
 
