@@ -27,7 +27,7 @@ import os
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
 from stk_taxonomy import get_taxonomy_for_taxon_eol, get_taxonomy_for_taxon_itis, get_taxonomy_for_taxon_worms, get_taxonomy_for_taxon_pbdb
-from stk_taxonomy import create_taxonomy_from_taxa, create_extended_taxonomy, load_taxonomy, tree_from_taxonomy, taxonomic_checker
+from stk_taxonomy import create_taxonomy_from_taxa, create_extended_taxonomy, load_taxonomy, tree_from_taxonomy, taxonomic_checker_list
 from stk_taxonomy import get_taxonomy_eol, get_taxonomy_worms, get_taxonomy_itis
 from stk.stk_internals import internet_on
 from stk.stk_trees import trees_equal
@@ -67,10 +67,10 @@ class TestSTKTaxonomy(unittest.TestCase):
         return
     
     def test_taxonomy_checker(self):
-        expected = {'Thalassarche_melanophrys': [['Thalassarche_melanophris', 'Thalassarche_melanophrys', 'Diomedea_melanophris', 'Thalassarche_[melanophrys', 'Diomedea_melanophrys'], 'amber'], 'Egretta_tricolor': [['Egretta_tricolor'], 'green'], 'Gallus_gallus': [['Gallus_gallus'], 'green']}
+        expected = {'Thalassarche_melanophrys': (['Thalassarche_melanophris', 'Thalassarche_melanophrys', 'Diomedea_melanophris', 'Thalassarche_[melanophrys', 'Diomedea_melanophrys'], 'amber'), 'Egretta_tricolor': (['Egretta_tricolor'], 'green'), 'Gallus_gallus': (['Gallus_gallus'], 'green')}
         taxa_list = ['Thalassarche_melanophrys', 'Egretta_tricolor', 'Gallus_gallus']
         if (internet_on()):
-            equivs = taxonomic_checker(taxa_list)
+            equivs = taxonomic_checker_list(taxa_list)
             self.maxDiff = None
             self.assertDictEqual(equivs, expected)
         else:
@@ -82,11 +82,33 @@ class TestSTKTaxonomy(unittest.TestCase):
         if (internet_on()):
             # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
             taxa_list = stk_phyml.get_all_taxa(XML)
-            equivs = taxonomic_checker(taxa_list)
+            equivs = taxonomic_checker_list(taxa_list)
             self.maxDiff = None
             self.assert_(equivs['Agathamera_crassa'][0][0] == 'Agathemera_crassa')
             self.assert_(equivs['Celatoblatta_brunni'][0][0] == 'Maoriblatta_brunni')
             self.assert_(equivs['Blatta_lateralis'][1] == 'amber')
+        else:
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
+        return
+
+    def test_taxonomy_checker_common_name(self):
+        if (internet_on()):
+            # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
+            taxa_list = ['Cardueline_Finches']
+            equivs = taxonomic_checker_list(taxa_list)
+            self.maxDiff = None
+            self.assert_(equivs['Cardueline_Finches'][0][0] == 'Carduelinae')
+        else:
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
+        return
+
+    def test_taxonomy_checker_common_name2(self):
+        if (internet_on()):
+            # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
+            taxa_list = ['Chaffinches']
+            equivs = taxonomic_checker_list(taxa_list)
+            self.maxDiff = None
+            self.assert_(equivs['Chaffinches'][0][0] == 'Fringilla')
         else:
             print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
         return

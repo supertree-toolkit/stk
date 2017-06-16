@@ -47,6 +47,7 @@ import urllib2
 from urllib import quote_plus
 import simplejson as json
 from fuzzywuzzy import process
+import backoff
 
 taxonomy_levels = ['species','subgenus','genus','tribe','subfamily','family','superfamily','subsection','section','parvorder','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
@@ -124,6 +125,12 @@ def taxonomic_checker_list(name_list,existing_data=None,pref_db="eol",verbose=Fa
 
 def _check_taxa_eol(taxon,verbose=False):
 
+    @backoff.on_exception(backoff.expo,
+                      urllib2.HTTPError,
+                      max_value=32)
+    def url_open(req):
+        return opener.open(req)
+    
     status = 'red'
     correct_name = []
 
@@ -132,7 +139,7 @@ def _check_taxa_eol(taxon,verbose=False):
     URL = "http://eol.org/api/search/1.0.json?q="+taxonq
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
-    f = opener.open(req)
+    f = url_open(req)
     data = json.load(f)
     # check if there's some data
     if len(data['results']) == 0:
@@ -151,13 +158,7 @@ def _check_taxa_eol(taxon,verbose=False):
     URL = "http://eol.org/api/pages/1.0/"+ID+".json?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&vetted=0"       
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
-    try:
-        f = opener.open(req)
-    except urllib2.HTTPError:
-        correct_name = [taxon]
-        status = 'red'
-        return (correct_name, status)
-
+    f = url_open(req)
     data = json.load(f)
     if len(data['scientificName']) == 0:
         # not found a scientific name, so set as red
@@ -168,8 +169,10 @@ def _check_taxa_eol(taxon,verbose=False):
     correct_name = data['scientificName'].encode("ascii","ignore")
     # we only want the first two bits of the name, not the original author and year if any
     temp_name = correct_name.split(' ')
-    if (len(temp_name) > 2):
+    if (len(temp_name) > 2 and data['taxonConcepts'][0]['taxonRank'].lower() == 'species'):
         correct_name = ' '.join(temp_name[0:2])
+    else:
+        correct_name = temp_name[0]     
     correct_name = correct_name.replace(' ','_')
 
     # build up the output dictionary - original name is key, synonyms/missing is value
@@ -639,12 +642,17 @@ def get_taxonomy_for_taxon_eol(taxon):
     """Fetches taxonomic infor a single taxon from the EOL database
      Return: dictionary of taxonomic levels ready to put in a taxonomy dictionary
      """
+    @backoff.on_exception(backoff.expo,
+                      urllib2.HTTPError,
+                      max_value=32)
+    def url_open(req):
+        return opener.open(req)
 
     taxonq = quote_plus(taxon)
     URL = "http://eol.org/api/search/1.0.json?q="+taxonq
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
-    f = opener.open(req)
+    f = url_open(req)
     data = json.load(f)
     
     if data['results'] == []:
@@ -654,7 +662,7 @@ def get_taxonomy_for_taxon_eol(taxon):
     URL = "http://eol.org/api/pages/1.0/"+ID+".json"
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
-    f = opener.open(req)
+    f = url_open(req)
     data = json.load(f)
     if len(data['taxonConcepts']) == 0:
         return {}
@@ -669,7 +677,7 @@ def get_taxonomy_for_taxon_eol(taxon):
     URL="http://eol.org/api/hierarchy_entries/1.0/"+TID+".json"
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
-    f = opener.open(req)
+    f = url_open(req)
     data = json.load(f)
     taxonomy = {}
     taxonomy['provider'] = currentdb

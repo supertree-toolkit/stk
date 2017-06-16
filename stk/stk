@@ -2184,11 +2184,12 @@ def _equivalents_to_csv(equivalents):
 
 
 def _equivalents_to_subs(equivalents):
-    """Only corrects the yellow ones. Red and green are left alone"""
+    """Only corrects the yellow and amber ones. Red and green are left alone"""
 
     output_string = ""
     for taxon in sorted(equivalents):
-        if (equivalents[taxon][1] == 'yellow'):
+        if (equivalents[taxon][1] == 'yellow' or
+            equivalents[taxon][1] == 'amber'):
             # the first name is always the correct one
             if type(equivalents[taxon][0]) is list:
                 output_string += taxon + " = "+equivalents[taxon][0][0]+"\n"
