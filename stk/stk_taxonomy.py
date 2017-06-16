@@ -37,8 +37,8 @@ sys.path.insert(0,"../../")
 import string
 import stk_exceptions as excp
 from collections import defaultdict
-import stk.p4 as p4
-import stk.p4.MRP as MRP
+import p4
+import p4.MRP as MRP
 import stk_internals
 import stk_trees
 import Queue
@@ -48,6 +48,7 @@ from urllib import quote_plus
 import simplejson as json
 from fuzzywuzzy import process
 import backoff
+import re
 
 taxonomy_levels = ['species','subgenus','genus','tribe','subfamily','family','superfamily','subsection','section','parvorder','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
@@ -127,11 +128,15 @@ def _check_taxa_eol(taxon,verbose=False):
 
     @backoff.on_exception(backoff.expo,
                       urllib2.HTTPError,
-                      max_value=32)
+                      max_value=16)
     def url_open(req):
-        return opener.open(req)
+        import socket
+        try:
+            return opener.open(req)
+        except socket.timeout:
+            pass
     
-    status = 'red'
+    status = ''
     correct_name = []
 
     # get the data from EOL on taxon
@@ -141,36 +146,77 @@ def _check_taxa_eol(taxon,verbose=False):
     opener = urllib2.build_opener()
     f = url_open(req)
     data = json.load(f)
+    if data == None:
+        correct_name = [taxon]
+        status = 'red'
+        return (correct_name, status)
     # check if there's some data
     if len(data['results']) == 0:
         correct_name = [taxon]
         status = 'red'
         return (correct_name, status)
 
-    amber = False
-    if len(data['results']) > 1:
-        # this is not great - we have multiple hits for this taxon - needs the user to go back and warn about this
-        # for automatic processing we'll just take the first one though
-        # colour is amber in this case
-        amber = True
+    if int(data['totalResults'] == 1):
+        # one hit. Might be the same, might be the only synonym...we change to green later if we can
+        status = "yellow"
+    elif int(data['totalResults']) < 10:
+        # this is not great - we have multiple hits for this taxon - but there's a limited nuber
+        # so it may be ok - we'll take the first hit in ths case and swap
+        status = 'amber'    
+    elif int(data['totalResults']) > 10:
+        # lot's of hit. Bad. Consider this red, but we record the hits
+        status = 'red'
     
     ID = str(data['results'][0]['id']) # take first hit
     URL = "http://eol.org/api/pages/1.0/"+ID+".json?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&vetted=0"       
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
     f = url_open(req)
-    data = json.load(f)
-    if len(data['scientificName']) == 0:
+    tdata = json.load(f)
+    if len(tdata['scientificName']) == 0:
         # not found a scientific name, so set as red
         correct_name = [taxon]
         status = 'red'
         return (correct_name, status)
 
-    correct_name = data['scientificName'].encode("ascii","ignore")
+    correct_name = tdata['scientificName'].encode("ascii","ignore")
     # we only want the first two bits of the name, not the original author and year if any
-    temp_name = correct_name.split(' ')
-    if (len(temp_name) > 2 and data['taxonConcepts'][0]['taxonRank'].lower() == 'species'):
+    correct_name = re.sub(r'\([^)]*\)', '', correct_name) # remove ()
+    correct_name = ' '.join(correct_name.split()) # remove extra whitespace
+    temp_name = correct_name.split()
+    if (len(temp_name) >= 2 and len(tdata['taxonConcepts']) > 0 and 'taxonRank' in tdata['taxonConcepts'][0] and
+            (tdata['taxonConcepts'][0]['taxonRank'].lower() == 'species' or 
+             tdata['taxonConcepts'][0]['taxonRank'].lower() == 'infraspecies' or
+             tdata['taxonConcepts'][0]['taxonRank'].lower() == 'subspecies')):
         correct_name = ' '.join(temp_name[0:2])
+    elif len(temp_name) >= 2 and len(tdata['taxonConcepts']) == 0:
+        # crap. We have a long name with extra stuff, but no idea if this is 
+        # a species, genus or what. # loop through hits until we hit one with some knowledge
+        # of the taxonRank (only first page of hits - 30 by default)
+        for i in range(0,len(data['results'])):
+            ID = str(data['results'][i]['id'])
+            URL = "http://eol.org/api/pages/1.0/"+ID+".json?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&vetted=0"       
+            req = urllib2.Request(URL)
+            opener = urllib2.build_opener()
+            f = url_open(req)
+            tdata = json.load(f)
+            if len(tdata['scientificName']) == 0:
+                continue
+            if len(tdata['taxonConcepts']) > 0:
+                # ha! found one!
+                correct_name = tdata['scientificName'].encode("ascii","ignore")
+                # we only want the first two bits of the name, not the original author and year if any
+                correct_name = re.sub(r'\([^)]*\)', '', correct_name) # remove ()
+                correct_name = ' '.join(correct_name.split()) # remove extra whitespace
+                temp_name = correct_name.split()
+                if (len(temp_name) >= 2 and len(tdata['taxonConcepts']) > 0 and 'taxonRank' in tdata['taxonConcepts'][0] and
+                        (tdata['taxonConcepts'][0]['taxonRank'].lower() == 'species' or 
+                         tdata['taxonConcepts'][0]['taxonRank'].lower() == 'infraspecies' or
+                         tdata['taxonConcepts'][0]['taxonRank'].lower() == 'subspecies')):
+                    correct_name = ' '.join(temp_name[0:2])
+                else:
+                    correct_name = temp_name[0]   
+                break
     else:
         correct_name = temp_name[0]     
     correct_name = correct_name.replace(' ','_')
@@ -180,9 +226,9 @@ def _check_taxa_eol(taxon,verbose=False):
         # if the original matches the 'correct', then it's green
         return ([taxon], 'green')
     else:
-        # if we managed to get something anyway, then it's yellow and create a list of possible synonyms with the 
+        # if we managed to get something anyway, then it's yellow or amber and create a list of possible synonyms with the 
         # 'correct' taxon at the top
-        eol_synonyms = data['synonyms']
+        eol_synonyms = tdata['synonyms']
         synonyms = []
         for s in eol_synonyms:
             ts = s['synonym'].encode("ascii","ignore")
@@ -203,10 +249,13 @@ def _check_taxa_eol(taxon,verbose=False):
         else:
             synonyms.insert(0,correct_name)
 
-        if (amber):
+        if status == 'amber':
             return (synonyms,'amber')
-        else:
+        elif status == "yellow":
             return (synonyms,'yellow')
+        elif status == "red":
+            return (synonyms,'red')
+
     # if our search was empty, then it's red - see above
     correct_name = [taxon]
     status = 'red'

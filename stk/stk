@@ -2190,11 +2190,14 @@ def _equivalents_to_subs(equivalents):
     for taxon in sorted(equivalents):
         if (equivalents[taxon][1] == 'yellow' or
             equivalents[taxon][1] == 'amber'):
-            # the first name is always the correct one
+            # the first name is always the correct one, but check if it's the same level, i.e
+            # don't replace a gneus with a species (don't want that!)
             if type(equivalents[taxon][0]) is list:
-                output_string += taxon + " = "+equivalents[taxon][0][0]+"\n"
+                if len(taxon.split("_")) == len(equivalents[taxon][0][0].split("_")):
+                    output_string += taxon + " = "+equivalents[taxon][0][0]+"\n"
             else:
-                output_string += taxon + " = "+equivalents[taxon][0]+"\n"
+                if len(taxon.split("_")) == len(equivalents[taxon][0].split("_")):
+                    output_string += taxon + " = "+equivalents[taxon][0]+"\n"
     return output_string
 
 

@@ -26,16 +26,16 @@ import re
 import numpy 
 from lxml import etree
 sys.path.insert(0,"../../")
-import stk.yapbib.biblist as biblist
-import stk.yapbib.bibparse as bibparse
-import stk.yapbib.bibitem as bibitem
+import yapbib.biblist as biblist
+import yapbib.bibparse as bibparse
+import yapbib.bibitem as bibitem
 import stk_exceptions as excp
 import stk_taxonomy
 import stk_phyml
 import stk_trees
 import traceback
 import stk_internals
-import stk.p4 as p4
+import p4
 import re
 import operator
 import networkx as nx
