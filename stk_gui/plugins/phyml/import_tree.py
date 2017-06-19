@@ -5,8 +5,7 @@ import gtk
 import os.path
 import sys
 import gobject
-import stk.supertree_toolkit as stk
-from stk.stk_exceptions import *
+import stk
 
 def plugin_applies(xpath):
     # Allow plugin to be used at any element which is under a source dataset
@@ -36,12 +35,11 @@ def handle_click(xml, xpath, path=None):
     element = xml_root.xpath(xpath+"/string_value")
     try:
         tree = stk.import_tree(filename,gui=True)
-    except TreeParseError as detail:
+    except stk.TreeParseError as detail:
         msg = "Failed to import tree - can't parse tree.\n"+detail.msg
         dialogs.error(self.main_window,msg)
     source_tree_ele = element[0].getparent().getparent().getparent()
     tree_name = stk.create_tree_name(xml,source_tree_ele)
-    print tree_name
     element[0].text = tree
     source_tree_ele.attrib['name'] = tree_name
 
