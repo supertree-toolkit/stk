@@ -128,13 +128,9 @@ def _check_taxa_eol(taxon,verbose=False):
 
     @backoff.on_exception(backoff.expo,
                       urllib2.HTTPError,
-                      max_value=16)
+                      max_tries=4)
     def url_open(req):
-        import socket
-        try:
-            return opener.open(req)
-        except socket.timeout:
-            pass
+        return opener.open(req)
     
     status = ''
     correct_name = []
@@ -144,7 +140,12 @@ def _check_taxa_eol(taxon,verbose=False):
     URL = "http://eol.org/api/search/1.0.json?q="+taxonq
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
-    f = url_open(req)
+    try:
+        f = url_open(req)
+    except urllib2.HTTPError:
+        correct_name = [taxon]
+        status = 'red'
+        return (correct_name, status)
     data = json.load(f)
     if data == None:
         correct_name = [taxon]
@@ -171,7 +172,12 @@ def _check_taxa_eol(taxon,verbose=False):
     URL = "http://eol.org/api/pages/1.0/"+ID+".json?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&vetted=0"       
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
-    f = url_open(req)
+    try:
+        f = url_open(req)
+    except urllib2.HTTPError:
+        correct_name = [taxon]
+        status = 'red'
+        return (correct_name, status)
     tdata = json.load(f)
     if len(tdata['scientificName']) == 0:
         # not found a scientific name, so set as red
@@ -198,7 +204,10 @@ def _check_taxa_eol(taxon,verbose=False):
             URL = "http://eol.org/api/pages/1.0/"+ID+".json?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&vetted=0"       
             req = urllib2.Request(URL)
             opener = urllib2.build_opener()
-            f = url_open(req)
+            try:
+                f = url_open(req)
+            except urllib2.HTTPError:
+                continue
             tdata = json.load(f)
             if len(tdata['scientificName']) == 0:
                 continue
@@ -400,12 +409,8 @@ def load_taxonomy(taxonomy_csv):
     return taxonomy
 
 
-class TaxonomyFetcher(threading.Thread):
-    """ Class to provide the taxonomy fetching functionality as a threaded function to be used individually or working with a pool.
-    """
-
-    def __init__(self, taxonomy, lock, queue, id=0, pref_db='eol', check_fossil=True, verbose=False, ignoreWarnings=False):
-        """ Constructor for the threaded model.
+def get_taxonomy(taxonomy, lock, queue, id=0, pref_db='eol', check_fossil=True, verbose=False, ignoreWarnings=False):
+        """
         :param taxonomy: previous taxonomy available (if available) or an empty dictionary to store the results .
         :type taxonomy: dictionary
         :param lock: lock to keep the taxonomy threadsafe.
@@ -424,57 +429,46 @@ class TaxonomyFetcher(threading.Thread):
         :type ignoreWarnings: boolean 
         """
 
-        threading.Thread.__init__(self)
-        self.taxonomy = taxonomy
-        self.lock = lock
-        self.queue = queue
-        self.id = id
-        self.verbose = verbose
-        self.pref_db = pref_db
-        self.ignoreWarnings = ignoreWarnings
-        self.check_fossil = check_fossil
-
-    def run(self):
-        """ Gets and processes a taxon from the queue to get its taxonomy."""
         while True :
             #get taxon from queue
-            taxon = self.queue.get()
+            taxon = queue.get()
             #Lock access to the taxonomy
-            self.lock.acquire()
-            if not taxon in self.taxonomy: # is a new taxon, not previously in the taxonomy
+            lock.acquire()
+            if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
                 #Release access to the taxonomy
-                self.lock.release()
-                if (self.verbose):
-                    print "Looking up ", taxon
-                if self.pref_db == 'eol':
+                lock.release()
+                if (verbose):
+                    print "Looking up "+taxon+"\n",
+                if pref_db == 'eol':
                     this_taxonomy = get_taxonomy_for_taxon_eol(taxon)
-                elif self.pref_db == 'worms':
+                elif pref_db == 'worms':
                     this_taxonomy = get_taxonomy_for_taxon_worms(taxon)
-                elif self.pref_db == 'itis':
+                elif pref_db == 'itis':
                     this_taxonomy = get_taxonomy_for_taxon_itis(taxon)
-                elif self.pref_db == 'pbdb':
+                elif pref_db == 'pbdb':
                     this_taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
                 else:
                     # raise something
                     continue
-                if (self.check_fossil and this_taxonomy == {} and self.pref_db != 'pbdb'):
+                if (check_fossil and this_taxonomy == {} and pref_db != 'pbdb'):
                     this_taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
 
                 if this_taxonomy == None:
-                    self.queue.task_done()
+                    queue.task_done()
                     continue
                 
-                with self.lock:
+                with lock:
                     #Send result to dictionary
-                    self.taxonomy[taxon] = this_taxonomy
+                    taxonomy[taxon] = this_taxonomy
             else :
                 #Nothing to do release the lock on taxonomy
-                self.lock.release()
+                lock.release()
+            
             #Mark task as done
-            self.queue.task_done()
+            queue.task_done()
 
 
-def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, ignoreWarnings=False, threadNumber=5):
+def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, check_fossil=False, verbose=False, ignoreWarnings=False, threadNumber=5):
     """Uses the taxa provided to generate a taxonomy for all the taxon available. 
     :param taxa: list of the taxa.
     :type taxa : list 
@@ -500,7 +494,7 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, 
 
     #Starting a few threads as daemons checking the queue
     for i in range(threadNumber) :
-        t = TaxonomyFetcher(taxonomy, lock, queue, i, pref_db, verbose, ignoreWarnings)
+        t = threading.Thread(target=get_taxonomy, args=(taxonomy, lock, queue, i, pref_db, check_fossil, verbose, ignoreWarnings))
         t.setDaemon(True)
         t.start()
     
@@ -511,7 +505,7 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, verbose=False, 
     #Wait till everyone finishes
     queue.join()
 
-    return t.taxonomy
+    return taxonomy
 
 
 def create_extended_taxonomy(taxonomy, pref_db='eol', verbose=False, ignoreWarnings=False, threadNumber=5):
