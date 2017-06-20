@@ -687,7 +687,7 @@ def get_taxonomy_for_taxon_eol(taxon):
      """
     @backoff.on_exception(backoff.expo,
                       urllib2.HTTPError,
-                      max_value=32)
+                      max_tries=4)
     def url_open(req):
         return opener.open(req)
 
@@ -695,7 +695,11 @@ def get_taxonomy_for_taxon_eol(taxon):
     URL = "http://eol.org/api/search/1.0.json?q="+taxonq
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
-    f = url_open(req)
+    try:
+        f = url_open(req)
+    except urllib2.HTTPError:
+        return {}
+
     data = json.load(f)
     
     if data['results'] == []:
@@ -705,7 +709,10 @@ def get_taxonomy_for_taxon_eol(taxon):
     URL = "http://eol.org/api/pages/1.0/"+ID+".json"
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
-    f = url_open(req)
+    try:
+        f = url_open(req)
+    except urllib2.HTTPError:
+        return {}
     data = json.load(f)
     if len(data['taxonConcepts']) == 0:
         return {}
@@ -720,7 +727,10 @@ def get_taxonomy_for_taxon_eol(taxon):
     URL="http://eol.org/api/hierarchy_entries/1.0/"+TID+".json"
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
-    f = url_open(req)
+    try:
+        f = url_open(req)
+    except urllib2.HTTPError:
+        return {}
     data = json.load(f)
     taxonomy = {}
     taxonomy['provider'] = currentdb
