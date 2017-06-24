@@ -91,6 +91,24 @@ class TestSTKTaxonomy(unittest.TestCase):
             print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
         return
 
+    def test_taxonomy_check_worms(self):
+        if (internet_on()):
+            # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
+            taxa_list = ['Rhineodon_typus', 'Rhincodon_typus','Rhin_typussfgsfg','whale shark'] #whale shark + random
+            equivs = taxonomic_checker_list(taxa_list, pref_db='worms')
+            self.maxDiff = None
+            self.assert_(equivs['Rhineodon_typus'][0][0] == 'Rhincodon_typus')
+            self.assert_(equivs['Rhincodon_typus'][0][0] == 'Rhincodon_typus')
+            self.assert_(equivs['Rhineodon_typus'][1] == 'yellow')
+            self.assert_(equivs['Rhincodon_typus'][1] == 'green')
+            self.assert_(equivs['Rhin_typussfgsfg'][1] == 'red')
+            self.assert_(equivs['whale shark'][0][0] == 'Rhincodon_typus')
+            self.assert_(equivs['whale shark'][1] == 'amber') # wor,s returns 2 results, both whale shark, but this makes it amber
+        else:
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
+        return
+
+
     def test_taxonomy_checker_common_name(self):
         if (internet_on()):
             # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
