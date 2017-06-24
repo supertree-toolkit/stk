@@ -98,12 +98,14 @@ def taxonomic_checker_list(name_list,existing_data=None,pref_db="eol",verbose=Fa
     for t in taxa:
         if equivalents[t][1] == "red":
             result = process.extract(t, taxa, limit=2)
+            if len(result) == 1:
+                continue
             # returns something like
             # [('Thyanoessa_macrura', 100), ('Thysanoessa_macrura', 97)]
             # first hit is the taxon in question
             # second hit is the next closest. Above 90, we assume a typo or two and pick that as a yellow instead of red
             if result[1][1] > 90: # % fuzzy match
-                # only if results[1][0] is green! No point if read or yellow or amber. If yellow or amber sub in with the proper thing
+                # only if results[1][0] is green! No point if red or yellow or amber. If yellow or amber sub in with the proper thing
                 if equivalents[result[1][0]][1] == 'green':
                     equivalents[t] = [[result[1][0]], "yellow"]
                 elif equivalents[result[1][0]][1] == 'yellow':
@@ -227,14 +229,44 @@ def _check_taxa_eol(taxon,verbose=False):
                     correct_name = temp_name[0]   
                 break
     else:
-        correct_name = temp_name[0]     
+        correct_name = temp_name[0] 
+
     correct_name = correct_name.replace(' ','_')
 
     # build up the output dictionary - original name is key, synonyms/missing is value
     if (correct_name == taxon):
-        # if the original matches the 'correct', then it's green
-        return ([taxon], 'green')
-
+         # if the original matches the 'correct', then it's green
+         return ([taxon], 'green')
+    else:
+         # if we managed to get something anyway, then it's yellow or amber and create a list of possible synonyms with the 
+         # 'correct' taxon at the top
+         eol_synonyms = tdata['synonyms']
+         synonyms = []
+         for s in eol_synonyms:
+             ts = s['synonym'].encode("ascii","ignore")
+             temp_syn = ts.split(' ')
+             if (len(temp_syn) > 2):
+                 temp_syn = ' '.join(temp_syn[0:2])
+                 ts = temp_syn
+             if (s['relationship'] == "synonym"):
+                 ts = ts.replace(" ","_")
+                 synonyms.append(ts)
+         synonyms = stk_internals.uniquify(synonyms)
+         # we need to put the correct name at the top of the list now
+         if (correct_name in synonyms):
+             synonyms.pop(synonyms.index(correct_name))
+             synonyms.insert(0, correct_name)
+         elif len(synonyms) == 0:
+             synonyms.append(correct_name)
+         else:
+             synonyms.insert(0,correct_name)
+ 
+         if status == 'amber':
+             return (synonyms,'amber')
+         elif status == "yellow":
+             return (synonyms,'yellow')
+         elif status == "red":
+             return (synonyms,'red')
     # if our search was empty, then it's red - see above
     correct_name = [taxon]
     status = 'red'

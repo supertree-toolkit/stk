@@ -41,7 +41,7 @@ class TestSTKTaxonomy(unittest.TestCase):
 
     def test_create_taxonomy(self):
         XML = etree.tostring(etree.parse('data/input/create_taxonomy.phyml',parser),pretty_print=True)
-        expected = {'Jeletzkytes criptonodosus': {'superfamily': 'Scaphitoidea', 'family': 'Scaphitidae', 'subkingdom': 'Metazoa', 'subclass': 'Ammonoidea', 'species': 'Jeletzkytes criptonodosus', 'phylum': 'Mollusca', 'suborder': 'Ancyloceratina', 'provider': 'paleobiology database', 'genus': 'Jeletzkytes', 'class': 'Cephalopoda'}, 'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'species': 'Thalassarche melanophris', 'genus': 'Thalassarche', 'order': 'Procellariiformes'}, 'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'species': 'Egretta tricolor', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 'Archaeopteryx lithographica': {'genus': 'Archaeopteryx', 'provider': 'paleobiology database'}}
+        expected = {'Jeletzkytes criptonodosus': {'superfamily': 'Scaphitoidea', 'family': 'Scaphitidae', 'subkingdom': 'Metazoa', 'subclass': 'Ammonoidea', 'species': 'Jeletzkytes criptonodosus', 'phylum': 'Mollusca', 'suborder': 'Ancyloceratina', 'provider': 'paleobiology database', 'genus': 'Jeletzkytes', 'class': 'Cephalopoda'}, 'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'species': 'Thalassarche melanophris', 'genus': 'Thalassarche', 'order': 'Procellariiformes'}, 'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'species': 'Egretta tricolor', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 'Archaeopteryx lithographica': {'species': 'Archaeopteryx lithographica', 'genus': 'Archaeopteryx', 'provider': 'paleobiology database'}}
         if (internet_on()):
             taxa = ['Archaeopteryx lithographica', 'Jeletzkytes criptonodosus', 'Thalassarche melanophris','Egretta tricolor'] 
             taxonomy = create_taxonomy_from_taxa(taxa,pref_db='eol',verbose=False,threadNumber=4)
@@ -177,7 +177,7 @@ class TestSTKTaxonomy(unittest.TestCase):
 
             # Now a null value
             taxon = "No chance!"
-            expected = {}
+            expected = {'species': 'No chance!'}
             taxonomy = get_taxonomy_for_taxon_eol(taxon)
             self.assertEqual(taxonomy, expected)
 
@@ -201,7 +201,7 @@ class TestSTKTaxonomy(unittest.TestCase):
 
             # Now a null value
             taxon = "No chance!"
-            expected = {}
+            expected = {'species': 'No chance!'}
             taxonomy = get_taxonomy_for_taxon_itis(taxon)
             self.assertEqual(taxonomy, expected)
 
@@ -227,7 +227,7 @@ class TestSTKTaxonomy(unittest.TestCase):
 
             # Now a null value
             taxon = "No chance!"
-            expected = {}
+            expected = {'species': 'No chance!'}
             taxonomy = get_taxonomy_for_taxon_worms(taxon)
             self.assertEqual(taxonomy, expected)
 
@@ -247,7 +247,7 @@ class TestSTKTaxonomy(unittest.TestCase):
 
             # Now a null value
             taxon = "No chance!"
-            expected = {}
+            expected = {'species': 'No chance!'}
             taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
             self.assertEqual(taxonomy, expected)
 
