@@ -619,19 +619,19 @@ def safe_taxonomic_reduction(args):
         XML = None
     try: 
         output, can_replace = supertree_toolkit.safe_taxonomic_reduction(XML,matrix=matrix,taxa=taxa,verbose=verbose,ignoreWarnings=ignoreWarnings)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to carry out STR.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to carry out STR.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to carry out STR.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -707,19 +707,19 @@ def data_ind(args):
             data_independence, subsets = supertree_toolkit.data_independence(XML,ignoreWarnings=ignoreWarnings)
         else:
             data_independence, subsets, new_phyml = supertree_toolkit.data_independence(XML,make_new_xml=True,ignoreWarnings=ignoreWarnings)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to check independence.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to check independence.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to check independence.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -777,19 +777,19 @@ def data_summary(args):
     XML = supertree_toolkit.load_phyml(input_file)
     try:
         data_summary = supertree_toolkit.data_summary(XML,detailed=detailed,ignoreWarnings=ignoreWarnings)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to create data summary. Try again with -i flag.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to creae data summary. Try again with -i flag.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to create data summary. Try again with -i flag.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: Failed to summarise data - can't parse tree.\n"+detail.msg
         print msg
         return 
@@ -863,19 +863,19 @@ def create_matrix(args):
         try:
             matrix = supertree_toolkit.create_matrix(XML,format=f_format,quote=quote,taxonomy=taxonomy,
                                                      outgroups=remove_outgroups,ignoreWarnings=ignoreWarnings)
-        except NotUniqueError as detail:
+        except supertree_toolkit.NotUniqueError as detail:
             msg = "***Error: Failed to create matrix.\n"+detail.msg
             print msg
             return
-        except InvalidSTKData as detail:
+        except supertree_toolkit.InvalidSTKData as detail:
             msg = "***Error: Failed to create matrix.\n"+detail.msg
             print msg
             return
-        except UninformativeTreeError as detail:
+        except supertree_toolkit.UninformativeTreeError as detail:
             msg = "***Error: Failed to create matrix.\n"+detail.msg
             print msg
             return
-        except TreeParseError as detail:
+        except supertree_toolkit.TreeParseError as detail:
             msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
             print msg
             return
@@ -894,11 +894,11 @@ def create_matrix(args):
                 trees['tree_'+str(i)] = t
                 i += 1
             matrix = supertree_toolkit.create_matrix_from_trees(trees,format=f_format)
-        except UninformativeTreeError as detail:
+        except supertree_toolkit.UninformativeTreeError as detail:
             msg = "***Error: Failed to create matrix.\n"+detail.msg
             print msg
             return
-        except TreeParseError as detail:
+        except supertree_toolkit.TreeParseError as detail:
             msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
             print msg
             return
@@ -955,13 +955,13 @@ def sub_taxa(args):
         if (subs_file.endswith(".csv")):
             try:
                 old_taxa, new_taxa = supertree_toolkit.subs_from_csv(subs_file)
-            except UnableToParseSubsFile as e:
+            except supertree_toolkit.UnableToParseSubsFile as e:
                 print e.msg
                 sys.exit(-1)
         else:
             try:
                 old_taxa, new_taxa = supertree_toolkit.parse_subs_file(subs_file)
-            except UnableToParseSubsFile as e:
+            except supertree_toolkit.UnableToParseSubsFile as e:
                 print e.msg
                 sys.exit(-1)
     
@@ -991,7 +991,7 @@ def sub_taxa(args):
         try:
             trees = supertree_toolkit.import_trees(input_file) 
             treefile = True
-        except TreeParseError as detail:
+        except supertree_toolkit.TreeParseError as detail:
             print "Error loading file as PHYML or a tree file. Check your input, please"
             print detail.msg
             sys.exit(-1)
@@ -1004,19 +1004,19 @@ def sub_taxa(args):
                 new_trees["tree_"+str(i)] = t
         else:
             XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings,only_existing=only_existing,generic_match=generic)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed substituting taxa.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -1075,19 +1075,19 @@ def import_data(args):
         phyml = supertree_import_export.import_old_data(input_dir,verbose=verbose) 
     except STKImportExportError as e:
         print e.msg
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed substituting taxa.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -1122,19 +1122,19 @@ def export_data(args):
         supertree_import_export.export_to_old(XML,output_dir,verbose=verbose,ignoreWarnings=ignoreWarnings) 
     except STKImportExportError as e:
         print e.msg
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to export data.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to export data.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to export data.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -1177,19 +1177,19 @@ def data_overlap(args):
     XML = supertree_toolkit.load_phyml(input_file)
     try:
         overlap_ok, key_list = supertree_toolkit.data_overlap(XML,  overlap_amount=overlap, filename=output_file, detailed=args.detailed, verbose=verbose,ignoreWarnings=ignoreWarnings)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to check overlap.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to check overlap.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to check overlap.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -1256,19 +1256,19 @@ def export_trees(args):
 
     try:
         output_string = supertree_toolkit.amalgamate_trees(XML,format=format,anonymous=anon,ignoreWarnings=ignoreWarnings)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to export trees.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to export trees.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to export trees.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -1350,7 +1350,7 @@ def permute_trees(args):
         # get all permutable trees
         try:
             tree_list = supertree_toolkit._find_trees_for_permuting(XML)
-        except TreeParseError as detail:
+        except supertree_toolkit.TreeParseError as detail:
             msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
             print msg
             return
@@ -1374,19 +1374,19 @@ def permute_trees(args):
                 output_string = supertree_toolkit.permute_tree(tree_list[t],treefile=treefile,verbose=verbose)
             else:
                 output_string = supertree_toolkit.permute_tree(tree_list[t],matrix=create_matrix,treefile=None,verbose=verbose)
-        except NotUniqueError as detail:
+        except supertree_toolkit.NotUniqueError as detail:
             msg = "***Error: Failed to permute trees.\n"+detail.msg
             print msg
             return
-        except InvalidSTKData as detail:
+        except supertree_toolkit.InvalidSTKData as detail:
             msg = "***Error: Failed to permute trees.\n"+detail.msg
             print msg
             return
-        except UninformativeTreeError as detail:
+        except supertree_toolkit.UninformativeTreeError as detail:
             msg = "***Error: Failed to permute trees.\n"+detail.msg
             print msg
             return
-        except TreeParseError as detail:
+        except supertree_toolkit.TreeParseError as detail:
             msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
             print msg
             return
@@ -1441,19 +1441,19 @@ def clean_data(args):
     XML = supertree_toolkit.load_phyml(input_file)
     try:
         XML = supertree_toolkit.clean_data(XML)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to clean data.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to clean data.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to clean data.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -1498,19 +1498,19 @@ def replace_genera(args):
     XML = supertree_toolkit.load_phyml(input_file)
     try:
         XML,generic,subs = supertree_toolkit.replace_genera(XML,dry_run=only_subs,ignoreWarnings=ignoreWarnings)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to replace genera.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to replace genera.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to replace genera.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -1573,7 +1573,7 @@ def convert_file(args):
                 new_trees['tree_'+str(i)] = supertree_toolkit._collapse_nodes(t)
                 i += 1
             output = supertree_toolkit._amalgamate_trees(new_trees,format=output_format)
-        except TreeParseError as detail:
+        except supertree_toolkit.TreeParseError as detail:
             print detail.msg
             sys.exit(-1)
         except:
@@ -1654,19 +1654,19 @@ def create_subset(args):
 
     try:
         new_XML = supertree_toolkit.create_subset(XML,searchTerms,andSearch=andSearch,includeMultiple=includeMultiple,ignoreWarnings=ignoreWarnings)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to create subset.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to create subset.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to create subset.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -1695,13 +1695,13 @@ def check_subs(args):
     if (subs_file.endswith(".csv")):
         try:
             old_taxa, new_taxa = supertree_toolkit.subs_from_csv(subs_file)
-        except UnableToParseSubsFile as e:
+        except supertree_toolkit.UnableToParseSubsFile as e:
             print e.msg
             sys.exit(-1)
     else:
         try:
             old_taxa, new_taxa = supertree_toolkit.parse_subs_file(subs_file)
-        except UnableToParseSubsFile as e:
+        except supertree_toolkit.UnableToParseSubsFile as e:
             print e.msg
             sys.exit(-1) 
     
@@ -1731,19 +1731,19 @@ def check_otus(args):
         XML = supertree_toolkit.load_phyml(input_file)
         try:
             equivs = supertree_toolkit.taxonomic_checker(XML, verbose=verbose)
-        except NotUniqueError as detail:
+        except supertree_toolkit.NotUniqueError as detail:
             msg = "***Error: Failed to check OTUs.\n"+detail.msg
             print msg
             return
-        except InvalidSTKData as detail:
+        except supertree_toolkit.InvalidSTKData as detail:
             msg = "***Error: Failed to check OTUs.\n"+detail.msg
             print msg
             return
-        except UninformativeTreeError as detail:
+        except supertree_toolkit.UninformativeTreeError as detail:
             msg = "***Error: Failed to check OTUs.\n"+detail.msg
             print msg
             return
-        except TreeParseError as detail:
+        except supertree_toolkit.TreeParseError as detail:
             msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
             print msg
             return
@@ -1787,19 +1787,19 @@ def create_taxonomy(args):
 
     try:
         taxonomy = supertree_toolkit.create_taxonomy(XML,existing_taxonomy=existing_taxonomy,verbose=verbose,ignoreWarnings=ignoreWarnings)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to create taxonomy.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to create taxonomy.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to create taxonomy.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -1938,19 +1938,19 @@ def auto_subs(args):
 
     try:
         newXML = supertree_toolkit.generate_species_level_data(XML,taxonomy,verbose=verbose,ignoreWarnings=ignoreWarnings)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -2001,19 +2001,19 @@ def process(args):
         phyml = supertree_toolkit.load_phyml(input_file)
         project_name = supertree_toolkit.get_project_name(phyml)
         supertree_toolkit._check_data(phyml)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to load data.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to load data.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to load data.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -2047,24 +2047,24 @@ def process(args):
         print "Swapping in the corrected taxa names"    
     try:
         old_taxa, new_taxa = supertree_toolkit.parse_subs_file(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat"))
-    except UnableToParseSubsFile as e:
+    except supertree_toolkit.UnableToParseSubsFile as e:
         print e.msg
         sys.exit(-1)
     try:
         phyml = supertree_toolkit.substitute_taxa(phyml,old_taxa,new_taxa,only_existing=False,verbose=verbose)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed substituting taxa.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -2217,19 +2217,19 @@ def process(args):
         print "Converting data to species level"
     try:
         phyml = supertree_toolkit.generate_species_level_data(phyml,taxonomy,verbose=verbose)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
@@ -2291,7 +2291,7 @@ def process(args):
                 new_tree = supertree_toolkit.import_tree(temp_file)
                 phyml = supertree_toolkit._swap_tree_in_XML(phyml,new_tree,t)
 
-    except TreeParseError as e:
+    except supertree_toolkit.TreeParseError as e:
         msg = "***Error permuting trees.\n"+e.msg
         print msg
         return
@@ -2346,19 +2346,19 @@ def process(args):
         print "Creating matrix"
     try:
         matrix = supertree_toolkit.create_matrix(phyml)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to create matrix.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed to create matrix.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to create matrix.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return
