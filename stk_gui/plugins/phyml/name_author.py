@@ -5,7 +5,7 @@ import gtk
 import os.path
 import sys
 import gobject
-import stk.supertree_toolkit as stk
+import stk
 
 def plugin_applies(xpath):
     # Allow plugin to be used at any element which is under a source dataset

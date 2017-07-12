@@ -2,7 +2,7 @@
 #
 #    Supertree Toolkit. Software for managing and manipulating sources
 #    trees ready for supretree construction.
-#    Copyright (C) 2011, Jon Hill, Katie Davis
+#    Copyright (C) 2017, Jon Hill, Katie Davis
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,22 +17,21 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#    Jon Hill. jon.hill@imperial.ac.uk. 
+#    Jon Hill. jon.hill@york.ac.uk. 
 
-from StringIO import StringIO
+
 import os
 import sys
-import math
-import re
-import numpy 
 from lxml import etree
 import stk.nameparser.parser as np
 import re
-import supertree_toolkit
 from copy import deepcopy
-from supertree_toolkit import _parse_xml
+import stk_phyml
+import stk_internals
 import stk_exceptions
 import stk.p4
+import stk_trees
+import supertree_toolkit as stk
 import unicodedata
 import string as python_string
 
@@ -44,10 +43,10 @@ def export_to_old(xml, output_dir, verbose=False, ignoreWarnings=False):
     """
 
     if not ignoreWarnings:
-        xml = supertree_toolkit.clean_data(xml)
+        xml = stk.clean_data(xml)
 
     # Parse the file and away we go:
-    xml_root = _parse_xml(xml)
+    xml_root = stk_phyml.parse_xml(xml)
 
     # First get project name and create the directory
     find = etree.XPath("//project_name")
@@ -135,7 +134,7 @@ def import_old_data(input_dir, verbose=False):
 
     # for each XML
     nXML = 0;
-    for xml in locate('*.xml', input_dir):
+    for xml in stk_internals.locate('*.xml', input_dir):
         # parse XML
         if (verbose):
             print "Parsing: "+xml
@@ -147,7 +146,7 @@ def import_old_data(input_dir, verbose=False):
         source_tree = convert_to_phyml_sourcetree(current_xml, xml)
          
         # add into PHYML sources element
-        append_to_source, already_in = supertree_toolkit.already_in_data(new_source,sources)
+        append_to_source, already_in = stk_internals.already_in_data(new_source,sources)
         if (not already_in):
             # append tree to current source
             new_source.append(deepcopy(source_tree))
@@ -164,20 +163,11 @@ def import_old_data(input_dir, verbose=False):
         raise stk_exceptions.STKImportExportError(msg)
 
     # create all sourcenames
-    phyml = supertree_toolkit.all_sourcenames(etree.tostring(xml_root))
-    phyml = supertree_toolkit.set_all_tree_names(phyml)
+    phyml = stk_phyml.all_sourcenames(etree.tostring(xml_root))
+    phyml = stk_phyml.set_all_tree_names(phyml)
 
     return phyml
 
-
-def locate(pattern, root=os.curdir):
-    """Locate all files matching the pattern with the root dir and
-    all subdirectories
-    """
-    import fnmatch
-    for path, dirs, files in os.walk(os.path.abspath(root)):
-        for filename in fnmatch.filter(files,pattern):
-            yield os.path.join(path, filename)
 
 
 def convert_to_phyml_source(xml_root):
@@ -306,7 +296,7 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
     # now stick on the root path of the XML to get the full path of the treefile
     cur_dir = os.path.split(xml_file)[0]
     try:
-        tree = supertree_toolkit.import_tree(os.path.join(cur_dir,treefile))
+        tree = stk_trees.import_tree(os.path.join(cur_dir,treefile))
     except stk_exceptions.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"
         msg += "File is: "+treefile+"\n"+detail.msg
@@ -316,7 +306,7 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
         # try just the file if we failed - windows formatted
         treefile = treefile.rsplit('\\')[-1]
         try:
-            tree = supertree_toolkit.import_tree(os.path.join(cur_dir,treefile))
+            tree = stk_trees.import_tree(os.path.join(cur_dir,treefile))
         except stk_exceptions.TreeParseError as detail:
             msg = "***Error: failed to parse a tree in your data set.\n"
             msg += "File is: "+treefile+"\n"+detail.msg

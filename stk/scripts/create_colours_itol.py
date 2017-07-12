@@ -9,9 +9,9 @@
 import argparse
 import os
 import sys
-stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir )
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-import supertree_toolkit as stk
+import stk
 import csv
 import colorsys
 import random
@@ -135,9 +135,8 @@ def main():
             else:
                taxonomy[row[0].replace(" ","_")] = row[index] # the replace is to make sure we're consistant across PHYML, tree and taxonomy
 
-    print len(taxonomy)
     values = taxonomy.values()
-    values = _uniquify(values)
+    values = stk.uniquify(values)
     n = len(values)
     colours = get_colours(n,format="HEX",saturation=saturation,value=value)
     output_colours = {}
@@ -207,16 +206,6 @@ def get_colours(num_colours,saturation=0.5,value=0.95,format="RGB"):
 
 def int_to_hex_colour(rgb):
   return "".join(map(chr, rgb)).encode('hex')
-
-def _uniquify(l):
-    """
-    Make a list, l, contain only unique data
-    """
-    keys = {}
-    for e in l:
-        keys[e] = 1
-
-    return keys.keys()
 
 if __name__ == "__main__":
     main()

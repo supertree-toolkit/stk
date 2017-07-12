@@ -32,14 +32,11 @@ except NameError:
     __file__ = "."
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-import stk.supertree_toolkit as stk
-import stk.stk_import_export as stk_import_export
-from stk.supertree_toolkit import _removeNonAscii
+import stk
 import pango
 import gobject
 import gtk
 import gtk.glade
-from stk.stk_exceptions import *
 plugin_xml = None
 
 
@@ -247,7 +244,7 @@ class Diamond:
 
     if plugin_xml:
       # Need to remove nonunicode characters
-      plugin_xml = _removeNonAscii(plugin_xml)
+      plugin_xml = stk.removeNonAscii(plugin_xml)
       ios = StringIO.StringIO(plugin_xml)
 
       try:
@@ -999,16 +996,16 @@ class Diamond:
     try:
         data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=False)
         data_summary_ok = True
-    except NotUniqueError as detail:
+    except stk.NotUniqueError as detail:
         msg = "Failed to summarise data correctly - non-unique data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-    except InvalidSTKData as detail:
+    except stk.InvalidSTKData as detail:
         msg = "Failed to summarise data correctly - invalid STK data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-    except UninformativeTreeError as detail:
+    except stk.UninformativeTreeError as detail:
         msg = "Failed to summarise data correctly- uninformative tree.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-    except TreeParseError as detail:
+    except stk.TreeParseError as detail:
         msg = "Failed to summarise data correctly - can't parse tree.\n"+detail.msg
         dialogs.error(self.main_window,msg)
     except:
@@ -1019,19 +1016,19 @@ class Diamond:
         # try again
         try:
             data_summary = stk.data_summary(XML,detailed=True,ignoreWarnings=True)
-        except NotUniqueError as detail:
+        except stk.NotUniqueError as detail:
             msg = "Failed to summarise data - non-unique data.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return
-        except InvalidSTKData as detail:
+        except stk.InvalidSTKData as detail:
             msg = "Failed to summarise data - invalid STK data.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return
-        except UninformativeTreeError as detail:
+        except stk.UninformativeTreeError as detail:
             msg = "Failed to summarise data - uninformative tree.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return
-        except TreeParseError as detail:
+        except stk.TreeParseError as detail:
             msg = "Failed to summarise data - can't parse tree.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return
@@ -1112,19 +1109,19 @@ class Diamond:
             msg = "Failed to calculate overlap.\n"+detail.message
             dialogs.error(self.main_window,msg)
             return
-        except NotUniqueError as detail:
+        except stk.NotUniqueError as detail:
             msg = "Failed to calculate overlap.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return
-        except InvalidSTKData as detail:
+        except stk.InvalidSTKData as detail:
             msg = "Failed to calculate overlap.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return
-        except UninformativeTreeError as detail:
+        except stk.UninformativeTreeError as detail:
             msg = "Failed to calculate overlap.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return 
-        except TreeParseError as detail:
+        except stk.TreeParseError as detail:
             msg = "Failed to calculate overlap due to tree parsing error.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return
@@ -1155,19 +1152,19 @@ class Diamond:
             msg = "Failed to calculate overlap.\n"+detail.message
             dialogs.error(self.main_window,msg)
             return
-        except NotUniqueError as detail:
+        except stk.NotUniqueError as detail:
             msg = "Failed to calculate overlap.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return
-        except InvalidSTKData as detail:
+        except stk.InvalidSTKData as detail:
             msg = "Failed to calculate overlap.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return
-        except UninformativeTreeError as detail:
+        except stk.UninformativeTreeError as detail:
             msg = "Failed to calculate overlap.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return 
-        except TreeParseError as detail:
+        except stk.TreeParseError as detail:
             msg = "Failed to calculate overlap due to tree parsing error.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return
@@ -1284,19 +1281,19 @@ class Diamond:
     XML = f.getvalue()
     try:
         self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=False)
-    except NotUniqueError as detail:
+    except stk.NotUniqueError as detail:
         msg = "Failed to check data independence. Will try and ignore this error if possible.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
-    except InvalidSTKData as detail:
+    except stk.InvalidSTKData as detail:
         msg = "Failed to check data independence. Will try and ignore this error if possible.\n"+detail.msg
         dialogs.error_tb(self.main_window,msg)
         self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
-    except UninformativeTreeError as detail:
+    except stk.UninformativeTreeError as detail:
         msg = "Failed to check data independence. Will try and ignore this error if possible.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
-    except TreeParseError as detail:
+    except stk.TreeParseError as detail:
         msg = "Failed to check data independence due to tree parsing error.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
@@ -1498,7 +1495,7 @@ class Diamond:
                 f.write(output_string)
                 f.close
 
-    except TreeParseError as e:
+    except stk.TreeParseError as e:
         dialogs.error(self.main_window,"Error permuting trees." + e.msg)
   
 
@@ -1578,15 +1575,15 @@ class Diamond:
     # make the fourth argument true for verbose output
     try:
         self.str_p = Process(target=stk.safe_taxonomic_reduction,args=(XML,None,None,False,self.str_q,ignoreWarnings))
-    except NotUniqueError as detail:
+    except stk.NotUniqueError as detail:
         msg = "Failed to calculate STR.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-    except InvalidSTKData as detail:
+    except stk.InvalidSTKData as detail:
         msg = "Failed to calculate STR.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-    except UninformativeTreeError as detail:
+    except stk.UninformativeTreeError as detail:
         msg = "Failed to calculate STR.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
@@ -1720,19 +1717,19 @@ class Diamond:
     XML = f.getvalue()
     try:
         matrix = stk.create_matrix(XML,format=format,taxonomy=taxonomy_tree,outgroups=no_outgroups,ignoreWarnings=ignoreWarnings)
-    except NotUniqueError as detail:
+    except stk.NotUniqueError as detail:
         msg = "Failed to create matrix.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-    except InvalidSTKData as detail:
+    except stk.InvalidSTKData as detail:
         msg = "Failed to create matrix.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-    except UninformativeTreeError as detail:
+    except stk.UninformativeTreeError as detail:
         msg = "Failed to create matrix.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
-    except TreeParseError as detail:
+    except stk.TreeParseError as detail:
         msg = "Failed to create matrix due to tree parsing error.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
@@ -1820,19 +1817,19 @@ class Diamond:
     XML = f.getvalue()
     try:
         stk_import_export.export_to_old(XML,filename,verbose=False,ignoreWarnings=ignoreWarnings) 
-    except NotUniqueError as detail:
+    except stk.NotUniqueError as detail:
         msg = "Failed to export data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-    except InvalidSTKData as detail:
+    except stk.InvalidSTKData as detail:
         msg = "Failed to export data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-    except UninformativeTreeError as detail:
+    except stk.UninformativeTreeError as detail:
         msg = "Failed to export data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
-    except TreeParseError as detail:
+    except stk.TreeParseError as detail:
         msg = "Failed to export data due to tree parsing error.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
@@ -1893,7 +1890,7 @@ class Diamond:
     except:
            dialogs.error_tb(self.main_window, "Error parsing the old-style XML files. Please see the manual for the correct XML syntax.")
            return
-    XML = _removeNonAscii(XML)
+    XML = stk.removeNonAscii(XML)
     # Add a history event
     XML = stk.add_historical_event(XML, "Data imported from: "+filename)
     ios = StringIO.StringIO(XML)
@@ -1971,19 +1968,19 @@ class Diamond:
       XML = f.getvalue()
       try:
             output_string = stk.amalgamate_trees(XML,format=format,anonymous=anonymous,ignoreWarnings=False)
-      except NotUniqueError as detail:
+      except stk.NotUniqueError as detail:
             msg = "Failed to export trees.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return
-      except InvalidSTKData as detail:
+      except stk.InvalidSTKData as detail:
             msg = "Failed to export trees.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return
-      except UninformativeTreeError as detail:
+      except stk.UninformativeTreeError as detail:
             msg = "Failed to export trees.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return 
-      except TreeParseError as detail:
+      except stk.TreeParseError as detail:
             msg = "Failed to export trees due to tree parsing error.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return 
@@ -2106,7 +2103,7 @@ class Diamond:
     # construct list and treeview
     try:
         taxa = stk.get_all_taxa(XML)
-    except TreeParseError as e:
+    except stk.TreeParseError as e:
         dialogs.error(self.main_window,e.msg)
         return
     except:
@@ -2295,19 +2292,19 @@ class Diamond:
 
     try:
         XML2 = stk.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings,only_existing=only_existing,generic_match=only_existing_gen)
-    except NotUniqueError as detail:
+    except stk.NotUniqueError as detail:
         msg = "Failed to substitute taxa.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-    except InvalidSTKData as detail:
+    except stk.InvalidSTKData as detail:
         msg = "Failed to substitute taxa.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-    except UninformativeTreeError as detail:
+    except stk.UninformativeTreeError as detail:
         msg = "Failed to substitute taxa.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
-    except TreeParseError as detail:
+    except stk.TreeParseError as detail:
         msg = "Failed to substitute taxa due to tree parsing error.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
@@ -2368,14 +2365,14 @@ class Diamond:
 
      try:
         XML = stk.import_bibliography(XML, filename)
-        XML = _removeNonAscii(XML)
+        XML = stk.removeNonAscii(XML)
         XML = stk.add_historical_event(XML, "Bibliographic information imported from: "+filename)
         ios = StringIO.StringIO(XML)
      except BibImportError as detail:
         dialogs.error(self.main_window,detail.msg+"\n\nWill try skipping bad entries")
         try:
             XML = stk.import_bibliography(XML, filename, skip=True)
-            XML = _removeNonAscii(XML)
+            XML = stk.removeNonAscii(XML)
             XML = stk.add_historical_event(XML, "Bibliographic information imported from: "+filename)
             ios = StringIO.StringIO(XML)
         except:
@@ -2408,7 +2405,7 @@ class Diamond:
         dialogs.error(self.main_window,detail.msg)
         return 
          
-     XML = _removeNonAscii(XML)
+     XML = stk.removeNonAscii(XML)
      # Add a history event
      XML = stk.add_historical_event(XML, "Source names standardised")
      ios = StringIO.StringIO(XML)
@@ -2439,19 +2436,19 @@ class Diamond:
      except NoAuthors as detail:
         dialogs.error(self.main_window,detail.msg)
         return 
-     except NotUniqueError as detail:
+     except stk.NotUniqueError as detail:
         msg = "Failed to clean data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-     except InvalidSTKData as detail:
+     except stk.InvalidSTKData as detail:
         msg = "Failed to clean data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-     except UninformativeTreeError as detail:
+     except stk.UninformativeTreeError as detail:
         msg = "Failed to clean data.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
-     except TreeParseError as detail:
+     except stk.TreeParseError as detail:
         msg = "Failed to clean data due to tree parsing error.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
@@ -2461,7 +2458,7 @@ class Diamond:
         dialogs.error(self.main_window,msg)
         return 
 
-     XML = _removeNonAscii(XML)
+     XML = stk.removeNonAscii(XML)
      # Add a history event
      XML = stk.add_historical_event(XML, "Cleaned data")
      ios = StringIO.StringIO(XML)
@@ -2504,19 +2501,19 @@ class Diamond:
      XML = f.getvalue() 
      try:
         new_XML,genera,subs = stk.replace_genera(XML,ignoreWarnings=ignoreWarnings)
-     except NotUniqueError as detail:
+     except stk.NotUniqueError as detail:
         msg = "Failed to replace generic taxa.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-     except InvalidSTKData as detail:
+     except stk.InvalidSTKData as detail:
         msg = "Failed to replace generic taxa.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-     except UninformativeTreeError as detail:
+     except stk.UninformativeTreeError as detail:
         msg = "Failed to replace generic taxa.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
-     except TreeParseError as detail:
+     except stk.TreeParseError as detail:
         msg = "Failed to replace generic taxa due to tree parsing error.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
@@ -2555,7 +2552,7 @@ class Diamond:
             dialogs.error_tb(self.main_window,msg)
             return
          
-     XML = _removeNonAscii(XML)
+     XML = stk.removeNonAscii(XML)
      # Add a history event
      msg = "Replace generic taxa. "
      if (gen_subs):
@@ -2716,19 +2713,19 @@ class Diamond:
      XML = f.getvalue() 
      try:
         new_XML = stk.create_subset(XML,searchTerms,andSearch=andSearch,includeMultiple=includeMultiple,ignoreWarnings=ignoreWarnings)
-     except NotUniqueError as detail:
+     except stk.NotUniqueError as detail:
         msg = "Failed to create subset.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-     except InvalidSTKData as detail:
+     except stk.InvalidSTKData as detail:
         msg = "Failed to create subset.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return
-     except UninformativeTreeError as detail:
+     except stk.UninformativeTreeError as detail:
         msg = "Failed to create subset.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
-     except TreeParseError as detail:
+     except stk.TreeParseError as detail:
         msg = "Failed to create subset due to tree parsing error.\n"+detail.msg
         dialogs.error(self.main_window,msg)
         return 
@@ -2789,19 +2786,19 @@ class Diamond:
      XML = f.getvalue() 
      try:
         XML = stk.set_all_tree_names(XML)
-     except NotUniqueError as detail:
+     except stk.NotUniqueError as detail:
             msg = "Failed to name trees.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return
-     except InvalidSTKData as detail:
+     except stk.InvalidSTKData as detail:
             msg = "Failed to name trees.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return
-     except UninformativeTreeError as detail:
+     except stk.UninformativeTreeError as detail:
             msg = "Failed to name trees.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return 
-     except TreeParseError as detail:
+     except stk.TreeParseError as detail:
             msg = "Failed to name trees due to tree parsing error.\n"+detail.msg
             dialogs.error(self.main_window,msg)
             return 
@@ -2811,7 +2808,7 @@ class Diamond:
             dialogs.error(self.main_window,msg)
             return 
          
-     XML = _removeNonAscii(XML)
+     XML = stk.removeNonAscii(XML)
      ios = StringIO.StringIO(XML)
 
      self.update_data(ios, "Error standardising tree names")
