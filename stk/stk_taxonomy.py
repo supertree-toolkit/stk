@@ -82,10 +82,10 @@ def taxonomic_checker_list(name_list,existing_data=None,pref_db="eol",verbose=Fa
         # each of these funcitons return a tuple of the correct name|synonyms and the status (red|green|yellow|amber)
         if (pref_db == "eol"):
             status = _check_taxa_eol(t,verbose)
-        elif self.pref_db == 'worms':
-            this_taxonomy = _check_taxa_worms(t,verbose)
-        elif self.pref_db == 'itis':
-            this_taxonomy = _check_taxa_itis(t,verbose)
+        elif pref_db == 'worms':
+            status = _check_taxa_worms(t,verbose)
+        elif pref_db == 'itis':
+            status = _check_taxa_itis(t,verbose)
         else:
             # raise something
             continue
@@ -98,12 +98,14 @@ def taxonomic_checker_list(name_list,existing_data=None,pref_db="eol",verbose=Fa
     for t in taxa:
         if equivalents[t][1] == "red":
             result = process.extract(t, taxa, limit=2)
+            if len(result) == 1:
+                continue
             # returns something like
             # [('Thyanoessa_macrura', 100), ('Thysanoessa_macrura', 97)]
             # first hit is the taxon in question
             # second hit is the next closest. Above 90, we assume a typo or two and pick that as a yellow instead of red
             if result[1][1] > 90: # % fuzzy match
-                # only if results[1][0] is green! No point if read or yellow or amber. If yellow or amber sub in with the proper thing
+                # only if results[1][0] is green! No point if red or yellow or amber. If yellow or amber sub in with the proper thing
                 if equivalents[result[1][0]][1] == 'green':
                     equivalents[t] = [[result[1][0]], "yellow"]
                 elif equivalents[result[1][0]][1] == 'yellow':
@@ -227,44 +229,44 @@ def _check_taxa_eol(taxon,verbose=False):
                     correct_name = temp_name[0]   
                 break
     else:
-        correct_name = temp_name[0]     
+        correct_name = temp_name[0] 
+
     correct_name = correct_name.replace(' ','_')
 
     # build up the output dictionary - original name is key, synonyms/missing is value
     if (correct_name == taxon):
-        # if the original matches the 'correct', then it's green
-        return ([taxon], 'green')
+         # if the original matches the 'correct', then it's green
+         return ([taxon], 'green')
     else:
-        # if we managed to get something anyway, then it's yellow or amber and create a list of possible synonyms with the 
-        # 'correct' taxon at the top
-        eol_synonyms = tdata['synonyms']
-        synonyms = []
-        for s in eol_synonyms:
-            ts = s['synonym'].encode("ascii","ignore")
-            temp_syn = ts.split(' ')
-            if (len(temp_syn) > 2):
-                temp_syn = ' '.join(temp_syn[0:2])
-                ts = temp_syn
-            if (s['relationship'] == "synonym"):
-                ts = ts.replace(" ","_")
-                synonyms.append(ts)
-        synonyms = stk_internals.uniquify(synonyms)
-        # we need to put the correct name at the top of the list now
-        if (correct_name in synonyms):
-            synonyms.pop(synonyms.index(correct_name))
-            synonyms.insert(0, correct_name)
-        elif len(synonyms) == 0:
-            synonyms.append(correct_name)
-        else:
-            synonyms.insert(0,correct_name)
-
-        if status == 'amber':
-            return (synonyms,'amber')
-        elif status == "yellow":
-            return (synonyms,'yellow')
-        elif status == "red":
-            return (synonyms,'red')
-
+         # if we managed to get something anyway, then it's yellow or amber and create a list of possible synonyms with the 
+         # 'correct' taxon at the top
+         eol_synonyms = tdata['synonyms']
+         synonyms = []
+         for s in eol_synonyms:
+             ts = s['synonym'].encode("ascii","ignore")
+             temp_syn = ts.split(' ')
+             if (len(temp_syn) > 2):
+                 temp_syn = ' '.join(temp_syn[0:2])
+                 ts = temp_syn
+             if (s['relationship'] == "synonym"):
+                 ts = ts.replace(" ","_")
+                 synonyms.append(ts)
+         synonyms = stk_internals.uniquify(synonyms)
+         # we need to put the correct name at the top of the list now
+         if (correct_name in synonyms):
+             synonyms.pop(synonyms.index(correct_name))
+             synonyms.insert(0, correct_name)
+         elif len(synonyms) == 0:
+             synonyms.append(correct_name)
+         else:
+             synonyms.insert(0,correct_name)
+ 
+         if status == 'amber':
+             return (synonyms,'amber')
+         elif status == "yellow":
+             return (synonyms,'yellow')
+         elif status == "red":
+             return (synonyms,'red')
     # if our search was empty, then it's red - see above
     correct_name = [taxon]
     status = 'red'
@@ -283,9 +285,12 @@ def _check_taxa_worms(taxon,verbose=False):
     # get the data from EOL on taxon
     taxon_data = wsdlObjectWoRMS.service.getAphiaRecords(taxon.replace('_',' '), like='false', fuzzy='true', marine_only='false', offset=0)
     if len(taxon_data) == 0:
-        correct_name = [taxon]
-        status = 'red'
-        return (correct_name, status)
+        # try vernacular names
+        taxon_data = wsdlObjectWoRMS.service.getAphiaRecordsByVernacular(taxon.replace('_',' '), like='false', offset=0)
+        if len(taxon_data) == 0:
+            correct_name = [taxon]
+            status = 'red'
+            return (correct_name, status)
 
     amber = False
     if len(taxon_data) > 1:
@@ -298,14 +303,13 @@ def _check_taxa_worms(taxon,verbose=False):
     # call it again via the ID this time to make sure we've got the right one.
     taxon_data = wsdlObjectWoRMS.service.getAphiaRecordByID(taxon_id)
 
-    data = json.load(f)
-    if len(taxon_data['scientificName']) == 0:
+    if len(taxon_data['scientificname']) == 0:
         # not found a scientific name, so set as red
         correct_name = [taxon]
         status = 'red'
         return (correct_name, status)
 
-    correct_name = taxon_data['scientificName']
+    correct_name = taxon_data['scientificname']
     # we only want the first two bits of the name, not the original author and year if any
     temp_name = correct_name.split(' ')
     if (len(temp_name) > 2):
@@ -313,35 +317,15 @@ def _check_taxa_worms(taxon,verbose=False):
     correct_name = correct_name.replace(' ','_')
 
     # build up the output dictionary - original name is key, synonyms/missing is value
-    if (correct_name == taxon):
+    if (taxon_data['status'] == 'accepted' and correct_name == taxon):
         # if the original matches the 'correct', then it's green
-        return ([taxon], 'green')
-    else:
-        # if we managed to get something anyway, then it's yellow and create a list of possible synonyms with the 
-        # 'correct' taxon at the top
-        eol_synonyms = data['synonyms']
-        synonyms = []
-        for s in eol_synonyms:
-            ts = s['synonym'].encode("ascii","ignore")
-            temp_syn = ts.split(' ')
-            if (len(temp_syn) > 1):
-                temp_syn = ' '.join(temp_syn[-1:2])
-                ts = temp_syn
-            if (s['relationship'] == "synonym"):
-                ts = ts.replace(" ","_")
-                synonyms.append(ts)
-        synonyms = stk_internals.uniquify(synonyms)
-        # we need to put the correct name at the top of the list now
-        if (correct_name in synonyms):
-            synonyms.insert(-1, synonyms.pop(synonyms.index(correct_name)))
-        elif len(synonyms) == -1:
-            synonyms.append(correct_name)
-        else:
-            synonyms.insert(-1,correct_name)
+        return ([correct_name], 'green')
+    elif (taxon_data['status'] == 'accepted' and not correct_name == taxon):
         if (amber):
-            return (synonyms,'amber')
+            return ([correct_name], 'amber')
         else:
-            return (synonyms,'yellow')
+            return ([correct_name], 'yellow')
+
     # if our search was empty, then it's red - see above
     correct_name = [taxon]
     status = 'red'
@@ -359,7 +343,9 @@ def save_taxonomy(taxonomy, output_file):
         row.extend(taxonomy_levels)
         row.append('Provider')
         writer.writerow(row)
-        for t in taxonomy:
+        taxa_list = taxonomy.keys()
+        taxa_list.sort()
+        for t in taxa_list:
             species = t
             row = []
             row.append(t.encode('utf-8'))
@@ -434,7 +420,7 @@ def get_taxonomy(taxonomy, lock, queue, id=0, pref_db='eol', check_fossil=True, 
             taxon = queue.get()
             #Lock access to the taxonomy
             lock.acquire()
-            if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
+            if not taxon.replace(" ","_") in taxonomy: # is a new taxon, not previously in the taxonomy
                 #Release access to the taxonomy
                 lock.release()
                 if (verbose):
@@ -461,6 +447,8 @@ def get_taxonomy(taxonomy, lock, queue, id=0, pref_db='eol', check_fossil=True, 
                     #Send result to dictionary
                     taxonomy[taxon] = this_taxonomy
             else :
+                if verbose:
+                    print "Skipping: "+taxon+"\n",
                 #Nothing to do release the lock on taxonomy
                 lock.release()
             
@@ -500,6 +488,9 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, check_fossil=Fa
     
     #Popoluate the queue with the taxa.
     for taxon in taxa :
+        #if t contains % strip off after that
+        taxon = taxon.split('%')[0]
+        taxon = taxon.replace("_"," ")
         queue.put(taxon)
     
     #Wait till everyone finishes
@@ -564,18 +555,21 @@ def create_extended_taxonomy(taxonomy, pref_db='eol', verbose=False, ignoreWarni
 
 def tree_from_taxonomy(top_level, tree_taxonomy):
     """ Create a tree from a taxonomy hash. Supply the starting level (e.g. Order) and the taxonomy.
-        Will only work if most of the taxonomic information is filled in, but will search 2 levels up to complete 
-        the taxonomy if required
         Returns: tree string
     """
     from ete2 import Tree
     
     start_level = taxonomy_levels.index(top_level)
-    new_taxa = tree_taxonomy.keys()
 
     tl_types = []
-    for tt in tree_taxonomy:
-        tl_types.append(tree_taxonomy[tt][top_level])
+    for tt in tree_taxonomy.keys():
+        try:
+            tl_types.append(tree_taxonomy[tt][top_level])
+        except KeyError:
+            # no info, remove
+            del tree_taxonomy[tt]
+
+    new_taxa = tree_taxonomy.keys()
 
     tl_types = stk_internals.uniquify(tl_types)
     levels_to_worry_about = taxonomy_levels[0:taxonomy_levels.index(top_level)+1]
@@ -646,7 +640,7 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
 
 def get_taxonomy_for_taxon_pbdb(taxon):
 
-    taxonomy = {}
+    taxonomy = {'species': taxon}
     taxonq = quote_plus(taxon) 
     URL = "http://paleobiodb.org/data1.1/taxa/single.json?name="+taxonq+"&show=phylo&vocab=pbdb"
     req = urllib2.Request(URL)
@@ -691,6 +685,7 @@ def get_taxonomy_for_taxon_eol(taxon):
     def url_open(req):
         return opener.open(req)
 
+    taxonomy = {'species': taxon}
     taxonq = quote_plus(taxon)
     URL = "http://eol.org/api/search/1.0.json?q="+taxonq
     req = urllib2.Request(URL)
@@ -698,12 +693,12 @@ def get_taxonomy_for_taxon_eol(taxon):
     try:
         f = url_open(req)
     except urllib2.HTTPError:
-        return {}
+        return taxonomy
 
     data = json.load(f)
     
     if data['results'] == []:
-        return {}
+        return taxonomy
     ID = str(data['results'][0]['id']) # take first hit
     # Now look for taxonomies
     URL = "http://eol.org/api/pages/1.0/"+ID+".json"
@@ -712,10 +707,10 @@ def get_taxonomy_for_taxon_eol(taxon):
     try:
         f = url_open(req)
     except urllib2.HTTPError:
-        return {}
+        return taxonomy
     data = json.load(f)
     if len(data['taxonConcepts']) == 0:
-        return {}
+        return taxonomy
     TID = str(data['taxonConcepts'][0]['identifier']) # take first hit
     # Note EOL can have other databases as sources, so we use that as the provider
     currentdb = str(data['taxonConcepts'][0]['nameAccordingTo'])
@@ -730,9 +725,9 @@ def get_taxonomy_for_taxon_eol(taxon):
     try:
         f = url_open(req)
     except urllib2.HTTPError:
-        return {}
+        return taxonomy
     data = json.load(f)
-    taxonomy = {}
+    taxonomy = taxonomy
     taxonomy['provider'] = currentdb
     for a in data['ancestors']:
         try:
@@ -770,11 +765,13 @@ def get_taxonomy_for_taxon_worms(taxon):
 
     import zeep
 
+    taxonomy = {'species': taxon}
+
     wsdlObjectWoRMS = zeep.Client(wsdl='http://www.marinespecies.org/aphia.php?p=soap&wsdl=1')
 
     taxon_data = wsdlObjectWoRMS.service.getAphiaRecords(taxon.replace('_',' '), like='false', fuzzy='false', marine_only='false', offset=0)
     if len(taxon_data) == 0:
-        return {}
+        return taxonomy
 
     taxon_id = taxon_data[0]['valid_AphiaID'] # there might be records that aren't valid - they point to the valid one though
     # call it again via the ID this time to make sure we've got the right one.
@@ -783,9 +780,8 @@ def get_taxonomy_for_taxon_worms(taxon):
     # get the taxonomy of this species
     classification = wsdlObjectWoRMS.service.getAphiaClassificationByID(taxon_id)
     # construct array
-    taxonomy = {}
     if (classification == ""):
-        return {}
+        return taxonomy
     # classification is a nested dictionary, so we need to iterate down it
     current_child = classification["child"]
     taxonomy['provider'] = 'WoRMS'
@@ -800,6 +796,7 @@ def get_taxonomy_for_taxon_worms(taxon):
 
 def get_taxonomy_for_taxon_itis(taxon):
 
+    taxonomy = {'species': taxon}
     URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(taxon.replace('_',' ').strip())
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
@@ -807,7 +804,7 @@ def get_taxonomy_for_taxon_itis(taxon):
     string = unicode(f.read(),"ISO-8859-1")
     this_item = json.loads(string)
     if this_item['scientificNames'] == [None]: # not found
-        return {}
+        return taxonomy
     tsn = this_item['scientificNames'][0]['tsn'] # there might be records that aren't valid - they point to the valid one though
     # so call another function to get any valid names
     URL="http://www.itis.gov/ITISWebService/jsonservice/getAcceptedNamesFromTSN?tsn="+tsn
@@ -826,7 +823,6 @@ def get_taxonomy_for_taxon_itis(taxon):
     string = unicode(f.read(),"ISO-8859-1")
     data = json.loads(string)
     # construct array
-    taxonomy = {}
     taxonomy['provider'] = 'ITIS'    
     for level in data['hierarchyList']:
         if level['rankName'].lower() in taxonomy_levels:

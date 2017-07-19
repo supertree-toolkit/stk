@@ -43,6 +43,8 @@ import lxml
 import csv
 import tempfile
 from subprocess import check_call, CalledProcessError, call
+from copy import deepcopy
+from lxml import etree
 
 import stk.bzr_version as bzr_version
 d = bzr_version.version_info
@@ -560,9 +562,18 @@ def main():
             action='store_true',
             default=False,
             help="Overwrite the existing file without asking for confirmation")
+    parser_cm.add_argument('--extended_taxonomy',
+            action='store_true',
+            default=False,
+            help="Add as much data to the taxonomy from sources other than the preferred DB.")
+    parser_cm.add_argument('--taxonomy_tree',
+            action='store_true',
+            default=False,
+            help="Add a taxonomy tree at the final step. No additional taxa will be added.")
     parser_cm.add_argument('--pref_db',
             choices=['eol', 'worms', 'itis'],
-            default = 'eol'
+            default = 'eol',
+            help="Which taxonomic database to use to both check nomenclature and get txonomy."
             )
     parser_cm.add_argument('--no_store',
             action="store_true",
@@ -1886,6 +1897,8 @@ def process(args):
     equivalents_file = args.equivalents_file
     overwrite = args.overwrite
     pref_db = args.pref_db
+    extended_taxonomy = args.extended_taxonomy
+    taxonomy_tree = args.taxonomy_tree
 
     if (os.path.exists(output) and not overwrite):
         print "Output matrix file exists. Either remove the file or use the --overwrite flag."
@@ -2002,9 +2015,10 @@ def process(args):
     else:
         taxonomy = None
     taxonomy = supertree_toolkit.create_taxonomy(phyml,existing_taxonomy=taxonomy,pref_db=pref_db,verbose=verbose)
-    if verbose:
-        print "Checking other databases to see if we can add more data to taxonomy"
-    #taxonomy = supertree_toolkit.create_extended_taxonomy(taxonomy, pref_db=pref_db, verbose=verbose)
+    if (extended_taxonomy):
+        if verbose:
+            print "Checking other databases to see if we can add more data to taxonomy"
+        taxonomy = supertree_toolkit.create_extended_taxonomy(taxonomy, pref_db=pref_db, verbose=verbose)
     # save the taxonomy for later
     # Now create the CSV output - seperate out into function in STK (used several times)
     supertree_toolkit.save_taxonomy(taxonomy, os.path.join(dirname,project_name+"_taxonomy.csv"))
@@ -2022,7 +2036,7 @@ def process(args):
         msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
         print msg
         return
@@ -2057,11 +2071,11 @@ def process(args):
             if (not output_string == ""):
                 file_name_t = os.path.basename(filename)
                 dirname_t = os.path.dirname(filename)
-                new_output = os.path.join(dirname_t,t,t+"_matrix.tnt")
+                new_output = os.path.join(dirname,dirname_t,t,t+"_matrix.tnt")
                 try: 
-                   os.makedirs(os.path.join(dirname_t,t))
+                   os.makedirs(os.path.join(dirname,dirname_t,t))
                 except OSError:
-                    if not os.path.isdir(os.path.join(dirname_t,t)):
+                    if not os.path.isdir(os.path.join(dirname,dirname_t,t)):
                         raise
                 f = open(new_output,'w',0)
                 f.write(output_string)
@@ -2138,6 +2152,99 @@ def process(args):
     f = open(os.path.join(dirname,project_name+"_data_tax_overlap.phyml"), "w")
     f.write(phyml)
     f.close()
+
+    # add taxonomy tree
+    if (taxonomy_tree):
+        # we need to add it to the PHYML and save the PHYML.
+        # Only contain taxa left in the tree and we can use the taxonomy info gleaned already
+        current_taxa_list = supertree_toolkit.get_all_taxa(phyml)
+        truncated_taxonomy = {}
+        for t in current_taxa_list:
+            truncated_taxonomy[t] = taxonomy[t]
+
+        # create a tree from this taxonomy - we use kingdom and the collapse
+        taxonomy_tree = supertree_toolkit.tree_from_taxonomy('kingdom', truncated_taxonomy)
+
+        # add a new source, with the taxonomy tree - we have to do this manually by 
+        # altering the XML. We also need to add a minimal amount of info or the next bit
+        # will error. So add authors etc.
+        # so let's create our new source
+        xml_root = etree.fromstring(phyml)
+        find = etree.XPath("//sources")
+        sources = find(xml_root)[0]
+        # add the project name from the input directory
+        new_source = etree.Element("source")
+        publication = etree.SubElement(new_source,"bibliographic_information")
+        article = etree.SubElement(publication,"article")
+        authors = etree.SubElement(article,"authors")
+        ae = etree.SubElement(authors,'author')
+        surname = etree.SubElement(ae,'surname')
+        string = etree.SubElement(surname,'string_value')
+        string.attrib['lines'] = "1"
+        string.text = 'No authors'
+        title = etree.SubElement(article,"title")
+        string = etree.SubElement(title,"string_value")
+        string.attrib['lines'] = "1"
+        string.text = "Taxonomy tree"
+        volume = etree.SubElement(article,"volume")
+        string = etree.SubElement(volume,"string_value")
+        string.attrib['lines'] = "1"
+        string.text = "NA"
+        year = etree.SubElement(article,"year")
+        integer = etree.SubElement(year,"integer_value")
+        integer.attrib['rank'] = "0"
+        integer.text = "2017"
+        journal = etree.SubElement(article,"journal")
+        string = etree.SubElement(journal,"string_value")
+        string.attrib['lines'] = "1"
+        string.text = "NA"
+        pages = etree.SubElement(article,"pages")
+        string = etree.SubElement(pages,"string_value")
+        string.attrib['lines'] = "1"
+        string.text = "NA"
+        
+        # now the tree XML
+        source_tree = etree.Element("source_tree")
+        # tree data
+        tree_ele = etree.SubElement(source_tree,"tree")
+        tree_string = etree.SubElement(tree_ele,"tree_string")
+        string = etree.SubElement(tree_string,"string_value")
+        string.attrib["lines"] = "1"
+        string.text = taxonomy_tree
+        figure_legend = etree.SubElement(tree_ele,"figure_legend")
+        figure_legend.tail="\n      "
+        figure_legend_string = etree.SubElement(figure_legend,"string_value")
+        figure_legend_string.tail="\n      "
+        figure_legend_string.attrib['lines'] = "1"
+        figure_legend_string.text = "NA"
+        figure_number = etree.SubElement(tree_ele,"figure_number")
+        figure_number.tail="\n      "
+        figure_number_string = etree.SubElement(figure_number,"string_value")
+        figure_number_string.tail="\n      "
+        figure_number_string.attrib['lines'] = "1"
+        figure_number_string.text = "0"
+        page_number = etree.SubElement(tree_ele,"page_number")
+        page_number.tail="\n      "
+        page_number_string = etree.SubElement(page_number,"string_value")
+        page_number_string.tail="\n      "
+        page_number_string.attrib['lines'] = "1"
+        tree_inference = etree.SubElement(tree_ele,"tree_inference")
+        optimality_criterion = etree.SubElement(tree_inference,"optimality_criterion")
+        optimality_criterion.attrib['name'] = "Taxonomy"
+        taxa_data = etree.SubElement(source_tree,"taxa_data")
+        taxa_type = etree.SubElement(taxa_data,"mixed_fossil_and_extant")
+        character_data = etree.SubElement(source_tree,"character_data")
+        new_char = etree.SubElement(character_data,"character")
+        new_char.attrib['type'] = "other"
+        new_char.attrib['name'] = "taxonomy"
+        
+        new_source.append(deepcopy(source_tree))
+        sources.append(deepcopy(new_source))
+
+        # save phyml
+        f = open(os.path.join(dirname,project_name+"_with_taxonomy_tree.phyml"), "w")
+        f.write(phyml)
+        f.close()
 
     # 8) Create matrix
     if verbose:
