@@ -7,3 +7,4 @@ numpy
 ete2
 zeep
 backoff
+fuzzywuzzy
