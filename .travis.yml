@@ -29,7 +29,7 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda create -q -n test-environment -c jochym python=$TRAVIS_PYTHON_VERSION  pygtk2 pcre numpy scipy matplotlib
+  - conda create -q -n test-environment -c jochym python=2.7  pygtk2 pcre numpy scipy matplotlib
   - source activate test-environment
   - conda install icu=56.1 --channel conda-forge
   - conda install python-graphviz
