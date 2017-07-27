@@ -1,8 +1,8 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import os
 import os.path
-import glob
 import sys
+import glob
 from setuptools.command.install import install as _install
 from subprocess import call
 
@@ -19,15 +19,10 @@ class install(_install):
         
 
 try:
-  destdir = os.environ["DESTDIR"]
-except KeyError:
-  destdir = "/usr/share/"
-try:
     set
 except NameError:
     from sets import Set
   
-
 # Get all the plugin directories we have
 plugin_dirs = ['stk_gui/plugins/phyml']
 plugin_data_files = []
@@ -41,21 +36,19 @@ if sys.platform == 'win32':
     )
 else:
     for plugin in plugin_dirs:
-      plugin_data_files.append((destdir + "plugins/phyml/",
-        glob.glob(plugin + '/*.py')))
+      plugin_data_files = glob.glob(plugin + '/*.py')
     
     for s in schema_dirs:
-      schema_data_files.append((destdir + "stk/schemata/schema/",
-        glob.glob(s + '/*.rng')))
-    
+      schema_data_files = glob.glob(s + '/*.rng')
+  
     extra_options = dict(
             cmdclass={'install': install},
             app=['stk'],
-            data_files = [(destdir + "stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.png", "stk_gui/gui/stk.svg"])] +
-                   plugin_data_files + schema_data_files +
-                   [(destdir + "stk/schemata", ["schema/phyml"])] +
-                   [(destdir+"icons/hicolor/48x48/apps/", ["stk_gui/gui/stk.png"])] +
-                   [(destdir+"applications/",["debian/stk.desktop"])]
+            #data_files = [(destdir + "stk/", ["stk_gui/gui/gui.glade", "stk_gui/gui/stk.png", "stk_gui/gui/stk.svg"])] +
+            #       plugin_data_files + schema_data_files +
+            #       [(destdir + "stk/schemata", ["schema/phyml"])]# +
+                   #[(destdir+"icons/hicolor/48x48/apps/", ["stk_gui/gui/stk.png"])] +
+                   #[(destdir+"applications/",["debian/stk.desktop"])]
     )
 
 setup(
@@ -63,9 +56,10 @@ setup(
       version='2.0',
       description="Supertree data source management",
       author = "The STK Team",
-      author_email = "jon.hill@imperial.ac.uk",
+      author_email = "jon.hill@york.ac.uk",
       url = "https://launchpad.net/supertree-tookit",
       packages = ['stk', 'dxdiff', 'stk_gui', 'stk.yapbib', 'stk.p4','stk.nameparser'],
+      include_package_data=True,
       package_dir = {
           'stk': 'stk',
           'dxdiff': 'dxdiff/dxdiff',
@@ -76,7 +70,15 @@ setup(
           # of pre-installing it. It also means we don't overwrite any previous p4 install.
           'stk.p4':'stk/p4',
           'stk.nameparser':'stk/nameparser'},
+      package_data={'stk_gui/plugins/phyml': ['*.py'],
+                    'schema': ['*'],
+                    'stk_gui': ['stk_gui/gui/gui.glade', 'stk_gui/gui/stk.png', 'stk_gui/gui/stk.svg'], 
+                    },
+      data_files=[('stk_gui/plugins/phyml',plugin_data_files),
+                  ('schema',schema_data_files),
+                  ('stk_gui',['stk_gui/gui/gui.glade', 'stk_gui/gui/stk.png', 'stk_gui/gui/stk.svg']),
+                ],
       scripts=["stk_gui/bin/stk-gui", "stk/stk"],
-      **extra_options
+      #**extra_options
     )
 
