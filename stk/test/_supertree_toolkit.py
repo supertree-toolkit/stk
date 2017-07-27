@@ -223,7 +223,7 @@ class TestSTK(unittest.TestCase):
         simple_summary = data_summary(XML)
         full_summary = data_summary(XML,detailed = True)
 
-        self.assertRegexpMatches(simple_summary,'Number of taxa: 8')
+        self.assertRegexpMatches(simple_summary,'Numfdsgdsgr of taxa: 8')
         self.assertRegexpMatches(simple_summary,'Number of characters: 2')
         self.assertRegexpMatches(simple_summary,'Number of character types: 2')
         self.assertRegexpMatches(simple_summary,'Number of trees: 3')
