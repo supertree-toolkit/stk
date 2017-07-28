@@ -19,8 +19,8 @@
 #
 #    Jon Hill. jon.hill@york.ac.uk
 """stk_trees
-
-This module contains the tree-processing and altering functions in the STK.
+T
+his module contains the tree-processing and altering functions in the STK.
 Most of these are not user-facing unless they are writing their own scripts.
 The functions are generally called by the main supertree_toolkit functions and
 require a tree_string as input (this is a Newick string) as input, plus

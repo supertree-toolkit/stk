@@ -26,9 +26,9 @@ import argparse
 import copy
 import os
 import sys
-stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir )
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-import supertree_toolkit as stk
+import stk
 import csv
 from ete2 import Tree
 import tempfile
@@ -36,7 +36,7 @@ import re
 
 taxonomy_levels = stk.taxonomy_levels
 #tlevels = ['species','genus','family','superfamily','suborder','order','class','phylum','kingdom']
-tlevels = ['species','genus', 'subfamily', 'family','infraorder','order','class','phylum','kingdom']
+tlevels = ['species','genus', 'subfamily', 'family','superfamily','subsection','section','infraorder','suborder','order','class','phylum','kingdom']
 
 def get_tree_taxa_taxonomy_eol(taxon):
 
@@ -524,7 +524,7 @@ def main():
 
     # grab taxa in tree
     tree = stk.import_tree(input_file)
-    taxa_list = stk._getTaxaFromNewick(tree)
+    taxa_list = stk.get_taxa(tree)
     
     if verbose:
         print "Taxa count for input tree: ", len(taxa_list)
@@ -783,7 +783,7 @@ def main():
             if len(taxa_in_clade) > 0 and len(taxa_to_add) > 0:
                 tree = add_taxa(tree, taxa_to_add, taxa_in_clade,level)
                 try:
-                    taxa_list = stk._getTaxaFromNewick(tree) 
+                    taxa_list = stk.get_taxa(tree) 
                 except stk.TreeParseError as e:
                     print taxa_to_add, taxa_in_clade, level, tree
                     print e.msg
@@ -799,18 +799,18 @@ def main():
 
 
     # remove singelton nodes
-    tree = stk._collapse_nodes(tree) 
-    tree = stk._collapse_nodes(tree) 
-    tree = stk._collapse_nodes(tree) 
+    tree = stk.collapse_nodes(tree) 
+    tree = stk.collapse_nodes(tree) 
+    tree = stk.collapse_nodes(tree) 
     
-    tree = stk._sub_taxa_in_tree(tree, remove_higher_level)
+    tree = stk.sub_taxa_in_tree(tree, remove_higher_level)
     trees = {}
     trees['tree_1'] = tree
-    output = stk._amalgamate_trees(trees,format='nexus')
+    output = stk.amalgamate_trees(trees,format='nexus')
     f = open(output_file, "w")
     f.write(output)
     f.close()
-    taxa_list = stk._getTaxaFromNewick(tree)
+    taxa_list = stk.get_taxa(tree)
     
     print "Final taxa count:", len(taxa_list)
  
@@ -831,7 +831,7 @@ def add_taxa(tree, new_taxa, taxa_in_clade, level):
     additionalTaxa = tree_from_taxonomy(level,new_taxa)
 
     # find mrca parent
-    treeobj = stk._parse_tree(tree)
+    treeobj = stk.parse_tree(tree)
     mrca = stk.get_mrca(tree,taxa_in_clade)
     if (mrca == 0):
         # we need to make a new tree! The additional taxa are being placed at the root of the tree
@@ -845,7 +845,7 @@ def add_taxa(tree, new_taxa, taxa_in_clade, level):
         return t.write(format=9)
     else:
         mrca = treeobj.nodes[mrca]
-        additionalTaxa = stk._parse_tree(additionalTaxa)
+        additionalTaxa = stk.parse_tree(additionalTaxa)
         
         if len(taxa_in_clade) == 1:
             taxon = treeobj.node(taxa_in_clade[0])

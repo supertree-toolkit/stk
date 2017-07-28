@@ -8,17 +8,36 @@ matrix:
         dist: trusty
         language: python
         python: "2.7_with_system_site_packages"
-        env: PACKAGES="xvfb gir1.2-gtk-3.0 python-gi python-gi-cairo pep8 pyflakes python-pytest" PYTHON="python" MPLBACKEND="agg"
+        env: PYTHON="python" MPLBACKEND="agg"
 cache: pip
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y xvfb gir1.2-gtk-3.0 python-gi python-gi-cairo pep8 pyflakes python-tk python-simplejson python-pygraphviz python-lxml-dbg python-lxml python-gtk2 python-numpy python-matplotlib python-lxml libxml2-utils python python-gtksourceview2 python-glade2 python-networkx python-argcomplete libcairo2-dev libgtk2.0-dev python-levenshtein
-  - sudo apt-get install --no-install-recommends -y $(echo $PACKAGES)
+  - sudo apt-get install -y libglib2.0-dev gtk-doc-tools libgconf2-dev xvfb libxml2-utils python libcairo2-dev libgtk2.0-dev
 install:
-  - pip install -r requirements.txt
+  - sudo apt-get update
+  # We do this conditionally because it saves us some downloading if the
+  # version is the same.
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+  - conda create -q -n test-environment -c jochym python=2.7  pygtk2 pcre numpy scipy matplotlib
+  - source activate test-environment
+  - conda install icu=56.1 --channel conda-forge
+  - conda install python-graphviz
+  - pip install python-levenshtein fuzzywuzzy zeep simplejson lxml networkx ete2 backoff
+  - python setup.py install
 before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
   - sleep 3 # give xvfb some time to start
 script:
-  - cd stk/test/;make test
+  - cd stk/test/ && make test

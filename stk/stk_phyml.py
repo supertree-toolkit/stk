@@ -773,37 +773,27 @@ def swap_tree_in_XML(XML, tree, name, delete=False):
     # The calling function should make sure the names are unique
     # First thing is to do is find the source name that corresponds to this tree
 
-    # Find the source_tree that has the name required
-
-    # swap in the tree
-    source_name, number = name.rsplit("_",1)
-    number = int(number.replace("_",""))
-    
     xml_root = parse_xml(XML)
-    # By getting source, we can then loop over each source_tree
-    find = etree.XPath("//source")
-    sources = find(xml_root)
-    # loop through all sources
-    for s in sources:
-        # for each source, get source name
-        s_name = s.attrib['name']
-        if source_name == s_name:
-            # found the bugger!
-            for t in s.xpath("source_tree"):
-                tree_name = t.attrib['name']
-                if (tree_name == name):
-                    if (not tree == None): 
-                        t.xpath("tree/tree_string/string_value")[0].text = tree
-                        # We can return as we're only replacing one tree
-                        return etree.tostring(xml_root,pretty_print=True)
-                    else:
-                        s.remove(t)
-                        if (delete):
-                            # we now need to check the source to check if there are
-                            # any trees in this source now, if not, remove
-                            if (len(s.xpath("source_tree")) == 0):
-                                s.getparent().remove(s)
-                        return etree.tostring(xml_root,pretty_print=True)
+    t = xml_root.xpath("//source_tree[@name=\'"+name+"\']")
+    if (len(t) != 1):
+        raise excp.NotUniqueError("Two or more source_trees have the same name. Please fix this.")
+    else:
+        t = t[0]
+    s = t.getparent()
+
+    if (not tree == None):
+        t.xpath("tree/tree_string/string_value")[0].text = tree
+        # We can return as we're only replacing one tree
+        return etree.tostring(xml_root,pretty_print=True)
+    else:
+        # we need to get parent and remove
+        t.getparent().remove(t)
+        if (delete):
+            # we now need to check the source to check if there are
+            # any trees in this source now, if not, remove
+            if (len(s.xpath("source_tree")) == 0):
+                s.getparent().remove(s)
+        return etree.tostring(xml_root,pretty_print=True)
 
     return XML
 

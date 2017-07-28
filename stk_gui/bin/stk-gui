@@ -120,10 +120,8 @@ def main():
   else:
     pos_logo_places = [os.path.join(stk_path, "gui/stk.svg"),
                             os.path.join(stk_path, "gui/stk.png"),
-                            "/usr/share/stk/stk.png",
-                            "/usr/share/stk/stk.svg",
-                            "/usr/local/share/stk/stk.png",
-                            "/usr/local/share/stk/stk.svg",
+                            os.path.join(os.path.realpath(os.path.dirname(__file__)),'stk.png'),
+                            os.path.join(os.path.realpath(os.path.dirname(__file__)),'stk.svg'),
 			    "/Applications/STK.app/Contents/Resources/stk.png",
                             ]
   for possible_logofile in pos_logo_places:
