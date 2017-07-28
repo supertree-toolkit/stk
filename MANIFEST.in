@@ -1,6 +1,7 @@
 graft stk_gui/plugins/phyml/
 graft schema
+graft stk
 include stk_gui/stk_gui/gui/gui.glade
 include stk_gui/stk_gui/gui/stk.png
 include stk_gui/stk_gui/gui/stk.svg
-
+include stk/version

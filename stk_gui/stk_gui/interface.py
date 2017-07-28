@@ -696,19 +696,11 @@ class Diamond:
     """
     Tell the user how great we are.
     """
-
-    import stk.bzr_version
-    d = stk.bzr_version.version_info
-    build = d.get('revno','<unknown revno>')
-    date  = d.get('build_date','<unknown build date>')
-    branch = d.get("branch_nick","<unknown branch>")
-    if (branch == "release"):
-        branch = ""
-    else:
-        branch = ": ("+branch+")"
-
+    
+    version = open(os.path.join(os.path.dirname(stk.__file__),'version')).readline().rstrip()
+    date = time.ctime(os.path.getmtime(os.path.join(os.path.dirname(stk.__file__),'version')))
     about = gtk.AboutDialog()
-    about.set_name("Supertree Toolkit v2."+build+branch)
+    about.set_name("Supertree Toolkit "+version)
     about.set_copyright("GPLv3")
     about.set_comments("Software to manage supertree source files. Based on Diamond from AMCG. Compiled on "+date)
     about.set_authors(["Jon Hill", "Katie Davis"])
