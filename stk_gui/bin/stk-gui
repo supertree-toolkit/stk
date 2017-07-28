@@ -22,6 +22,7 @@ import sys
 import traceback
 import string
 import platform
+import stk
 try:
     __file__
 except NameError:
@@ -32,6 +33,7 @@ gtk.gdk.threads_init()
 import gobject
 gobject.threads_init()
 
+
 # do this right at the start, so we can find the stk_gui modules when developing
 if not sys.platform.startswith("win"):
   stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir)
@@ -39,8 +41,8 @@ if not sys.platform.startswith("win"):
 else:
   stk_path = os.getcwd()
   sys.path.insert(0, stk_path+"../../")
-
 import stk_gui.debug
+
 
 def Help():
   """
@@ -120,8 +122,8 @@ def main():
   else:
     pos_logo_places = [os.path.join(stk_path, "gui/stk.svg"),
                             os.path.join(stk_path, "gui/stk.png"),
-                            os.path.join(os.path.realpath(os.path.dirname(__file__)),'stk.png'),
-                            os.path.join(os.path.realpath(os.path.dirname(__file__)),'stk.svg'),
+                            os.path.join(os.path.dirname(stk.__file__), os.pardir, "stk_gui", 'stk.png'),
+                            os.path.join(os.path.dirname(stk.__file__), os.pardir, "stk_gui", 'stk.svg'),
 			    "/Applications/STK.app/Contents/Resources/stk.png",
                             ]
   for possible_logofile in pos_logo_places:
@@ -151,10 +153,8 @@ def main():
       for possible_schemafile in [
             os.path.join(stk_path, "schema/phylo_storage.rng"),
             os.path.join(stk_path, "../../../../share/schemata/stk/phylo_storage.rng"),
-            "/usr/local/share/stk/schemata/schema/phylo_storage.rng",
-            "/usr/share/stk/schemata/schema/phylo_storage.rng",
             "/Applications/STK.app/Contents/share/schemata/stk/phylo_storage.rng",
-            os.path.join(os.path.realpath(os.path.dirname(__file__)),"../../schema/phylo_storage.rng")]:
+            os.path.join(os.path.dirname(stk.__file__), os.pardir, "schema/phylo_storage.rng")]:
         try:
           os.stat(possible_schemafile)
           input_schemafile = possible_schemafile
@@ -163,7 +163,6 @@ def main():
           pass   
 
   if input_schemafile is None:
-    print stk_path, os.path.join(stk_path, "schema/phylo_storage.rng")
     message = "Could not find schema files in the usual places"
     message += "\nPlease report this bug on bugs.launchpad.net/supertree-toolkit"
     error_dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, message)
@@ -184,10 +183,9 @@ def main():
   			     os.path.join(stk_path, "gui.glade"),
   			     os.path.join(stk_path, os.pardir, "gui", "gui.glade"),
                              os.path.join(stk_path, "share", "stk", "gui", "gui.glade"),
+                             os.path.join(os.path.dirname(stk.__file__), os.pardir, "stk_gui", "gui.glade"),
                              "../gui/gui.glade",
-                             "/usr/local/share/stk/gui.glade",
-                             "/usr/share/stk/gui.glade",
-                              "/Applications/STK.app/Contents/Resources/gui.glade",]:
+                             "/Applications/STK.app/Contents/Resources/gui.glade"]:
     try:
       os.stat(possible_gladefile)
       gladefile = possible_gladefile
