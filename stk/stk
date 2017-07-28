@@ -1018,19 +1018,19 @@ def sub_taxa(args):
                 new_trees["tree_"+str(i)] = t
         else:
             XML = supertree_toolkit.substitute_taxa(XML,old_taxa,new_taxa,ignoreWarnings=ignoreWarnings,only_existing=only_existing,generic_match=generic)
-    except NotUniqueError as detail:
+    except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
         return
-    except InvalidSTKData as detail:
+    except supertree_toolkit.InvalidSTKData as detail:
         msg = "***Error: Failed substituting taxa.\n"+detail.msg
         print msg
         return
-    except UninformativeTreeError as detail:
+    except supertree_toolkit.UninformativeTreeError as detail:
         msg = "***Error: Failed to substituting taxa.\n"+detail.msg
         print msg
         return
-    except TreeParseError as detail:
+    except supertree_toolkit.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
         print msg
         return

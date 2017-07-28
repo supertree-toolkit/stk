@@ -770,13 +770,15 @@ def swap_tree_in_XML(XML, tree, name, delete=False):
         If source no longer contains any trees, the source is removed
     """
 
-    # tree name has the tree number attached to the source name
     # The calling function should make sure the names are unique
     # First thing is to do is find the source name that corresponds to this tree
 
-    # Our input tree has name source_no, so find the source by stripping off the number
+    # Find the source_tree that has the name required
+
+    # swap in the tree
     source_name, number = name.rsplit("_",1)
     number = int(number.replace("_",""))
+    
     xml_root = parse_xml(XML)
     # By getting source, we can then loop over each source_tree
     find = etree.XPath("//source")
