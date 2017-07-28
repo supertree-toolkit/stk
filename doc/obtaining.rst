@@ -11,8 +11,8 @@ bzr are covered. We assume little knowledge of Linux or DOS commands, but some
 knowledge on how to install software. Contact your local sys admin if you need
 further help. 
 
-We store all source code and downloads on Canonical's Launchpad system: 
-http://launchpad.net/supertree-toolkit
+We store all source code and downloads on GitHub:
+https://github.com/supertree-toolkit/stk/issues
 
 Linux
 -----
@@ -60,26 +60,18 @@ You can access the STK CLI from a standard terminal
 Source
 ------
 
-The source is available as either a compressed tarball or via bzr. To obtain the tarball, simply
-download from `Launchpad <http://launchpad.net/supertree-toolkit>`_, then:
+The source is available as either a compressed zip file or via git. To obtain the zip file, simply
+download from `GitHub <https://github.com/supertree-toolkit/stk/issues>`_, then:
     
 .. code-block:: bash
     
-    tar zxvf supertree-toolkit.tgz
+    unzip supertree-toolkit.zip
 
-Using bzr, you can either obtain the bleeding-edge development version or the current release (recommended) using:
-
-.. code-block:: bash
-    
-    bzr branch lp:supertree-toolkit/trunk
-
-or
+Using git, you can obtain the bleeding-edge development version using:
 
 .. code-block:: bash
     
-    bzr branch lp:supertree-toolkit/release
-
-respectively.
+    git clone https://github.com/supertree-toolkit/stk.git
 
 Regardless of how the source was obtained, you can now either use the STK in-place or install it using:
 
