@@ -57,7 +57,7 @@ setup(
       description="Supertree data source management",
       author = "The STK Team",
       author_email = "jon.hill@york.ac.uk",
-      url = "https://launchpad.net/supertree-tookit",
+      url = "https://github.com/supertree-toolkit",
       packages = ['stk', 'dxdiff', 'stk_gui', 'stk.yapbib', 'stk.p4','stk.nameparser'],
       include_package_data=True,
       package_dir = {

@@ -737,7 +737,7 @@ def data_ind(args):
         print msg
         return
     except:
-        msg = "***Error: failed to check independence due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit"
+        msg = "***Error: failed to check independence due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues"
         print msg
         traceback.print_exc()
         return
@@ -1035,7 +1035,7 @@ def sub_taxa(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed sbstituting taxa due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        msg = "***Error: Failed sbstituting taxa due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
         print msg
         traceback.print_exc()
         return 
@@ -1106,7 +1106,7 @@ def import_data(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed sbstituting taxa due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        msg = "***Error: Failed sbstituting taxa due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
         print msg
         traceback.print_exc()
         return 
@@ -1153,7 +1153,7 @@ def export_data(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to export data due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        msg = "***Error: Failed to export data due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
         print msg
         traceback.print_exc()
         return 
@@ -1208,7 +1208,7 @@ def data_overlap(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to check overlap due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        msg = "***Error: Failed to check overlap due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
         print msg
         traceback.print_exc()
         return 
@@ -1287,7 +1287,7 @@ def export_trees(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to export trees due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        msg = "***Error: Failed to export trees due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
         print msg
         traceback.print_exc()
         return 
@@ -1405,7 +1405,7 @@ def permute_trees(args):
             print msg
             return
         except: 
-            msg = "***Error: Failed to permute trees due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+            msg = "***Error: Failed to permute trees due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
             print msg
             traceback.print_exc()
             return 
@@ -1472,7 +1472,7 @@ def clean_data(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to clean data due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        msg = "***Error: Failed to clean data due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
         print msg
         traceback.print_exc()
         return 
@@ -1529,7 +1529,7 @@ def replace_genera(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to replace genera due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        msg = "***Error: Failed to replace genera due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
         print msg
         traceback.print_exc()
         return 
@@ -1685,7 +1685,7 @@ def create_subset(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to create subset due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        msg = "***Error: Failed to create subset due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
         print msg
         traceback.print_exc()
         return 
@@ -1763,7 +1763,7 @@ def check_otus(args):
             return
         except:
             # what about no internet conenction? What error do that throw?
-            msg = "***Error: failed to create OTUs due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit"
+            msg = "***Error: failed to create OTUs due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues"
             print msg
             traceback.print_exc()
             return
@@ -1819,7 +1819,7 @@ def create_taxonomy(args):
         return
     except:
         # what about no internet conenction? What error do that throw?
-        msg = "***Error: failed to create taxonomy due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit"
+        msg = "***Error: failed to create taxonomy due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues"
         print msg
         traceback.print_exc()
         return
@@ -1876,7 +1876,7 @@ def auto_subs(args):
         return
     except:
         # what about no internet conenction? What error do that throw?
-        msg = "***Error: failed to carry out auto subs due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit"
+        msg = "***Error: failed to carry out auto subs due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues"
         print msg
         traceback.print_exc()
         return
@@ -1938,7 +1938,7 @@ def process(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to load input due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        msg = "***Error: Failed to load input due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
         print msg
         traceback.print_exc()
         return 
@@ -1996,7 +1996,7 @@ def process(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed sbstituting taxa due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        msg = "***Error: Failed sbstituting taxa due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
         print msg
         traceback.print_exc()
         return 
@@ -2050,7 +2050,7 @@ def process(args):
         return
     except:
         # what about no internet conenction? What error do that throw?
-        msg = "***Error: failed to carry out auto subs due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit"
+        msg = "***Error: failed to carry out auto subs due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues"
         print msg
         traceback.print_exc()
         return
@@ -2268,7 +2268,7 @@ def process(args):
         print msg
         return
     except: 
-        msg = "***Error: Failed to create matrix due to unknown error. File a bug report, please!\nhttps://bugs.launchpad.net/supertree-toolkit\n"
+        msg = "***Error: Failed to create matrix due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
         print msg
         traceback.print_exc()
         return 

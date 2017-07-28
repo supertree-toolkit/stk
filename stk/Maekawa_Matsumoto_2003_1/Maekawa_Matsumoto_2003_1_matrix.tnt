@@ -1,0 +1,12 @@
+xread
+8 8
+MRP_Outgroup	00000000
+Salganea_raggei	00110011
+Schultesia_lampyridiformis	00000000
+Salganea_esakii	01111111
+Periplaneta_fulginosa	00000000
+Salganea_gressitti	11110111
+Salganea_taiwanensis	11111111
+Panesthia_angustipennis	00010001
+
+proc /;

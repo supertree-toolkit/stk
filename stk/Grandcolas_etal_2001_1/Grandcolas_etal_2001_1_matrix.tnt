@@ -1,0 +1,13 @@
+xread
+11 9
+MRP_Outgroup	00000000000
+Cryptocercus_kyebangensis	00001100011
+Cryptocercus_darwini	11111111111
+Cryptocercus_garciai	11111111111
+Cryptocercus_clevelandi	00011100111
+Therea_petiveriana	00000100001
+Cryptocercus_punctulatus	00111101111
+Cryptocercus_wrighti	01111111111
+Blatta_orientalis	00000000000
+
+proc /;

@@ -164,7 +164,7 @@ def main():
 
   if input_schemafile is None:
     message = "Could not find schema files in the usual places"
-    message += "\nPlease report this bug on bugs.launchpad.net/supertree-toolkit"
+    message += "\nPlease report this bug on https://github.com/supertree-toolkit/stk/issues"
     error_dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, message)
     error_dialog.run()
     error_dialog.destroy()
@@ -194,7 +194,7 @@ def main():
       pass
   if gladefile is None:
     message = "Could not find GUI Glade file in the usual places"
-    message += "\nPlease report this bug on bugs.launchpad.net/supertree-toolkit"
+    message += "\nPlease report this bug on https://github.com/supertree-toolkit/stk/issues"
     error_dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, message)
     error_dialog.run()
     error_dialog.destroy()
