@@ -696,10 +696,9 @@ class Diamond:
     """
     Tell the user how great we are.
     """
-
-    from stk.git_version import git_version
     
-    version = git_version()
+    version = open(os.path.join(os.path.dirname(stk.__file__),'version')).readline().rstrip()
+    date = time.ctime(os.path.getmtime(os.path.join(os.path.dirname(stk.__file__),'version')))
     about = gtk.AboutDialog()
     about.set_name("Supertree Toolkit "+version)
     about.set_copyright("GPLv3")

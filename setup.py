@@ -6,9 +6,6 @@ import glob
 from setuptools.command.install import install as _install
 from subprocess import call
 
-# Produces blank file when using debian instl
-#call(["bzr version-info --python > stk/bzr_version.py"], shell=True)
-
 class install(_install):
     def run(self):
         _install.run(self)
@@ -28,6 +25,7 @@ plugin_dirs = ['stk_gui/plugins/phyml']
 plugin_data_files = []
 schema_dirs = ['schema']
 schema_data_files = []   
+call(["python stk/git_version.py > stk/version"], shell=True)
 
 if sys.platform == 'win32':
     extra_options = dict(
@@ -57,7 +55,7 @@ setup(
       description="Supertree data source management",
       author = "The STK Team",
       author_email = "jon.hill@york.ac.uk",
-      url = "https://launchpad.net/supertree-tookit",
+      url = "https://github.com/supertree-toolkit",
       packages = ['stk', 'dxdiff', 'stk_gui', 'stk.yapbib', 'stk.p4','stk.nameparser'],
       include_package_data=True,
       package_dir = {
@@ -72,11 +70,13 @@ setup(
           'stk.nameparser':'stk/nameparser'},
       package_data={'stk_gui/plugins/phyml': ['*.py'],
                     'schema': ['*'],
-                    'stk_gui': ['stk_gui/gui/gui.glade', 'stk_gui/gui/stk.png', 'stk_gui/gui/stk.svg'], 
+                    'stk_gui': ['stk_gui/gui/gui.glade', 'stk_gui/gui/stk.png', 'stk_gui/gui/stk.svg'],
+                    'stk': ['stk/version'],
                     },
       data_files=[('stk_gui/plugins/phyml',plugin_data_files),
                   ('schema',schema_data_files),
                   ('stk_gui',['stk_gui/gui/gui.glade', 'stk_gui/gui/stk.png', 'stk_gui/gui/stk.svg']),
+                  ('stk',['stk/version'])
                 ],
       scripts=["stk_gui/bin/stk-gui", "stk/stk"],
       #**extra_options
