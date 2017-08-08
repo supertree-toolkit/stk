@@ -774,7 +774,7 @@ def swap_tree_in_XML(XML, tree, name, delete=False):
     # First thing is to do is find the source name that corresponds to this tree
 
     xml_root = parse_xml(XML)
-    t = xml_root.xpath("//source_tree[@name=\'"+name+"\']")
+    t = xml_root.xpath("//source_tree[@name=\""+name+"\"]")
     if (len(t) != 1):
         raise excp.NotUniqueError("Two or more source_trees have the same name. Please fix this.")
     else:

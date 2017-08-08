@@ -1912,12 +1912,13 @@ def process(args):
                 break
 
     phyml = supertree_toolkit.load_phyml(input_file)
-    matrix = autoprocess(phyml, output, taxonomy_file, equivalents_file, extend_taxonomy, 
-                         taxonomy_tree, pref_db, no_store, verbose)
-    
-    f = open(os.path.join(output,"Matrix.tnt"), "w")
-    f.write(matrix)
-    f.close()
+    matrix = supertree_toolkit.autoprocess(phyml, output, taxonomy_file, equivalents_file, 
+                                           extended_taxonomy, taxonomy_tree, pref_db, 
+                                           no_store, verbose)
+    if not matrix == None:
+        f = open(os.path.join(output,"Matrix.tnt"), "w")
+        f.write(matrix)
+        f.close()
 
     return
 

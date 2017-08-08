@@ -1554,7 +1554,13 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
         equivalents = load_equivalents(equivalents_file)
     else:
         equivalents = None
-    equivalents = stk_taxonomy.taxonomic_checker(phyml,existing_data=equivalents,pref_db=pref_db,verbose=verbose)    
+    
+    # need internet connection for this, so...
+    if not stk_internals.internet_on():
+        msg = "***Error: Failed to check for synonyms as you don't seem to have an internet connection.\n"
+        print msg
+        return None
+    equivalents = taxonomic_checker(phyml,existing_data=equivalents,pref_db=pref_db,verbose=verbose)    
     # save the equivalents for later (as CSV and as sub file)
     data_string_csv = equivalents_to_csv(equivalents)
     data_string_subs = equivalents_to_subs(equivalents)
@@ -1611,6 +1617,12 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
         taxonomy = stk_taxonomy.load_taxonomy(taxonomy_file)
     else:
         taxonomy = None
+    
+    # need internet connection for this, so...
+    if not stk_internals.internet_on():
+        msg = "***Error: Failed to check for synonyms as you don't seem to have an internet connection.\n"
+        print msg
+        return None
     taxonomy = stk_taxonomy.create_taxonomy(phyml,existing_taxonomy=taxonomy,pref_db=pref_db,verbose=verbose)
     if (extended_taxonomy):
         if verbose:

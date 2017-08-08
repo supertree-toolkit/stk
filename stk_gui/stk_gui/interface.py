@@ -59,7 +59,6 @@ import useview
 from lxml import etree
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir)
 sys.path.insert(0, stk_path)
-sys.path.insert(0,'.')
 import stk
 print sys.path
 print stk.__file__
