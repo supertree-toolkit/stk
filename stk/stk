@@ -46,12 +46,6 @@ from subprocess import check_call, CalledProcessError, call
 from copy import deepcopy
 from lxml import etree
 
-import stk.bzr_version as bzr_version
-d = bzr_version.version_info
-build = d.get('revno','<unknown revno>')
-date  = d.get('build_date','<unknown build date>')
-branch = d.get("branch_nick","<unknown branch>")
-
 # Set up a global Getch class for all functions to use
 inkey = Getch._Getch()
 
@@ -584,12 +578,11 @@ def main():
 
     # before we let argparse work its magic, check for --version
     if "--version" in sys.argv:
-        branch = d.get("branch_nick","<unknown branch>")
-        if (branch == "release"):
-            branch = ""
-        else:
-            branch = ": ("+branch+")"
-        print "STK version 2."+build+branch
+        
+        version = open(os.path.join(os.path.dirname(supertree_toolkit.__file__),'version')).readline().rstrip()
+        date = time.ctime(os.path.getmtime(os.path.join(os.path.dirname(supertree_toolkit.__file__),'version')))
+
+        print "STK version 2."+version
         print "Built "+date
         print "Copyright (C) 2011-2017, Jon Hill, Katie Davis"
         print "Released under GNU General Public License"
