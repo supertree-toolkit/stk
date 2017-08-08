@@ -22,7 +22,6 @@ import traceback
 import re
 import time
 import sys
-import tempfile
 import cStringIO as StringIO
 import Queue
 import tempfile
@@ -30,16 +29,11 @@ try:
     __file__
 except NameError:
     __file__ = "."
-stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
-sys.path.insert(0, stk_path)
-import stk
 import pango
 import gobject
 import gtk
 import gtk.glade
 plugin_xml = None
-
-
 import choice
 import config
 import datatype
@@ -51,10 +45,8 @@ import plugins
 import schema
 import scherror
 import tree
-
 import StringIO
 import TextBufferMarkup
-
 import attributewidget
 import commentwidget
 import descriptionwidget
@@ -65,6 +57,12 @@ import sliceview
 import useview
 
 from lxml import etree
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir)
+sys.path.insert(0, stk_path)
+sys.path.insert(0,'.')
+import stk
+print sys.path
+print stk.__file__
 
 pluginSender = plugins.PluginSender()
 pluginReceiver = plugins.PluginReceiver(pluginSender)
@@ -2746,8 +2744,7 @@ class Diamond:
 
     signals = {"on_autoprocess_dialog_close": self.on_process_cancel_button,
                "on_process_cancel_clicked": self.on_process_cancel_button,
-               "on_process_clicked": self.on_process_button,
-               "on_process_browse_clicked": self.on_process_browse_clicked}
+               "on_process_clicked": self.on_process_button}
 
     self.process_gui = gtk.glade.XML(self.gladefile, root="autoprocess_dialog")
     self.process_dialog = self.process_gui.get_widget("autoprocess_dialog")
@@ -2758,15 +2755,66 @@ class Diamond:
 
     return
 
-  def on_process_browse_clicked(self,button):
-      pass
-
   def on_process_cancel_button(self, button):
       self.process_dialog.hide()
 
   def on_process_button(self, button):
-     pass
+     
+      dir_chooser = self.process_gui.get_widget('filechooserbutton3')
+      directory = dir_chooser.get_filename()
+      if directory == None:
+         msg = "You need to specify an output directory"
+         dialogs.error(self.main_window,msg)
+         return
+      
+      file_chooser = self.process_gui.get_widget('filechooserbutton1')
+      taxonomy_file = file_chooser.get_filename()
+      file_chooser = self.process_gui.get_widget('filechooserbutton2')
+      equivalents_file = file_chooser.get_filename()
 
+      pref_db_chooser = self.process_gui.get_widget('combobox1')
+      choice = pref_db_chooser.get_active_text()
+      if (choice == None):
+          pref_db = 'eol'
+      else:
+          pref_db = choice.lower()
+
+      taxonomy_tree_cbox = self.process_gui.get_widget('checkbutton_taxonomytree')
+      taxonomy_tree = taxonomy_tree_cbox.get_active()
+      ext_taxonomy_cbox = self.process_gui.get_widget('checkbutton_extendtaxonomy')
+      extend_taxonomy = ext_taxonomy_cbox.get_active()
+
+      f = StringIO.StringIO()
+      self.tree.write(f)
+      XML = f.getvalue()
+      try:
+         matrix = stk.autoprocess(XML, directory, taxonomy_file, equivalents_file, extend_taxonomy, 
+                         taxonomy_tree, pref_db, no_store=False, verbose=False)
+      except stk.NotUniqueError as detail:
+            msg = "Failed to auto-process data.\n"+detail.msg
+            dialogs.error(self.main_window,msg)
+            return
+      except stk.InvalidSTKData as detail:
+            msg = "Failed to auto-process data.\n"+detail.msg
+            dialogs.error(self.main_window,msg)
+            return
+      except stk.UninformativeTreeError as detail:
+            msg = "Failed to auto-process data.\n"+detail.msg
+            dialogs.error(self.main_window,msg)
+            return 
+      except stk.TreeParseError as detail:
+            msg = "Failed to auto-process data due to tree parsing error.\n"+detail.msg
+            dialogs.error(self.main_window,msg)
+            return 
+      except:
+            msg = "Failed to auto-process datadue to an unknown error. More details are below."
+            msg += "\n" + traceback.format_exc()
+            dialogs.error(self.main_window,msg)
+            return 
+          
+      f = open(os.path.join(directory,"Matrix.tnt"), "w")
+      f.write(matrix)
+      f.close()
 
 
   def on_name_trees(self, button):

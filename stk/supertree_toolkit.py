@@ -412,6 +412,27 @@ def create_matrix(XML,format="hennig",quote=False,taxonomy=None,outgroups=False,
     return stk_trees.create_matrix_from_trees(trees, taxa, format=format, quote=quote, weights=weights,verbose=verbose)
 
 
+
+def remove_subspecies(XML):
+
+    """Remove subspecies by searching for all three word OTUS and removing all
+    but first two words. Substitute_taxa takes care of % etc
+    """
+
+    taxa = stk_phyml.get_all_taxa(XML)
+    delete_me = []
+    replace_with = []
+    for t in taxa:
+        if len(t.split("_")) >= 3: # subspecies
+            delete_me.append(t)
+            replace_with.append("_".join(t.split("_")[0:2]))
+
+    phyml = substitute_taxa(XML,delete_me,replace_with)
+
+    return phyml
+
+
+
 def substitute_taxa(XML, old_taxa, new_taxa=None, only_existing=False, ignoreWarnings=False, verbose=False, skip_existing=False, generic_match=False):
     """
     Swap the taxa in the old_taxa array for the ones in the
@@ -652,6 +673,32 @@ def taxonomic_checker(XML,existing_data=None,pref_db="eol",verbose=False):
 
     equivalents = stk_taxonomy.taxonomic_checker_list(taxa,existing_data=existing_data,pref_db=pref_db,verbose=verbose)
     return equivalents
+
+
+def equivalents_to_csv(equivalents):
+
+    output_string = 'Taxa,Equivalents,Status\n'
+    for taxon in sorted(equivalents):
+        output_string += taxon + "," + ';'.join(equivalents[taxon][0]) + "," + equivalents[taxon][1] + "\n"
+    return output_string
+
+
+def equivalents_to_subs(equivalents):
+    """Only corrects the yellow and amber ones. Red and green are left alone"""
+
+    output_string = ""
+    for taxon in sorted(equivalents):
+        if (equivalents[taxon][1] == 'yellow' or
+            equivalents[taxon][1] == 'amber'):
+            # the first name is always the correct one, but check if it's the same level, i.e
+            # don't replace a gneus with a species (don't want that!)
+            if type(equivalents[taxon][0]) is list:
+                if len(taxon.split("_")) == len(equivalents[taxon][0][0].split("_")):
+                    output_string += taxon + " = "+equivalents[taxon][0][0]+"\n"
+            else:
+                if len(taxon.split("_")) == len(equivalents[taxon][0].split("_")):
+                    output_string += taxon + " = "+equivalents[taxon][0]+"\n"
+    return output_string
 
 
 def load_equivalents(equiv_csv):
@@ -1437,6 +1484,393 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
     XML = etree.tostring(xml_root,pretty_print=True)
 
     return XML
+
+
+def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, extended_taxonomy=True,
+                taxonomy_tree=True, pref_db="eol", no_store=False, verbose=False):
+    """ Attempt to process a raw PHYML to a species level Matrix without human intervention.
+        param: directory: Output directory where to put intermediate files and the output matrix
+        type: string
+        param: phyml_file: Input PHYML data
+        type: string
+        param: taxonomy_file: CSV taxonomy file to prevent downloading data again. Partial complete OK.
+        type: string
+        param: equivalents_file: CSV equivalents file to prevent downloading. Partial complete OK
+        type: string
+        param: extended_taxonomy: Fill in the taxonomy data from all known sources.
+        type: boolean
+        param: taxonomy_tree: Use a taxonomy tree (downweighted) in matrix
+        type: boolean
+        param: pref_db: Preferred database for taxonomy and synonyms. Default is EOL.
+        type: string
+        param: no_store: don't store the the intermediate file. Default False. Not recommended set to True.
+        type: boolean
+        param: verbose: Turn on verbose output to keep track of what's happening
+        type: boolean
+        returns: matrix: Final matrix in chosen format
+        rtype: string
+    """
+
+
+    if verbose:
+        print "Loading and checking your data"
+    # 0) load and check data
+    try:
+        project_name = stk_phyml.get_project_name(phyml)
+        phyml = clean_data(phyml)
+    except excp.NotUniqueError as detail:
+        msg = "***Error: Failed to load data.\n"+detail.msg
+        print msg
+        return
+    except excp.InvalidSTKData as detail:
+        msg = "***Error: Failed to load data.\n"+detail.msg
+        print msg
+        return
+    except excp.UninformativeTreeError as detail:
+        msg = "***Error: Failed to load data.\n"+detail.msg
+        print msg
+        return
+    except excp.TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed to load input due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
+        print msg
+        traceback.print_exc()
+        return 
+
+    if verbose:
+        "Removing subspecies"
+    phyml = remove_subspecies(phyml) 
+    phyml = clean_data(phyml)
+    
+    
+    if verbose:
+        print "Checking taxa againt online databases"
+    # 1) taxonomy checker with autoreplace
+    # Load existing data if any:
+    if (not equivalents_file == None):
+        equivalents = load_equivalents(equivalents_file)
+    else:
+        equivalents = None
+    equivalents = stk_taxonomy.taxonomic_checker(phyml,existing_data=equivalents,pref_db=pref_db,verbose=verbose)    
+    # save the equivalents for later (as CSV and as sub file)
+    data_string_csv = equivalents_to_csv(equivalents)
+    data_string_subs = equivalents_to_subs(equivalents)
+    f = open(os.path.join(dirname,project_name+"_taxonomy_checker.csv"), "w")
+    f.write(data_string_csv)
+    f.close()
+    f = open(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat"), "w")
+    f.write(data_string_subs)
+    f.close()
+    
+    # now do the replacements - we use the subs file :)
+    if verbose:
+        print "Swapping in the corrected taxa names"    
+    try:
+        old_taxa, new_taxa = load_subs_file(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat"))
+    except supertree_toolkit.UnableToParseSubsFile as e:
+        print e.msg
+        sys.exit(-1)
+        
+    try:
+        phyml = substitute_taxa(phyml,old_taxa,new_taxa,only_existing=False,verbose=verbose)
+    except excp.NotUniqueError as detail:
+        msg = "***Error: Failed substituting taxa.\n"+detail.msg
+        print msg
+        return
+    except excp.InvalidSTKData as detail:
+        msg = "***Error: Failed substituting taxa.\n"+detail.msg
+        print msg
+        return
+    except excp.UninformativeTreeError as detail:
+        msg = "***Error: Failed substituting taxa.\n"+detail.msg
+        print msg
+        return
+    except excp.TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed sbstituting taxa due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
+        print msg
+        traceback.print_exc()
+        return 
+    # save phyml as intermediate step
+    phyml = clean_data(phyml)
+    f = open(os.path.join(dirname,project_name+"_taxonomy_checked.phyml"), "w")
+    f.write(phyml)
+    f.close()
+
+    
+    if verbose:
+        print "Creating taxonomic information"    
+    # 2) create taxonomy
+    if (not taxonomy_file == None):
+        taxonomy = stk_taxonomy.load_taxonomy(taxonomy_file)
+    else:
+        taxonomy = None
+    taxonomy = stk_taxonomy.create_taxonomy(phyml,existing_taxonomy=taxonomy,pref_db=pref_db,verbose=verbose)
+    if (extended_taxonomy):
+        if verbose:
+            print "Checking other databases to see if we can add more data to taxonomy"
+        taxonomy = stk_taxonomy.create_extended_taxonomy(taxonomy, pref_db=pref_db, verbose=verbose)
+    # save the taxonomy for later
+    # Now create the CSV output - seperate out into function in STK (used several times)
+    stk_taxonomy.save_taxonomy(taxonomy, os.path.join(dirname,project_name+"_taxonomy.csv"))
+
+    # 3) create species level dataset
+    if verbose:
+        print "Converting data to species level"
+    try:
+        phyml = generate_species_level_data(phyml,taxonomy,verbose=verbose)
+    except excp.NotUniqueError as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except excp.InvalidSTKData as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except excp.UninformativeTreeError as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except excp.TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except excp.NoneCompleteTaxonomy as detail:
+        msg = "***Error: Failed to carry out auto subs.\n"+detail.msg
+        print msg
+        return
+    except:
+        # what about no internet conenction? What error do that throw?
+        msg = "***Error: failed to carry out auto subs due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues"
+        print msg
+        traceback.print_exc()
+        return
+    # save the phyml as intermediate step
+    f = open(os.path.join(dirname,project_name+"_species_level.phyml"), "w")
+    f.write(phyml)
+    f.close()
+
+    # 4) Remove non-monophyletic taxa (requires TNT to be installed)
+    if verbose:
+        print "Removing non-monophyletic taxa via mini-supertree method"
+    tree_list = stk_phyml.find_trees_for_permuting(phyml)
+    try:
+        for t in tree_list:
+            # permute
+            output_string = stk_trees.permute_tree(tree_list[t],matrix='hennig',treefile=None,verbose=verbose)
+            #save
+            if (not output_string == ""):
+                file_name_t = os.path.basename(filename)
+                dirname_t = os.path.dirname(filename)
+                new_output = os.path.join(dirname,dirname_t,t,t+"_matrix.tnt")
+                try: 
+                   os.makedirs(os.path.join(dirname,dirname_t,t))
+                except OSError:
+                    if not os.path.isdir(os.path.join(dirname,dirname_t,t)):
+                        raise
+                f = open(new_output,'w',0)
+                f.write(output_string)
+                f.close
+                time.sleep(1)
+
+                # now create the tnt command to deal with this
+                # create a tmp file for the output tree
+                temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tnt")
+                tnt_command = "tnt mxram 512,run "+new_output+",echo= ,timeout 00:10:00,rseed0,rseed*,hold 1000,xmult= level 0,taxname=,nelsen *,tsave *"+temp_file+",save /,quit"
+                #tnt_command = "tnt run "+new_output+",ienum,taxname=,nelsen*,tsave *"+temp_file+",save /,quit"
+                # run tnt, grab the output and store back in the data
+                try:
+                    call(tnt_command, shell=True)
+                except CalledProcessError as e:
+                    msg = "***Error: Failed to run TNT. Is it installed correctl?.\n"+e.msg
+                    print msg
+                    return
+
+                new_tree = stk_trees.import_tree(temp_file)
+                phyml = stk_phyml.swap_tree_in_XML(phyml,new_tree,t)
+
+    except supertree_toolkit.TreeParseError as e:
+        msg = "***Error permuting trees.\n"+e.msg
+        print msg
+        return
+
+    #4.5) remove MRP_Outgroups
+    phyml = substitute_taxa(phyml,'MRP_Outgroup')
+    phyml = substitute_taxa(phyml,'MRPOutgroup')
+    phyml = substitute_taxa(phyml,'MRP_outgroup')
+    phyml = substitute_taxa(phyml,'MRPoutgroup')
+    phyml = substitute_taxa(phyml,'MRPOUTGROUP')  
+
+    # save intermediate phyml
+    f = open(os.path.join(dirname,project_name+"_nonmonophyl_removed.phyml"), "w")
+    f.write(phyml)
+    f.close()
+
+    # 5) Remove common names
+    # no function to do this yet...
+
+    # 6) Data independance
+    if verbose:
+        print "Checking data independence"
+    data_ind,subsets,phyml = data_independence(phyml,make_new_xml=True)
+    # save phyml
+    f = open(os.path.join(dirname,project_name+"_data_ind.phyml"), "w")
+    f.write(phyml)
+    f.close()
+
+    # 7) Data overlap
+    if verbose:
+        print "Checking data overlap"
+    sufficient_overlap, key_list = data_overlap(phyml,verbose=verbose)
+    # process the key_list to remove the unconnected trees
+    if not sufficient_overlap:
+        # we don't, have enough, then remove all but the largest group.
+        # First, find the largest group
+        lrg=0
+        indx=0
+        i = 0
+        for k in key_list:
+            if len(list(k)) > lrg:
+                indx = i
+            i += 1
+
+        delete_me = []
+        for t in key_list[indx::]: # skip 0
+            delete_me.extend(t)
+        for tree in delete_me:
+            phyml = stk_phyml.swap_tree_in_XML(phyml, None, tree, delete=True) # delete the tree and clean the data as we go 
+    # save phyml
+    f = open(os.path.join(dirname,project_name+"_data_tax_overlap.phyml"), "w")
+    f.write(phyml)
+    f.close()
+
+    # add taxonomy tree
+    if (taxonomy_tree):
+        # we need to add it to the PHYML and save the PHYML.
+        # Only contain taxa left in the tree and we can use the taxonomy info gleaned already
+        current_taxa_list = stk_phyml.get_all_taxa(phyml)
+        truncated_taxonomy = {}
+        for t in current_taxa_list:
+            truncated_taxonomy[t] = taxonomy[t]
+
+        # create a tree from this taxonomy - we use kingdom and the collapse
+        taxonomy_tree = stk_taxonomy.tree_from_taxonomy('kingdom', truncated_taxonomy)
+
+        # add a new source, with the taxonomy tree - we have to do this manually by 
+        # altering the XML. We also need to add a minimal amount of info or the next bit
+        # will error. So add authors etc.
+        # so let's create our new source
+        xml_root = etree.fromstring(phyml)
+        find = etree.XPath("//sources")
+        sources = find(xml_root)[0]
+        # add the project name from the input directory
+        new_source = etree.Element("source")
+        publication = etree.SubElement(new_source,"bibliographic_information")
+        article = etree.SubElement(publication,"article")
+        authors = etree.SubElement(article,"authors")
+        ae = etree.SubElement(authors,'author')
+        surname = etree.SubElement(ae,'surname')
+        string = etree.SubElement(surname,'string_value')
+        string.attrib['lines'] = "1"
+        string.text = 'No authors'
+        title = etree.SubElement(article,"title")
+        string = etree.SubElement(title,"string_value")
+        string.attrib['lines'] = "1"
+        string.text = "Taxonomy tree"
+        volume = etree.SubElement(article,"volume")
+        string = etree.SubElement(volume,"string_value")
+        string.attrib['lines'] = "1"
+        string.text = "NA"
+        year = etree.SubElement(article,"year")
+        integer = etree.SubElement(year,"integer_value")
+        integer.attrib['rank'] = "0"
+        integer.text = "2017"
+        journal = etree.SubElement(article,"journal")
+        string = etree.SubElement(journal,"string_value")
+        string.attrib['lines'] = "1"
+        string.text = "NA"
+        pages = etree.SubElement(article,"pages")
+        string = etree.SubElement(pages,"string_value")
+        string.attrib['lines'] = "1"
+        string.text = "NA"
+        
+        # now the tree XML
+        source_tree = etree.Element("source_tree")
+        # tree data
+        tree_ele = etree.SubElement(source_tree,"tree")
+        tree_string = etree.SubElement(tree_ele,"tree_string")
+        string = etree.SubElement(tree_string,"string_value")
+        string.attrib["lines"] = "1"
+        string.text = taxonomy_tree
+        figure_legend = etree.SubElement(tree_ele,"figure_legend")
+        figure_legend.tail="\n      "
+        figure_legend_string = etree.SubElement(figure_legend,"string_value")
+        figure_legend_string.tail="\n      "
+        figure_legend_string.attrib['lines'] = "1"
+        figure_legend_string.text = "NA"
+        figure_number = etree.SubElement(tree_ele,"figure_number")
+        figure_number.tail="\n      "
+        figure_number_string = etree.SubElement(figure_number,"string_value")
+        figure_number_string.tail="\n      "
+        figure_number_string.attrib['lines'] = "1"
+        figure_number_string.text = "0"
+        page_number = etree.SubElement(tree_ele,"page_number")
+        page_number.tail="\n      "
+        page_number_string = etree.SubElement(page_number,"string_value")
+        page_number_string.tail="\n      "
+        page_number_string.attrib['lines'] = "1"
+        tree_inference = etree.SubElement(tree_ele,"tree_inference")
+        optimality_criterion = etree.SubElement(tree_inference,"optimality_criterion")
+        optimality_criterion.attrib['name'] = "Taxonomy"
+        taxa_data = etree.SubElement(source_tree,"taxa_data")
+        taxa_type = etree.SubElement(taxa_data,"mixed_fossil_and_extant")
+        character_data = etree.SubElement(source_tree,"character_data")
+        new_char = etree.SubElement(character_data,"character")
+        new_char.attrib['type'] = "other"
+        new_char.attrib['name'] = "taxonomy"
+        
+        new_source.append(deepcopy(source_tree))
+        sources.append(deepcopy(new_source))
+
+        # save phyml
+        f = open(os.path.join(dirname,project_name+"_with_taxonomy_tree.phyml"), "w")
+        f.write(phyml)
+        f.close()
+
+    # 8) Create matrix
+    if verbose:
+        print "Creating matrix"
+    try:
+        matrix = create_matrix(phyml)
+    except excp.NotUniqueError as detail:
+        msg = "***Error: Failed to create matrix.\n"+detail.msg
+        print msg
+        return
+    except excp.InvalidSTKData as detail:
+        msg = "***Error: Failed to create matrix.\n"+detail.msg
+        print msg
+        return
+    except excp.UninformativeTreeError as detail:
+        msg = "***Error: Failed to create matrix.\n"+detail.msg
+        print msg
+        return
+    except excp.TreeParseError as detail:
+        msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
+        print msg
+        return
+    except: 
+        msg = "***Error: Failed to create matrix due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
+        print msg
+        traceback.print_exc()
+        return 
+
+    return matrix
 
 
 def tree_from_taxonomy(top_level, tree_taxonomy):

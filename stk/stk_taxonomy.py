@@ -459,7 +459,7 @@ def get_taxonomy(taxonomy, lock, queue, id=0, pref_db='eol', check_fossil=True, 
 def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, check_fossil=False, verbose=False, ignoreWarnings=False, threadNumber=5):
     """Uses the taxa provided to generate a taxonomy for all the taxon available. 
     :param taxa: list of the taxa.
-    :type taxa : list 
+    :type taxa: list 
     :param taxonomy: previous taxonomy available (if available) or an empty 
     dictionary to store the results. If None will be init to an empty dictionary
     :type taxonomy: dictionary

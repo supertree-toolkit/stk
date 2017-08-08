@@ -63,17 +63,30 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <widget class="GtkLabel" id="label1">
+              <widget class="GtkLabel" id="label6">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xalign">0</property>
-                <property name="yalign">0</property>
-                <property name="label" translatable="yes">Choose an output directory and Matrix file format</property>
+                <property name="label" translatable="yes">&lt;b&gt;AutoProcess Data&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
               </widget>
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="label1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <property name="label" translatable="yes">Choose an output directory and Matrix file format. All intermediate files will be placed in the output directory.</property>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
               </packing>
             </child>
             <child>
@@ -87,80 +100,20 @@
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="format_label">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Choose an output matrix format</property>
-              </widget>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
                 <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkRadioButton" id="matrix_format_tnt_chooser">
-                <property name="label" translatable="yes">Hennig (TNT)</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_action_appearance">False</property>
-                <property name="active">True</property>
-                <property name="draw_indicator">True</property>
-              </widget>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">3</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkRadioButton" id="matrix_format_nexus_chooser">
-                <property name="label" translatable="yes">Nexus</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_action_appearance">False</property>
-                <property name="draw_indicator">True</property>
-                <property name="group">matrix_format_tnt_chooser</property>
-              </widget>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">4</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="create_matrix_file_label">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Choose an output directory</property>
-                <property name="ellipsize">start</property>
-              </widget>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">5</property>
               </packing>
             </child>
             <child>
               <widget class="GtkHBox" id="hbox2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="homogeneous">True</property>
                 <child>
-                  <widget class="GtkEntry" id="entry1">
+                  <widget class="GtkLabel" id="auto_process_file_label">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">•</property>
-                    <property name="invisible_char_set">True</property>
-                    <property name="primary_icon_activatable">False</property>
-                    <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Choose an output directory</property>
+                    <property name="ellipsize">start</property>
                   </widget>
                   <packing>
                     <property name="expand">True</property>
@@ -169,15 +122,120 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkButton" id="filebrowse">
-                    <property name="label">gtk-open</property>
+                  <widget class="GtkFileChooserButton" id="filechooserbutton3">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="use_action_appearance">False</property>
-                    <property name="use_stock">True</property>
-                    <property name="image_position">right</property>
-                    <signal name="clicked" handler="on_process_browse_clicked" />
+                    <property name="can_focus">False</property>
+                    <property name="action">select-folder</property>
+                    <property name="title" translatable="yes">Select a directory</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkHBox" id="hbox1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="homogeneous">True</property>
+                <child>
+                  <widget class="GtkLabel" id="label3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Taxonomy file (optional):</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkFileChooserButton" id="filechooserbutton1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkHBox" id="hbox3">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="homogeneous">True</property>
+                <child>
+                  <widget class="GtkLabel" id="label4">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Equivalents file (optional):</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkFileChooserButton" id="filechooserbutton2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">5</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkHBox" id="hbox4">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="homogeneous">True</property>
+                <child>
+                  <widget class="GtkLabel" id="label5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Preferred Database:</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkComboBox" id="combobox1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="entry_text_column">1</property>
+                    <property name="items" translatable="yes">EOL
+ITIS
+WoRMS</property>
                   </widget>
                   <packing>
                     <property name="expand">True</property>
@@ -200,10 +258,35 @@
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <widget class="GtkCheckButton" id="checkbutton_extendtaxonomy">
+            <property name="label" translatable="yes">Use all available data sources to make taxonomy</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
+            <property name="relief">none</property>
+            <property name="draw_indicator">True</property>
+          </widget>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
         </child>
         <child>
-          <placeholder/>
+          <widget class="GtkCheckButton" id="checkbutton_taxonomytree">
+            <property name="label" translatable="yes">Use a taxonomy backbone tree</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
+            <property name="draw_indicator">True</property>
+          </widget>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
+          </packing>
         </child>
       </widget>
     </child>
@@ -1364,8 +1447,8 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkRadioButton" id="file_format_html_chooser">
-                        <property name="label" translatable="yes">HTML</property>
+                      <widget class="GtkRadioButton" id="file_format_short_chooser">
+                        <property name="label" translatable="yes">Text (short)</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -1398,8 +1481,8 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkRadioButton" id="file_format_short_chooser">
-                        <property name="label" translatable="yes">Text (short)</property>
+                      <widget class="GtkRadioButton" id="file_format_html_chooser">
+                        <property name="label" translatable="yes">HTML</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -1738,8 +1821,8 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkCheckButton" id="checkbutton1">
-            <property name="label" translatable="yes">Anonymous</property>
+          <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
+            <property name="label" translatable="yes">Ignore Warnings</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
@@ -1753,8 +1836,8 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
-            <property name="label" translatable="yes">Ignore Warnings</property>
+          <widget class="GtkCheckButton" id="checkbutton1">
+            <property name="label" translatable="yes">Anonymous</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
@@ -2444,7 +2527,7 @@
                   </widget>
                 </child>
               </widget>
-          </child>
+            </child>
             <child>
               <widget class="GtkMenuItem" id="data">
                 <property name="visible">True</property>
@@ -2510,7 +2593,6 @@
                         <signal name="activate" handler="on_check_nomenclature" />
                       </widget>
                     </child>
-
                   </widget>
                 </child>
               </widget>
@@ -2704,13 +2786,9 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkHButtonBox" id="plugin_buttonbox">
+          <widget class="GtkStatusbar" id="statusBar">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="layout_style">start</property>
-            <child>
-              <placeholder/>
-            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -2719,9 +2797,13 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkStatusbar" id="statusBar">
+          <widget class="GtkHButtonBox" id="plugin_buttonbox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="layout_style">start</property>
+            <child>
+              <placeholder/>
+            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -3678,6 +3760,23 @@
               </packing>
             </child>
             <child>
+              <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
+                <property name="label" translatable="yes">Ignore Warnings</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="has_tooltip">True</property>
+                <property name="tooltip" translatable="yes">Ignore warnings regarding data quality</property>
+                <property name="use_action_appearance">False</property>
+                <property name="draw_indicator">True</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
               <widget class="GtkCheckButton" id="onlyexisting_checkbutton">
                 <property name="label" translatable="yes">Only sub existing taxa</property>
                 <property name="visible">True</property>
@@ -3688,23 +3787,6 @@
                 <property name="use_action_appearance">False</property>
                 <property name="draw_indicator">True</property>
                 <signal name="clicked" handler="on_onlyexisting_clicked" />
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkCheckButton" id="ignoreWarnings_checkbutton">
-                <property name="label" translatable="yes">Ignore Warnings</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="has_tooltip">True</property>
-                <property name="tooltip" translatable="yes">Ignore warnings regarding data quality</property>
-                <property name="use_action_appearance">False</property>
-                <property name="draw_indicator">True</property>
               </widget>
               <packing>
                 <property name="expand">False</property>
