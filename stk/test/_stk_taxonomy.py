@@ -48,7 +48,7 @@ class TestSTKTaxonomy(unittest.TestCase):
             self.maxDiff = None
             self.assertDictEqual(taxonomy, expected)
         else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the create_taxonomy_from_taxa function"
         return
 
 
@@ -63,7 +63,7 @@ class TestSTKTaxonomy(unittest.TestCase):
             self.maxDiff = None
             self.assertDictEqual(taxonomy, expected)
         else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the create_taxonomy_from_taxa function"
         return
     
     def test_taxonomy_checker(self):
@@ -88,7 +88,7 @@ class TestSTKTaxonomy(unittest.TestCase):
             self.assert_(equivs['Celatoblatta_brunni'][0][0] == 'Maoriblatta_brunni')
             self.assert_(equivs['Blatta_lateralis'][1] == 'amber')
         else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomic_checker_list function"
         return
 
     def test_taxonomy_check_worms(self):
@@ -105,7 +105,7 @@ class TestSTKTaxonomy(unittest.TestCase):
             self.assert_(equivs['whale shark'][0][0] == 'Rhincodon_typus')
             self.assert_(equivs['whale shark'][1] == 'amber') # wor,s returns 2 results, both whale shark, but this makes it amber
         else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomic_checker_list function"
         return
 
 
@@ -206,13 +206,12 @@ class TestSTKTaxonomy(unittest.TestCase):
             self.assertEqual(taxonomy, expected)
 
         else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_for_taxon_eol function"
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_for_taxon_itis function"
         return
 
 
 
     def test_get_taxonomy_for_taxon_worms(self):
-
         if (internet_on()):
             # Let's check an easy one!
             taxon = "Delphinus delphis"
@@ -232,12 +231,11 @@ class TestSTKTaxonomy(unittest.TestCase):
             self.assertEqual(taxonomy, expected)
 
         else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_for_taxon_eol function"
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_for_taxon_worms function"
         return
 
 
     def test_get_taxonomy_for_taxon_pbdb(self):
-
         if (internet_on()):
             # Let's check an easy one!
             taxon = "Tyrannosaurus rex"
@@ -252,32 +250,45 @@ class TestSTKTaxonomy(unittest.TestCase):
             self.assertEqual(taxonomy, expected)
 
         else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_for_taxon_eol function"
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_for_taxon_pbdb function"
         return
 
 
     def test_get_taxonomy_eol(self):
-        taxonomy, start_level = get_taxonomy_eol({},'Balaenopteridae', verbose=False)
-        taxa = taxonomy.keys()
-        self.assertEqual(start_level, 'family')
-        self.assert_('Balaenoptera bonaerensis' in taxa)
-        self.assert_('Balaenoptera musculus' in taxa)
-
+        if (internet_on()):
+            taxonomy, start_level = get_taxonomy_eol({},'Balaenopteridae', verbose=False)
+            taxa = taxonomy.keys()
+            self.assertEqual(start_level, 'family')
+            self.assert_('Balaenoptera bonaerensis' in taxa)
+            self.assert_('Balaenoptera musculus' in taxa)
+        else:
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_eol function"
+        return
 
 
     def test_get_taxonomy_worms(self):
-        taxonomy, start_level = get_taxonomy_worms({},'Balaenopteridae', verbose=False)
-        taxa = taxonomy.keys()
-        self.assertEqual(start_level, 'family')
-        self.assert_('Balaenoptera bonaerensis' in taxa)
-        self.assert_('Balaenoptera musculus' in taxa)
+        if (internet_on()):
+            taxonomy, start_level = get_taxonomy_worms({},'Balaenopteridae', verbose=False)
+            taxa = taxonomy.keys()
+            self.assertEqual(start_level, 'family')
+            self.assert_('Balaenoptera bonaerensis' in taxa)
+            self.assert_('Balaenoptera musculus' in taxa)
+        else:
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_worms function"
+        return
+
 
     def test_get_taxonomy_itis(self):
-        taxonomy, start_level = get_taxonomy_itis({},'Balaenopteridae', verbose=False)
-        taxa = taxonomy.keys()
-        self.assertEqual(start_level, 'family')
-        self.assert_('Balaenoptera bonaerensis' in taxa)
-        self.assert_('Balaenoptera musculus' in taxa)
+        if (internet_on()): 
+            taxonomy, start_level = get_taxonomy_itis({},'Balaenopteridae', verbose=False)
+            taxa = taxonomy.keys()
+            self.assertEqual(start_level, 'family')
+            self.assert_('Balaenoptera bonaerensis' in taxa)
+            self.assert_('Balaenoptera musculus' in taxa)
+        else:
+            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_itis function"
+        return
+
 
 if __name__ == '__main__':
     unittest.main()

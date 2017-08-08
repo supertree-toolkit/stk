@@ -70,7 +70,7 @@ def replace_utf(content):
     return content
 
 
-def internet_on(host="8.8.8.8", port=443, timeout=5):
+def internet_on(host="8.8.8.8", port=443, timeout=3):
     import socket
 
     """
@@ -83,7 +83,7 @@ def internet_on(host="8.8.8.8", port=443, timeout=5):
         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
         return True
     except Exception as ex:
-        print ex.message
+        #print ex.message
         return False   
 
 
