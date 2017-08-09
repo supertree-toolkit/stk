@@ -42,7 +42,6 @@ import stk.p4 as p4
 import lxml
 import csv
 import tempfile
-from subprocess import check_call, CalledProcessError, call
 from copy import deepcopy
 from lxml import etree
 

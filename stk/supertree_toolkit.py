@@ -33,6 +33,7 @@ import stk_exceptions as excp
 import stk_taxonomy
 import stk_phyml
 import stk_trees
+import stk_util
 import traceback
 import stk_internals
 import p4
@@ -42,9 +43,11 @@ import networkx as nx
 import datetime
 import indent
 import csv
+import tempfile
 from copy import deepcopy
 import time
 import types
+from subprocess import check_call, CalledProcessError, call
 
 #plt.ion()
 
@@ -1564,10 +1567,10 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
     # save the equivalents for later (as CSV and as sub file)
     data_string_csv = equivalents_to_csv(equivalents)
     data_string_subs = equivalents_to_subs(equivalents)
-    f = open(os.path.join(dirname,project_name+"_taxonomy_checker.csv"), "w")
+    f = open(os.path.join(directory,project_name+"_taxonomy_checker.csv"), "w")
     f.write(data_string_csv)
     f.close()
-    f = open(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat"), "w")
+    f = open(os.path.join(directory,project_name+"_taxonomy_check_subs.dat"), "w")
     f.write(data_string_subs)
     f.close()
     
@@ -1575,8 +1578,8 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
     if verbose:
         print "Swapping in the corrected taxa names"    
     try:
-        old_taxa, new_taxa = load_subs_file(os.path.join(dirname,project_name+"_taxonomy_check_subs.dat"))
-    except supertree_toolkit.UnableToParseSubsFile as e:
+        old_taxa, new_taxa = stk_util.load_subs_file(os.path.join(directory,project_name+"_taxonomy_check_subs.dat"))
+    except excp.UnableToParseSubsFile as e:
         print e.msg
         sys.exit(-1)
         
@@ -1605,7 +1608,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
         return 
     # save phyml as intermediate step
     phyml = clean_data(phyml)
-    f = open(os.path.join(dirname,project_name+"_taxonomy_checked.phyml"), "w")
+    f = open(os.path.join(directory,project_name+"_taxonomy_checked.phyml"), "w")
     f.write(phyml)
     f.close()
 
@@ -1623,14 +1626,14 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
         msg = "***Error: Failed to check for synonyms as you don't seem to have an internet connection.\n"
         print msg
         return None
-    taxonomy = stk_taxonomy.create_taxonomy(phyml,existing_taxonomy=taxonomy,pref_db=pref_db,verbose=verbose)
+    taxonomy = create_taxonomy(phyml,existing_taxonomy=taxonomy,pref_db=pref_db,verbose=verbose)
     if (extended_taxonomy):
         if verbose:
             print "Checking other databases to see if we can add more data to taxonomy"
         taxonomy = stk_taxonomy.create_extended_taxonomy(taxonomy, pref_db=pref_db, verbose=verbose)
     # save the taxonomy for later
     # Now create the CSV output - seperate out into function in STK (used several times)
-    stk_taxonomy.save_taxonomy(taxonomy, os.path.join(dirname,project_name+"_taxonomy.csv"))
+    stk_taxonomy.save_taxonomy(taxonomy, os.path.join(directory,project_name+"_taxonomy.csv"))
 
     # 3) create species level dataset
     if verbose:
@@ -1664,7 +1667,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
         traceback.print_exc()
         return
     # save the phyml as intermediate step
-    f = open(os.path.join(dirname,project_name+"_species_level.phyml"), "w")
+    f = open(os.path.join(directory,project_name+"_species_level.phyml"), "w")
     f.write(phyml)
     f.close()
 
@@ -1678,17 +1681,17 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
             output_string = stk_trees.permute_tree(tree_list[t],matrix='hennig',treefile=None,verbose=verbose)
             #save
             if (not output_string == ""):
-                file_name_t = os.path.basename(filename)
-                dirname_t = os.path.dirname(filename)
-                new_output = os.path.join(dirname,dirname_t,t,t+"_matrix.tnt")
+                new_output = os.path.join(directory,t,t+"_matrix.tnt")
                 try: 
-                   os.makedirs(os.path.join(dirname,dirname_t,t))
+                   os.makedirs(os.path.join(directory,t))
                 except OSError:
-                    if not os.path.isdir(os.path.join(dirname,dirname_t,t)):
+                    if not os.path.isdir(os.path.join(directory,t)):
                         raise
                 f = open(new_output,'w',0)
                 f.write(output_string)
                 f.close
+                # had issues with the file cache not being flushed before the command below ran
+                # sleeping for a second fixed this
                 time.sleep(1)
 
                 # now create the tnt command to deal with this
@@ -1707,7 +1710,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
                 new_tree = stk_trees.import_tree(temp_file)
                 phyml = stk_phyml.swap_tree_in_XML(phyml,new_tree,t)
 
-    except supertree_toolkit.TreeParseError as e:
+    except excp.TreeParseError as e:
         msg = "***Error permuting trees.\n"+e.msg
         print msg
         return
@@ -1720,7 +1723,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
     phyml = substitute_taxa(phyml,'MRPOUTGROUP')  
 
     # save intermediate phyml
-    f = open(os.path.join(dirname,project_name+"_nonmonophyl_removed.phyml"), "w")
+    f = open(os.path.join(directory,project_name+"_nonmonophyl_removed.phyml"), "w")
     f.write(phyml)
     f.close()
 
@@ -1732,7 +1735,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
         print "Checking data independence"
     data_ind,subsets,phyml = data_independence(phyml,make_new_xml=True)
     # save phyml
-    f = open(os.path.join(dirname,project_name+"_data_ind.phyml"), "w")
+    f = open(os.path.join(directory,project_name+"_data_ind.phyml"), "w")
     f.write(phyml)
     f.close()
 
@@ -1758,7 +1761,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
         for tree in delete_me:
             phyml = stk_phyml.swap_tree_in_XML(phyml, None, tree, delete=True) # delete the tree and clean the data as we go 
     # save phyml
-    f = open(os.path.join(dirname,project_name+"_data_tax_overlap.phyml"), "w")
+    f = open(os.path.join(directory,project_name+"_data_tax_overlap.phyml"), "w")
     f.write(phyml)
     f.close()
 
@@ -1851,7 +1854,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
         sources.append(deepcopy(new_source))
 
         # save phyml
-        f = open(os.path.join(dirname,project_name+"_with_taxonomy_tree.phyml"), "w")
+        f = open(os.path.join(directory,project_name+"_with_taxonomy_tree.phyml"), "w")
         f.write(phyml)
         f.close()
 

@@ -392,7 +392,7 @@ def permute_tree(tree,matrix="hennig",treefile=None,verbose=False):
             total = total * n
 
     if (verbose):
-        print "This tree requires a of "+str(total)+ " permutations"
+        print "This tree requires a total of "+str(total)+ " permutations"
 
     trees_saved = []
     # I hate recursive functions, but it actually is the
