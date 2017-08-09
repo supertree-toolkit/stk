@@ -540,7 +540,7 @@ def main():
 
 
     # attempt to process the data into a matrix all automatically
-    parser_cm = subparsers.add_parser('process',
+    parser_cm = subparsers.add_parser('autoprocess',
             help='Generate a species-level matrix, and do all the checks and processing automatically. Note this creates a taxonomy and does all the processing, but will not be perfect (as taxonomies are not perfect)'
             )
     parser_cm.add_argument('input',
@@ -572,7 +572,7 @@ def main():
             action="store_true",
             default=False,
             help="Do not store intermediate files -- not recommended")
-    parser_cm.set_defaults(func=process)
+    parser_cm.set_defaults(func=autoprocess)
 
 
     # before we let argparse work its magic, check for --version
@@ -1878,7 +1878,7 @@ def auto_subs(args):
     f.close()
 
 
-def process(args):
+def autoprocess(args):
 
     verbose = args.verbose
     input_file = args.input
