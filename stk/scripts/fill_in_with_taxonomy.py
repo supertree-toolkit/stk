@@ -36,7 +36,7 @@ import re
 
 taxonomy_levels = stk.taxonomy_levels
 #tlevels = ['species','genus','family','superfamily','suborder','order','class','phylum','kingdom']
-tlevels = ['species','genus', 'subfamily', 'family','superfamily','subsection','section','infraorder','suborder','order','class','phylum','kingdom']
+tlevels = ['species','genus', 'subfamily', 'family','superfamily','infraorder','suborder','order','class','phylum','kingdom']
 
 def get_tree_taxa_taxonomy_eol(taxon):
 

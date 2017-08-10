@@ -55,6 +55,8 @@ import datawidget
 import diffview
 import sliceview
 import useview
+import threading
+from threading import Thread
 
 from lxml import etree
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir)
@@ -117,6 +119,7 @@ Important routines:
 If there are bugs in reading in, see schema.read.
 If there are bugs in writing out, see tree.write.
 """
+
 
 class Diamond:
     
@@ -2786,9 +2789,63 @@ class Diamond:
       f = StringIO.StringIO()
       self.tree.write(f)
       XML = f.getvalue()
+    
+      # before we kick this off, create a window with a textview and grab the output from the process so users
+      # can keep track
+      wnd = gtk.Window()
+      wnd.set_default_size(400, 400)
+      wnd.connect("destroy", gtk.main_quit)
+      textview = gtk.TextView()
+      fontdesc = pango.FontDescription("monospace")
+      textview.modify_font(fontdesc)
+      scroll = gtk.ScrolledWindow()
+      scroll.add(textview)
+      exp = gtk.Expander("Processing...")
+      exp.add(scroll)
+      wnd.add(exp)
+      wnd.show_all()
+
+      bfr = textview.get_buffer()
+
+
+      class ConsoleOutput:
+        def __init__(self, source):
+            self.source=source
+            self.buf = []
+
+        def update_buffer(self):
+            bfr.insert(bfr.get_end_iter(), ''.join(self.buf))
+            self.buf = []
+
+        def write(self, data):
+            self.buf.append(data)
+            if data.endswith('\n'):
+                gobject.idle_add(self.update_buffer)
+
+        def __del__(self):
+            if self.buf != []:
+                gobject.idle_add(self.update_buffer)
+      
+      class ThreadWithReturnValue(Thread):
+         def __init__(self, group=None, target=None, name=None,
+                 args=(), kwargs={}, Verbose=None):
+            Thread.__init__(self, group, target, name, args, kwargs, Verbose)
+            self._return = None
+         def run(self):
+            if self._Thread__target is not None:
+               self._return = self._Thread__target(*self._Thread__args,
+                                                **self._Thread__kwargs)
+         def join(self):
+            Thread.join(self)
+            return self._return
+
+      sys.stdout = ConsoleOutput(None)
+
       try:
-         matrix = stk.autoprocess(XML, directory, taxonomy_file, equivalents_file, extend_taxonomy, 
-                         taxonomy_tree, pref_db, no_store=False, verbose=False)
+            twrv = ThreadWithReturnValue(target=stk.autoprocess, args=(XML, directory, taxonomy_file, equivalents_file, extend_taxonomy, 
+                         taxonomy_tree, pref_db, False, True, False))       
+            twrv.start()
+            matrix = twrv.join()
       except stk.NotUniqueError as detail:
             msg = "Failed to auto-process data.\n"+detail.msg
             dialogs.error(self.main_window,msg)
@@ -2815,6 +2872,10 @@ class Diamond:
       f.write(matrix)
       f.close()
 
+      # reattach stdout
+      sys.stdout = sys.__stdout__
+     
+      return
 
   def on_name_trees(self, button):
      """

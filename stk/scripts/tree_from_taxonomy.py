@@ -20,14 +20,14 @@ import argparse
 import copy
 import os
 import sys
-stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir )
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-import supertree_toolkit as stk
+import stk
 import csv
 from ete2 import Tree
 
 taxonomy_levels = ['species','subgenus','genus','subfamily','family','superfamily','subsection','section','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
-tlevels = ['species','genus','subfamily','family','superfamily','infraorder','suborder','order','class','phylum','kingdom']
+tlevels = ['species','genus','family']
 
 
 def main():
@@ -140,8 +140,8 @@ def main():
             nodes[l].append({n:nd})
 
     tree = t.write(format=9)  
-    tree = stk._collapse_nodes(tree) 
-    tree = stk._collapse_nodes(tree) 
+    tree = stk.collapse_nodes(tree) 
+    tree = stk.collapse_nodes(tree) 
     f = open(output_file, "w")
     f.write(tree)
     f.close()

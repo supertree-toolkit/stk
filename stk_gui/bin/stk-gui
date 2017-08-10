@@ -151,7 +151,7 @@ def main():
   if (input_schemafile == None):
       #schemafile is not given so look up actual path  
       for possible_schemafile in [
-            os.path.join(stk_path, "schema/phylo_storage.rng"),
+            os.path.join(stk_path, os.pardir, "schema/phylo_storage.rng"),
             os.path.join(stk_path, "../../../../share/schemata/stk/phylo_storage.rng"),
             "/Applications/STK.app/Contents/share/schemata/stk/phylo_storage.rng",
             os.path.join(os.path.dirname(stk.__file__), os.pardir, "schema/phylo_storage.rng")]:

@@ -1490,7 +1490,7 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
 
 
 def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, extended_taxonomy=True,
-                taxonomy_tree=True, pref_db="eol", no_store=False, verbose=False):
+                taxonomy_tree=True, pref_db="eol", no_store=False, verbose=False, veryverbose=False):
     """ Attempt to process a raw PHYML to a species level Matrix without human intervention.
         param: directory: Output directory where to put intermediate files and the output matrix
         type: string
@@ -1509,6 +1509,8 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
         param: no_store: don't store the the intermediate file. Default False. Not recommended set to True.
         type: boolean
         param: verbose: Turn on verbose output to keep track of what's happening
+        type: boolean
+        param: veryverbose: Turn on extra verbose output to keep track of what's happening
         type: boolean
         returns: matrix: Final matrix in chosen format
         rtype: string
