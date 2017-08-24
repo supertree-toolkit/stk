@@ -640,17 +640,27 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
 
 def get_taxonomy_for_taxon_pbdb(taxon):
 
+    @backoff.on_exception(backoff.fibo,
+                      urllib2.HTTPError,
+                      max_tries=10)
+    def url_open(req):
+        return opener.open(req,timeout=60)
+
     taxonomy = {'species': taxon}
     taxonq = quote_plus(taxon) 
-    URL = "http://paleobiodb.org/data1.1/taxa/single.json?name="+taxonq+"&show=phylo&vocab=pbdb"
+    URL = "http://paleobiodb.org/data1.2/taxa/single.json?name="+taxonq+"&show=phylo&vocab=pbdb"
     req = urllib2.Request(URL)
+    print URL
     opener = urllib2.build_opener()
-    f = opener.open(req)
+    try:
+        f = url_open(req)
+    except urllib2.HTTPError:
+        return taxonomy
     datapbdb = json.load(f)
     if (len(datapbdb['records']) == 0):
         return taxonomy   
     # otherwise, let's fill in info here - only if extinct!
-    if datapbdb['records'][0]['is_extant'] == 0:
+    if datapbdb['records'][0]['is_extant'] == 'extinct':
         taxonomy['provider'] = 'PBDB'
         for level in taxonomy_levels:
             try:
@@ -667,8 +677,8 @@ def get_taxonomy_for_taxon_pbdb(taxon):
         # add the taxon at right level too
         try:
             if datapbdb.has_key('records'):
-                current_level = datapbdb['records'][0]['rank']
-                taxonomy[current_level] = datapbdb['records'][0]['taxon_name']
+                current_level = datapbdb['records'][0]['taxon_rank']
+                taxonomy[current_level] = datapbdb['records'][0]['accepted_name']
         except KeyError as e:
             pass
 

@@ -803,7 +803,7 @@ def main():
     tree = stk.collapse_nodes(tree) 
     tree = stk.collapse_nodes(tree) 
     
-    tree = stk.sub_taxa_in_tree(tree, remove_higher_level)
+    #tree = stk.sub_taxa_in_tree(tree, remove_higher_level)
     trees = {}
     trees['tree_1'] = tree
     output = stk.amalgamate_trees(trees,format='nexus')
