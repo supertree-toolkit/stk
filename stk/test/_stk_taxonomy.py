@@ -239,7 +239,7 @@ class TestSTKTaxonomy(unittest.TestCase):
         if (internet_on()):
             # Let's check an easy one!
             taxon = "Tyrannosaurus rex"
-            expected = {'kingdom': 'Animalia', 'family': 'Tyrannosauridae', 'order': 'Avetheropoda', 'phylum': 'Chordata', 'provider': 'PBDB', 'species': 'Tyrannosaurus rex', 'class': 'Saurischia'}
+            expected = {'genus': 'Tyrannosaurus', 'family': 'Tyrannosauridae', 'order': 'Avetheropoda', 'phylum': 'Chordata', 'provider': 'PBDB', 'species': 'Tyrannosaurus rex', 'class': 'Saurischia'}
             taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
             self.assertEqual(taxonomy, expected)
 
