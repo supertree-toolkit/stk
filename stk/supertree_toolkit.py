@@ -1490,7 +1490,7 @@ def create_subset(XML,search_terms,andSearch=True,includeMultiple=True,ignoreWar
 
 
 def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, extended_taxonomy=True,
-                taxonomy_tree=True, pref_db="eol", no_store=False, verbose=False, veryverbose=False):
+                taxonomy_tree=True, pref_db="eol", no_store=False, verbose=False, veryverbose=False, bfr=None):
     """ Attempt to process a raw PHYML to a species level Matrix without human intervention.
         param: directory: Output directory where to put intermediate files and the output matrix
         type: string
@@ -1516,32 +1516,37 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
         rtype: string
     """
 
+    def log(buf, message):
+        if (buf == None):
+            print message
+        else:
+            buf.insert(buf.get_end_iter(), ''.join(message))
 
     if verbose:
-        print "Loading and checking your data"
+        log(bfr,"Loading and checking your data")
     # 0) load and check data
     try:
         project_name = stk_phyml.get_project_name(phyml)
         phyml = clean_data(phyml)
     except excp.NotUniqueError as detail:
         msg = "***Error: Failed to load data.\n"+detail.msg
-        print msg
+        log(bfr,msg)
         return
     except excp.InvalidSTKData as detail:
         msg = "***Error: Failed to load data.\n"+detail.msg
-        print msg
+        log(bfr, msg)
         return
     except excp.UninformativeTreeError as detail:
         msg = "***Error: Failed to load data.\n"+detail.msg
-        print msg
+        log(bfr, msg)
         return
     except excp.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
-        print msg
+        log(bfr, msg)
         return
     except: 
         msg = "***Error: Failed to load input due to unknown error. File a bug report, please!\nhttps://github.com/supertree-toolkit/stk/issues\n"
-        print msg
+        log(bfr, msg)
         traceback.print_exc()
         return 
 
@@ -1552,7 +1557,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
     
     
     if verbose:
-        print "Checking taxa againt online databases"
+        log(bfr,"Checking taxa against online databases")
     # 1) taxonomy checker with autoreplace
     # Load existing data if any:
     if (not equivalents_file == None):
@@ -1578,7 +1583,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
     
     # now do the replacements - we use the subs file :)
     if verbose:
-        print "Swapping in the corrected taxa names"    
+        log(bfr,"Swapping in the corrected taxa names")   
     try:
         old_taxa, new_taxa = stk_util.load_subs_file(os.path.join(directory,project_name+"_taxonomy_check_subs.dat"))
     except excp.UnableToParseSubsFile as e:
@@ -1616,7 +1621,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
 
     
     if verbose:
-        print "Creating taxonomic information"    
+        log(bfr,"Creating taxonomic information")   
     # 2) create taxonomy
     if (not taxonomy_file == None):
         taxonomy = stk_taxonomy.load_taxonomy(taxonomy_file)
@@ -1631,7 +1636,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
     taxonomy = create_taxonomy(phyml,existing_taxonomy=taxonomy,pref_db=pref_db,verbose=verbose)
     if (extended_taxonomy):
         if verbose:
-            print "Checking other databases to see if we can add more data to taxonomy"
+            log(bfr,"Checking other databases to see if we can add more data to taxonomy")
         taxonomy = stk_taxonomy.create_extended_taxonomy(taxonomy, pref_db=pref_db, verbose=verbose)
     # save the taxonomy for later
     # Now create the CSV output - seperate out into function in STK (used several times)
@@ -1639,7 +1644,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
 
     # 3) create species level dataset
     if verbose:
-        print "Converting data to species level"
+        log(bfr,"Converting data to species level")
     try:
         phyml = generate_species_level_data(phyml,taxonomy,verbose=verbose)
     except excp.NotUniqueError as detail:
@@ -1675,7 +1680,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
 
     # 4) Remove non-monophyletic taxa (requires TNT to be installed)
     if verbose:
-        print "Removing non-monophyletic taxa via mini-supertree method"
+        log(bfr,"Removing non-monophyletic taxa via mini-supertree method")
     tree_list = stk_phyml.find_trees_for_permuting(phyml)
     try:
         for t in tree_list:
@@ -1734,7 +1739,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
 
     # 6) Data independance
     if verbose:
-        print "Checking data independence"
+        log(bfr,"Checking data independence")
     data_ind,subsets,phyml = data_independence(phyml,make_new_xml=True)
     # save phyml
     f = open(os.path.join(directory,project_name+"_data_ind.phyml"), "w")
@@ -1743,7 +1748,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
 
     # 7) Data overlap
     if verbose:
-        print "Checking data overlap"
+        log(bfr,"Checking data overlap")
     sufficient_overlap, key_list = data_overlap(phyml,verbose=verbose)
     # process the key_list to remove the unconnected trees
     if not sufficient_overlap:
@@ -1862,7 +1867,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
 
     # 8) Create matrix
     if verbose:
-        print "Creating matrix"
+        log(bfr,"Creating matrix")
     try:
         matrix = create_matrix(phyml)
     except excp.NotUniqueError as detail:
@@ -1886,7 +1891,7 @@ def autoprocess(phyml, directory, taxonomy_file=None, equivalents_file=None, ext
         print msg
         traceback.print_exc()
         return 
-
+        
     return matrix
 
 
