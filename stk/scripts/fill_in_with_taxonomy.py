@@ -36,7 +36,7 @@ import re
 
 taxonomy_levels = stk.taxonomy_levels
 #tlevels = ['species','genus','family','superfamily','suborder','order','class','phylum','kingdom']
-tlevels = ['species','genus', 'subfamily', 'family','superfamily','infraorder','suborder','order','class','phylum','kingdom']
+tlevels = ['species','genus', 'tribe', 'subfamily', 'family','superfamily','infraorder','suborder','order','class','phylum','kingdom']
 
 def get_tree_taxa_taxonomy_eol(taxon):
 
@@ -774,6 +774,8 @@ def main():
             # add to tree
             for t in taxa_list:
                 if level in tree_taxonomy[t] and tree_taxonomy[t][level] == nt:
+                    if t == "Caenomastax_insignis":
+                        print tree_taxonomy[t][level], nt
                     taxa_in_clade.append(t)
                     if t in generic:
                         # we are appending taxa to this higher taxon, so we need to remove it
@@ -781,6 +783,8 @@ def main():
 
 
             if len(taxa_in_clade) > 0 and len(taxa_to_add) > 0:
+                if "Crypsicerus_cubicus" in taxa_to_add or "Pyrgacris_relictus" in taxa_to_add:
+                    print taxa_to_add, taxa_in_clade, level
                 tree = add_taxa(tree, taxa_to_add, taxa_in_clade,level)
                 try:
                     taxa_list = stk.get_taxa(tree) 
@@ -897,25 +901,21 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
             for tt in tree_taxonomy:
                 try:
                     if tree_taxonomy[tt][l] == n:
-                        try:
-                            parent = tree_taxonomy[tt][levels_to_worry_about[ci+1]]
-                            level = ci+1
-                        except KeyError:
+                        for i in range(1,len(levels_to_worry_about)-ci):
                             try:
-                                parent = tree_taxonomy[tt][levels_to_worry_about[ci+2]]
-                                level = ci+2
+                                parent = tree_taxonomy[tt][levels_to_worry_about[ci+i]]
+                                level = ci+i
+                                break
                             except KeyError:
-                                try:
-                                    parent = tree_taxonomy[tt][levels_to_worry_about[ci+3]]
-                                    level = ci+3
-                                except KeyError:
+                                if (i+ci == len(levels_to_worry_about)-1):
+                                    # end of the road!
                                     print "ERROR: tried to find some taxonomic info for "+tt+" from tree_taxonomy file/downloaded data and I went two levels up, but failed find any. Looked at:\n"
-                                    print "\t"+levels_to_worry_about[ci+1]
-                                    print "\t"+levels_to_worry_about[ci+2]
-                                    print "\t"+levels_to_worry_about[ci+3]
+                                    for lwa in levels_to_worry_about[ci:]:
+                                        print "\t"+lwa
                                     print "This is the taxonomy info I have for "+tt
                                     print tree_taxonomy[tt]
                                     sys.exit(1)
+                                continue
 
                         k = []
                         for nd in nodes[levels_to_worry_about[level]]:
