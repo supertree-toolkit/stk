@@ -384,7 +384,7 @@ def load_taxonomy(taxonomy_csv):
                 current_taxonomy = {}
                 for t in tax_levels:
                     if not row[i] == '-':
-                        current_taxonomy[t] = row[i]
+                        current_taxonomy[t] = row[i].replace(" ","_")
                     i = i+ 1
                 current_taxonomy['provider'] = row[-1] # data source
                 taxonomy[row[0].replace(" ","_")] = current_taxonomy
