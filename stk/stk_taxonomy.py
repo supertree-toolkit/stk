@@ -637,20 +637,36 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
         
     return tree
 
+def get_taxonomy_for_taxon_otl(taxon):
+    """Fetches taxonomic info a single taxon from the OpenTree of Life taxonomy database
+     Return: dictionary of taxonomic levels ready to put in a taxonomy dictionary
+     """
+    @backoff.on_exception(backoff.expo,
+                      urllib2.HTTPError,
+                      max_tries=4)
+    def url_open(req):
+        return opener.open(req)
+
+    
+
+
 
 def get_taxonomy_for_taxon_pbdb(taxon):
+    """Fetches taxonomic info a single taxon from the PBDB database (if extinct only)
+     Return: dictionary of taxonomic levels ready to put in a taxonomy dictionary
+     """
 
     @backoff.on_exception(backoff.fibo,
                       urllib2.HTTPError,
                       max_tries=10)
     def url_open(req):
+        # PBDB is seriously slow....
         return opener.open(req,timeout=60)
 
     taxonomy = {'species': taxon}
     taxonq = quote_plus(taxon) 
     URL = "http://paleobiodb.org/data1.2/taxa/single.json?name="+taxonq+"&show=phylo&vocab=pbdb"
     req = urllib2.Request(URL)
-    print URL
     opener = urllib2.build_opener()
     try:
         f = url_open(req)
@@ -686,7 +702,7 @@ def get_taxonomy_for_taxon_pbdb(taxon):
 
 def get_taxonomy_for_taxon_eol(taxon):
 
-    """Fetches taxonomic infor a single taxon from the EOL database
+    """Fetches taxonomic info a single taxon from the EOL database
      Return: dictionary of taxonomic levels ready to put in a taxonomy dictionary
      """
     @backoff.on_exception(backoff.expo,
