@@ -384,7 +384,7 @@ def load_taxonomy(taxonomy_csv):
                 current_taxonomy = {}
                 for t in tax_levels:
                     if not row[i] == '-':
-                        current_taxonomy[t] = row[i].replace(" ","_")
+                        current_taxonomy[t] = row[i]
                     i = i+ 1
                 current_taxonomy['provider'] = row[-1] # data source
                 taxonomy[row[0].replace(" ","_")] = current_taxonomy
@@ -630,13 +630,13 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
             nodes[l].append({n:nd})
 
     tree = t.write(format=9)  
-    #try:
-    #    tree = stk_trees.collapse_nodes(tree)
-    #    tree = stk_trees.collapse_nodes(tree)
-    #    tree = stk_trees.collapse_nodes(tree)
-    #except excp.TreeParseError:
-    #    print e.msg
-    #    return None
+    try:
+        tree = stk_trees.collapse_nodes(tree)
+        tree = stk_trees.collapse_nodes(tree)
+        tree = stk_trees.collapse_nodes(tree)
+    except excp.TreeParseError:
+        print e.msg
+        return None
 
     return tree
 

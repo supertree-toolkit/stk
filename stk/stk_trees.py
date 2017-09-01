@@ -280,11 +280,15 @@ def trees_equal(t1,t2):
     """ compare two trees using Robinson-Foulds metric
     """
 
+    if not "," in t1:
+        # an empty tree (a single taxon) - compare like strings
+        return t1 == t2
+
     tree_1 = parse_tree(t1)
     tree_2 = parse_tree(t2)
     
     # add the taxanames
-    # Sort, otherwose p4 things the txnames are different
+    # Sort, otherwise p4 thinks the txnames are different
     names = tree_1.getAllLeafNames(tree_1.root)
     names.sort()
     tree_1.taxNames = names
@@ -593,6 +597,14 @@ def collapse_nodes(in_tree):
         taxon, denoted by taxon1, taxon2, etc
     """
 
+    if not "," in in_tree:
+        # strip extraneous ( )
+        in_tree = in_tree.strip('(')
+        in_tree = in_tree.strip(';')
+        in_tree = in_tree.strip(')')
+        in_tree = "("+in_tree+");"
+        return in_tree
+    
     modified_tree = re.sub(r"(?P<taxon>[a-zA-Z0-9_\+\= ]*)%[0-9]+",'\g<taxon>',in_tree)  
     try:
         tree = parse_tree(modified_tree,fixDuplicateTaxa=True)
@@ -622,7 +634,7 @@ def collapse_nodes(in_tree):
     # Remove all the empty nodes we left laying around
     tree.getPreAndPostOrderAboveRoot()
     for n in tree.iterPostOrder():
-        if not n == tree.root and n.getNChildren() == 1 and n.isLeaf == 0:
+        if not n == 0 and n.getNChildren() == 1 and n.isLeaf == 0:
             tree.collapseNode(n)
 
     return tree.writeNewick(fName=None,toString=True).strip()    

@@ -41,9 +41,9 @@ class TestSTKTaxonomy(unittest.TestCase):
 
     def test_create_taxonomy(self):
         XML = etree.tostring(etree.parse('data/input/create_taxonomy.phyml',parser),pretty_print=True)
-        expected = {'Jeletzkytes criptonodosus': {'superfamily': 'Scaphitoidea', 'family': 'Scaphitidae', 'subkingdom': 'Metazoa', 'subclass': 'Ammonoidea', 'species': 'Jeletzkytes criptonodosus', 'phylum': 'Mollusca', 'suborder': 'Ancyloceratina', 'provider': 'paleobiology database', 'genus': 'Jeletzkytes', 'class': 'Cephalopoda'}, 'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'species': 'Thalassarche melanophris', 'genus': 'Thalassarche', 'order': 'Procellariiformes'}, 'Egretta tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'species': 'Egretta tricolor', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 'Archaeopteryx lithographica': {'species': 'Archaeopteryx lithographica', 'genus': 'Archaeopteryx', 'provider': 'paleobiology database'}}
+        expected = {'Jeletzkytes_criptonodosus': {'superfamily': 'Scaphitoidea', 'family': 'Scaphitidae', 'subkingdom': 'Metazoa', 'subclass': 'Ammonoidea', 'species': 'Jeletzkytes criptonodosus', 'phylum': 'Mollusca', 'suborder': 'Ancyloceratina', 'provider': 'paleobiology database', 'genus': 'Jeletzkytes', 'class': 'Cephalopoda'}, 'Thalassarche_melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'species': 'Thalassarche melanophris', 'genus': 'Thalassarche', 'order': 'Procellariiformes'}, 'Egretta_tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'species': 'Egretta tricolor', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 'Archaeopteryx_lithographica': {'species': 'Archaeopteryx lithographica', 'genus': 'Archaeopteryx', 'provider': 'paleobiology database'}}
         if (internet_on()):
-            taxa = ['Archaeopteryx lithographica', 'Jeletzkytes criptonodosus', 'Thalassarche melanophris','Egretta tricolor'] 
+            taxa = ['Archaeopteryx lithographica', 'Jeletzkytes_criptonodosus', 'Thalassarche melanophris','Egretta tricolor'] 
             taxonomy = create_taxonomy_from_taxa(taxa,pref_db='eol',verbose=False,threadNumber=4)
             self.maxDiff = None
             self.assertDictEqual(taxonomy, expected)
@@ -55,7 +55,7 @@ class TestSTKTaxonomy(unittest.TestCase):
 
     def test_create_extended_taxonomy(self):
         XML = etree.tostring(etree.parse('data/input/create_taxonomy.phyml',parser),pretty_print=True)
-        expected = {'Jeletzkytes criptonodosus': {'kingdom': 'Animalia', 'superfamily': 'Scaphitoidea', 'family': 'Scaphitidae', 'subkingdom': 'Metazoa', 'subclass': 'Ammonoidea', 'order': 'Ammonitida', 'phylum': 'Mollusca', 'suborder': 'Ancyloceratina', 'provider': 'paleobiology database', 'species': 'Jeletzkytes criptonodosus', 'genus': 'Jeletzkytes', 'class': 'Cephalopoda'}, 'Egretta tricolor': {'kingdom': 'Animalia', 'genus': 'Egretta', 'family': 'Ardeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'order': 'Pelecaniformes', 'phylum': 'Chordata', 'superclass': 'Tetrapoda', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'subfamily': 'Ardeinae', 'species': 'Egretta tricolor'}, 'Archaeopteryx lithographica': {'kingdom': 'Animalia', 'phylum': 'Chordata', 'provider': 'paleobiology database', 'genus': 'Archaeopteryx', 'species': 'Archaeopteryx lithographica', 'class': 'Aves'}, 'Thalassarche melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'order': 'Procellariiformes', 'phylum': 'Chordata', 'superclass': 'Tetrapoda', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'species': 'Thalassarche melanophris'}}
+        expected = {'Jeletzkytes_criptonodosus': {'superfamily': 'Scaphitoidea', 'family': 'Scaphitidae', 'subkingdom': 'Metazoa', 'subclass': 'Ammonoidea', 'order': 'Ammonitida', 'phylum': 'Mollusca', 'suborder': 'Ancyloceratina', 'provider': 'paleobiology database', 'species': 'Jeletzkytes criptonodosus', 'genus': 'Jeletzkytes', 'class': 'Cephalopoda'}, 'Egretta_tricolor': {'kingdom': 'Animalia', 'genus': 'Egretta', 'family': 'Ardeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'order': 'Pelecaniformes', 'phylum': 'Chordata', 'superclass': 'Tetrapoda', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'subfamily': 'Ardeinae', 'species': 'Egretta tricolor'}, 'Archaeopteryx_lithographica': {'phylum': 'Chordata', 'provider': 'paleobiology database', 'genus': 'Archaeopteryx', 'species': 'Archaeopteryx lithographica', 'class': 'Aves'}, 'Thalassarche_melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'order': 'Procellariiformes', 'phylum': 'Chordata', 'superclass': 'Tetrapoda', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'species': 'Thalassarche melanophris'}}
         if (internet_on()):
             taxa = ['Archaeopteryx lithographica', 'Jeletzkytes criptonodosus', 'Thalassarche melanophris','Egretta tricolor'] 
             taxonomy = create_taxonomy_from_taxa(taxa,pref_db='eol',threadNumber=4)
@@ -157,6 +157,13 @@ class TestSTKTaxonomy(unittest.TestCase):
         csv_file = "data/input/create_taxonomy.csv"
         taxonomy = load_taxonomy(csv_file)
         expected_tree = "(((Egretta_tricolor, Egretta_garzetta), Archaeopteryx_lithographica, Gallus_gallus, Thalassarche_melanophris), Jeletzkytes_criptonodosus);"
+        tree = tree_from_taxonomy('class', taxonomy)
+        self.assert_(trees_equal(tree,expected_tree))
+
+
+    def test_create_tree_taxonomy_single(self):
+        taxonomy = {'Egretta_tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'subkingdom': 'Bilateria', 'provider': 'Species 2000 & ITIS Catalogue of Life: April 2013', 'subclass': 'Neoloricata', 'species': 'Egretta tricolor', 'phylum': 'Chordata', 'suborder': 'Ischnochitonina', 'superphylum': 'Lophozoa', 'infrakingdom': 'Protostomia', 'genus': 'Egretta', 'order': 'Pelecaniformes'}}
+        expected_tree = "(Egretta_tricolor);"
         tree = tree_from_taxonomy('class', taxonomy)
         self.assert_(trees_equal(tree,expected_tree))
 

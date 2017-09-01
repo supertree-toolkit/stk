@@ -216,7 +216,7 @@ class TestTreeManipulation(unittest.TestCase):
         new_tree = sub_taxon("Fred", "Blah",  t)
         self.assert_(trees_equal(new_tree, "((A_1,B_1),F_1,E_1,(G_1,H_1));"))
 
-    def testtrees_equal(self):
+    def test_trees_equal(self):
         test_file = "data/input/multiple_trees.tre"
         trees = import_trees(test_file)
         self.assert_(trees_equal(trees[0],trees[0])==True)
@@ -227,11 +227,16 @@ class TestTreeManipulation(unittest.TestCase):
         trees = import_trees(test_file)
         self.assert_(trees_equal(trees[1],trees[0])==False)
 
-    def testtrees_equal2(self):
+    def test_trees_equal2(self):
         test_file = "data/input/equal_trees.new"
         trees = import_trees(test_file)
         self.assert_(trees_equal(trees[1],trees[0])==True)
         self.assert_(trees_equal(trees[3],trees[2])==False)
+
+    def test_trees_equal_empty(self):
+        in_tree = "(taxon_a);"
+        out_tree = "(taxon_a);"
+        self.assert_(trees_equal(in_tree,out_tree)==True)
 
     def test_collapse_with_quotes(self):
         tree = "(Proteroiulus_fuscus, (Craterostigmus_tasmanianus, ((Scolopendra_viridis,(Lithobius_variegatus, (Paralamyctes_validus, Anopsobius_neozelanicus))),(Sphendononema_guildingii, ((Scutigerina_weberi%1, (Scutigerina_weberi%2,(Scutigerina_malagassa, Scutigerina_hova))), (Scutigera_coleoptrata,((Thereuopoda_longicornis, 'Thereuopodina, sp. nov.', (Thereuonema_tuberculata,Thereuonema_turkestana, Thereuopoda_clunifera)), (Allothereua_bidenticulata,Allothereua_serrulata, Parascutigera_festiva, Parascutigera_latericia))))))));"
@@ -258,6 +263,18 @@ class TestTreeManipulation(unittest.TestCase):
         answer = "(taxa_a, (taxa_b, taxa_c), taxa_d, (taxa_e, taxa_h%1, (taxa_f, (taxa_g, taxa_h%2))));"
         new_tree = collapse_nodes(in_tree);
         self.assert_(trees_equal(new_tree, answer), "Correctly collapse nodes")
+        in_tree = "(taxa_a, taxa_b, (taxa_c, taxa_d));"
+        answer = "(taxa_a, taxa_b, (taxa_c, taxa_d));"
+        new_tree = collapse_nodes(in_tree);
+        self.assert_(trees_equal(new_tree, answer), "Correctly don't collapse nodes")
+        in_tree = "(taxa_a, taxa_b);"
+        answer = "(taxa_a, taxa_b);"
+        new_tree = collapse_nodes(in_tree);
+        self.assert_(trees_equal(new_tree, answer), "Correctly handled the simplest tree")
+        in_tree = "(taxa_a);"
+        answer = "(taxa_a);"
+        new_tree = collapse_nodes(in_tree);
+        self.assert_(trees_equal(new_tree, answer), "Correctly handled a single taxa tree")
 
 
     def test_delete_percent_taxa(self):
