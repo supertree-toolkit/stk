@@ -177,7 +177,7 @@ def main():
         taxonomy[taxon] = {}
 
     # get taxonomy for species in tree we have no data for
-    tree_taxonomy = stk.create_taxonomy_from_taxa(need_taxonomy,taxaonomy=tree_taxonomy, pred_db=pref_db)
+    tree_taxonomy = stk.create_taxonomy_from_taxa(need_taxonomy,taxonomy=tree_taxonomy, pred_db=pref_db)
     if save_taxonomy:
         if (verbose):
             print "Saving tree taxonomy"
@@ -276,7 +276,7 @@ def main():
                     new_taxa.append(taxonomy[t][level])
                 except KeyError:
                     continue # don't have this info
-        new_taxa = _uniquify(new_taxa)
+        new_taxa = stk.uniquify(new_taxa)
 
         for nt in new_taxa:
             taxa_to_add = {}
@@ -333,20 +333,10 @@ def main():
     print "Final taxa count:", len(taxa_list)
  
 
-def _uniquify(l):
-    """
-    Make a list, l, contain only unique data
-    """
-    keys = {}
-    for e in l:
-        keys[e] = 1
-
-    return keys.keys()
-
 def add_taxa(tree, new_taxa, taxa_in_clade, level):
 
     # create new tree of the new taxa
-    additionalTaxa = tree_from_taxonomy(level,new_taxa)
+    additionalTaxa = stk.tree_from_taxonomy(level,new_taxa)
 
     # find mrca parent
     treeobj = stk.parse_tree(tree)
@@ -379,78 +369,6 @@ def add_taxa(tree, new_taxa, taxa_in_clade, level):
     return treeobj.writeNewick(fName=None,toString=True).strip()
 
 
-
-def tree_from_taxonomy(top_level, tree_taxonomy):
-
-    start_level = taxonomy_levels.index(top_level)
-    new_taxa = tree_taxonomy.keys()
-
-    tl_types = []
-    for tt in tree_taxonomy:
-        tl_types.append(tree_taxonomy[tt][top_level])
-
-    tl_types = _uniquify(tl_types)
-    levels_to_worry_about = tlevels[0:tlevels.index(top_level)+1]
-        
-    t = Tree()
-    nodes = {}
-    nodes[top_level] = []
-    for tl in tl_types:
-        n = t.add_child(name=tl)
-        nodes[top_level].append({tl:n})
-
-    for l in levels_to_worry_about[-2::-1]:
-        names = []
-        nodes[l] = []
-        ci = levels_to_worry_about.index(l)
-        for tt in tree_taxonomy:
-            try:
-                names.append(tree_taxonomy[tt][l])
-            except KeyError:
-                pass
-        names = _uniquify(names)
-        for n in names:
-            # find my parent
-            parent = None
-            for tt in tree_taxonomy:
-                try:
-                    if tree_taxonomy[tt][l] == n:
-                        for i in range(1,len(levels_to_worry_about)-ci):
-                            try:
-                                parent = tree_taxonomy[tt][levels_to_worry_about[ci+i]]
-                                level = ci+i
-                                break
-                            except KeyError:
-                                if (i+ci == len(levels_to_worry_about)-1):
-                                    # end of the road!
-                                    print "ERROR: tried to find some taxonomic info for "+tt+" from tree_taxonomy file/downloaded data and I went two levels up, but failed find any. Looked at:\n"
-                                    for lwa in levels_to_worry_about[ci:]:
-                                        print "\t"+lwa
-                                    print "This is the taxonomy info I have for "+tt
-                                    print tree_taxonomy[tt]
-                                    sys.exit(1)
-                                continue
-
-                        k = []
-                        for nd in nodes[levels_to_worry_about[level]]:
-                            k.extend(nd.keys())
-                        i = 0
-                        for kk in k:
-                            if kk == parent:
-                                break
-                            i += 1
-                        parent_id = i
-                        break
-                except KeyError:
-                    pass # no data at this level for this beastie
-            # find out where to attach it
-            node_id = nodes[levels_to_worry_about[level]][parent_id][parent]
-            nd = node_id.add_child(name=n.replace(" ","_"))
-            nodes[l].append({n:nd})
-
-    tree = t.write(format=9)  
-    
-    return tree
 
 if __name__ == "__main__":
     main()
