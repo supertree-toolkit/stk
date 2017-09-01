@@ -1542,6 +1542,7 @@ class Diamond:
     Actually do the STR
     """
     from multiprocessing import Queue, Process
+    from Queue import Empty
     import time
 
     filename_textbox = self.str_gui.get_widget("entry1")
@@ -1585,7 +1586,7 @@ class Diamond:
         try:
             output, can_replace= self.str_q.get(True,0.1)
             waiting=False
-        except Queue.empty:
+        except Empty:
             str_progressbar.pulse()
             time.sleep(0.5)
             while gtk.events_pending():
@@ -2761,7 +2762,11 @@ class Diamond:
       self.process_dialog.hide()
 
   def on_process_button(self, button):
-     
+    
+      from multiprocessing import Queue, Process
+      from Queue import Empty
+      import time
+      
       dir_chooser = self.process_gui.get_widget('filechooserbutton3')
       directory = dir_chooser.get_filename()
       if directory == None:
@@ -2792,60 +2797,15 @@ class Diamond:
     
       # before we kick this off, create a window with a textview and grab the output from the process so users
       # can keep track
-      wnd = gtk.Window()
-      wnd.set_default_size(400, 400)
-      wnd.connect("destroy", gtk.main_quit)
-      textview = gtk.TextView()
+      textview = self.process_gui.get_widget("textview1")
       fontdesc = pango.FontDescription("monospace")
       textview.modify_font(fontdesc)
-      scroll = gtk.ScrolledWindow()
-      scroll.add(textview)
-      exp = gtk.Expander("Processing...")
-      exp.add(scroll)
-      wnd.add(exp)
-      wnd.show_all()
-
       bfr = textview.get_buffer()
 
 
-      class ConsoleOutput:
-        def __init__(self, source):
-            self.source=source
-            self.buf = []
-
-        def update_buffer(self):
-            bfr.insert(bfr.get_end_iter(), ''.join(self.buf))
-            self.buf = []
-
-        def write(self, data):
-            self.buf.append(data)
-            if data.endswith('\n'):
-                gobject.idle_add(self.update_buffer)
-
-        def __del__(self):
-            if self.buf != []:
-                gobject.idle_add(self.update_buffer)
-      
-      class ThreadWithReturnValue(Thread):
-         def __init__(self, group=None, target=None, name=None,
-                 args=(), kwargs={}, Verbose=None):
-            Thread.__init__(self, group, target, name, args, kwargs, Verbose)
-            self._return = None
-         def run(self):
-            if self._Thread__target is not None:
-               self._return = self._Thread__target(*self._Thread__args,
-                                                **self._Thread__kwargs)
-         def join(self):
-            Thread.join(self)
-            return self._return
-
-      sys.stdout = ConsoleOutput(None)
-
       try:
-            twrv = ThreadWithReturnValue(target=stk.autoprocess, args=(XML, directory, taxonomy_file, equivalents_file, extend_taxonomy, 
-                         taxonomy_tree, pref_db, False, True, False))       
-            twrv.start()
-            matrix = twrv.join()
+            matrix = stk.autoprocess(XML, directory, taxonomy_file, equivalents_file, extend_taxonomy, 
+                         taxonomy_tree, pref_db, False, True, False, bfr) 
       except stk.NotUniqueError as detail:
             msg = "Failed to auto-process data.\n"+detail.msg
             dialogs.error(self.main_window,msg)
@@ -2867,7 +2827,7 @@ class Diamond:
             msg += "\n" + traceback.format_exc()
             dialogs.error(self.main_window,msg)
             return 
-          
+      
       f = open(os.path.join(directory,"Matrix.tnt"), "w")
       f.write(matrix)
       f.close()

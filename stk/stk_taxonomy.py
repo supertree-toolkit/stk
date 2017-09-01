@@ -384,7 +384,7 @@ def load_taxonomy(taxonomy_csv):
                 current_taxonomy = {}
                 for t in tax_levels:
                     if not row[i] == '-':
-                        current_taxonomy[t] = row[i]
+                        current_taxonomy[t] = row[i].replace(" ","_")
                     i = i+ 1
                 current_taxonomy['provider'] = row[-1] # data source
                 taxonomy[row[0].replace(" ","_")] = current_taxonomy
@@ -445,7 +445,7 @@ def get_taxonomy(taxonomy, lock, queue, id=0, pref_db='eol', check_fossil=True, 
                 
                 with lock:
                     #Send result to dictionary
-                    taxonomy[taxon] = this_taxonomy
+                    taxonomy[taxon.replace(" ","_")] = this_taxonomy
             else :
                 if verbose:
                     print "Skipping: "+taxon+"\n",
@@ -650,6 +650,9 @@ def get_taxonomy_for_taxon_otl(taxon):
     
 
 
+# these function need to add genus from the taxon name
+# as that's alway available
+# also check it's a species coming in!
 
 def get_taxonomy_for_taxon_pbdb(taxon):
     """Fetches taxonomic info a single taxon from the PBDB database (if extinct only)
@@ -702,7 +705,7 @@ def get_taxonomy_for_taxon_pbdb(taxon):
 
 def get_taxonomy_for_taxon_eol(taxon):
 
-    """Fetches taxonomic info a single taxon from the EOL database
+    """Fetches taxonomic info for a single taxon from the EOL database
      Return: dictionary of taxonomic levels ready to put in a taxonomy dictionary
      """
     @backoff.on_exception(backoff.expo,
@@ -1021,7 +1024,7 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
         return taxonomy
             
 
-    # main bit of the get_taxonomy_worms function
+    # main bit
     URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(start_otu.strip())
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
