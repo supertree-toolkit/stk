@@ -275,6 +275,16 @@ class TestTreeManipulation(unittest.TestCase):
         answer = "(taxa_a);"
         new_tree = collapse_nodes(in_tree);
         self.assert_(trees_equal(new_tree, answer), "Correctly handled a single taxa tree")
+        # this was a bug in fill_in_with_taxonomy
+        # got
+        #         +--------2:Turnagra_capensis
+        #0--------1
+        #         +--------3:Turnagra_tanagra
+        # AssertionError: The specified node must not be the tree root.
+        in_tree = "(((taxa_a, taxa_b)));"
+        answer = "(taxa_a, taxa_b);"
+        new_tree = collapse_nodes(in_tree);
+        self.assert_(trees_equal(new_tree, answer), "Correctly handled a simple tree")
 
 
     def test_delete_percent_taxa(self):

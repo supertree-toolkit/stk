@@ -866,6 +866,13 @@ def get_taxonomy_for_taxon_itis(taxon):
 
 # retuns any fossil taxa too. Can't turn this off.
 def get_taxonomy_eol(taxonomy, start_otu, verbose=False, tmpfile=None, skip=False):
+
+    @backoff.on_exception(backoff.expo,
+                      urllib2.HTTPError,
+                      max_tries=4)
+    def url_open(req):
+        return opener.open(req)
+
         
     # this is the recursive function
     def get_children(taxonomy, ID, aphiaIDsDone):
@@ -874,7 +881,7 @@ def get_taxonomy_eol(taxonomy, start_otu, verbose=False, tmpfile=None, skip=Fals
         URL="http://eol.org/api/hierarchy_entries/1.0/"+str(ID)+".json?common_names=false&synonyms=false&cache_ttl="
         req = urllib2.Request(URL)
         opener = urllib2.build_opener()
-        f = opener.open(req)
+        f = url_open(req)
         string = unicode(f.read(),"ISO-8859-1")
         this_item = json.loads(string)
         if this_item == None:
@@ -928,7 +935,7 @@ def get_taxonomy_eol(taxonomy, start_otu, verbose=False, tmpfile=None, skip=Fals
     URL = "http://eol.org/api/search/1.0.json?q="+taxonq
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
-    f = opener.open(req)
+    f = url_open(req)
     data = json.load(f)
     highest_rank = taxonomy_levels.index('species')
     high_level_start_id = 0000000
@@ -938,7 +945,7 @@ def get_taxonomy_eol(taxonomy, start_otu, verbose=False, tmpfile=None, skip=Fals
         URL = "http://eol.org/api/pages/1.0/"+start_id+".json"
         req = urllib2.Request(URL)
         opener = urllib2.build_opener()
-        f = opener.open(req)
+        f = url_open(req)
         data2 = json.load(f)
         if len(data2['taxonConcepts']) == 0:
             continue
@@ -957,8 +964,12 @@ def get_taxonomy_eol(taxonomy, start_otu, verbose=False, tmpfile=None, skip=Fals
 
 
 def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
-    import simplejson as json
-        
+    @backoff.on_exception(backoff.expo,
+                      urllib2.HTTPError,
+                      max_tries=4)
+    def url_open(req):
+        return opener.open(req)
+
     # this is the recursive function
     def get_children(taxonomy, ID, aphiaIDsDone):
 
@@ -966,7 +977,7 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
         URL="http://www.itis.gov/ITISWebService/jsonservice/getFullRecordFromTSN?tsn="+ID
         req = urllib2.Request(URL)
         opener = urllib2.build_opener()
-        f = opener.open(req)
+        f = url_open(req)
         string = unicode(f.read(),"ISO-8859-1")
         this_item = json.loads(string)
         if this_item == None:
@@ -984,7 +995,7 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
                 URL="http://www.itis.gov/ITISWebService/jsonservice/getFullHierarchyFromTSN?tsn="+tsn
                 req = urllib2.Request(URL)
                 opener = urllib2.build_opener()
-                f = opener.open(req)
+                f = url_open(req)
                 string = unicode(f.read(),"ISO-8859-1")
                 data = json.loads(string)
                 this_taxonomy = {}
@@ -1005,7 +1016,7 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
         URL="http://www.itis.gov/ITISWebService/jsonservice/getHierarchyDownFromTSN?tsn="+ID
         req = urllib2.Request(URL)
         opener = urllib2.build_opener()
-        f = opener.open(req)
+        f = url_open(req)
         string = unicode(f.read(),"ISO-8859-1")
         this_item = json.loads(string)
         if this_item == None:
@@ -1031,7 +1042,7 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
     URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(start_otu.strip())
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
-    f = opener.open(req)
+    f = url_open(req)
     string = unicode(f.read(),"ISO-8859-1")
     this_item = json.loads(string)
     start_id = this_item['scientificNames'][0]['tsn'] # there might be records that aren't valid - they point to the valid one though
@@ -1040,7 +1051,7 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
     URL="http://www.itis.gov/ITISWebService/jsonservice/getAcceptedNamesFromTSN?tsn="+start_id
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
-    f = opener.open(req)
+    f = url_open(req)
     string = unicode(f.read(),"ISO-8859-1")
     this_item = json.loads(string)
     if not this_item['acceptedNames'] == [None]:
@@ -1049,7 +1060,7 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
     URL="http://www.itis.gov/ITISWebService/jsonservice/getFullRecordFromTSN?tsn="+start_id
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
-    f = opener.open(req)
+    f = url_open(req)
     string = unicode(f.read(),"ISO-8859-1")
     this_item = json.loads(string)
     start_taxonomy_level = this_item['taxRank']['rankName'].lower().strip()
