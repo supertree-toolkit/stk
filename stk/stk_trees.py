@@ -622,7 +622,7 @@ def collapse_nodes(in_tree):
     # Remove all the empty nodes we left laying around
     tree.getPreAndPostOrderAboveRoot()
     for n in tree.iterPostOrder():
-        if n.getNChildren() == 1 and n.isLeaf == 0:
+        if not n == tree.root and n.getNChildren() == 1 and n.isLeaf == 0:
             tree.collapseNode(n)
 
     return tree.writeNewick(fName=None,toString=True).strip()    

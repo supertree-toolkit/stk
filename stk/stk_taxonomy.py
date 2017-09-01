@@ -608,7 +608,6 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
                        
                             if jj == len(taxonomy_levels)-ci+1: # we completed the loop and found nothing!
                                 print "ERROR: tried to find some taxonomic info for "+tt+" from tree_taxonomy file/downloaded data."
-                                print "I went a few levels up, but failed find any info."
                                 print "This is the taxonomy info I have for "+tt
                                 print tree_taxonomy[tt]
                                 sys.exit(1)
@@ -631,10 +630,14 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
             nodes[l].append({n:nd})
 
     tree = t.write(format=9)  
-    tree = stk_trees.collapse_nodes(tree)
-    tree = stk_trees.collapse_nodes(tree)
-    tree = stk_trees.collapse_nodes(tree)
-        
+    #try:
+    #    tree = stk_trees.collapse_nodes(tree)
+    #    tree = stk_trees.collapse_nodes(tree)
+    #    tree = stk_trees.collapse_nodes(tree)
+    #except excp.TreeParseError:
+    #    print e.msg
+    #    return None
+
     return tree
 
 def get_taxonomy_for_taxon_otl(taxon):

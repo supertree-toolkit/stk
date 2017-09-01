@@ -177,7 +177,7 @@ def main():
         taxonomy[taxon] = {}
 
     # get taxonomy for species in tree we have no data for
-    tree_taxonomy = stk.create_taxonomy_from_taxa(need_taxonomy,taxonomy=tree_taxonomy, pred_db=pref_db)
+    tree_taxonomy = stk.create_taxonomy_from_taxa(need_taxonomy,taxonomy=tree_taxonomy, pref_db=pref_db)
     if save_taxonomy:
         if (verbose):
             print "Saving tree taxonomy"
@@ -232,6 +232,11 @@ def main():
             os.remove('tmpfile')
         except OSError:
             pass
+    else:
+        # we need to work out the taxonomic level of the strting "taxon", e.g. Aves
+        # need to write a function for this for each database
+        # for now - hack it
+        start_level = 'class'
 
     # clean up taxonomy, deleting the ones already in the tree
     for taxon in taxa_list:
@@ -336,7 +341,12 @@ def main():
 def add_taxa(tree, new_taxa, taxa_in_clade, level):
 
     # create new tree of the new taxa
-    additionalTaxa = stk.tree_from_taxonomy(level,new_taxa)
+    try:
+        additionalTaxa = stk.tree_from_taxonomy(level,new_taxa)
+    except stk.TreeParseError as e:
+        print new_taxa
+        print e.msg
+        return
 
     # find mrca parent
     treeobj = stk.parse_tree(tree)
@@ -353,8 +363,13 @@ def add_taxa(tree, new_taxa, taxa_in_clade, level):
         return t.write(format=9)
     else:
         mrca = treeobj.nodes[mrca]
-        additionalTaxa = stk.parse_tree(additionalTaxa)
-        
+        try:
+            additionalTaxa = stk.parse_tree(additionalTaxa)
+        except stk.TreeParseError as e:
+            print new_taxa
+            print e.msg
+            return
+      
         if len(taxa_in_clade) == 1:
             taxon = treeobj.node(taxa_in_clade[0])
             mrca = treeobj.addNodeBetweenNodes(taxon,mrca)
