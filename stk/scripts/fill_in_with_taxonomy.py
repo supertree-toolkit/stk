@@ -379,7 +379,10 @@ def add_taxa(tree, new_taxa, taxa_in_clade, level):
         # newNode = treeobj.addNodeBetweenNodes(mrca, mrca_parent)
 
         # add the new tree at the new node using p4.addSubTree(self, selfNode, theSubTree, subTreeTaxNames=None)
-        treeobj.addSubTree(mrca, additionalTaxa, ignoreRootAssert=True)
+        if len(list(new_taxa.keys())) == 1:
+            treeobj.addLeaf(mrca, list(new_taxa.keys())[0])
+        else:
+            treeobj.addSubTree(mrca, additionalTaxa, ignoreRootAssert=True)
 
     return treeobj.writeNewick(fName=None,toString=True).strip()
 
