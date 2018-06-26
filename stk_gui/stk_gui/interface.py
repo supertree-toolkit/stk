@@ -2361,7 +2361,7 @@ class Diamond:
         XML = stk.removeNonAscii(XML)
         XML = stk.add_historical_event(XML, "Bibliographic information imported from: "+filename)
         ios = StringIO.StringIO(XML)
-     except BibImportError as detail:
+     except stk.BibImportError as detail:
         dialogs.error(self.main_window,detail.msg+"\n\nWill try skipping bad entries")
         try:
             XML = stk.import_bibliography(XML, filename, skip=True)
@@ -2372,7 +2372,7 @@ class Diamond:
             dialogs.error_tb(self.main_window,"Sorry, completely failed.\n")
             return
      except:
-         dialogs.error_tb(self.main_window,"Error importing bib file. Check you bibtex file.\n")
+         dialogs.error_tb(self.main_window,"Error importing bib file. Check your bibtex file.\n")
          return
      
      try:

@@ -96,7 +96,7 @@ def main():
         tree_data = tree_data.replace(";","")
         taxa = tree_data.split(",")
         for i in range(0,len(taxa)):
-            taxa[i] = taxa[i].strip()
+            taxa[i] = taxa[i].split(":")[0].strip()
     else:
         # grab taxa in dataset - ignore if tree
         fileName, fileExtension = os.path.splitext(input_file)
@@ -134,7 +134,7 @@ def main():
                     sys.exit()
             else:
                taxonomy[row[0].replace(" ","_")] = row[index] # the replace is to make sure we're consistant across PHYML, tree and taxonomy
-
+    print taxonomy
     values = taxonomy.values()
     values = stk.uniquify(values)
     n = len(values)

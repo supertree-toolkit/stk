@@ -148,17 +148,21 @@ def main():
     if verbose:
         print "Taxa in tree, but not in any taxonomy:"
     need_taxonomy = []
+    new_tree_taxonomy = {}
     for t in sorted(taxa_list):
         try:
-            tree_taxonomy[t]
+            new_tree_taxonomy[t] = tree_taxonomy[t]
         except KeyError:
             need_taxonomy.append(t)
             if verbose:
                 print "\t",t
 
     print "\tThat's",len(need_taxonomy),"missing"
+    # discard taxonomy info for taxa not in the tree
+    tree_taxonomy = new_tree_taxonomy
 
     count = 0
+    already_in_tree = []
     if verbose:
         print "\nTaxa in taxonomy but not in tree (i.e. will be added):"
     for t in sorted(taxonomy.keys()):
@@ -166,7 +170,13 @@ def main():
             if verbose:
                 print "\t",t
             count += 1
+        else:
+            already_in_tree.append(t)
     print "\tThat's",count,"to be added to tree. You should therefore have a total of:", count+len(taxa_list),"in your output tree"
+
+    print "The following were already in your tree (total: "+str(len(already_in_tree))+"):"
+    for t in sorted(already_in_tree):
+        print "\t",t
 
     # we're going to add the taxa in the tree to the main taxonomy, to stop them
     # being fetched in first place. We delete them later
@@ -236,6 +246,7 @@ def main():
         # we need to work out the taxonomic level of the strting "taxon", e.g. Aves
         # need to write a function for this for each database
         # for now - hack it
+        #FIXME
         start_level = 'class'
 
     # clean up taxonomy, deleting the ones already in the tree
@@ -304,6 +315,9 @@ def main():
 
 
             if len(taxa_in_clade) > 0 and len(taxa_to_add) > 0:
+                if "Neoxabea_bipunctata" in taxa_to_add:
+                    print level
+
                 tree = add_taxa(tree, taxa_to_add, taxa_in_clade,level)
                 try:
                     taxa_list = stk.get_taxa(tree) 
