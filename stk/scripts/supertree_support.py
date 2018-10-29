@@ -11,9 +11,8 @@ stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir 
 sys.path.insert(0, stk_path)
 stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
-import stk.supertree_toolkit as stk
+import stk
 from stk.p4.SuperTreeSupport import SuperTreeSupport
-from stk.stk_exceptions import *
 
 def main():
 
@@ -88,9 +87,8 @@ def main():
     taxa = stk.get_all_taxa(XML)
 
     # load supertree
-    supertree_data = stk.import_tree(input_supertree)
-    supertree = stk._parse_tree(supertree_data) 
-    terminals = supertree.getAllLeafNames(supertree.root)   
+    supertree = stk.import_tree(input_supertree)
+    terminals = stk.get_taxa(supertree)   
 
     if (not len(taxa) == len(terminals)):
         # this happens if the supertree has been pruned to remove dodgy taxa
@@ -115,10 +113,10 @@ def main():
             return 
 
     # get all trees from phyml
-    input_trees = stk.obtain_trees(XML)
+    input_trees = stk.get_all_trees(XML)
     source_trees = []
     for t in input_trees:
-        source_trees.append(stk._parse_tree(input_trees[t]))
+        source_trees.append(stk.parse_tree(input_trees[t]))
     sts = SuperTreeSupport(input_supertree, source_trees)
 
     sts.doSaveDecoratedTree = True
