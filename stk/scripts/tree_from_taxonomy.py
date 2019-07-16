@@ -27,7 +27,7 @@ import csv
 from ete2 import Tree
 
 taxonomy_levels = ['species','subgenus','genus','subfamily','family','superfamily','subsection','section','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
-tlevels = ['species','genus','family']
+tlevels = ['species','family','infraorder','order']
 
 
 def main():
@@ -69,6 +69,7 @@ def main():
     top_level = args.top_level[0]
 
     tree_taxonomy = stk.load_taxonomy(input_file)
+    print tree_taxonomy
     new_taxa = tree_taxonomy.keys()
 
     tl_types = []
@@ -89,6 +90,7 @@ def main():
     for l in levels_to_worry_about[-2::-1]:
         names = []
         nodes[l] = []
+        print l
         ci = levels_to_worry_about.index(l)
         for tt in tree_taxonomy:
             try:
@@ -140,8 +142,8 @@ def main():
             nodes[l].append({n:nd})
 
     tree = t.write(format=9)  
-    tree = stk.collapse_nodes(tree) 
-    tree = stk.collapse_nodes(tree) 
+    #tree = stk.collapse_nodes(tree) 
+    #tree = stk.collapse_nodes(tree) 
     f = open(output_file, "w")
     f.write(tree)
     f.close()

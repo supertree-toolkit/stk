@@ -35,6 +35,7 @@ import tempfile
 import re
 
 taxonomy_levels = stk.taxonomy_levels
+taxonomy_levels.insert(0,"subspecies")
 tlevels = taxonomy_levels
 
 def main():
@@ -160,6 +161,7 @@ def main():
     print "\tThat's",len(need_taxonomy),"missing"
     # discard taxonomy info for taxa not in the tree
     tree_taxonomy = new_tree_taxonomy
+    print taxonomy
 
     count = 0
     already_in_tree = []
@@ -247,7 +249,7 @@ def main():
         # need to write a function for this for each database
         # for now - hack it
         #FIXME
-        start_level = 'class'
+        start_level = 'family'
 
     # clean up taxonomy, deleting the ones already in the tree
     for taxon in taxa_list:
