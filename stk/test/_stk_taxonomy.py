@@ -38,111 +38,88 @@ parser = etree.XMLParser(remove_blank_text=True)
 
 class TestSTKTaxonomy(unittest.TestCase):
 
-
+    @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_create_taxonomy(self):
         XML = etree.tostring(etree.parse('data/input/create_taxonomy.phyml',parser),pretty_print=True)
         expected = {'Jeletzkytes_criptonodosus': {'superfamily': 'Scaphitoidea', 'family': 'Scaphitidae', 'subkingdom': 'Metazoa', 'subclass': 'Ammonoidea', 'species': 'Jeletzkytes criptonodosus', 'phylum': 'Mollusca', 'suborder': 'Ancyloceratina', 'provider': 'paleobiology database', 'genus': 'Jeletzkytes', 'class': 'Cephalopoda'}, 'Thalassarche_melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'species': 'Thalassarche melanophris', 'genus': 'Thalassarche', 'order': 'Procellariiformes'}, 'Egretta_tricolor': {'kingdom': 'Animalia', 'family': 'Ardeidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'species': 'Egretta tricolor', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 'Archaeopteryx_lithographica': {'species': 'Archaeopteryx lithographica', 'genus': 'Archaeopteryx', 'provider': 'paleobiology database'}}
-        if (internet_on()):
-            taxa = ['Archaeopteryx lithographica', 'Jeletzkytes_criptonodosus', 'Thalassarche melanophris','Egretta tricolor'] 
-            taxonomy = create_taxonomy_from_taxa(taxa,pref_db='eol',verbose=False,threadNumber=4)
-            self.maxDiff = None
-            self.assertDictEqual(taxonomy, expected)
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the create_taxonomy_from_taxa function"
-        return
+        taxa = ['Archaeopteryx lithographica', 'Jeletzkytes_criptonodosus', 'Thalassarche melanophris','Egretta tricolor'] 
+        taxonomy = create_taxonomy_from_taxa(taxa,pref_db='eol',verbose=False,threadNumber=4)
+        self.maxDiff = None
+        self.assertDictEqual(taxonomy, expected)
 
 
-
+    @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_create_extended_taxonomy(self):
         XML = etree.tostring(etree.parse('data/input/create_taxonomy.phyml',parser),pretty_print=True)
         expected = {'Jeletzkytes_criptonodosus': {'superfamily': 'Scaphitoidea', 'family': 'Scaphitidae', 'subkingdom': 'Metazoa', 'subclass': 'Ammonoidea', 'order': 'Ammonitida', 'phylum': 'Mollusca', 'suborder': 'Ancyloceratina', 'provider': 'paleobiology database', 'species': 'Jeletzkytes criptonodosus', 'genus': 'Jeletzkytes', 'class': 'Cephalopoda'}, 'Egretta_tricolor': {'kingdom': 'Animalia', 'genus': 'Egretta', 'family': 'Ardeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'order': 'Pelecaniformes', 'phylum': 'Chordata', 'superclass': 'Tetrapoda', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'subfamily': 'Ardeinae', 'species': 'Egretta tricolor'}, 'Archaeopteryx_lithographica': {'phylum': 'Chordata', 'provider': 'paleobiology database', 'genus': 'Archaeopteryx', 'species': 'Archaeopteryx lithographica', 'class': 'Aves'}, 'Thalassarche_melanophris': {'kingdom': 'Animalia', 'family': 'Diomedeidae', 'subkingdom': 'Bilateria', 'class': 'Aves', 'order': 'Procellariiformes', 'phylum': 'Chordata', 'superclass': 'Tetrapoda', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'genus': 'Thalassarche', 'species': 'Thalassarche melanophris'}}
-        if (internet_on()):
-            taxa = ['Archaeopteryx lithographica', 'Jeletzkytes criptonodosus', 'Thalassarche melanophris','Egretta tricolor'] 
-            taxonomy = create_taxonomy_from_taxa(taxa,pref_db='eol',threadNumber=4)
-            taxonomy = create_extended_taxonomy(taxonomy,pref_db='eol',threadNumber=4)
-            self.maxDiff = None
-            self.assertDictEqual(taxonomy, expected)
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the create_taxonomy_from_taxa function"
-        return
-    
-    def test_taxonomy_checker(self):
-        expected = {'Thalassarche_melanophrys': (['Thalassarche_melanophris', 'Thalassarche_melanophrys', 'Diomedea_melanophris', 'Thalassarche_[melanophrys', 'Diomedea_melanophrys'], 'amber'), 'Egretta_tricolor': (['Egretta_tricolor'], 'green'), 'Gallus_gallus': (['Gallus_gallus'], 'green')}
-        taxa_list = ['Thalassarche_melanophrys', 'Egretta_tricolor', 'Gallus_gallus']
-        if (internet_on()):
-            equivs = taxonomic_checker_list(taxa_list)
-            self.maxDiff = None
-            self.assertDictEqual(equivs, expected)
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
-        return
+        taxa = ['Archaeopteryx lithographica', 'Jeletzkytes criptonodosus', 'Thalassarche melanophris','Egretta tricolor'] 
+        taxonomy = create_taxonomy_from_taxa(taxa,pref_db='eol',threadNumber=4)
+        taxonomy = create_extended_taxonomy(taxonomy,pref_db='eol',threadNumber=4)
+        self.maxDiff = None
+        self.assertDictEqual(taxonomy, expected)
 
+    
+    @unittest.skipUnless(internet_on(), "requires internet connection")    
+    def test_taxonomy_checker(self):
+        expected = {'Thalassarche_melanophrys': (['Thalassarche_melanophris'], 'yellow'), 'Egretta_tricolor': (['Egretta_tricolor'], 'green'), 'Gallus_gallus': (['Gallus_gallus'], 'green')}
+        taxa_list = ['Thalassarche_melanophrys', 'Egretta_tricolor', 'Gallus_gallus']
+        equivs = taxonomic_checker_list(taxa_list)
+        print equivs
+        self.maxDiff = None
+        self.assertDictEqual(equivs, expected)
+
+    @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_taxonomy_checker2(self):
         XML = etree.tostring(etree.parse('data/input/check_taxonomy_fixes.phyml',parser),pretty_print=True)
-        if (internet_on()):
-            # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
-            taxa_list = stk_phyml.get_all_taxa(XML)
-            equivs = taxonomic_checker_list(taxa_list)
-            self.maxDiff = None
-            self.assert_(equivs['Agathamera_crassa'][0][0] == 'Agathemera_crassa')
-            self.assert_(equivs['Celatoblatta_brunni'][0][0] == 'Maoriblatta_brunni')
-            self.assert_(equivs['Blatta_lateralis'][1] == 'amber')
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomic_checker_list function"
-        return
+        # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
+        taxa_list = stk_phyml.get_all_taxa(XML)
+        equivs = taxonomic_checker_list(taxa_list)
+        self.maxDiff = None
+        self.assert_(equivs['Agathamera_crassa'][0][0] == 'Agathemera_crassa')
+        self.assert_(equivs['Celatoblatta_brunni'][0][0] == 'Maoriblatta_brunni')
+        self.assert_(equivs['Blatta_lateralis'][1] == 'amber')
 
+
+    @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_taxonomy_check_worms(self):
-        if (internet_on()):
-            # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
-            taxa_list = ['Rhineodon_typus', 'Rhincodon_typus','Rhin_typussfgsfg','whale shark'] #whale shark + random
-            equivs = taxonomic_checker_list(taxa_list, pref_db='worms')
-            self.maxDiff = None
-            self.assert_(equivs['Rhineodon_typus'][0][0] == 'Rhincodon_typus')
-            self.assert_(equivs['Rhincodon_typus'][0][0] == 'Rhincodon_typus')
-            self.assert_(equivs['Rhineodon_typus'][1] == 'yellow')
-            self.assert_(equivs['Rhincodon_typus'][1] == 'green')
-            self.assert_(equivs['Rhin_typussfgsfg'][1] == 'red')
-            self.assert_(equivs['whale shark'][0][0] == 'Rhincodon_typus')
-            self.assert_(equivs['whale shark'][1] == 'amber') # wor,s returns 2 results, both whale shark, but this makes it amber
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomic_checker_list function"
-        return
+        # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
+        taxa_list = ['Rhineodon_typus', 'Rhincodon_typus','Rhin_typussfgsfg','whale shark'] #whale shark + random
+        equivs = taxonomic_checker_list(taxa_list, pref_db='worms')
+        self.maxDiff = None
+        self.assert_(equivs['Rhineodon_typus'][0][0] == 'Rhincodon_typus')
+        self.assert_(equivs['Rhincodon_typus'][0][0] == 'Rhincodon_typus')
+        self.assert_(equivs['Rhineodon_typus'][1] == 'yellow')
+        self.assert_(equivs['Rhincodon_typus'][1] == 'green')
+        self.assert_(equivs['Rhin_typussfgsfg'][1] == 'red')
+        self.assert_(equivs['whale shark'][0][0] == 'Rhincodon_typus')
+        self.assert_(equivs['whale shark'][1] == 'amber') # wor,s returns 2 results, both whale shark, but this makes it amber
 
 
+    @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_taxonomy_checker_common_name(self):
-        if (internet_on()):
-            # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
-            taxa_list = ['Cardueline_Finches']
-            equivs = taxonomic_checker_list(taxa_list)
-            self.maxDiff = None
-            self.assert_(equivs['Cardueline_Finches'][0][0] == 'Carduelinae')
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
-        return
+        # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
+        taxa_list = ['Cardueline_Finches']
+        equivs = taxonomic_checker_list(taxa_list)
+        self.maxDiff = None
+        self.assert_(equivs['Cardueline_Finches'][0][0] == 'Carduelinae')
 
+
+    @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_taxonomy_checker_common_name2(self):
-        if (internet_on()):
-            # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
-            taxa_list = ['Chaffinches']
-            equivs = taxonomic_checker_list(taxa_list)
-            self.maxDiff = None
-            self.assert_(equivs['Chaffinches'][0][0] == 'Fringilla')
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
-        return
+        # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
+        taxa_list = ['Chaffinches']
+        equivs = taxonomic_checker_list(taxa_list)
+        self.maxDiff = None
+        self.assert_(equivs['Chaffinches'][0][0] == 'Fringilla')
 
 
+    @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_taxonomy_checker_subgenus(self):
-        if (internet_on()):
-            # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
-            taxa_list = ['Bombus_affinis']
-            equivs = taxonomic_checker_list(taxa_list)
-            self.maxDiff = None
-            self.assert_(equivs['Bombus_affinis'][0][0] == 'Bombus_affinis')
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
-        return
-
+        # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
+        taxa_list = ['Bombus_affinis']
+        equivs = taxonomic_checker_list(taxa_list)
+        self.maxDiff = None
+        self.assert_(equivs['Bombus_affinis'][0][0] == 'Bombus_affinis')
 
 
     def test_load_taxonomy(self):
@@ -167,88 +144,73 @@ class TestSTKTaxonomy(unittest.TestCase):
         tree = tree_from_taxonomy('class', taxonomy)
         self.assert_(trees_equal(tree,expected_tree))
 
-
+    @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_get_taxonomy_for_taxon_eol(self):
-
-        if (internet_on()):
-            # Let's check an easy one!
-            taxon = "Gallus gallus"
-            expected = {'kingdom': 'Animalia', 'family': 'Phasianidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'species': 'Gallus gallus', 'genus': 'Gallus', 'order': 'Galliformes'}
-            taxonomy = get_taxonomy_for_taxon_eol(taxon)
-            self.assert_(taxonomy['family'], expected['family'])
-            self.assert_(taxonomy['class'], expected['class'])
-            self.assert_(taxonomy['genus'], expected['genus'])
+        # Let's check an easy one!
+        taxon = "Gallus gallus"
+        expected = {'kingdom': 'Animalia', 'family': 'Phasianidae', 'class': 'Aves', 'phylum': 'Chordata', 'provider': 'species 2000 & itis catalogue of life: april 2013', 'species': 'Gallus gallus', 'genus': 'Gallus', 'order': 'Galliformes'}
+        taxonomy = get_taxonomy_for_taxon_eol(taxon)
+        self.assert_(taxonomy['family'], expected['family'])
+        self.assert_(taxonomy['class'], expected['class'])
+        self.assert_(taxonomy['genus'], expected['genus'])
 
 
-            # Now a subspecies
-            taxon = "Gallus gallus bankiva"
-            taxonomy = get_taxonomy_for_taxon_eol(taxon)
-            self.assert_(taxonomy['family'], expected['family'])
-            self.assert_(taxonomy['class'], expected['class'])
-            self.assert_(taxonomy['genus'], expected['genus'])
+        # Now a subspecies
+        taxon = "Gallus gallus bankiva"
+        taxonomy = get_taxonomy_for_taxon_eol(taxon)
+        self.assert_(taxonomy['family'], expected['family'])
+        self.assert_(taxonomy['class'], expected['class'])
+        self.assert_(taxonomy['genus'], expected['genus'])
 
-            # Now a null value
-            taxon = "No chance!"
-            expected = {'species': 'No chance!'}
-            taxonomy = get_taxonomy_for_taxon_eol(taxon)
-            self.assertEqual(taxonomy, expected)
+        # Now a null value
+        taxon = "No chance!"
+        expected = {'species': 'No chance!'}
+        taxonomy = get_taxonomy_for_taxon_eol(taxon)
+        self.assertEqual(taxonomy, expected)
 
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_for_taxon_eol function"
-        return
 
+    @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_get_taxonomy_for_taxon_itis(self):
+        # Let's check an easy one!
+        taxon = "Gallus gallus"
+        expected = {'kingdom': 'Animalia', 'genus': 'Gallus', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'order': 'Galliformes', 'phylum': 'Chordata', 'superclass': 'Tetrapoda', 'species': 'Gallus gallus', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'subfamily': 'Phasianinae', 'class': 'Aves', 'provider': 'ITIS'}
+        taxonomy = get_taxonomy_for_taxon_itis(taxon)
+        self.assertEqual(taxonomy, expected)
 
-        if (internet_on()):
-            # Let's check an easy one!
-            taxon = "Gallus gallus"
-            expected = {'kingdom': 'Animalia', 'genus': 'Gallus', 'family': 'Phasianidae', 'subkingdom': 'Bilateria', 'order': 'Galliformes', 'phylum': 'Chordata', 'superclass': 'Tetrapoda', 'species': 'Gallus gallus', 'infrakingdom': 'Deuterostomia', 'subphylum': 'Vertebrata', 'subfamily': 'Phasianinae', 'class': 'Aves', 'provider': 'ITIS'}
-            taxonomy = get_taxonomy_for_taxon_itis(taxon)
-            self.assertEqual(taxonomy, expected)
+        # Now a subspecies
+        taxon = "Gallus gallus bankiva"
+        taxonomy = get_taxonomy_for_taxon_itis(taxon)
+        self.assertEqual(taxonomy, expected)
 
-            # Now a subspecies
-            taxon = "Gallus gallus bankiva"
-            taxonomy = get_taxonomy_for_taxon_itis(taxon)
-            self.assertEqual(taxonomy, expected)
-
-            # Now a null value
-            taxon = "No chance!"
-            expected = {'species': 'No chance!'}
-            taxonomy = get_taxonomy_for_taxon_itis(taxon)
-            self.assertEqual(taxonomy, expected)
-
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_for_taxon_itis function"
-        return
+        # Now a null value
+        taxon = "No chance!"
+        expected = {'species': 'No chance!'}
+        taxonomy = get_taxonomy_for_taxon_itis(taxon)
+        self.assertEqual(taxonomy, expected)
 
 
 
+    @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_get_taxonomy_for_taxon_worms(self):
-        if (internet_on()):
-            # Let's check an easy one!
-            taxon = "Delphinus delphis"
-            expected = {'kingdom': 'Animalia', 'superfamily': 'Odontoceti', 'family': 'Delphinidae', 'infraorder': 'Cetacea', 'subclass': 'Theria', 'order': 'Cetartiodactyla', 'phylum': 'Chordata', 'superclass': 'Tetrapoda', 'suborder': 'Cetancodonta', 'provider': 'WoRMS', 'species': 'Delphinus delphis', 'subphylum': 'Vertebrata', 'genus': 'Delphinus', 'class': 'Mammalia'}
-            taxonomy = get_taxonomy_for_taxon_worms(taxon)
-            self.assertEqual(taxonomy, expected)
+        # Let's check an easy one!
+        taxon = "Delphinus delphis"
+        expected = {'kingdom': 'Animalia', 'superfamily': 'Odontoceti', 'family': 'Delphinidae', 'infraorder': 'Cetacea', 'subclass': 'Theria', 'order': 'Cetartiodactyla', 'phylum': 'Chordata', 'superclass': 'Tetrapoda', 'suborder': 'Cetancodonta', 'provider': 'WoRMS', 'species': 'Delphinus delphis', 'subphylum': 'Vertebrata', 'genus': 'Delphinus', 'class': 'Mammalia'}
+        taxonomy = get_taxonomy_for_taxon_worms(taxon)
+        self.assertEqual(taxonomy, expected)
 
-            # Now a subspecies
-            taxon = "Delphinus delphis delphis"
-            taxonomy = get_taxonomy_for_taxon_worms(taxon)
-            self.assertEqual(taxonomy, expected)
+        # Now a subspecies
+        taxon = "Delphinus delphis delphis"
+        taxonomy = get_taxonomy_for_taxon_worms(taxon)
+        self.assertEqual(taxonomy, expected)
 
-            # Now a null value
-            taxon = "No chance!"
-            expected = {'species': 'No chance!'}
-            taxonomy = get_taxonomy_for_taxon_worms(taxon)
-            self.assertEqual(taxonomy, expected)
+        # Now a null value
+        taxon = "No chance!"
+        expected = {'species': 'No chance!'}
+        taxonomy = get_taxonomy_for_taxon_worms(taxon)
+        self.assertEqual(taxonomy, expected)
 
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_for_taxon_worms function"
-        return
-
-
+    @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_get_taxonomy_for_taxon_pbdb(self):
-        if (internet_on()):
             # Let's check an easy one!
             taxon = "Tyrannosaurus rex"
             expected = {'genus': 'Tyrannosaurus', 'family': 'Tyrannosauridae', 'order': 'Avetheropoda', 'phylum': 'Chordata', 'provider': 'PBDB', 'species': 'Tyrannosaurus rex', 'class': 'Saurischia'}
@@ -261,47 +223,30 @@ class TestSTKTaxonomy(unittest.TestCase):
             taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
             self.assertEqual(taxonomy, expected)
 
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_for_taxon_pbdb function"
-        return
-
-
+    @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_get_taxonomy_eol(self):
-        if (internet_on()):
-            taxonomy, start_level = get_taxonomy_eol({},'Balaenopteridae', verbose=False)
-            print taxonomy
-            taxa = taxonomy.keys()
-            self.assertEqual(start_level, 'family')
-            self.assert_('Balaenoptera bonaerensis' in taxa)
-            self.assert_('Balaenoptera musculus' in taxa)
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_eol function"
-        return
+        taxonomy, start_level = get_taxonomy_eol({},'Balaenopteridae', verbose=False)
+        taxa = taxonomy.keys()
+        self.assertEqual(start_level, 'family')
+        self.assert_('Balaenoptera bonaerensis' in taxa)
+        self.assert_('Balaenoptera musculus' in taxa)
 
-
+    @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_get_taxonomy_worms(self):
-        if (internet_on()):
-            taxonomy, start_level = get_taxonomy_worms({},'Balaenopteridae', verbose=False)
-            taxa = taxonomy.keys()
-            self.assertEqual(start_level, 'family')
-            self.assert_('Balaenoptera bonaerensis' in taxa)
-            self.assert_('Balaenoptera musculus' in taxa)
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_worms function"
-        return
-
-
+        taxonomy, start_level = get_taxonomy_worms({},'Balaenopteridae', verbose=False)
+        taxa = taxonomy.keys()
+        self.assertEqual(start_level, 'family')
+        self.assert_('Balaenoptera bonaerensis' in taxa)
+        self.assert_('Balaenoptera musculus' in taxa)
+    
+    
+    @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_get_taxonomy_itis(self):
-        if (internet_on()): 
-            taxonomy, start_level = get_taxonomy_itis({},'Balaenopteridae', verbose=False)
-            taxa = taxonomy.keys()
-            self.assertEqual(start_level, 'family')
-            self.assert_('Balaenoptera bonaerensis' in taxa)
-            self.assert_('Balaenoptera musculus' in taxa)
-        else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the get_taxonomy_itis function"
-        return
-
+        taxonomy, start_level = get_taxonomy_itis({},'Balaenopteridae', verbose=False)
+        taxa = taxonomy.keys()
+        self.assertEqual(start_level, 'family')
+        self.assert_('Balaenoptera bonaerensis' in taxa)
+        self.assert_('Balaenoptera musculus' in taxa)
 
 if __name__ == '__main__':
     unittest.main()
