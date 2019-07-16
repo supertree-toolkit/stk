@@ -50,6 +50,8 @@ from fuzzywuzzy import process
 import backoff
 import re
 
+tag_re = re.compile(r'(<!--.*?-->|<[^>]*>)')
+
 taxonomy_levels = ['species','subgenus','genus','tribe','subfamily','family','superfamily','subsection','section','parvorder','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
 def taxonomic_checker_list(name_list,existing_data=None,pref_db="eol",verbose=False):
@@ -230,7 +232,6 @@ def _check_taxa_eol(taxon,verbose=False):
                 break
     else:
         correct_name = temp_name[0] 
-
     correct_name = correct_name.replace(' ','_')
 
     # build up the output dictionary - original name is key, synonyms/missing is value
@@ -384,7 +385,7 @@ def load_taxonomy(taxonomy_csv):
                 current_taxonomy = {}
                 for t in tax_levels:
                     if not row[i] == '-':
-                        current_taxonomy[t] = row[i]
+                        current_taxonomy[t] = row[i].replace(" ","_")
                     i = i+ 1
                 current_taxonomy['provider'] = row[-1] # data source
                 taxonomy[row[0].replace(" ","_")] = current_taxonomy
@@ -416,26 +417,31 @@ def get_taxonomy(taxonomy, lock, queue, id=0, pref_db='eol', check_fossil=True, 
         """
 
         while True :
-            #get taxon from queue
+            # get taxon from queue
             taxon = queue.get()
-            #Lock access to the taxonomy
+            # Lock access to the taxonomy
             lock.acquire()
             if not taxon.replace(" ","_") in taxonomy: # is a new taxon, not previously in the taxonomy
-                #Release access to the taxonomy
+                # Release access to the taxonomy
                 lock.release()
                 if (verbose):
                     print "Looking up "+taxon+"\n",
-                if pref_db == 'eol':
-                    this_taxonomy = get_taxonomy_for_taxon_eol(taxon)
-                elif pref_db == 'worms':
-                    this_taxonomy = get_taxonomy_for_taxon_worms(taxon)
-                elif pref_db == 'itis':
-                    this_taxonomy = get_taxonomy_for_taxon_itis(taxon)
-                elif pref_db == 'pbdb':
-                    this_taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
-                else:
-                    # raise something
-                    continue
+                try:
+                    if pref_db == 'eol':
+                        this_taxonomy = get_taxonomy_for_taxon_eol(taxon)
+                    elif pref_db == 'worms':
+                        this_taxonomy = get_taxonomy_for_taxon_worms(taxon)
+                    elif pref_db == 'itis':
+                        this_taxonomy = get_taxonomy_for_taxon_itis(taxon)
+                    elif pref_db == 'pbdb':
+                        this_taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
+                    else:
+                        # raise something?
+                        queue.task_done()
+                        break
+                except:
+                    queue.task_done()
+                    break
                 if (check_fossil and this_taxonomy == {} and pref_db != 'pbdb'):
                     this_taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
 
@@ -449,10 +455,10 @@ def get_taxonomy(taxonomy, lock, queue, id=0, pref_db='eol', check_fossil=True, 
             else :
                 if verbose:
                     print "Skipping: "+taxon+"\n",
-                #Nothing to do release the lock on taxonomy
+                # Nothing to do release the lock on taxonomy
                 lock.release()
             
-            #Mark task as done
+            # Mark task as done
             queue.task_done()
 
 
@@ -480,20 +486,20 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, check_fossil=Fa
     lock = threading.Lock()
     queue = Queue.Queue()
 
-    #Starting a few threads as daemons checking the queue
+    # Starting a few threads as daemons checking the queue
     for i in range(threadNumber) :
         t = threading.Thread(target=get_taxonomy, args=(taxonomy, lock, queue, i, pref_db, check_fossil, verbose, ignoreWarnings))
         t.setDaemon(True)
         t.start()
     
-    #Popoluate the queue with the taxa.
+    # Populate the queue with the taxa.
     for taxon in taxa :
         #if t contains % strip off after that
         taxon = taxon.split('%')[0]
         taxon = taxon.replace("_"," ")
         queue.put(taxon)
     
-    #Wait till everyone finishes
+    # Wait till everyone finishes
     queue.join()
 
     return taxonomy
@@ -731,7 +737,9 @@ def get_taxonomy_for_taxon_eol(taxon):
     
     if data['results'] == []:
         return taxonomy
-    ID = str(data['results'][0]['id']) # take first hit
+    # take first hit - TODO: add more finese here
+    ID = str(data['results'][0]['id'])
+    
     # Now look for taxonomies
     URL = "http://eol.org/api/pages/1.0/"+ID+".json"
     req = urllib2.Request(URL)
@@ -741,16 +749,22 @@ def get_taxonomy_for_taxon_eol(taxon):
     except urllib2.HTTPError:
         return taxonomy
     data = json.load(f)
-    if len(data['taxonConcepts']) == 0:
+    if len(data['taxonConcept']['taxonConcepts']) == 0:
         return taxonomy
-    TID = str(data['taxonConcepts'][0]['identifier']) # take first hit
-    # Note EOL can have other databases as sources, so we use that as the provider
-    currentdb = str(data['taxonConcepts'][0]['nameAccordingTo'])
+    # some sources are basically rubbish, so try using EOL's data first
+    TID = None
+    for i in range(0,len(data['taxonConcept']['taxonConcepts'])):
+        if "EOL" in data['taxonConcept']['taxonConcepts'][i]['nameAccordingTo']:
+            TID = str(data['taxonConcept']['taxonConcepts'][i]['identifier'])
+            currentdb = str(data['taxonConcept']['taxonConcepts'][i]['nameAccordingTo'])
+            break
+    if TID == None:
+        # take first one and hope for the best
+        TID = str(data['taxonConcept']['taxonConcepts'][0]['identifier']) # take first hit
+        currentdb = str(data['taxonConcept']['taxonConcepts'][0]['nameAccordingTo'])
+
+
     # now get taxonomy        
-    for db in data['taxonConcepts']:
-        currentdb = db['nameAccordingTo'].lower()
-        TID = str(db['identifier'])
-        break
     URL="http://eol.org/api/hierarchy_entries/1.0/"+TID+".json"
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
@@ -767,7 +781,8 @@ def get_taxonomy_for_taxon_eol(taxon):
                 temp_level = a['taxonRank'].encode("ascii","ignore")
                 if (temp_level in taxonomy_levels):
                     # note the dump into ASCII
-                    temp_name = a['scientificName'].encode("ascii","ignore")
+                    no_tags = tag_re.sub('', a['scientificName'])
+                    temp_name = no_tags.encode("ascii","ignore")
                     temp_name = temp_name.split(" ")
                     if (temp_level == 'species'):
                         taxonomy[temp_level] = " ".join(temp_name[0:2])
@@ -781,7 +796,7 @@ def get_taxonomy_for_taxon_eol(taxon):
         # add taxonomy in to the taxonomy!
         # This adds the actuall taxon being searched for to the taxonomy
         # sub-species will be ignored here, giving two entries for the same species, but under different OTUs
-        temp_name = taxon.split(" ")            
+        temp_name = taxon.split(" ")
         if data.has_key('taxonRank') :
             if (data['taxonRank'].lower() != 'species' and 
                data['taxonRank'].lower() in taxonomy_levels):
@@ -889,7 +904,9 @@ def get_taxonomy_eol(taxonomy, start_otu, verbose=False, tmpfile=None, skip=Fals
         try:
             if this_item['taxonRank'].lower().strip() == 'species':
                 # add data to taxonomy dictionary
-                taxon = this_item['scientificName'].split()[0:2] # just the first two words
+                # EOL have helpfully added <i> tags. Strip 'em
+                no_tags = tag_re.sub('', this_item['scientificName'])
+                taxon = no_tags.split()[0:2] # just the first two words
                 taxon = " ".join(taxon[0:2])
                 # NOTE following line means existing items are *not* updated
                 if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
@@ -947,10 +964,10 @@ def get_taxonomy_eol(taxonomy, start_otu, verbose=False, tmpfile=None, skip=Fals
         opener = urllib2.build_opener()
         f = url_open(req)
         data2 = json.load(f)
-        if len(data2['taxonConcepts']) == 0:
+        if len(data2['taxonConcept']['taxonConcepts']) == 0:
             continue
-        start_id = data2['taxonConcepts'][0]['identifier']
-        start_taxonomy_level = data2['taxonConcepts'][0]['taxonRank'].lower()
+        start_id = data2['taxonConcept']['taxonConcepts'][0]['identifier']
+        start_taxonomy_level = data2['taxonConcept']['taxonConcepts'][0]['taxonRank'].lower()
         if taxonomy_levels.index(start_taxonomy_level) > highest_rank:
             high_level_start_id = start_id
 
