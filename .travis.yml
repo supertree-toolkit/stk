@@ -31,7 +31,6 @@ install:
   - conda info -a
   - conda create -q -n test-environment -c jochym -c jochym/label/rc -c anaconda python=2.7  pygtk2 pcre numpy scipy matplotlib
   - source activate test-environment
-  - conda install icu=56.1 --channel conda-forge
   - conda install python-graphviz
   - pip install python-levenshtein fuzzywuzzy zeep simplejson lxml networkx ete2 backoff
   - python setup.py install
