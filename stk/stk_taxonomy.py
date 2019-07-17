@@ -504,6 +504,7 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, check_fossil=Fa
         #if t contains % strip off after that
         taxon = taxon.split('%')[0]
         taxon = taxon.replace("_"," ")
+        taxon.strip()
         queue.put(taxon)
     
     # Wait till everyone finishes

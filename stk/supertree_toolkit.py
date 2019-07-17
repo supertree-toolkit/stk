@@ -900,8 +900,8 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
             degrees = G_relabelled.degree() # we colour nodes by number of edges
             # However, this is a dict and the colour argument of draw need an array of floats
             colours = []
-            for key in G_relabelled.nodes_iter():
-                colours.append(float(len(G_relabelled.neighbors(key))))
+            for key in G_relabelled.nodes():
+                colours.append(float(len(list(G_relabelled.neighbors(key)))))
             # Define our colourmap, such that unconnected nodes stand out in red, with
             # a smooth white to blue transition above this
             # We need to normalize the colours array from (0,1) and find out where
@@ -975,7 +975,7 @@ def data_overlap(XML, overlap_amount=2, filename=None, detailed=False, show=Fals
                 fig = plt.figure(dpi=270)
             # make a throw-away plot to get a colourbar info
             Z = [[0,0],[0,0]]
-            levels = plt.frange(0,max(colours)+0.01,(max(colours)+0.01)/256.)
+            levels = numpy.linspace(0,max(colours)+0.01,256.)
             CS3 = plt.contourf(Z,levels,cmap=plt.cm.Blues)
             plt.clf()
             ax = fig.add_subplot(111)
