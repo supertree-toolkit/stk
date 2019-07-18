@@ -1283,19 +1283,19 @@ class Diamond:
     self.tree.write(f)
     XML = f.getvalue()
     try:
-        self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=False)
+        self.data_independence, self.subsets, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=False)
     except NotUniqueError as detail:
         msg = "Failed to check data independence. Will try and ignore this error if possible.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
+        self.data_independence, self.subsets, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
     except InvalidSTKData as detail:
         msg = "Failed to check data independence. Will try and ignore this error if possible.\n"+detail.msg
         dialogs.error_tb(self.main_window,msg)
-        self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
+        self.data_independence, self.subsets, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
     except UninformativeTreeError as detail:
         msg = "Failed to check data independence. Will try and ignore this error if possible.\n"+detail.msg
         dialogs.error(self.main_window,msg)
-        self.data_independence, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
+        self.data_independence, self.subsets, self.new_phyml_data = stk.data_independence(XML,make_new_xml=True,ignoreWarnings=True)
     except TreeParseError as detail:
         msg = "Failed to check data independence due to tree parsing error.\n"+detail.msg
         dialogs.error(self.main_window,msg)
@@ -1313,16 +1313,15 @@ class Diamond:
     treeview.append_column(column)
     column1 = gtk.TreeViewColumn("is subset of", rendererText, text=1)
     treeview.append_column(column1)
-    for name in self.data_independence:
+    for name in self.subsets:
         count = 0
-        if self.data_independence[name][1] == stk.SUBSET:
-            clashes = self.data_independence[name][0].split(',')
-            for c in clashes:
-                if (count == 0):
-                    liststore.append([name, c])
-                else:
-                    liststore.append([None, c])
-                count +=1
+        clashes = name[1:]
+        for c in clashes:
+            if (count == 0):
+                liststore.append([c, name[0]])
+            else:
+                liststore.append([c, None])
+            count +=1
             
     window = self.data_ind_gui.get_widget("scrolledwindow1")
     window.add(treeview)
@@ -1336,14 +1335,13 @@ class Diamond:
     treeview.append_column(column1)
     for name in self.data_independence:
         count = 0
-        if self.data_independence[name][1] == stk.IDENTICAL:
-            clashes = self.data_independence[name][0].split(',')
-            for c in clashes:
-                if (count == 0):
-                    liststore.append([name, c])
-                else:
-                    liststore.append([None, c])
-                count +=1
+        clashes = name[1:]
+        for c in clashes:
+            if (count == 0):
+                liststore.append([name[0], c])
+            else:
+                liststore.append([None, c])
+            count +=1
             
     window = self.data_ind_gui.get_widget("scrolledwindow2")
     window.add(treeview)
