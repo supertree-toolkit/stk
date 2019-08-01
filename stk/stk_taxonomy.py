@@ -129,8 +129,11 @@ def taxonomic_checker_list(name_list,existing_data=None,pref_db="eol",verbose=Fa
 def _check_taxa_eol(taxon,verbose=False):
 
     @backoff.on_exception(backoff.expo,
+                      urllib2.ssl.SSLError,
+                      max_tries=4)
+    @backoff.on_exception(backoff.expo,
                       urllib2.HTTPError,
-                      max_tries=10)
+                      max_tries=4)
     def url_open(req):
         return opener.open(req)
     
@@ -144,7 +147,7 @@ def _check_taxa_eol(taxon,verbose=False):
     opener = urllib2.build_opener()
     try:
         f = url_open(req)
-    except urllib2.HTTPError:
+    except (urllib2.HTTPError, urllib2.ssl.SSLError):
         correct_name = [taxon]
         status = 'red'
         return (correct_name, status)
@@ -172,7 +175,7 @@ def _check_taxa_eol(taxon,verbose=False):
     opener = urllib2.build_opener()
     try:
         f = url_open(req)
-    except urllib2.HTTPError:
+    except (urllib2.HTTPError, urllib2.ssl.SSLError) :
         correct_name = [taxon]
         status = 'red'
         return (correct_name, status)
@@ -428,11 +431,11 @@ def get_taxonomy(taxonomy, lock, queue, id=0, pref_db='eol', check_fossil=True, 
             taxon = queue.get()
             # Lock access to the taxonomy
             lock.acquire()
-            if not taxon.replace(" ","_") in taxonomy: # is a new taxon, not previously in the taxonomy
+            if not taxon in taxonomy: # is a new taxon, not previously in the taxonomy
                 # Release access to the taxonomy
                 lock.release()
                 if (verbose):
-                    print "Looking up "+taxon+"\n",
+                    print "Looking up "+taxon
                 try:
                     if pref_db == 'eol':
                         this_taxonomy = get_taxonomy_for_taxon_eol(taxon)
@@ -446,7 +449,7 @@ def get_taxonomy(taxonomy, lock, queue, id=0, pref_db='eol', check_fossil=True, 
                         # raise something?
                         queue.task_done()
                         break
-                except:
+                finally:
                     queue.task_done()
                     break
                 if (check_fossil and this_taxonomy == {} and pref_db != 'pbdb'):
@@ -469,14 +472,14 @@ def get_taxonomy(taxonomy, lock, queue, id=0, pref_db='eol', check_fossil=True, 
             queue.task_done()
 
 
-def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, check_fossil=False, verbose=False, ignoreWarnings=False, threadNumber=5):
+def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, check_fossil=False, verbose=False, ignoreWarnings=False, threadNumber=10):
     """Uses the taxa provided to generate a taxonomy for all the taxon available. 
     :param taxa: list of the taxa.
     :type taxa: list 
     :param taxonomy: previous taxonomy available (if available) or an empty 
     dictionary to store the results. If None will be init to an empty dictionary
     :type taxonomy: dictionary
-    :param pref_db: Gives priority to database. Seems it is unused.
+    :param pref_db: Gives priority to database.
     :type pref_db: string 
     :param verbose: Show verbose messages during execution
     :type verbose: boolean
@@ -494,21 +497,40 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, check_fossil=Fa
     queue = Queue.Queue()
 
     # Starting a few threads as daemons checking the queue
-    for i in range(threadNumber) :
-        t = threading.Thread(target=get_taxonomy, args=(taxonomy, lock, queue, i, pref_db, check_fossil, verbose, ignoreWarnings))
-        t.setDaemon(True)
-        t.start()
+    #for i in range(threadNumber) :
+    #    t = threading.Thread(target=get_taxonomy, args=(taxonomy, lock, queue, i, pref_db, check_fossil, verbose, ignoreWarnings))
+    #    t.setDaemon(True)
+    #    t.start()
     
-    # Populate the queue with the taxa.
+    ## Populate the queue with the taxa.
     for taxon in taxa :
         #if t contains % strip off after that
         taxon = taxon.split('%')[0]
-        taxon = taxon.replace("_"," ")
+        taxon = taxon.replace(" ","_")
         taxon.strip()
-        queue.put(taxon)
+        if (verbose):
+            print "Looking up "+taxon
+        try:
+            if pref_db == 'eol':
+                this_taxonomy = get_taxonomy_for_taxon_eol(taxon)
+            elif pref_db == 'worms':
+                this_taxonomy = get_taxonomy_for_taxon_worms(taxon)
+            elif pref_db == 'itis':
+                this_taxonomy = get_taxonomy_for_taxon_itis(taxon)
+            elif pref_db == 'pbdb':
+                this_taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
+            else:
+                # raise something?
+                break
+        finally:
+            break
+        if (check_fossil and this_taxonomy == {} and pref_db != 'pbdb'):
+            this_taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
+        taxonomy[taxon.replace(" ","_")] = this_taxonomy
+        #queue.put(taxon)
     
     # Wait till everyone finishes
-    queue.join()
+    #queue.join()
 
     return taxonomy
 
@@ -676,9 +698,12 @@ def get_taxonomy_for_taxon_pbdb(taxon):
      Return: dictionary of taxonomic levels ready to put in a taxonomy dictionary
      """
 
-    @backoff.on_exception(backoff.fibo,
+    @backoff.on_exception(backoff.expo,
+                      urllib2.ssl.SSLError,
+                      max_tries=4)
+    @backoff.on_exception(backoff.expo,
                       urllib2.HTTPError,
-                      max_tries=10)
+                      max_tries=4)
     def url_open(req):
         # PBDB is seriously slow....
         return opener.open(req,timeout=60)
@@ -726,19 +751,22 @@ def get_taxonomy_for_taxon_eol(taxon):
      Return: dictionary of taxonomic levels ready to put in a taxonomy dictionary
      """
     @backoff.on_exception(backoff.expo,
+                      urllib2.ssl.SSLError,
+                      max_tries=4)
+    @backoff.on_exception(backoff.expo,
                       urllib2.HTTPError,
                       max_tries=4)
     def url_open(req):
         return opener.open(req)
 
-    taxonomy = {'species': taxon}
+    taxonomy = {}
     taxonq = quote_plus(taxon)
     URL = "http://eol.org/api/search/1.0.json?q="+taxonq
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
     try:
         f = url_open(req)
-    except urllib2.HTTPError:
+    except (urllib2.HTTPError, urllib2.ssl.SSLError) :
         return taxonomy
 
     data = json.load(f)
@@ -747,14 +775,13 @@ def get_taxonomy_for_taxon_eol(taxon):
         return taxonomy
     # take first hit - TODO: add more finese here
     ID = str(data['results'][0]['id'])
-    
     # Now look for taxonomies
     URL = "http://eol.org/api/pages/1.0/"+ID+".json"
     req = urllib2.Request(URL)
     opener = urllib2.build_opener()
     try:
         f = url_open(req)
-    except urllib2.HTTPError:
+    except (urllib2.HTTPError, urllib2.ssl.SSLError) :
         return taxonomy
     data = json.load(f)
     if len(data['taxonConcept']['taxonConcepts']) == 0:
@@ -778,14 +805,14 @@ def get_taxonomy_for_taxon_eol(taxon):
     opener = urllib2.build_opener()
     try:
         f = url_open(req)
-    except urllib2.HTTPError:
+    except (urllib2.HTTPError, urllib2.ssl.SSLError) :
         return taxonomy
     data = json.load(f)
     taxonomy = taxonomy
     taxonomy['provider'] = currentdb
     for a in data['ancestors']:
         try:
-            if a.has_key('taxonRank') :
+            if a.has_key('taxonRank') and not a['taxonRank'] == None:
                 temp_level = a['taxonRank'].encode("ascii","ignore")
                 if (temp_level in taxonomy_levels):
                     # note the dump into ASCII
@@ -805,7 +832,7 @@ def get_taxonomy_for_taxon_eol(taxon):
         # This adds the actuall taxon being searched for to the taxonomy
         # sub-species will be ignored here, giving two entries for the same species, but under different OTUs
         temp_name = taxon.split(" ")
-        if data.has_key('taxonRank') :
+        if data.has_key('taxonRank')  and not data['taxonRank'] == None:
             if (data['taxonRank'].lower() != 'species' and 
                data['taxonRank'].lower() in taxonomy_levels):
                 taxonomy[data['taxonRank'].lower()] = temp_name[0]
@@ -892,7 +919,7 @@ def get_taxonomy_eol(taxonomy, start_otu, verbose=False, tmpfile=None, skip=Fals
 
     @backoff.on_exception(backoff.expo,
                       urllib2.HTTPError,
-                      max_tries=4)
+                      max_tries=1)
     def url_open(req):
         return opener.open(req)
 
@@ -964,6 +991,7 @@ def get_taxonomy_eol(taxonomy, start_otu, verbose=False, tmpfile=None, skip=Fals
     data = json.load(f)
     highest_rank = taxonomy_levels.index('species')
     high_level_start_id = 0000000
+    print data
     # ignores pages. FIXME
     for ids in range(0,data['totalResults']):
         start_id = str(data['results'][ids]['id']) # this is the page ID. We get the OTU ID next
