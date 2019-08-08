@@ -755,7 +755,6 @@ def generate_species_level_data(XML, taxonomy, ignoreWarnings=True, verbose=Fals
     for t in taxa:
         subs = []
         t = t.split('%')[0]  
-        t = t.replace("_"," ")
         if (not 'species' in taxonomy[t]): # the current taxon is not a species, but higher level taxon
             # work out which level - should we encode this in the data to start with?
             for tl in stk_taxonomy.taxonomy_levels:

@@ -503,26 +503,23 @@ def create_taxonomy_from_taxa(taxa, taxonomy=None, pref_db=None, check_fossil=Fa
     #    t.start()
     
     ## Populate the queue with the taxa.
-    for taxon in taxa :
+    for taxon in taxa:
         #if t contains % strip off after that
         taxon = taxon.split('%')[0]
         taxon = taxon.replace(" ","_")
         taxon.strip()
         if (verbose):
             print "Looking up "+taxon
-        try:
-            if pref_db == 'eol':
-                this_taxonomy = get_taxonomy_for_taxon_eol(taxon)
-            elif pref_db == 'worms':
-                this_taxonomy = get_taxonomy_for_taxon_worms(taxon)
-            elif pref_db == 'itis':
-                this_taxonomy = get_taxonomy_for_taxon_itis(taxon)
-            elif pref_db == 'pbdb':
-                this_taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
-            else:
-                # raise something?
-                break
-        finally:
+        if pref_db == 'eol':
+            this_taxonomy = get_taxonomy_for_taxon_eol(taxon)
+        elif pref_db == 'worms':
+            this_taxonomy = get_taxonomy_for_taxon_worms(taxon)
+        elif pref_db == 'itis':
+            this_taxonomy = get_taxonomy_for_taxon_itis(taxon)
+        elif pref_db == 'pbdb':
+            this_taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
+        else:
+            # raise something?
             break
         if (check_fossil and this_taxonomy == {} and pref_db != 'pbdb'):
             this_taxonomy = get_taxonomy_for_taxon_pbdb(taxon)
