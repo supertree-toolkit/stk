@@ -757,6 +757,7 @@ def get_taxonomy_for_taxon_eol(taxon):
         return opener.open(req)
 
     taxonomy = {}
+    taxon = taxon.replace("_"," ")
     taxonq = quote_plus(taxon)
     URL = "http://eol.org/api/search/1.0.json?q="+taxonq
     req = urllib2.Request(URL)
@@ -786,14 +787,14 @@ def get_taxonomy_for_taxon_eol(taxon):
     # some sources are basically rubbish, so try using EOL's data first
     TID = None
     for i in range(0,len(data['taxonConcept']['taxonConcepts'])):
-        if "EOL" in data['taxonConcept']['taxonConcepts'][i]['nameAccordingTo']:
+        if "EOL Dynamic Hierarchy 1.1" in data['taxonConcept']['taxonConcepts'][i]['nameAccordingTo']:
             TID = str(data['taxonConcept']['taxonConcepts'][i]['identifier'])
-            currentdb = str(data['taxonConcept']['taxonConcepts'][i]['nameAccordingTo'])
+            currentdb = data['taxonConcept']['taxonConcepts'][i]['nameAccordingTo'].encode("ascii","ignore")
             break
     if TID == None:
         # take first one and hope for the best
         TID = str(data['taxonConcept']['taxonConcepts'][0]['identifier']) # take first hit
-        currentdb = str(data['taxonConcept']['taxonConcepts'][0]['nameAccordingTo'])
+        currentdb = data['taxonConcept']['taxonConcepts'][0]['nameAccordingTo'].encode("ascii","ignore")
 
 
     # now get taxonomy        
@@ -824,6 +825,7 @@ def get_taxonomy_for_taxon_eol(taxon):
         except KeyError as e:
             logging.exception("Key not found: taxonRank")
             continue
+
     try:
         # add taxonomy in to the taxonomy!
         # This adds the actuall taxon being searched for to the taxonomy

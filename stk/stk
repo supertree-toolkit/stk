@@ -513,6 +513,12 @@ def main():
             action='store_true',
             default=False,
             help="Overwrite the existing file without asking for confirmation")
+    parser_cm.add_argument(
+            '--pref_db',
+            help="Taxonomy database to use. Default is Species 2000/ITIS",
+            choices=['itis', 'worms', 'ncbi', 'eol'],
+            default = 'eol'
+            )
     parser_cm.add_argument('--taxonomy',
             help="Give a starting taxonomy file, e.g. one you ran earlier",)
     parser_cm.set_defaults(func=create_taxonomy)
@@ -1732,7 +1738,6 @@ def check_otus(args):
     input_file = args.input
     output_file = args.output
 
-    print input_file
     if (input_file.endswith(".phyml")):
         XML = supertree_toolkit.load_phyml(input_file)
         try:
@@ -1762,8 +1767,8 @@ def check_otus(args):
     elif (input_file.endswith(".txt") or input_file.endswith('.dat')):
         # read file - assume one taxa per line
         with open(input_file,'r') as f:
-            lines = f.read().splitlines()        
-        equivs = supertree_toolkit.taxonomic_checker_list(lines, verbose=verbose)
+            taxa = f.read().splitlines()        
+        equivs = supertree_toolkit.taxonomic_checker_list(taxa, verbose=verbose)
     else:
         # assume a tree!
         equivs = supertree_toolkit.taxonomic_checker_tree(input_file, verbose=verbose)
@@ -1785,14 +1790,25 @@ def create_taxonomy(args):
     output_file = args.output
     existing_taxonomy = args.taxonomy
     ignoreWarnings = args.ignoreWarnings
+    pref_db = args.pref_db
 
-    XML = supertree_toolkit.load_phyml(input_file)
+    if (input_file.endswith(".phyml")):
+        XML = supertree_toolkit.load_phyml(input_file)
+    else:
+        # read file - assume one taxa per line
+        with open(input_file,'r') as f:
+            taxa = f.read().splitlines()
+        taxa = supertree_toolkit.uniquify(taxa)
+
     if (not existing_taxonomy == None):
         existing_taxonomy = supertree_toolkit.load_taxonomy(existing_taxonomy) # load it in and create the dictionary
         pass
 
     try:
-        taxonomy = supertree_toolkit.create_taxonomy(XML,existing_taxonomy=existing_taxonomy,verbose=verbose,ignoreWarnings=ignoreWarnings)
+        if (input_file.endswith(".phyml")):
+            taxonomy = supertree_toolkit.create_taxonomy(XML, existing_taxonomy=existing_taxonomy,pref_db=pref_db,verbose=verbose,ignoreWarnings=ignoreWarnings)
+        else:
+            taxonomy = supertree_toolkit.create_taxonomy_from_taxa(taxa, taxonomy=existing_taxonomy,pref_db=pref_db,verbose=verbose,ignoreWarnings=ignoreWarnings)
     except supertree_toolkit.NotUniqueError as detail:
         msg = "***Error: Failed to create taxonomy.\n"+detail.msg
         print msg
@@ -1817,7 +1833,7 @@ def create_taxonomy(args):
         return
     
     # Now create the CSV output
-    save_taxonomy(taxonomy, output_file)
+    supertree_toolkit.save_taxonomy(taxonomy, output_file)
 
 
 def auto_subs(args):

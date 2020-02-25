@@ -45,7 +45,8 @@ class TestSTKTaxonomy(unittest.TestCase):
         XML = etree.tostring(etree.parse('data/input/create_taxonomy.phyml',parser),pretty_print=True)
         expected = {'Jeletzkytes_criptonodosus': {'species': 'Jeletzkytes criptonodosus'}, 'Thalassarche_melanophris': {'family': 'Diomedeidae', 'class': 'Aves', 'phylum': 'Chordata', 'species': 'Thalassarche melanophris', 'genus': 'Thalassarche', 'order': 'Procellariiformes'}, 'Egretta_tricolor': {'family': 'Ardeidae', 'class': 'Aves', 'phylum': 'Chordata', 'species': 'Egretta tricolor', 'genus': 'Egretta', 'order': 'Pelecaniformes'}, 'Archaeopteryx_lithographica': {'species': 'Archaeopteryx lithographica', 'genus': 'Archaeopteryx'}}
         taxa = ['Archaeopteryx lithographica', 'Jeletzkytes_criptonodosus', 'Thalassarche melanophris','Egretta tricolor'] 
-        taxonomy = create_taxonomy_from_taxa(taxa,pref_db='eol',verbose=False,threadNumber=2)
+        taxonomy = create_taxonomy_from_taxa(taxa,pref_db='eol',verbose=False,threadNumber=1)
+        print taxonomy
         for taxon in expected:
             self.assertDictEqual(extractDictAFromB(expected[taxon],taxonomy[taxon]), expected[taxon])
 

@@ -69,7 +69,6 @@ def main():
     top_level = args.top_level[0]
 
     tree_taxonomy = stk.load_taxonomy(input_file)
-    print tree_taxonomy
     new_taxa = tree_taxonomy.keys()
 
     tl_types = []
@@ -77,7 +76,6 @@ def main():
         tl_types.append(tree_taxonomy[tt][top_level])
 
     tl_types = _uniquify(tl_types)
-    print tl_types
     levels_to_worry_about = tlevels[0:tlevels.index(top_level)+1]
         
     t = Tree()
@@ -90,7 +88,6 @@ def main():
     for l in levels_to_worry_about[-2::-1]:
         names = []
         nodes[l] = []
-        print l
         ci = levels_to_worry_about.index(l)
         for tt in tree_taxonomy:
             try:
