@@ -52,7 +52,7 @@ import re
 
 tag_re = re.compile(r'(<!--.*?-->|<[^>]*>)')
 
-taxonomy_levels = ['species','subgenus','genus','tribe','subfamily','family','superfamily','subsection','section','parvorder','infraorder','suborder','order','superorder','subclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
+taxonomy_levels = ['species','subgenus','genus','tribe','subfamily','family','subsuperfamily','superfamily','subsection','section','parvorder','infraorder','suborder','order','superorder','subclass','infraclass', 'superinfraclass','class','superclass','subphylum','phylum','superphylum','infrakingdom','subkingdom','kingdom']
 
 def taxonomic_checker_list(name_list,existing_data=None,pref_db="eol",verbose=False):
     """ For each name in the database generate a database of the original name,

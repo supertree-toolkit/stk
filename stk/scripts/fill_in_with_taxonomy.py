@@ -78,6 +78,10 @@ def main():
             help="Supply a STK taxonomy file for taxa in the tree. If not, one will be created from the database being used here."
             )
     parser.add_argument(
+            '--restrict',
+            help="Don't add all missing taxa. Just add these. provide a list",
+            )
+    parser.add_argument(
             'top_level', 
             nargs=1,
             help="The top level group to look in, e.g. Arthropoda, Decapoda. Must match the database."
@@ -105,6 +109,7 @@ def main():
     taxonomy = args.taxonomy_from_file
     pref_db = args.pref_db
     skip = args.skip
+    restrict = args.restrict
     if (save_taxonomy_file == None):
         save_taxonomy = False
     else:
@@ -118,6 +123,13 @@ def main():
             print "Error: If you're skipping checking online, then you need to supply taxonomy files"
             return
 
+    only_these_taxa = []
+    if not restrict == None:
+        # read file - assume one taxa per line
+        with open(restrict,'r') as f:
+            only_these_taxa_ = f.read().splitlines() 
+        only_these_taxa = [sub.replace(' ', '_') for sub in only_these_taxa_] 
+        
     # grab taxa in tree
     tree = stk.import_tree(input_file)
     taxa_list = stk.get_taxa(tree)
@@ -161,7 +173,6 @@ def main():
     print "\tThat's",len(need_taxonomy),"missing"
     # discard taxonomy info for taxa not in the tree
     tree_taxonomy = new_tree_taxonomy
-    print taxonomy
 
     count = 0
     already_in_tree = []
@@ -177,8 +188,9 @@ def main():
     print "\tThat's",count,"to be added to tree. You should therefore have a total of:", count+len(taxa_list),"in your output tree"
 
     print "The following were already in your tree (total: "+str(len(already_in_tree))+"):"
-    for t in sorted(already_in_tree):
-        print "\t",t
+    if verbose:
+        for t in sorted(already_in_tree):
+            print "\t",t
 
     # we're going to add the taxa in the tree to the main taxonomy, to stop them
     # being fetched in first place. We delete them later
@@ -245,11 +257,11 @@ def main():
         except OSError:
             pass
     else:
-        # we need to work out the taxonomic level of the strting "taxon", e.g. Aves
+        # we need to work out the taxonomic level of the starting "taxon", e.g. Aves
         # need to write a function for this for each database
         # for now - hack it
         #FIXME
-        start_level = 'family'
+        start_level = 'class'
 
     # clean up taxonomy, deleting the ones already in the tree
     for taxon in taxa_list:
@@ -258,6 +270,12 @@ def main():
             del taxonomy[taxon]
         except KeyError:
             pass # if it's not there, so we care?
+
+    if len(only_these_taxa) > 0:
+        # remove all *but* these from the taxonomy
+        for t in taxonomy.keys():
+            if not t in only_these_taxa:
+                del taxonomy[t]
 
     # We now have 2 taxonomies:
     #  - for taxa in the tree
@@ -295,7 +313,7 @@ def main():
                 except KeyError:
                     continue # don't have this info
         new_taxa = stk.uniquify(new_taxa)
-
+        
         for nt in new_taxa:
             taxa_to_add = {}
             taxa_in_clade = []
@@ -309,15 +327,19 @@ def main():
 
             # add to tree
             for t in taxa_list:
-                if level in tree_taxonomy[t] and tree_taxonomy[t][level] == nt:
-                    taxa_in_clade.append(t)
-                    if t in generic:
-                        # we are appending taxa to this higher taxon, so we need to remove it
-                        remove_higher_level.append(t)
+                try:
+                    if level in tree_taxonomy[t] and tree_taxonomy[t][level] == nt:
+                        taxa_in_clade.append(t)
+                        if t in generic:
+                            # we are appending taxa to this higher taxon, so we need to remove it
+                            remove_higher_level.append(t)
+                except KeyError:
+                    # we've appended a higher level taxon that isn't in the tree
+                    remove_higher_level.append(t)
 
 
             if len(taxa_in_clade) > 0 and len(taxa_to_add) > 0:
-                if "Neoxabea_bipunctata" in taxa_to_add:
+                if "Equus_leidyi" in taxa_to_add:
                     print level
 
                 tree = add_taxa(tree, taxa_to_add, taxa_in_clade,level)
@@ -345,7 +367,7 @@ def main():
     #tree = stk.sub_taxa_in_tree(tree, remove_higher_level)
     trees = {}
     trees['tree_1'] = tree
-    output = stk.amalgamate_trees(trees,format='nexus')
+    output = stk.amalgamate_trees(trees,format='newick')
     f = open(output_file, "w")
     f.write(output)
     f.close()
