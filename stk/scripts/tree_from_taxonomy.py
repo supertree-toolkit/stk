@@ -69,14 +69,14 @@ def main():
     top_level = args.top_level[0]
 
     tree_taxonomy = stk.load_taxonomy(input_file)
-    new_taxa = tree_taxonomy.keys()
+    new_taxa = list(tree_taxonomy.keys())
 
     tl_types = []
     for tt in tree_taxonomy:
         tl_types.append(tree_taxonomy[tt][top_level])
 
     tl_types = _uniquify(tl_types)
-    print tl_types
+    print(tl_types)
     levels_to_worry_about = tlevels[0:tlevels.index(top_level)+1]
         
     t = Tree()
@@ -114,17 +114,17 @@ def main():
                                     parent = tree_taxonomy[tt][levels_to_worry_about[ci+3]]
                                     level = ci+3
                                 except KeyError:
-                                    print "ERROR: tried to find some taxonomic info for "+tt+" from tree_taxonomy file/downloaded data and I went two levels up, but failed find any. Looked at:\n"
-                                    print "\t"+levels_to_worry_about[ci+1]
-                                    print "\t"+levels_to_worry_about[ci+2]
-                                    print "\t"+levels_to_worry_about[ci+3]
-                                    print "This is the taxonomy info I have for "+tt
-                                    print tree_taxonomy[tt]
+                                    print("ERROR: tried to find some taxonomic info for "+tt+" from tree_taxonomy file/downloaded data and I went two levels up, but failed find any. Looked at:\n")
+                                    print("\t"+levels_to_worry_about[ci+1])
+                                    print("\t"+levels_to_worry_about[ci+2])
+                                    print("\t"+levels_to_worry_about[ci+3])
+                                    print("This is the taxonomy info I have for "+tt)
+                                    print(tree_taxonomy[tt])
                                     sys.exit(1)
 
                         k = []
                         for nd in nodes[levels_to_worry_about[level]]:
-                            k.extend(nd.keys())
+                            k.extend(list(nd.keys()))
                         i = 0
                         for kk in k:
                             if kk == parent:
@@ -157,7 +157,7 @@ def _uniquify(l):
     for e in l:
         keys[e] = 1
 
-    return keys.keys()
+    return list(keys.keys())
 
 if __name__ == "__main__":
     main()

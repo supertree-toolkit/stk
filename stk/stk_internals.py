@@ -25,30 +25,30 @@ import unicodedata
 """
 
 replacements =     {
-    u"\u00C6": u"AE", # LATIN CAPITAL LETTER AE
-    u"\u00D0": u"D",  # LATIN CAPITAL LETTER ETH
-    u"\u00D8": u"OE", # LATIN CAPITAL LETTER O WITH STROKE
-    u"\u00DE": u"Th", # LATIN CAPITAL LETTER THORN
-    u"\u00DF": u"ss", # LATIN SMALL LETTER SHARP S
-    u"\u00E6": u"ae", # LATIN SMALL LETTER AE
-    u"\u00F0": u"d",  # LATIN SMALL LETTER ETH
-    u"\u00F8": u"oe", # LATIN SMALL LETTER O WITH STROKE
-    u"\u00FE": u"th", # LATIN SMALL LETTER THORN
-    u"\u2010": "-",
-    u"\u2011": "-",
-    u"\u2012": "-",
-    u"\u2013": "-",
-    u"\u2014": "-",
-    u"\u2015": "-",
-    u"\u2212": "-",
-    u"\u2018": "'", # single quotes
-    u"\u2019": "'",
-    u"\u201A": "'",
-    u"\u201B": "'",
-    u"\u201C": '"', # double quotes
-    u"\u201D": '"',
-    u"\u201E": '"',
-    u"\u201F": '"',
+    "\u00C6": "AE", # LATIN CAPITAL LETTER AE
+    "\u00D0": "D",  # LATIN CAPITAL LETTER ETH
+    "\u00D8": "OE", # LATIN CAPITAL LETTER O WITH STROKE
+    "\u00DE": "Th", # LATIN CAPITAL LETTER THORN
+    "\u00DF": "ss", # LATIN SMALL LETTER SHARP S
+    "\u00E6": "ae", # LATIN SMALL LETTER AE
+    "\u00F0": "d",  # LATIN SMALL LETTER ETH
+    "\u00F8": "oe", # LATIN SMALL LETTER O WITH STROKE
+    "\u00FE": "th", # LATIN SMALL LETTER THORN
+    "\u2010": "-",
+    "\u2011": "-",
+    "\u2012": "-",
+    "\u2013": "-",
+    "\u2014": "-",
+    "\u2015": "-",
+    "\u2212": "-",
+    "\u2018": "'", # single quotes
+    "\u2019": "'",
+    "\u201A": "'",
+    "\u201B": "'",
+    "\u201C": '"', # double quotes
+    "\u201D": '"',
+    "\u201E": '"',
+    "\u201F": '"',
     }
 
 def replace_utf(content):

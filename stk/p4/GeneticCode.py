@@ -140,14 +140,14 @@ class GeneticCode:
 
 
         else:
-            print "GeneticCode: I don't know that transl_table.  Get it from NCBI and add it!"
+            print("GeneticCode: I don't know that transl_table.  Get it from NCBI and add it!")
             sys.exit()
 
         for i in range(64):
             theCodon = string.lower(Base1[i] + Base2[i] + Base3[i])
             theAA = string.lower(AAs[i])
             self.code[theCodon] = theAA
-            if self.codonsForAA.has_key(theAA):
+            if theAA in self.codonsForAA:
                 self.codonsForAA[theAA].append(theCodon)
             else:
                 self.codonsForAA[theAA] = [theCodon]
@@ -162,16 +162,16 @@ class GeneticCode:
             self.codonsForAA['u'] = ['tga']  # selenocysteine
 
         if 0:
-            k = self.code.keys()
+            k = list(self.code.keys())
             k.sort()
             for aKey in k:
-                print "%20s  %-30s" % (aKey, self.code[aKey])
+                print("%20s  %-30s" % (aKey, self.code[aKey]))
 
     def wise2Table(self):
         """Output in a form suitable to replace codon.table in wise2"""
 
-        print "! this is a codon table"
-        print "! by p4, for ncbi %i" % self.transl_table
+        print("! this is a codon table")
+        print("! by p4, for ncbi %i" % self.transl_table)
         for first in "tcag":
             for second in "tcag":
                 for third in "tcag":
@@ -179,6 +179,6 @@ class GeneticCode:
                     ret = self.code[lcod]
                     if ret == '*':
                         ret = 'X'
-                    print lcod.upper(), ret.upper()
+                    print(lcod.upper(), ret.upper())
                     
                     

@@ -70,7 +70,7 @@ def main():
     tree_taxa = stk._getTaxaFromNewick(new_tree)
     tree_taxa.sort()
     for t in tree_taxa:
-        print t
+        print(t)
 
 
 

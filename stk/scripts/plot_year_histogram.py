@@ -71,8 +71,8 @@ def main():
             years[int(data[0][0:-2])] = float(data[1])
         f.close()
 
-    year_dist = years.keys()
-    year_data = years.values()
+    year_dist = list(years.keys())
+    year_data = list(years.values())
 
     fig=figure(figsize=(11.7,8.3),dpi=90) #A4 landscape
     fig.subplots_adjust(bottom=0.2)

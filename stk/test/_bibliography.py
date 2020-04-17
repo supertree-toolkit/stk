@@ -26,7 +26,7 @@ class TestBibliography(unittest.TestCase):
         # call import_bib function
         new_xml = import_bibliography(xml, bib_article)
         # test resulting xml
-        self.assert_(isEqualXML(new_xml, xml_article_c))
+        self.assertTrue(isEqualXML(new_xml, xml_article_c))
 
     def test_import_single_article_doi(self):
         xml_article_c = etree.tostring(etree.parse("data/output/bib_import_single_article_doi.phyml",parser),pretty_print=True)
@@ -36,21 +36,21 @@ class TestBibliography(unittest.TestCase):
         # call import_bib function
         new_xml = import_bibliography(xml, bib_article)
         # test resulting xml
-        self.assert_(isEqualXML(new_xml, xml_article_c))
+        self.assertTrue(isEqualXML(new_xml, xml_article_c))
 
     def test_import_single_book(self):
         xml_book_c = etree.tostring(etree.parse("data/output/bib_import_single_book.phyml",parser),pretty_print=True)
         bib_book = "data/input/book.bib"
         xml = etree.tostring(xml_start)
         new_xml = import_bibliography(xml, bib_book)
-        self.assert_(isEqualXML(new_xml, xml_book_c))
+        self.assertTrue(isEqualXML(new_xml, xml_book_c))
 
     def test_ut8_article(self):
         bib_import_utf8_answer = etree.tostring(etree.parse("data/output/bib_import_utf8.phyml",parser),pretty_print=True)
         bib_utf8 = "data/input/utf8_input.bib"
         xml = etree.tostring(xml_start)
         new_xml = import_bibliography(xml, bib_utf8)
-        self.assert_(isEqualXML(new_xml, bib_import_utf8_answer))
+        self.assertTrue(isEqualXML(new_xml, bib_import_utf8_answer))
 
 
     def test_katie_article(self):
@@ -60,7 +60,7 @@ class TestBibliography(unittest.TestCase):
             new_xml = import_bibliography(xml, bib_book)
         except BibImportError as details:
            # Check that an entry with dodgy author entry reports the correct key to help the user find it
-           self.assert_(details.msg == "Error importing bib file. Check all your authors for correct format: Porter2005")
+           self.assertTrue(details.msg == "Error importing bib file. Check all your authors for correct format: Porter2005")
         except:
            return False
 
@@ -72,7 +72,7 @@ class TestBibliography(unittest.TestCase):
             new_xml = import_bibliography(xml, bib_book)
         except:
             return False
-        return self.assert_(True)
+        return self.assertTrue(True)
 
 
     # completely missing key - no comma
@@ -82,7 +82,7 @@ class TestBibliography(unittest.TestCase):
         try:
             new_xml = import_bibliography(xml, bib_book)
         except BibImportError as details:
-           self.assert_(details.msg == "Error importing bib file. Error parsing:  author = {Ahyong, S. T. and O'Meally, D.}, title = {Phylogeny of the Decapoda reptantia: Resolutio...\nMissing Bibtex Key")
+           self.assertTrue(details.msg == "Error importing bib file. Error parsing:  author = {Ahyong, S. T. and O'Meally, D.}, title = {Phylogeny of the Decapoda reptantia: Resolutio...\nMissing Bibtex Key")
         except:
            return False
 
@@ -105,12 +105,12 @@ class TestBibliography(unittest.TestCase):
         items= b_orig.List() # yapbib helpfully renames the item key, so grab the first one
         orig = b_orig.get_item(items[0])
         os.remove(temp_file)        
-        self.assert_(orig.get('title') == exp.get('title'))
-        self.assert_(orig.get('journal') == exp.get('journal'))
-        self.assert_(orig.get('volume') == exp.get('volume'))
-        self.assert_(orig.get('doi') == exp.get('doi'))
-        self.assert_(orig.get('pages') == exp.get('pages'))
-        self.assert_(orig.get('author') == exp.get('author'))
+        self.assertTrue(orig.get('title') == exp.get('title'))
+        self.assertTrue(orig.get('journal') == exp.get('journal'))
+        self.assertTrue(orig.get('volume') == exp.get('volume'))
+        self.assertTrue(orig.get('doi') == exp.get('doi'))
+        self.assertTrue(orig.get('pages') == exp.get('pages'))
+        self.assertTrue(orig.get('author') == exp.get('author'))
 
 
     def test_export_bib_book(self):
@@ -131,13 +131,13 @@ class TestBibliography(unittest.TestCase):
         items= b_orig.List() # yapbib helpfully renames the item key, so grab the first one
         orig = b_orig.get_item(items[0])
         os.remove(temp_file)        
-        self.assert_(orig.get('title') == exp.get('title'))
-        self.assert_(orig.get('series') == exp.get('series'))
-        self.assert_(orig.get('doi') == exp.get('doi'))
-        self.assert_(orig.get('pages') == exp.get('pages'))
-        self.assert_(orig.get('author') == exp.get('author'))
-        self.assert_(orig.get('editor') == exp.get('editor'))
-        self.assert_(orig.get('publisher') == exp.get('publisher'))
+        self.assertTrue(orig.get('title') == exp.get('title'))
+        self.assertTrue(orig.get('series') == exp.get('series'))
+        self.assertTrue(orig.get('doi') == exp.get('doi'))
+        self.assertTrue(orig.get('pages') == exp.get('pages'))
+        self.assertTrue(orig.get('author') == exp.get('author'))
+        self.assertTrue(orig.get('editor') == exp.get('editor'))
+        self.assertTrue(orig.get('publisher') == exp.get('publisher'))
 
 
     def test_export_bib_nopages(self):
@@ -151,8 +151,8 @@ class TestBibliography(unittest.TestCase):
         items= b_exported.List() # yapbib helpfully renames the item key, so grab the first one
         exp = b_exported.get_item(items[0])
         os.remove(temp_file)        
-        self.assert_(exp.get('title') == "A great and important paper")
-        self.assert_(exp.get('pages') == None)
+        self.assertTrue(exp.get('title') == "A great and important paper")
+        self.assertTrue(exp.get('pages') == None)
 
     def test_export_html(self):
         bib_article = "data/input/article.bib"
@@ -166,10 +166,10 @@ class TestBibliography(unittest.TestCase):
         output = '\n'.join(output)
         os.remove(temp_file)              
         # just asserts something useful has been written out
-        self.assert_(output.find('html') > -1)
-        self.assert_(output.find('Davis') > -1)
-        self.assert_(output.find('Hill') > -1)
-        self.assert_(output.find('book .series') > -1)
+        self.assertTrue(output.find('html') > -1)
+        self.assertTrue(output.find('Davis') > -1)
+        self.assertTrue(output.find('Hill') > -1)
+        self.assertTrue(output.find('book .series') > -1)
 
     def test_export_latex(self):
         bib_article = "data/input/article.bib"
@@ -183,9 +183,9 @@ class TestBibliography(unittest.TestCase):
         output = '\n'.join(output)
         os.remove(temp_file)              
         # just asserts something useful has been written out
-        self.assert_(output.find('documentclass') > -1)
-        self.assert_(output.find('Davis') > -1)
-        self.assert_(output.find('Hill') > -1)
+        self.assertTrue(output.find('documentclass') > -1)
+        self.assertTrue(output.find('Davis') > -1)
+        self.assertTrue(output.find('Hill') > -1)
     
     def test_export_long(self):
         bib_article = "data/input/article.bib"
@@ -199,9 +199,9 @@ class TestBibliography(unittest.TestCase):
         output = '\n'.join(output)
         os.remove(temp_file)  
         # just asserts something useful has been written out
-        self.assert_(output.find('article') > -1)
-        self.assert_(output.find('Davis') > -1)
-        self.assert_(output.find('Hill') > -1)
+        self.assertTrue(output.find('article') > -1)
+        self.assertTrue(output.find('Davis') > -1)
+        self.assertTrue(output.find('Hill') > -1)
 
     def test_export_short(self):
         bib_article = "data/input/article.bib"
@@ -215,8 +215,8 @@ class TestBibliography(unittest.TestCase):
         output = '\n'.join(output)
         os.remove(temp_file) 
         # just asserts something useful has been written out
-        self.assert_(output.find('Davis') > -1)
-        self.assert_(output.find('Hill') > -1)
+        self.assertTrue(output.find('Davis') > -1)
+        self.assertTrue(output.find('Hill') > -1)
 
     def test_dodgy_bibtex(self):
         bib_article = "data/input/dodgy_bibtex.bib"
@@ -230,8 +230,8 @@ class TestBibliography(unittest.TestCase):
         output = '\n'.join(output)
         os.remove(temp_file) 
         # just asserts something useful has been written out
-        self.assert_(output.find('Williams') > -1)
-        self.assert_(output.find('pages = {239-') > -1)
+        self.assertTrue(output.find('Williams') > -1)
+        self.assertTrue(output.find('pages = {239-') > -1)
 
     def test_difficult_bibtex(self):
         bib_article = "data/input/difficult_bib.bib"
@@ -245,8 +245,8 @@ class TestBibliography(unittest.TestCase):
         output = '\n'.join(output)
         os.remove(temp_file) 
         # just asserts something useful has been written out
-        self.assert_(output.find('Silva') > -1)
-        self.assert_(output.find('pages = {1032-') > -1)
+        self.assertTrue(output.find('Silva') > -1)
+        self.assertTrue(output.find('pages = {1032-') > -1)
 
 
 #    def test_import_single_incollection(self):
@@ -255,7 +255,7 @@ class TestBibliography(unittest.TestCase):
         bib_article = "data/input/inbook.bib"
         xml = etree.tostring(xml_start)
         new_xml = import_bibliography(xml, bib_article)
-        self.assert_(new_xml.find('in_book') > -1)
+        self.assertTrue(new_xml.find('in_book') > -1)
         # Now export it back and compare the data
         temp_file_handle, temp_file = tempfile.mkstemp(suffix=".tex")
         export_bibliography(new_xml,temp_file)        
@@ -264,9 +264,9 @@ class TestBibliography(unittest.TestCase):
         output = '\n'.join(output)
         os.remove(temp_file)
         # just asserts something useful has been written out
-        self.assert_(output.find('author = { Mallet') > -1)
-        self.assert_(output.find('pages = {177-') > -1)
-        self.assert_(output.find('Speciation and Patterns of Diversity') > -1)
+        self.assertTrue(output.find('author = { Mallet') > -1)
+        self.assertTrue(output.find('pages = {177-') > -1)
+        self.assertTrue(output.find('Speciation and Patterns of Diversity') > -1)
 
 
 #    def test_import_allitems(self):

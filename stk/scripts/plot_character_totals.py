@@ -62,7 +62,7 @@ def main():
     fileName, fileExtension = os.path.splitext(input_file)
     XML = stk.load_phyml(input_file)
     trees = stk.obtain_trees(XML)
-    years = stk.get_publication_years(XML).keys()
+    years = list(stk.get_publication_years(XML).keys())
     years.sort()
     min_year = min(years)
     max_year = max(years)

@@ -1,7 +1,7 @@
 # -*- coding: latin-1 -*-
 import sys,os
 #import numpy
-from Glitch import Glitch
+from .Glitch import Glitch
 
 ##          A           Ala            Alanine
 ##          R           Arg            Arginine
@@ -309,7 +309,7 @@ class Var(object):
 
     def _del_nothing(self):
         gm = ["Don't/Can't delete this property."]
-        raise Glitch, gm
+        raise Glitch(gm)
 
     ##    self._nexus_writeVisibleComments = 0             # write, but do not get, all [!...]
     ##    self._nexus_getP4CommandComments = 0             # all [&&p4 ...]
@@ -327,7 +327,7 @@ class Var(object):
             newVal = int(newVal)
         except:
             gm = ['This property should be set to an int.']
-            raise Glitch, gm
+            raise Glitch(gm)
         if self.usePfAndNumpy:
             self._nexus_writeVisibleComments[0] = newVal
         else:
@@ -347,7 +347,7 @@ class Var(object):
             newVal = int(newVal)
         except:
             gm = ['This property should be set to an int.']
-            raise Glitch, gm
+            raise Glitch(gm)
         if self.usePfAndNumpy:
             self._nexus_getP4CommandComments[0] = newVal
         else:
@@ -368,7 +368,7 @@ class Var(object):
             newVal = int(newVal)
         except:
             gm = ['This property should be set to an int.']
-            raise Glitch, gm
+            raise Glitch(gm)
         if self.usePfAndNumpy:
             self._nexus_getWeightCommandComments[0] = newVal
         else:
@@ -389,7 +389,7 @@ class Var(object):
             newVal = int(newVal)
         except:
             gm = ['This property should be set to an int.']
-            raise Glitch, gm
+            raise Glitch(gm)
         if self.usePfAndNumpy:
             self._nexus_getAllCommandComments[0] = newVal
         else:
@@ -410,7 +410,7 @@ class Var(object):
             newVal = int(newVal)
         except:
             gm = ['This property should be set to an int.']
-            raise Glitch, gm
+            raise Glitch(gm)
         if self.usePfAndNumpy:
             self._nexus_getLineEndingsAsTokens[0] = newVal
         else:
@@ -436,7 +436,7 @@ class Var(object):
         gm.append("This fundamental variable affects array lengths, and so should not be changed during a run--")
         gm.append("It should only be set in Var.py, only to be read at start-up.")
 
-        raise Glitch, gm
+        raise Glitch(gm)
 
     rMatrixNormalizeTo1 = property(_get_rMatrixNormalizeTo1,
                                    _set_rMatrixNormalizeTo1, _del_nothing)
@@ -481,7 +481,7 @@ class Var(object):
         else:
             gm.append("The directory '%s'" % theDir)
             gm.append("does not appear to contain the p4 Examples.")
-            raise Glitch, gm
+            raise Glitch(gm)
 
     examplesDir = property(_getExamplesDir, _setExamplesDir, _del_nothing)
     """The directory where the p4 examples can be found.

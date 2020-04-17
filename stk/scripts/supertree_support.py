@@ -73,7 +73,7 @@ def main():
     elif measure == 'v-':
         measure = 8
     else:
-        print "Unknown metric"
+        print("Unknown metric")
         sys.exit(-1)
 # see p4.SuperTreeSupport for indices.
 #        if non stadard decoration, what metric to use
@@ -83,7 +83,7 @@ def main():
 
     # grab taxa in dataset
     if (verbose):
-        print "Parsing PHYML"            
+        print("Parsing PHYML")            
     XML = stk.load_phyml(input_file)
     taxa = stk.get_all_taxa(XML)
 
@@ -95,7 +95,7 @@ def main():
     if (not len(taxa) == len(terminals)):
         # this happens if the supertree has been pruned to remove dodgy taxa
         if (verbose):
-            print "Warning: supertree contains different number of taxa to your input data. Pruning input data"
+            print("Warning: supertree contains different number of taxa to your input data. Pruning input data")
         taxa.sort()
         terminals.sort()
         delete_me = []
@@ -105,13 +105,13 @@ def main():
                 delete_me.append(t)
         # strip from phyml
         if (verbose):
-            print "Deleting: " + str(len(delete_me)) + " from original "+str(len(taxa))
+            print("Deleting: " + str(len(delete_me)) + " from original "+str(len(taxa)))
         try:
             XML = stk.substitute_taxa(XML, delete_me,ignoreWarnings=True)
             # do we need a clean data to check for non-informative trees here?
         except TreeParseError as detail:
             msg = "***Error: failed to parse a tree in your data set.\n"+detail.msg
-            print msg
+            print(msg)
             return 
 
     # get all trees from phyml

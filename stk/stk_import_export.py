@@ -19,7 +19,7 @@
 #
 #    Jon Hill. jon.hill@imperial.ac.uk. 
 
-from StringIO import StringIO
+from io import StringIO
 import os
 import sys
 import math
@@ -28,10 +28,10 @@ import numpy
 from lxml import etree
 import stk.nameparser.parser as np
 import re
-import supertree_toolkit
+from . import supertree_toolkit
 from copy import deepcopy
-from supertree_toolkit import _parse_xml
-import stk_exceptions
+from .supertree_toolkit import _parse_xml
+from . import stk_exceptions
 import stk.p4
 import unicodedata
 import string as python_string
@@ -72,7 +72,7 @@ def export_to_old(xml, output_dir, verbose=False, ignoreWarnings=False):
         # Make directory
         name = s.attrib['name']
         if (verbose):
-            print "----\nWorking on:" +name
+            print("----\nWorking on:" +name)
         if (name == '' or name == None):
             msg = "One of the sources does not have a valid name. Aborting."
             raise stk_exceptions.STKImportExportError(msg)
@@ -82,7 +82,7 @@ def export_to_old(xml, output_dir, verbose=False, ignoreWarnings=False):
         # for this source, grab each tree_source and create the sub-directories
         tree_no = 1
         if (verbose):
-            print "Found "+ str(len(s.xpath("source_tree"))) + " trees in this source"
+            print("Found "+ str(len(s.xpath("source_tree"))) + " trees in this source")
         for t in s.xpath("source_tree"):
             tree_dir = os.path.join(source_dir,"Tree_"+str(tree_no))
             os.mkdir(tree_dir)
@@ -138,7 +138,7 @@ def import_old_data(input_dir, verbose=False):
     for xml in locate('*.xml', input_dir):
         # parse XML
         if (verbose):
-            print "Parsing: "+xml
+            print("Parsing: "+xml)
         current_xml = etree.parse(xml)
         # convert into PHYML
         new_source = convert_to_phyml_source(current_xml)
@@ -201,7 +201,7 @@ def convert_to_phyml_source(xml_root):
     author_list = []
     # split the string using ',', then stich together is needed
     a = input_author.lower()
-    if isinstance(a, unicode):
+    if isinstance(a, str):
         a = unicodedata.normalize('NFKD', a).encode('ascii','ignore')
     author_list = a.split(' and ')
 #    authors_t = a.split(',')
@@ -310,7 +310,7 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
     except stk_exceptions.TreeParseError as detail:
         msg = "***Error: failed to parse a tree in your data set.\n"
         msg += "File is: "+treefile+"\n"+detail.msg
-        print msg
+        print(msg)
         return
     except IOError:
         # try just the file if we failed - windows formatted
@@ -320,7 +320,7 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
         except stk_exceptions.TreeParseError as detail:
             msg = "***Error: failed to parse a tree in your data set.\n"
             msg += "File is: "+treefile+"\n"+detail.msg
-            print msg
+            print(msg)
             return
 
     
@@ -343,8 +343,8 @@ def convert_to_phyml_sourcetree(input_xml, xml_file):
         allextant = True
         allfossil = False
     else:
-        print "Unknown taxa types in "+xml_file
-        print "Setting to mixed fossil and extant so you have to correct this later"
+        print("Unknown taxa types in "+xml_file)
+        print("Setting to mixed fossil and extant so you have to correct this later")
         mixed = True
         allextant = False
         allfossil = False

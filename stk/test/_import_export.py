@@ -72,20 +72,20 @@ class TestImportExport(unittest.TestCase):
                     continue
                 failures.append(phyml_file)
         if (len(failures) > 0):
-            print failures
-        self.assert_(len(failures) == 0)
+            print(failures)
+        self.assertTrue(len(failures) == 0)
         os.remove(temp_file)
         
         
         # parse XML and check various things
         XML = _parse_xml(phyml)
         name = XML.xpath('/phylo_storage/project_name/string_value')[0].text
-        self.assert_(name == "old_stk_test")
+        self.assertTrue(name == "old_stk_test")
 
         # check numebr of souces
         find = etree.XPath('//source')
         sources = find(XML)
-        self.assert_(len(sources) == 15)
+        self.assertTrue(len(sources) == 15)
 
         # check names of sources:
         expected_names = [
@@ -107,15 +107,15 @@ class TestImportExport(unittest.TestCase):
                 ]
         for s in sources:
             name = s.attrib['name']
-            self.assert_(name in expected_names)
+            self.assertTrue(name in expected_names)
             if name == "Bertelli_etal_2006":
                 # this source publication has three trees, let's check that is the case!
                 find = etree.XPath('source_tree')
                 trees = find(s)
-                self.assert_(len(trees) == 3)
+                self.assertTrue(len(trees) == 3)
             if name == "Baptista_etal_1999":
                 volume = s.xpath('.//bibliographic_information/article/volume/string_value')[0].text
-                self.assert_(volume == "140")
+                self.assertTrue(volume == "140")
 
 
         # check total number of characters
@@ -129,17 +129,17 @@ class TestImportExport(unittest.TestCase):
         export_to_old(XML,'data/output/')
         import filecmp
         d = filecmp.dircmp('data/input/old_stk_test','data/output/old_stk_test')
-        self.assert_(len(d.left_only) == 0)
-        self.assert_(len(d.right_only) == 0)
+        self.assertTrue(len(d.left_only) == 0)
+        self.assertTrue(len(d.right_only) == 0)
         # now check you get an error when doing this again
         try:
             export_to_old(XML,'data/output/')
         except STKImportExportError:
-            self.assert_(True)
+            self.assertTrue(True)
         except:
-            self.assert_(False)
+            self.assertTrue(False)
         else:
-            self.assert_(False)
+            self.assertTrue(False)
         
         try:
             shutil.rmtree('data/output/old_stk_test')

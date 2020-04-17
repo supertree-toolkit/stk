@@ -96,15 +96,15 @@ def main():
                     continue
                 tax_data[t] = taxonomy[taxon][level]
             except KeyError:
-                print "Couldn't find "+t+" in taxonomy. Adding as null data"
+                print("Couldn't find "+t+" in taxonomy. Adding as null data")
                 tax_data[t] = 'zzzzz' # it's at the end...
 
         from sets import Set
         unique = set(tax_data.values())
         unique = list(unique)
         unique.sort()
-        print "Groups are:"
-        print unique
+        print("Groups are:")
+        print(unique)
         counts = []
         for u in unique:
             count = 0
@@ -121,7 +121,7 @@ def main():
         for c in counts[1::]:
             count_cumulate.append(c+count_cumulate[-1])
 
-        print count_cumulate
+        print(count_cumulate)
 
 
     trees = stk.obtain_trees(XML)
@@ -142,7 +142,7 @@ def main():
 
     tree_count = Counter(y)
     tree_dict = dict(tree_count)
-    tree_order = sorted(tree_dict.items(), key=lambda x: x[1], reverse=True)
+    tree_order = sorted(list(tree_dict.items()), key=lambda x: x[1], reverse=True)
     
     new_x = []
     new_y = []

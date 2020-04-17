@@ -147,7 +147,7 @@ journal_data=[
 
 def is_string_like(obj):
   'Return True if *obj* looks like a string (from matplotlib)'
-  if isinstance(obj, (str, unicode)): return True
+  if isinstance(obj, str): return True
   try: obj + ''
   except: return False
   return True
@@ -219,7 +219,7 @@ reg_defstrng= re.compile('[{]*DEFINITIONOFSTRING[(](\w+)[)][{]*(\s*[#]*\s*["]*\s
 def replace_abbrevs(strs,sourcestrng):
   if 'DEFINITIONOFSTRING' in sourcestrng or 'definitionofstring' in sourcestrng:
     v=sourcestrng
-    for abbrev,defin in strs.iteritems():
+    for abbrev,defin in strs.items():
       v= v.replace('DEFINITIONOFSTRING(%s)'%(abbrev),defin)
       v= v.replace('DEFINITIONOFSTRING(%s)'%(abbrev).lower(),defin)
       v= v.replace('DEFINITIONOFSTRING(%s)'%(abbrev).upper(),defin)
@@ -311,25 +311,25 @@ def process_name(name):
 
 
 def create_initials(strng):
-  return ''.join(filter(lambda x:x.isupper(),map(lambda x:x[0],strng.split())))
+  return ''.join([x for x in [x[0] for x in strng.split()] if x.isupper()])
 
 def identify_some_journals(bibitem,known_journals=journal_data):
 
   # First try to identify the ISSN
-  if bibitem.has_key('issn'):
+  if 'issn' in bibitem:
     for j in known_journals:
       if bibitem['issn']== j['issn']:
         return j['nombre'],j['abbrev']
 
   # Then the DOI
-  if bibitem.has_key('doi'):
+  if 'doi' in bibitem:
     for j in known_journals:
       if bibitem['doi'].find(j['doi']) != -1:
         if j['issn'] != []:      bibitem['issn']=j['issn'][0]
         return j['nombre'],j['abbrev']
 
   # If DOI does not work, identify the journal with the regexp
-  if bibitem.has_key('journal'):
+  if 'journal' in bibitem:
     for j in known_journals:
       if re.search(j['regexp'],bibitem['journal']) != None:
         if j['issn'] != []:      bibitem['issn']=j['issn'][0]

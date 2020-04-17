@@ -28,12 +28,12 @@ import os
 
 import textwrap
 
-import bibitem
-import helper
-import latex
+from . import bibitem
+from . import helper
+from . import latex
 latex.register()
 
-import cPickle as pickle
+import pickle as pickle
 
 # Index used for internally for each part of a name
 # (A_VON, A_LAST, A_JR, A_FIRST)= range(4)
@@ -57,7 +57,7 @@ class BibList(dict):
       self.set_properties_from(blist)
     except:
       try: self.bib.update(blist)  # blist es solo un diccionario
-      except:  raise TypeError, 'Argument incorrect type, must be BibList object'
+      except:  raise TypeError('Argument incorrect type, must be BibList object')
 
   def set_properties_from(self,blist):
     """
@@ -82,12 +82,12 @@ class BibList(dict):
     return s.encode(self.encoding,'ignore')
 
   def __repr__(self):
-    s= u'bib= %s\n'%(str(self.bib).decode(self.encoding,'ignore'))
-    s+= u'abbrevDict= %s\n' %(self.abbrevDict)
-    s+= u'ListItems= %s\n' %(self.ListItems)
-    s+= u'sortedList= %s\n' %(self.sortedList)
-    s+= u'issorted= %s\n' %(self.issorted)
-    s+= u'encoding= %s\n'%(self.encoding)
+    s= 'bib= %s\n'%(str(self.bib).decode(self.encoding,'ignore'))
+    s+= 'abbrevDict= %s\n' %(self.abbrevDict)
+    s+= 'ListItems= %s\n' %(self.ListItems)
+    s+= 'sortedList= %s\n' %(self.sortedList)
+    s+= 'issorted= %s\n' %(self.issorted)
+    s+= 'encoding= %s\n'%(self.encoding)
     return s.decode(self.encoding,'ignore')
 
   def preview(self,n=None):
@@ -104,7 +104,7 @@ class BibList(dict):
     for l in self.sortedList[:nn]:
       s+= '%s\n' %(self.get_item(l).preview())
 
-    s=unicode(s,self.encoding,'ignore')
+    s=str(s,self.encoding,'ignore')
     return s
 
   def add_item(self, bib, key=None):
@@ -137,7 +137,7 @@ class BibList(dict):
       return False
 
   def get_items(self):
-    return self.bib.values()
+    return list(self.bib.values())
 
   def get_item(self,key):
     return self.bib.get(key)
@@ -243,9 +243,9 @@ class BibList(dict):
     try:
       fi= helper.openfile(fname,'rb');  c= pickle.load(fi);  helper.closefile(fi)
     except: 
-      raise ValueError, 'Error loading data'
+      raise ValueError('Error loading data')
     try:    self.update(c)
-    except: raise ValueError, 'Error updating data'
+    except: raise ValueError('Error updating data')
       
   def dump(self, fname, protocol=pickle.HIGHEST_PROTOCOL):
     '''
@@ -257,7 +257,7 @@ class BibList(dict):
       fo=helper.openfile(fname,'wb');  pickle.dump(self,fo,protocol=pickle.HIGHEST_PROTOCOL);
       helper.closefile(fo)
     except:
-      raise ValueError, 'Error loading data'
+      raise ValueError('Error loading data')
 
   def import_bibtex(self, fname=None, normalize=True, ReplaceAbbrevs=True):
     """
@@ -268,12 +268,12 @@ class BibList(dict):
     st,db= bibitem.bibparse.parsefile(fname)
 
     if st != []:
-      for k,v in st.iteritems():
+      for k,v in st.items():
         self.insertAbbrev(k, v)
 
     self.keepAbbrevs = not ReplaceAbbrevs
     if db != None:
-      for k,v in db.iteritems():
+      for k,v in db.items():
         b1= bibitem.BibItem(bibitem.bibparse.replace_abbrevs(self.abbrevDict,dict(v)), normalize = normalize)
         key= b1.get_key()               # The key is generated
         if self.keepAbbrevs:  status= self.add_item(v, key)
@@ -292,7 +292,7 @@ class BibList(dict):
     ncount=0
     db= bibitem.adsparse.parsefile(fname)
     if db != None:
-      for k,v in db.iteritems():
+      for k,v in db.items():
         status= self.add_item(v)
         if status:
           ncount+= 1
@@ -321,7 +321,7 @@ class BibList(dict):
     """
 
     if verbose:
-      print '# %d items to output' %(len(self.ListItems))
+      print('# %d items to output' %(len(self.ListItems)))
 
     if formato == 'bibtex':  self.export_bibtex(fout)
     elif formato == 'latex' :  self.export_latex(fout)
@@ -345,7 +345,7 @@ class BibList(dict):
       # Abbreviations with no standard abbreviations
       abbrevs={}
       std_abb= [x[0] for x in helper.standard_abbrev]
-      for k in self.abbrevDict.keys()[:]:
+      for k in list(self.abbrevDict.keys())[:]:
         if k not in std_abb:
           abbrevs[k]= self.abbrevDict[k]
 
@@ -532,33 +532,33 @@ def test():
   if sys.argv[1:]:
     filepath= sys.argv[1]
   else:
-    print "No input file"
-    print "USAGE:  "+sys.argv[0]+ " FILE.bib\n\n  It will output the XML file: FILE.xml"
+    print("No input file")
+    print("USAGE:  "+sys.argv[0]+ " FILE.bib\n\n  It will output the XML file: FILE.xml")
     sys.exit(2)
 
   biblio= BibList()
   if filepath.find('.bib') != -1:
     nitems= biblio.import_bibtex(filepath,False,False)
-    print '%s\nFrom BibTeX file: %s'%(80*"*",filepath)
+    print('%s\nFrom BibTeX file: %s'%(80*"*",filepath))
   elif filepath.find('.ads') != -1:
     nitems= biblio.import_ads(filepath,True)
-    print '%s\nFrom ADS file: %s'%(70*"*",filepath)
-  print '%d items ingresados\n'%(nitems)
-  print 'Rodrig en los siguientes items:',biblio.search('Rodrig')
-  print 20*'='
-  print 'Items Ordenados por cite: %s' %(biblio.sort(['key']))
-  print 20*'*'
-  print 'Items Ordenados por Apellido de Autores: %s' %(biblio.sort(['author']))
-  print 20*'*'
-  print 'Items Ordenados por Fecha: %s' %(biblio.sort(['date']))
-  print 20*'*'
+    print('%s\nFrom ADS file: %s'%(70*"*",filepath))
+  print('%d items ingresados\n'%(nitems))
+  print('Rodrig en los siguientes items:',biblio.search('Rodrig'))
+  print(20*'=')
+  print('Items Ordenados por cite: %s' %(biblio.sort(['key'])))
+  print(20*'*')
+  print('Items Ordenados por Apellido de Autores: %s' %(biblio.sort(['author'])))
+  print(20*'*')
+  print('Items Ordenados por Fecha: %s' %(biblio.sort(['date'])))
+  print(20*'*')
   nn=5
-  print 'Preview (At most %d items):'%(nn)
-  print 20*'*'
-  print biblio.preview(nn)
-  print 'Preview with LaTeX symbols (At most First %d items):'%(nn)
-  print 20*'*'
-  print biblio.preview(nn).encode('latex')
+  print('Preview (At most %d items):'%(nn))
+  print(20*'*')
+  print(biblio.preview(nn))
+  print('Preview with LaTeX symbols (At most First %d items):'%(nn))
+  print(20*'*')
+  print(biblio.preview(nn).encode('latex'))
   biblio.export_bibtex('tempo.bib',4)
   biblio.export_html('tempo.html')
   biblio.export_xml('tempo.xml',prefix='')

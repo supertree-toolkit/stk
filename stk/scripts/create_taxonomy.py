@@ -5,8 +5,8 @@
 # for tree display
 #
 
-import urllib2
-from urllib import quote_plus
+import urllib.request, urllib.error, urllib.parse
+from urllib.parse import quote_plus
 import simplejson as json
 import argparse
 import os
@@ -72,13 +72,13 @@ def main():
     for taxon in taxa:
         taxon = taxon.replace("_"," ")
         if (verbose):
-            print "Looking up ", taxon
+            print("Looking up ", taxon)
         # get the data from EOL on taxon
         # What about synonyms?
         taxonq = quote_plus(taxon)
         URL = "http://eol.org/api/search/1.0.json?q="+taxonq
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
+        req = urllib.request.Request(URL)
+        opener = urllib.request.build_opener()
         f = opener.open(req)
         data = json.load(f)
         # check if there's some data
@@ -88,8 +88,8 @@ def main():
         ID = str(data['results'][0]['id']) # take first hit
         # Now look for taxonomies
         URL = "http://eol.org/api/pages/1.0/"+ID+".json"
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
+        req = urllib.request.Request(URL)
+        opener = urllib.request.build_opener()
         f = opener.open(req)
         data = json.load(f)
         if len(data['taxonConcepts']) == 0:
@@ -106,8 +106,8 @@ def main():
                     TID = str(db['identifier'])
                     break
         URL="http://eol.org/api/hierarchy_entries/1.0/"+TID+".json"
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
+        req = urllib.request.Request(URL)
+        opener = urllib.request.build_opener()
         f = opener.open(req)
         data = json.load(f)
         this_taxonomy = {}
@@ -126,7 +126,7 @@ def main():
         taxonomy[taxon] = this_taxonomy
     
     if (verbose):
-        print "Done basic taxonomy, getting more info from ITIS"
+        print("Done basic taxonomy, getting more info from ITIS")
     
     # fill in the rest of the taxonomy
     # get all genera
@@ -140,25 +140,25 @@ def main():
     genera = _uniquify(genera)
     for g in genera:
         if (verbose):
-            print "Looking up ", g
+            print("Looking up ", g)
         try:
             URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(g.strip())
         except:
             continue
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
+        req = urllib.request.Request(URL)
+        opener = urllib.request.build_opener()
         f = opener.open(req)
-        string = unicode(f.read(),"ISO-8859-1")
+        string = str(f.read(),"ISO-8859-1")
         data = json.loads(string)
         if data['scientificNames'][0] == None:
             continue
         tsn = data["scientificNames"][0]["tsn"]
         URL="http://www.itis.gov/ITISWebService/jsonservice/getFullHierarchyFromTSN?tsn="+str(tsn)
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
+        req = urllib.request.Request(URL)
+        opener = urllib.request.build_opener()
         f = opener.open(req)
         try:
-            string = unicode(f.read(),"ISO-8859-1")
+            string = str(f.read(),"ISO-8859-1")
         except:
             continue
         data = json.loads(string)
@@ -185,7 +185,7 @@ def _uniquify(l):
     for e in l:
         keys[e] = 1
 
-    return keys.keys()
+    return list(keys.keys())
 
 if __name__ == "__main__":
     main()

@@ -95,15 +95,15 @@ def main():
                     continue
                 tax_data[t] = taxonomy[taxon][level]
             except KeyError:
-                print "Couldn't find "+t+" in taxonomy. Adding as null data"
+                print("Couldn't find "+t+" in taxonomy. Adding as null data")
                 tax_data[t] = 'zzzzz' # it's at the end...
 
         from sets import Set
         unique = set(tax_data.values())
         unique = list(unique)
         unique.sort()
-        print "Groups are:"
-        print unique
+        print("Groups are:")
+        print(unique)
         counts = []
         for u in unique:
             count = 0
@@ -120,7 +120,7 @@ def main():
         for c in counts[1::]:
             count_cumulate.append(c+count_cumulate[-1])
 
-        print count_cumulate
+        print(count_cumulate)
             
 
     taxa_character_matrix = {}
@@ -178,7 +178,7 @@ def main():
     fig.subplots_adjust(left=0.3)
     ax = fig.add_subplot(1,1,1)
     ax.scatter(x,y,50,marker='o',c='r',lw=0)
-    yticks(range(0,len(all_chars)), all_chars)    
+    yticks(list(range(0,len(all_chars))), all_chars)    
     ax.set_xlim(0,len(all_taxa))
     ax.set_ylim(0,len(all_chars))
     xlabel('Taxa')

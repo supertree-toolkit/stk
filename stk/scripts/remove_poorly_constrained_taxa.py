@@ -126,8 +126,8 @@ def main():
                ):
                 delete_list.append(t)
 
-    print "Taxa: "+str(len(taxa))
-    print "Deleting: "+str(len(delete_list))
+    print("Taxa: "+str(len(taxa)))
+    print("Deleting: "+str(len(delete_list)))
 
     if not supertree == None:
         # done, so delete the problem taxa from the supertree

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-from constants import *
+from .constants import *
 
 # logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger('HumanName')
@@ -9,7 +9,7 @@ ENCODING = 'utf-8'
 def lc(value):
     '''Lower case and remove any periods to normalize for comparison.'''
     if not value:
-        return u''
+        return ''
     return value.lower().replace('.','')
 
 def is_an_initial(value):
@@ -31,7 +31,7 @@ class HumanName(object):
      
     """
     
-    def __init__(self, full_name=u"", titles_c=TITLES, prefixes_c=PREFICES, 
+    def __init__(self, full_name="", titles_c=TITLES, prefixes_c=PREFICES, 
         suffixes_c=SUFFICES, punc_titles_c=PUNC_TITLES, conjunctions_c=CONJUNCTIONS,
         capitalization_exceptions_c=dict(CAPITALIZATION_EXCEPTIONS), encoding=ENCODING):
         
@@ -45,7 +45,7 @@ class HumanName(object):
         self.count = 0
         self._members = ['title','first','middle','last','suffix']
         self.unparsable = True
-        self._full_name = u''
+        self._full_name = ''
         self.full_name = full_name
     
     def __iter__(self):
@@ -62,10 +62,10 @@ class HumanName(object):
         HumanName instances are equal to other objects whose 
         lower case unicode representations are the same
         """
-        return unicode(self).lower() == unicode(other).lower()
+        return str(self).lower() == str(other).lower()
     
     def __ne__(self, other):
-        return not unicode(self).lower() == unicode(other).lower()
+        return not str(self).lower() == str(other).lower()
     
     def __getitem__(self, key):
         if isinstance(key, slice):
@@ -73,25 +73,25 @@ class HumanName(object):
         else:
             return getattr(self, self._members[key])
     
-    def next(self):
+    def __next__(self):
         if self.count >= len(self._members):
             self.count = 0
             raise StopIteration
         else:
             c = self.count
             self.count = c + 1
-            return getattr(self, self._members[c]) or self.next()
+            return getattr(self, self._members[c]) or next(self)
 
     def __unicode__(self):
-        return u" ".join(self)
+        return " ".join(self)
     
     def __str__(self):
         return self.__unicode__().encode(self.ENCODING)
     
     def __repr__(self):
         if self.unparsable:
-            return u"<%(class)s : [ Unparsable ] >" % {'class': self.__class__.__name__,}
-        return u"<%(class)s : [\n\tTitle: '%(title)s' \n\tFirst: '%(first)s' \n\tMiddle: '%(middle)s' \n\tLast: '%(last)s' \n\tSuffix: '%(suffix)s'\n]>" % {
+            return "<%(class)s : [ Unparsable ] >" % {'class': self.__class__.__name__,}
+        return "<%(class)s : [\n\tTitle: '%(title)s' \n\tFirst: '%(first)s' \n\tMiddle: '%(middle)s' \n\tLast: '%(last)s' \n\tSuffix: '%(suffix)s'\n]>" % {
             'class': self.__class__.__name__,
             'title': self.title,
             'first': self.first,
@@ -112,23 +112,23 @@ class HumanName(object):
     
     @property
     def title(self):
-        return u" ".join(self._title_list)
+        return " ".join(self._title_list)
     
     @property
     def first(self):
-        return u" ".join(self._first_list)
+        return " ".join(self._first_list)
     
     @property
     def middle(self):
-        return u" ".join(self._middle_list)
+        return " ".join(self._middle_list)
     
     @property
     def last(self):
-        return u" ".join(self._last_list)
+        return " ".join(self._last_list)
     
     @property
     def suffix(self):
-        return u", ".join(self._suffix_list)
+        return ", ".join(self._suffix_list)
     
     @title.setter
     def title(self, value):
@@ -184,13 +184,13 @@ class HumanName(object):
         """
         pieces = []
         for part in parts:
-            pieces += map(lambda x: x.strip(' ,'), part.split(' '))
+            pieces += [x.strip(' ,') for x in part.split(' ')]
         
         # join conjunctions to surrounding parts: ['Mr. and Mrs.'], ['Jack and Jill'], ['Velasquez y Garcia']
-        conjunctions = filter(self.is_conjunction, pieces)
+        conjunctions = list(filter(self.is_conjunction, pieces))
         for conj in conjunctions:
             i = pieces.index(conj)
-            pieces[i-1] = u' '.join(pieces[i-1:i+2])
+            pieces[i-1] = ' '.join(pieces[i-1:i+2])
             if self.is_title(pieces[i+1]):
                 # if the second name is a title, assume the first one is too and add the 
                 # two titles with the conjunction between them to the titles constant 
@@ -200,7 +200,7 @@ class HumanName(object):
             pieces.pop(i)
         
         # join prefices to following lastnames: ['de la Vega'], ['van Buren']
-        prefixes = filter(self.is_prefix, pieces)
+        prefixes = list(filter(self.is_prefix, pieces))
         for prefix in prefixes:
             try:
                 i = pieces.index(prefix)
@@ -208,13 +208,13 @@ class HumanName(object):
                 # if two prefixes in a row ("de la Vega"), have to do extra work to find the index the second time around
                 def find_p(p):
                     return p.endswith(prefix) # closure on prefix
-                m = filter(find_p, pieces)
+                m = list(filter(find_p, pieces))
                 # I wonder if some input will throw an IndexError here. Means it can't find prefix anyore.
                 i = pieces.index(m[0])
-            pieces[i] = u' '.join(pieces[i:i+2])
+            pieces[i] = ' '.join(pieces[i:i+2])
             pieces.pop(i+1)
             
-        log.debug(u"pieces: " + unicode(pieces))
+        log.debug("pieces: " + str(pieces))
         return pieces
     
     def _parse_full_name(self):
@@ -224,17 +224,17 @@ class HumanName(object):
         if not self._full_name:
             raise BlankHumanNameError("Missing full_name")
         
-        if not isinstance(self._full_name, unicode):
-            self._full_name = unicode(self._full_name, self.ENCODING)
+        if not isinstance(self._full_name, str):
+            self._full_name = str(self._full_name, self.ENCODING)
         
         # collapse multiple spaces
-        self._full_name = re.sub(re_spaces, u" ", self._full_name.strip() )
+        self._full_name = re.sub(re_spaces, " ", self._full_name.strip() )
         
         # break up full_name by commas
         parts = [x.strip() for x in self._full_name.split(",")]
         
-        log.debug(u"full_name: " + self._full_name)
-        log.debug(u"parts: " + unicode(parts))
+        log.debug("full_name: " + self._full_name)
+        log.debug("parts: " + str(parts))
         
         if len(parts) == 1:
             
@@ -271,7 +271,7 @@ class HumanName(object):
                 self._suffix_list += parts[1:]
                 
                 pieces = self._parse_pieces(parts[0].split(' '))
-                log.debug(u"pieces: " + unicode(pieces))
+                log.debug("pieces: " + str(pieces))
                 
                 for i, piece in enumerate(pieces):
                     try:
@@ -294,7 +294,7 @@ class HumanName(object):
                 # lastname comma: last, title first middles[,] suffix [,suffix]
                 pieces = self._parse_pieces(parts[1].split(' '))
                 
-                log.debug(u"pieces: " + unicode(pieces))
+                log.debug("pieces: " + str(pieces))
                 
                 self._last_list.append(parts[0])
                 for i, piece in enumerate(pieces):
@@ -316,7 +316,7 @@ class HumanName(object):
                     pass
                 
         if not self.first and len(self._middle_list) < 1 and len(self._last_list) < 1:
-            log.error(u"Unparsable full_name: " + self._full_name)
+            log.error("Unparsable full_name: " + self._full_name)
         else:
             self.unparsable = False
     
@@ -361,7 +361,7 @@ class HumanName(object):
             u'Shirley Maclaine'
         
         """
-        name = unicode(self)
+        name = str(self)
         if not (name == name.upper() or name == name.lower()):
             return
         self._title_list = self.cap_piece(self.title).split(' ')

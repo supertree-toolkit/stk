@@ -29,7 +29,7 @@ from stk.supertree_toolkit import _swap_tree_in_XML, substitute_taxa
 import os
 from lxml import etree
 from util import *
-import StringIO
+import io
 import numpy
 import stk.p4 as p4
 
@@ -72,12 +72,12 @@ class TestSchema(unittest.TestCase):
         passes = validator.Passes()
         optionErrors = validator.OptionErrors()
         failures = []
-        for filename in optionErrors.keys():
+        for filename in list(optionErrors.keys()):
             if not filename in ignore_list:
                 failures.append(filename)
         if (len(failures) > 0):
-            print failures
-        self.assert_(len(failures) == 0)
+            print(failures)
+        self.assertTrue(len(failures) == 0)
 
     def test_validation_output_phyml(self):
         validator.Reset()
@@ -85,12 +85,12 @@ class TestSchema(unittest.TestCase):
         passes = validator.Passes()
         optionErrors = validator.OptionErrors()
         failures = []
-        for filename in optionErrors.keys():
+        for filename in list(optionErrors.keys()):
             if not filename in ignore_list:
                 failures.append(filename)
         if (len(failures) > 0):
-            print failures
-        self.assert_(len(failures) == 0)
+            print(failures)
+        self.assertTrue(len(failures) == 0)
 
     def test_validation_input_stubs(self):
         validator.Reset()
@@ -98,12 +98,12 @@ class TestSchema(unittest.TestCase):
         passes = validator.Passes()
         optionErrors = validator.OptionErrors()
         failures = []
-        for filename in optionErrors.keys():
+        for filename in list(optionErrors.keys()):
             if not filename in ignore_list:
                 failures.append(filename)
         if (len(failures) > 0):
-            print failures
-        self.assert_(len(failures) == 0)
+            print(failures)
+        self.assertTrue(len(failures) == 0)
     
     def test_validation_output_stubs(self):
         validator.Reset()
@@ -111,12 +111,12 @@ class TestSchema(unittest.TestCase):
         passes = validator.Passes()
         optionErrors = validator.OptionErrors()
         failures = []
-        for filename in optionErrors.keys():
+        for filename in list(optionErrors.keys()):
             if not filename in ignore_list:
                 failures.append(filename)
         if (len(failures) > 0):
-            print failures
-        self.assert_(len(failures) == 0)
+            print(failures)
+        self.assertTrue(len(failures) == 0)
 
     def test_validation_output_phyml_partials(self):
         validator.Reset()
@@ -124,19 +124,19 @@ class TestSchema(unittest.TestCase):
         passes = validator.Passes()
         optionErrors = validator.OptionErrors()
         failures = []
-        for filename in optionErrors.keys():
+        for filename in list(optionErrors.keys()):
             failures.append(filename)
-        self.assert_(len(failures) == 0)
+        self.assertTrue(len(failures) == 0)
         validator.Reset()
         validator.ValidateOptionsFiles(schemafile = os.path.join("../../../schema", "phylo_storage.rng"), testDir = "input", depth = 1, extension = "phyml", xmlRootNode = "phylo_storage", ignoreValidXMLCheck=True)
         passes = validator.Passes()
         optionErrors = validator.OptionErrors()
         failures = []
-        for filename in optionErrors.keys():
+        for filename in list(optionErrors.keys()):
             failures.append(filename)
         if (len(failures) > 0):
-            print failures
-        self.assert_(len(failures) == 0)
+            print(failures)
+        self.assertTrue(len(failures) == 0)
 
 
 

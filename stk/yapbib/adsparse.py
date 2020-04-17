@@ -3,7 +3,7 @@
 import sys,os
 import re
 import codecs
-import helper
+from . import helper
 
 ads_fields={'R': 'Bibliographic Code',
             'A': 'Author List',
@@ -62,7 +62,7 @@ def parsedata(page):
 
   for paper in s:
     item= parseentry(paper)
-    if item.has_key('author'):
+    if 'author' in item:
       biblist[item['_code']]= dict(item)
   if biblist == {}: return None
   return biblist
@@ -88,7 +88,7 @@ def parseentry(paper):
     """ Returns a list of authors where each author is a list of the form:
     [von, Last, First, Jr]
     """
-    return map(helper.process_name,data.split(';'))
+    return list(map(helper.process_name,data.split(';')))
 
   # Start the parsing of the entry
   Id=paper[0:paper.index('%')].strip('\n').strip()
@@ -97,7 +97,7 @@ def parseentry(paper):
   campos= reg_adstags.split(paper)[1:]
   for i1 in range(0,len(campos),2):
     c,v=campos[i1],campos[i1+1]
-    if c in ads_literal_fields.keys():
+    if c in list(ads_literal_fields.keys()):
       item[ads_literal_fields[c]]=v.strip('\n')
     elif c == 'J':
       journal= get_journal(v).strip('\n')
@@ -128,7 +128,7 @@ def parseentry(paper):
     elif c == 'F':
       item['affiliation']= get_affil(v)
 
-  if item.has_key('affiliation') and len(item['affiliation']) == 1: 
+  if 'affiliation' in item and len(item['affiliation']) == 1: 
     # Correct affiliations to "one for each author" even if it is the same for all
     item['affiliation']=len(item['author'])*item['affiliation']
 
@@ -202,10 +202,10 @@ Issue 14, pp. 145204 (2008).
 total electron emission (TEE, all emission processes) for 100 keV 
 amu<SUP>-1</SUP> He<SUP>2+</SUP> on He and H<SUB>2</SUB> targets. Double 
 differential cross sections have been obtained for emission angles 
-\u03b8 = 0\xb0, 20\xb0 and 45\xb0, and electron energies ranging 
+\\u03b8 = 0\xb0, 20\xb0 and 45\xb0, and electron energies ranging 
 from 2 to 300 eV. Pure ionization, mainly due to single ionization, 
 dominates the low-energy electron emission. The main observed structure 
-in the electron spectra, a cusp centred at \u03b8 = 0\xb0 and at a 
+in the electron spectra, a cusp centred at \\u03b8 = 0\xb0 and at a 
 speed equal to that of the incident projectile, presents an asymmetric 
 shape. This is in contrast to the symmetric shape observed by us at 25 
 keV amu<SUP>-1</SUP> for the same collision systems, suggesting a change 
@@ -215,16 +215,16 @@ in the cusp formation mechanism for TI within this energy range.
 """
   
   b= parsedata(inputstring)
-  print '%d ADS items parsed\n'%(len(b.keys()))
-  for v in b.itervalues():
+  print('%d ADS items parsed\n'%(len(list(b.keys()))))
+  for v in b.values():
     s=str(v)
-    print s.encode('utf8'),'\n'
+    print(s.encode('utf8'),'\n')
 ################################################################################
   c= parsefile('ejemplos/ejemplo1.ads')
-  print '%d ADS items parsed\n'%(len(c.keys()))
-  for v in c.itervalues():
+  print('%d ADS items parsed\n'%(len(list(c.keys()))))
+  for v in c.values():
     s=str(v)
-    print s.encode('utf8'),'\n'
+    print(s.encode('utf8'),'\n')
   
 if __name__ == "__main__":
   main()

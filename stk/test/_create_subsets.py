@@ -28,7 +28,7 @@ from stk.supertree_toolkit import create_subset, _parse_xml
 import os
 from lxml import etree
 from util import *
-import StringIO
+import io
 import numpy
 import stk.p4 as p4
 parser = etree.XMLParser(remove_blank_text=True)
@@ -43,7 +43,7 @@ class TestSubset(unittest.TestCase):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
         searchTerms = {}
         new_XML = create_subset(XML,searchTerms) #empty search terms - warning and return original XML
-        self.assert_(new_XML == XML)
+        self.assertTrue(new_XML == XML)
 
     def testSingleYear(self):
         XML = etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)
@@ -53,7 +53,7 @@ class TestSubset(unittest.TestCase):
         find = etree.XPath("//year")
         yrs = find(root)
         for y in yrs:
-            self.assert_(int(y.xpath('integer_value')[0].text) == 2011)
+            self.assertTrue(int(y.xpath('integer_value')[0].text) == 2011)
         # could do more extensive tests here...
 
     def testRealDataYears(self):
@@ -65,9 +65,9 @@ class TestSubset(unittest.TestCase):
         yrs = find(root)
         i = 0
         for y in yrs:
-            self.assert_(int(y.xpath('integer_value')[0].text) == 1999)
+            self.assertTrue(int(y.xpath('integer_value')[0].text) == 1999)
             i+=1
-        self.assert_(i==4)
+        self.assertTrue(i==4)
         srcs = root.findall(".//source")
         names = []
         for s in srcs:
@@ -85,9 +85,9 @@ class TestSubset(unittest.TestCase):
         chrs = find(root)
         i = 0
         for c in chrs:
-            self.assert_(c.attrib['type'] == "molecular")
+            self.assertTrue(c.attrib['type'] == "molecular")
             i+=1
-        self.assert_(i==2)
+        self.assertTrue(i==2)
         srcs = root.findall(".//source")
         names = []
         for s in srcs:
@@ -97,7 +97,7 @@ class TestSubset(unittest.TestCase):
         self.assertListEqual(expected_names,names)
         # and two source trees too
         src_trs = root.findall(".//source_tree")
-        self.assert_(len(src_trs) == 2)
+        self.assertTrue(len(src_trs) == 2)
     
     def testRealDataCharType(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
@@ -114,7 +114,7 @@ class TestSubset(unittest.TestCase):
         self.assertListEqual(expected_names,names)
         # and two source trees too
         src_trs = root.findall(".//source_tree")
-        self.assert_(len(src_trs) == 7)
+        self.assertTrue(len(src_trs) == 7)
 
     def testRealDataCharTypeMorphOnly(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
@@ -124,7 +124,7 @@ class TestSubset(unittest.TestCase):
         find = etree.XPath("//character")
         chrs = find(root)
         for c in chrs:
-            self.assert_(c.attrib['type'] == "morphological")
+            self.assertTrue(c.attrib['type'] == "morphological")
         srcs = root.findall(".//source")
         names = []
         for s in srcs:
@@ -134,7 +134,7 @@ class TestSubset(unittest.TestCase):
         self.assertListEqual(expected_names,names)
         # and two source trees too
         src_trs = root.findall(".//source_tree")
-        self.assert_(len(src_trs) == 4)
+        self.assertTrue(len(src_trs) == 4)
 
     def testRealDataCharCytb(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
@@ -151,7 +151,7 @@ class TestSubset(unittest.TestCase):
         self.assertListEqual(expected_names,names)
         # and two source trees too
         src_trs = root.findall(".//source_tree")
-        self.assert_(len(src_trs) == 9)
+        self.assertTrue(len(src_trs) == 9)
 
     
     def testRealDataCharMorphYear(self):
@@ -167,7 +167,7 @@ class TestSubset(unittest.TestCase):
         expected_names = ["Aliabadian_etal_2007","Bertelli_etal_2006"]
         self.assertListEqual(expected_names,names)
         src_trs = root.findall(".//source_tree")
-        self.assert_(len(src_trs) == 4)
+        self.assertTrue(len(src_trs) == 4)
 
 
     def testRealDataCharMorphMol(self):
@@ -183,7 +183,7 @@ class TestSubset(unittest.TestCase):
         expected_names = ["Bertelli_etal_2006"]
         self.assertListEqual(expected_names,names)
         src_trs = root.findall(".//source_tree")
-        self.assert_(len(src_trs) == 1)
+        self.assertTrue(len(src_trs) == 1)
 
     def testRealDataCharMorphOrMol(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
@@ -211,7 +211,7 @@ class TestSubset(unittest.TestCase):
         expected_names = ["Aragon_etal_1999","Baker_etal_2006"]
         self.assertListEqual(expected_names,names)
         src_trs = root.findall(".//source_tree")
-        self.assert_(len(src_trs) == 2)
+        self.assertTrue(len(src_trs) == 2)
 
     def testRealDataCharTaxonYearEmpty(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
@@ -226,7 +226,7 @@ class TestSubset(unittest.TestCase):
         expected_names = []
         self.assertListEqual(expected_names,names)
         src_trs = root.findall(".//source_tree")
-        self.assert_(len(src_trs) == 0)
+        self.assertTrue(len(src_trs) == 0)
 
     def testRealDataAllFossil(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
@@ -241,7 +241,7 @@ class TestSubset(unittest.TestCase):
         expected_names = ["Baker_etal_2005"]
         self.assertListEqual(expected_names,names)
         src_trs = root.findall(".//source_tree")
-        self.assert_(len(src_trs) == 1)
+        self.assertTrue(len(src_trs) == 1)
 
 if __name__ == '__main__':
     unittest.main()

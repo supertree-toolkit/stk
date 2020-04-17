@@ -31,7 +31,7 @@ def main():
     args = parser.parse_args()
     verbose = args.verbose
     input_files = args.input_files
-    print input_files
+    print(input_files)
 
     for phyml in input_files:
         xml_root = stk._parse_xml(stk.load_phyml(phyml))

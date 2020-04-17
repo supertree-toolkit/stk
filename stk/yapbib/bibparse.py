@@ -12,10 +12,10 @@ USAGE:
 
 import sys
 import re,string
-import latex
+from . import latex
 latex.register()
 
-import helper
+from . import helper
 
 
 # Some exception classes
@@ -48,12 +48,12 @@ def process_pages(pages):
   # try and standardise the page numbers by removing
   # UTF characters and double hyphens, then doing the split
   pages = pages.replace("--","-")
-  pages = pages.replace(u"\u002D","-")
-  pages = pages.replace(u"\u2012","-")
-  pages = pages.replace(u"\u2212","-")
-  pages = pages.replace(u"\u002D\u002D","-")
-  pages = pages.replace(u"\u2012\u2012","-")
-  pages = pages.replace(u"\u2212\u2212","-")
+  pages = pages.replace("\u002D","-")
+  pages = pages.replace("\u2012","-")
+  pages = pages.replace("\u2212","-")
+  pages = pages.replace("\u002D\u002D","-")
+  pages = pages.replace("\u2012\u2012","-")
+  pages = pages.replace("\u2212\u2212","-")
   pp=pages.split('-')
   firstpage=pp[0]
   if len(pp)==2:
@@ -66,7 +66,7 @@ def bibtexauthor(data):
   """ Returns a list of authors where each author is a list of the form:
   [von, Last, First, Jr]
   """
-  return map(helper.process_name,helper.removebraces(data).split(' and '))
+  return list(map(helper.process_name,helper.removebraces(data).split(' and ')))
 
 def get_fields(strng, strict=False):
   """
@@ -145,19 +145,19 @@ def create_entrycode(b={}):
   if b['_type'] == 'mastersthesis':   bibid+= 'MT'
   elif b['_type'] == 'phdthesis':    bibid+= 'PHD'
   elif b['_type'] in ['book','incollection','proceedings','conference','misc','techreport']:
-    if b.has_key('booktitle'):
+    if 'booktitle' in b:
       bibid+= helper.create_initials(b['booktitle'])
-    elif b.has_key('series'):
+    elif 'series' in b:
       bibid+= helper.create_initials(b['series'])
 
-  if b.has_key('title'):
+  if 'title' in b:
       bibid+= '_'+helper.create_initials(b.get('title','').upper())[:3]
 
   if 'thesis' not in b['_type']:
-    if b.has_key('firstpage'):  
+    if 'firstpage' in b:  
         if not b['firstpage'] == None:
             bibid+= 'p'+b['firstpage'].strip()
-    elif b.has_key('volume'):
+    elif 'volume' in b:
         if not b['volume'] == None:
             bibid+= 'v'+b['volume'].strip()
   return helper.oversimplify(bibid)
@@ -166,7 +166,7 @@ def create_entrycode(b={}):
 def replace_abbrevs(strs,bitem):
   """ Resolve all abbreviations found in the value fields of one entry"""
   b=bitem
-  for f,v in b.iteritems():
+  for f,v in b.items():
     if helper.is_string_like(v):  b[f]= helper.replace_abbrevs(strs,v)
   return b
 
@@ -295,12 +295,12 @@ def test():
   if sys.argv[1:]:
     filepath= sys.argv[1]
   else:
-    print "No input file"
-    print "USAGE:  "+sys.argv[0]+ " FILE.bib\n\n  It will output the XML file: FILE.xml"
+    print("No input file")
+    print("USAGE:  "+sys.argv[0]+ " FILE.bib\n\n  It will output the XML file: FILE.xml")
     sys.exit(2)
 
   strings,db = parsefile(filepath)
-  print db
+  print(db)
     
 def main():
   test()

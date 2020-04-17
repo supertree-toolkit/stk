@@ -101,7 +101,7 @@ def main():
         # grab taxa in dataset - ignore if tree
         fileName, fileExtension = os.path.splitext(input_file)
         if (fileExtension == '.phyml'):
-            print "Parsing PHYML"            
+            print("Parsing PHYML")            
             XML = stk.load_phyml(input_file)
             taxa = stk.get_all_taxa(XML)
         else:
@@ -111,7 +111,7 @@ def main():
                 taxa.append(line.strip())
             f.close()
 
-    print len(taxa)
+    print(len(taxa))
     taxonomy = {}
     index = 0
     with open(input_taxonomy, 'r') as f:
@@ -128,15 +128,15 @@ def main():
                         break
                     j = j+ 1
                 if j == len(row):
-                    print "Error finding the desired level in your taxonomy file."
-                    print "You asked for: "+level.lower()
-                    print "Your taxonomy contains: "+" ".join(row)
+                    print("Error finding the desired level in your taxonomy file.")
+                    print("You asked for: "+level.lower())
+                    print("Your taxonomy contains: "+" ".join(row))
                     sys.exit()
             else:
                taxonomy[row[0].replace(" ","_")] = row[index] # the replace is to make sure we're consistant across PHYML, tree and taxonomy
 
-    print len(taxonomy)
-    values = taxonomy.values()
+    print(len(taxonomy))
+    values = list(taxonomy.values())
     values = _uniquify(values)
     n = len(values)
     colours = get_colours(n,format="HEX",saturation=saturation,value=value)
@@ -216,7 +216,7 @@ def _uniquify(l):
     for e in l:
         keys[e] = 1
 
-    return keys.keys()
+    return list(keys.keys())
 
 if __name__ == "__main__":
     main()

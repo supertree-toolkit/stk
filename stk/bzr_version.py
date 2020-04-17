@@ -4,7 +4,7 @@ It uses the current working tree to determine the revision.
 So don't edit it. :)
 """
 
-version_info = {'branch_nick': u'supertree-toolkit',
+version_info = {'branch_nick': 'supertree-toolkit',
  'build_date': '2017-01-24 12:32:17 +0000',
  'clean': None,
  'date': '2017-01-12 15:14:33 +0000',
@@ -17,6 +17,6 @@ file_revisions = {}
 
 
 if __name__ == '__main__':
-    print 'revision: %(revno)s' % version_info
-    print 'nick: %(branch_nick)s' % version_info
-    print 'revision id: %(revision_id)s' % version_info
+    print('revision: %(revno)s' % version_info)
+    print('nick: %(branch_nick)s' % version_info)
+    print('revision id: %(revision_id)s' % version_info)

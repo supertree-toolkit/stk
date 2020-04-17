@@ -18,10 +18,10 @@ import os
 import textwrap
 import codecs
 
-import bibparse
-import adsparse
-import helper
-import latex
+from . import bibparse
+from . import adsparse
+from . import helper
+from . import latex
 latex.register()
 
 
@@ -81,11 +81,11 @@ class BibItem(dict):
   def _verify_entry(self,b):
     '''Verify that the entry is valid'''
     for f in helper.minimalfields:
-      if not b.has_key(f):
+      if f not in b:
         return False
 
-    if b.has_key('journal'):
-      if not b.has_key('journal_abbrev'):
+    if 'journal' in b:
+      if 'journal_abbrev' not in b:
       # Create one abbrev
         journal, abbrev= helper.identify_some_journals(b)
         b['journal_abbrev']= abbrev
@@ -166,12 +166,12 @@ class BibItem(dict):
     s+="%15s: %s\n" %("citekey", self.get_field('_code'))
     s+="%15s: %s\n" %("internal key", self.get_key())
 
-    for k in self.keys():
+    for k in list(self.keys()):
       if k.startswith('_'):
 				continue;
       s+= "%15s: %s\n" %(k, helper.reg_defstrng.sub(r'\1\2',self.get_field(k,'')))
     try: 
-      return unicode(s,self.encoding,'ignore')
+      return str(s,self.encoding,'ignore')
     except:
       return s
   
@@ -192,9 +192,9 @@ class BibItem(dict):
     """
     who= who.lower()
     if who not in ['author','editor']:
-      raise AttributeError, "who must be author or editor, not %s"%(who)
+      raise AttributeError("who must be author or editor, not %s"%(who))
 
-    if who in self.keys():
+    if who in list(self.keys()):
       if strict: # Return Last names
         return [x[A_LAST] for x in self[who]]
       else: # Return Full last names ('von Last')
@@ -242,8 +242,8 @@ class BibItem(dict):
     format= 0  =>   F[irst|.] M[iddle|.] von Last
     format= 1  =>   von Last, F[irst|.] M[iddle|.]
     """
-    if self.has_key(who):
-      return map(self._format_one_author,self[who],len(self[who])*[format],len(self[who])*[Initial])
+    if who in self:
+      return list(map(self._format_one_author,self[who],len(self[who])*[format],len(self[who])*[Initial]))
     else:
       return [[]]
 
@@ -303,9 +303,9 @@ class BibItem(dict):
     
   def getpages(self):
     s=''
-    if self.has_key('firstpage'):
+    if 'firstpage' in self:
       s+= self['firstpage'].strip()
-      if self.has_key('lastpage'):
+      if 'lastpage' in self:
         p= self['lastpage'].strip()
         if p != '':
           s+= '-%s' % (p)
@@ -323,13 +323,13 @@ class BibItem(dict):
 
     # Add list of authors
     for f in ['author','editor']:
-      if self.has_key(f):
+      if f in self:
         autores= ' and '.join(self.get_authorsList(format=1,who=f))
         wrap.initial_indent=initial_indent
         s+= wrap.fill(f + ' = {' + autores +'},') + '\n'
     # Some fields that are copied literally
     for kk in helper.textualfields:
-      if self.has_key(kk) and not kk.startswith('_'):
+      if kk in self and not kk.startswith('_'):
 				if kk in helper.nowrapfields:  # Not wrap
 					s+= '%s%s = {%s}, \n' % (initial_indent,kk , self[kk])
 				else:
@@ -577,7 +577,7 @@ class BibItem(dict):
     if title != '' and st.get('title',['','']) !=  None:
       s+= title.strip().join(st.get('title',['','']))
 
-    if self.has_key('author') and st.get('author')!= None:
+    if 'author' in self and st.get('author')!= None:
       form_aut=''
       list_aut= self.get_authorsList()
       if len(list_aut) > 10:
@@ -598,7 +598,7 @@ class BibItem(dict):
       s= s.strip().join(st.get('_type',['','']))
 
     s= s.decode('latex','replace')  # Convert from latex some characters using encoding
-    return unicode(s)
+    return str(s)
 
   def to_latex(self,style={}):
     """
@@ -645,7 +645,7 @@ class BibItem(dict):
     try:
       source+' '
     except:
-      raise TypeError, 'source must be a string'
+      raise TypeError('source must be a string')
     st,entry= bibparse.parseentry(source)
     if entry != None:
       self.set(entry)
@@ -657,7 +657,7 @@ class BibItem(dict):
     try:
       source+' '
     except:
-      raise TypeError, 'source must be a string'
+      raise TypeError('source must be a string')
     entry= adsparse.parseentry(source)
     if entry != None:
       self.set(entry)
@@ -772,12 +772,12 @@ div.abstract {display: none;padding: 0em 1% 0em 1%; border: 3px double rgb(130,1
   '''
   hfoot=""" </body></html> """
 
-  b=BibItem({'_type':'article','author':[['della', 'Picca','Renata',''],['',r'Mart{\'{\i}}nez','R. O.',''],['','Fiol','J.',''],['','Macri','P.','']],'year':'2008','firstpage':'402', 'lastpage':'406', 'abstract':u'We employ different theoretical models, both classical and quantum-mechanical, to explore the recoil-ion momentum distribution in positron atom collisions. We pay special attention to the vicinity of the kinematical threshold between ionization and positronium formation. We demonstrate that it is intertwined by dynamical constraints to the formation of highly excited and low-lying continuum electron positron states. Finally we discuss how the study of recoil- ion momentum distribution, which is characteristic of a reaction microscopy technique, might represent an alternative approach to the standard spectroscopy of electrons and positrons.',  'title' : u'Threshold effects in the ionization of atoms by positron impact',
+  b=BibItem({'_type':'article','author':[['della', 'Picca','Renata',''],['',r'Mart{\'{\i}}nez','R. O.',''],['','Fiol','J.',''],['','Macri','P.','']],'year':'2008','firstpage':'402', 'lastpage':'406', 'abstract':'We employ different theoretical models, both classical and quantum-mechanical, to explore the recoil-ion momentum distribution in positron atom collisions. We pay special attention to the vicinity of the kinematical threshold between ionization and positronium formation. We demonstrate that it is intertwined by dynamical constraints to the formation of highly excited and low-lying continuum electron positron states. Finally we discuss how the study of recoil- ion momentum distribution, which is characteristic of a reaction microscopy technique, might represent an alternative approach to the standard spectroscopy of electrons and positrons.',  'title' : 'Threshold effects in the ionization of atoms by positron impact',
    '_code':'Fiol07NIMB',
-  'journal' : u'Nuclear Instruments and Methods in Physics Research B',
+  'journal' : 'Nuclear Instruments and Methods in Physics Research B',
   'year' : '2008',
   'volume' : '266',
-  'url' : u'http://adsabs.harvard.edu/abs/2008NIMPB.266..402B',
+  'url' : 'http://adsabs.harvard.edu/abs/2008NIMPB.266..402B',
   'doi' : '10.1016/j.nimb.2007.12.040',
 })
 
@@ -804,7 +804,7 @@ div.abstract {display: none;padding: 0em 1% 0em 1%; border: 3px double rgb(130,1
   pages = {402-406},
 }
 """
-  atest=u"""
+  atest="""
 %R 2008JPhB...41n5204M
 %T Transfer ionization and total electron emission for 100 keV amu<SUP>-1</SUP> 
 He<SUP>2+</SUP> colliding on He and H<SUB>2</SUB>
@@ -843,47 +843,47 @@ in the cusp formation mechanism for TI within this energy range.
   f=codecs.open('bibit.xml','w'); f.write(b.to_xml()); f.close()
 
   # Other item copied from b
-  print 80*'*'
-  print 'Define one entry...'
-  print 30*'*'
+  print(80*'*')
+  print('Define one entry...')
+  print(30*'*')
   b.display()   # Display to std output
 
   c=BibItem(b,normalize=True)
-  print '\n',80*'*','\nc=BibItem(b,normalize=True)',
-  print '\n',30*'*'
-  print '\nc='
-  print c
-  print 80*'*'
-  print 'Testing some Methods...'
-  print 30*'*'
-  print '\nc.get_key()=',c.get_key()
-  print '\nc.Fields()=',c.get_fields()
-  print '\nc is b? ->', c is b,',      c == b? ->', c == b
+  print('\n',80*'*','\nc=BibItem(b,normalize=True)', end=' ')
+  print('\n',30*'*')
+  print('\nc=')
+  print(c)
+  print(80*'*')
+  print('Testing some Methods...')
+  print(30*'*')
+  print('\nc.get_key()=',c.get_key())
+  print('\nc.Fields()=',c.get_fields())
+  print('\nc is b? ->', c is b,',      c == b? ->', c == b)
 
-  print "c.search('colisions'): ",c.search('colisions')
-  print "c.search('collisions'): ",c.search('collisions')
-  print "c.search('Fiol'): ",c.search('Fiol')
-  print "c.search('Nuclear'): ",c.search('Nuclear')
-  print "c.search('Nuclear',['author','year']): ",c.search('Nuclear',['author','year'])
-  print "c.search('Nuclear',['author','year','journal']): ",c.search('Nuclear',['author','year','journal'])
+  print("c.search('colisions'): ",c.search('colisions'))
+  print("c.search('collisions'): ",c.search('collisions'))
+  print("c.search('Fiol'): ",c.search('Fiol'))
+  print("c.search('Nuclear'): ",c.search('Nuclear'))
+  print("c.search('Nuclear',['author','year']): ",c.search('Nuclear',['author','year']))
+  print("c.search('Nuclear',['author','year','journal']): ",c.search('Nuclear',['author','year','journal']))
 
   d= BibItem()
   d.from_bibtex(btest)
-  print 80*'*'
-  print 'Entry from a source in BIBTEX format'
-  print 30*'*'
+  print(80*'*')
+  print('Entry from a source in BIBTEX format')
+  print(30*'*')
   d.display()
-  print 80*'*'
+  print(80*'*')
   e= BibItem()
   e.from_ads(atest)
-  print 'Entry from a source in ADS PORTABLE format'
-  print 30*'*'  
+  print('Entry from a source in ADS PORTABLE format')
+  print(30*'*')  
   e.display()
 
   # Display some message
-  mensaje=u'Se han escrito ejemplos de una publicacion en formatos latex, bibtex, xml y html en los archivos bibit.tex, bibit.bib, bibit.xml y bibit.html'
+  mensaje='Se han escrito ejemplos de una publicacion en formatos latex, bibtex, xml y html en los archivos bibit.tex, bibit.bib, bibit.xml y bibit.html'
 
-  print '%s\n%s\n%s' %(80*'*', textwrap.fill(mensaje,width=80),80*'*')
+  print('%s\n%s\n%s' %(80*'*', textwrap.fill(mensaje,width=80),80*'*'))
 
 
 def main():

@@ -32,20 +32,20 @@ class TestSTK(unittest.TestCase):
         try:
             _check_uniqueness(etree.tostring(non_unique_names))
         except NotUniqueError:
-            self.assert_(True)
+            self.assertTrue(True)
             return
             
-        self.assert_(False)
+        self.assertTrue(False)
 
     def test_check_nonuniquess_pass(self):
         new_xml = etree.parse("data/input/full_tree.phyml")
         try:
             _check_uniqueness(etree.tostring(new_xml))
         except:
-            self.assert_(False)
+            self.assertTrue(False)
             return
             
-        self.assert_(True)
+        self.assertTrue(True)
 
     def test_parse_subs_file(self):
         """ tests a very standard subs file with some 
@@ -55,12 +55,12 @@ class TestSTK(unittest.TestCase):
         third_subs = "Avisaurus_archibaldi,Avisaurus_gloriae,Cathayornis,Concornis_lacustris,Enantiornis_leali,Eoalulavis,Gobipteryx_minuta,Iberomesornis,Lectavis_bretincola,Neuquenornis_volans,Noguerornis,Sinornis_santensis,Soroavisaurus_australis,Two_medicine_form,Yungavolucris_brevipedalis"
         
         old_taxa, new_taxa = parse_subs_file('data/input/sub_files/subs1.txt')
-        self.assert_(old_taxa[0] == "MRPoutgroup")
-        self.assert_(new_taxa[0] == None)
-        self.assert_(new_taxa[1] == second_sub);
-        self.assert_(old_taxa[1] == "Dinornithidae")
-        self.assert_(old_taxa[2] == "Enantiornithes")
-        self.assert_(new_taxa[2] == third_subs)
+        self.assertTrue(old_taxa[0] == "MRPoutgroup")
+        self.assertTrue(new_taxa[0] == None)
+        self.assertTrue(new_taxa[1] == second_sub);
+        self.assertTrue(old_taxa[1] == "Dinornithidae")
+        self.assertTrue(old_taxa[2] == "Enantiornithes")
+        self.assertTrue(new_taxa[2] == third_subs)
 
     def test_parse_subs_correct_but_badly_formatted(self):
         """ This file is correct, but difficult to parse
@@ -76,16 +76,16 @@ class TestSTK(unittest.TestCase):
 
         old_taxa, new_taxa = parse_subs_file('data/input/sub_files/subs_edge.txt')
 
-        self.assert_(len(old_taxa) == len(new_taxa))
-        self.assert_(len(old_taxa) == 7)
-        self.assert_(old_taxa[1] == edge2In)
-        self.assert_(old_taxa[3] == edge4In)
-        self.assert_(new_taxa[0] == edge1)
-        self.assert_(new_taxa[1] == edge2)
-        self.assert_(new_taxa[2] == edge3)
-        self.assert_(new_taxa[4] == edge4)
-        self.assert_(new_taxa[5] == edge4)
-        self.assert_(new_taxa[6] == edge4)
+        self.assertTrue(len(old_taxa) == len(new_taxa))
+        self.assertTrue(len(old_taxa) == 7)
+        self.assertTrue(old_taxa[1] == edge2In)
+        self.assertTrue(old_taxa[3] == edge4In)
+        self.assertTrue(new_taxa[0] == edge1)
+        self.assertTrue(new_taxa[1] == edge2)
+        self.assertTrue(new_taxa[2] == edge3)
+        self.assertTrue(new_taxa[4] == edge4)
+        self.assertTrue(new_taxa[5] == edge4)
+        self.assertTrue(new_taxa[6] == edge4)
 
     def test_bad_subs_file(self):
         """ Tests what happens when an incorrectly formatted subs file is passed in
@@ -95,9 +95,9 @@ class TestSTK(unittest.TestCase):
         try:
             old_taxa, new_taxa = parse_subs_file('data/input/nonsense.dat'); 
         except UnableToParseSubsFile:
-            self.assert_(True)
+            self.assertTrue(True)
             return
-        self.assert_(False)
+        self.assertTrue(False)
 
 
     def test_taxa_tree(self):
@@ -108,10 +108,10 @@ class TestSTK(unittest.TestCase):
         try:
             _check_taxa(etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)); 
         except InvalidSTKData as e:
-            print e.msg
-            self.assert_(False)
+            print(e.msg)
+            self.assertTrue(False)
             return
-        self.assert_(True)
+        self.assertTrue(True)
 
     def test_incorrect_taxa_tree(self):
         """Tests the _check_taxa function
@@ -120,9 +120,9 @@ class TestSTK(unittest.TestCase):
         try:
             _check_taxa(etree.tostring(etree.parse('data/input/check_taxa.phyml',parser),pretty_print=True)); 
         except InvalidSTKData:
-            self.assert_(True)
+            self.assertTrue(True)
             return
-        self.assert_(False)
+        self.assertTrue(False)
 
     def test_check_data(self):
         """Tests the _check_data function
@@ -132,14 +132,14 @@ class TestSTK(unittest.TestCase):
         try:
             _check_data(etree.tostring(etree.parse('data/input/sub_taxa.phyml',parser),pretty_print=True)); 
         except InvalidSTKData as e:
-            print e.msg
-            self.assert_(False)
+            print(e.msg)
+            self.assertTrue(False)
             return
         except NotUniqueError as e:
-            print e.msg
-            self.assert_(False)
+            print(e.msg)
+            self.assertTrue(False)
             return
-        self.assert_(True)
+        self.assertTrue(True)
 
 
     def test_check_sources(self):
@@ -153,14 +153,14 @@ class TestSTK(unittest.TestCase):
             new_xml = _swap_tree_in_XML(XML, None, name)
             _check_sources(new_xml); 
         except InvalidSTKData as e:
-            print e.msg
-            self.assert_(False)
+            print(e.msg)
+            self.assertTrue(False)
             return
         except NotUniqueError as e:
-            self.assert_(False)
-            print e.msg
+            self.assertTrue(False)
+            print(e.msg)
             return
-        self.assert_(True)
+        self.assertTrue(True)
 
 
     def test_str(self):
@@ -200,7 +200,7 @@ class TestSTK(unittest.TestCase):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
         characters = get_all_characters(XML)
         expected_keys = ['molecular', 'morphological']
-        key = characters.keys()
+        key = list(characters.keys())
         key.sort()
         self.assertListEqual(key,expected_keys)
         
@@ -219,47 +219,47 @@ class TestSTK(unittest.TestCase):
     def test_get_publication_years(self):
         XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
         years = get_publication_years(XML)
-        self.assert_(years[2011] == 2)
-        self.assert_(years[2010] == 1)
-        self.assert_(years[2009] == 0) 
+        self.assertTrue(years[2011] == 2)
+        self.assertTrue(years[2010] == 1)
+        self.assertTrue(years[2009] == 0) 
 
     def test_data_summary(self):
         XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
         simple_summary = data_summary(XML)
         full_summary = data_summary(XML,detailed = True)
 
-        self.assertRegexpMatches(simple_summary,'Number of taxa: 8')
-        self.assertRegexpMatches(simple_summary,'Number of characters: 2')
-        self.assertRegexpMatches(simple_summary,'Number of character types: 2')
-        self.assertRegexpMatches(simple_summary,'Number of trees: 3')
-        self.assertRegexpMatches(simple_summary,'Number of fossil taxa: 2')
-        self.assertRegexpMatches(simple_summary,'Number of analyses: 2')
-        self.assertRegexpMatches(simple_summary,'Data spans: 2010 - 2011')
+        self.assertRegex(simple_summary,'Number of taxa: 8')
+        self.assertRegex(simple_summary,'Number of characters: 2')
+        self.assertRegex(simple_summary,'Number of character types: 2')
+        self.assertRegex(simple_summary,'Number of trees: 3')
+        self.assertRegex(simple_summary,'Number of fossil taxa: 2')
+        self.assertRegex(simple_summary,'Number of analyses: 2')
+        self.assertRegex(simple_summary,'Data spans: 2010 - 2011')
 
-        self.assertRegexpMatches(full_summary,'Number of taxa: 8')
-        self.assertRegexpMatches(full_summary,'Number of characters: 2')
-        self.assertRegexpMatches(full_summary,'Number of character types: 2')
-        self.assertRegexpMatches(full_summary,'Number of trees: 3')
-        self.assertRegexpMatches(full_summary,'Number of fossil taxa: 2')
-        self.assertRegexpMatches(full_summary,'Number of analyses: 2')
-        self.assertRegexpMatches(full_summary,'Data spans: 2010 - 2011')
-        self.assertRegexpMatches(full_summary,'     morphological')
-        self.assertRegexpMatches(full_summary,'     molecular')
-        self.assertRegexpMatches(full_summary,'Taxa List')
+        self.assertRegex(full_summary,'Number of taxa: 8')
+        self.assertRegex(full_summary,'Number of characters: 2')
+        self.assertRegex(full_summary,'Number of character types: 2')
+        self.assertRegex(full_summary,'Number of trees: 3')
+        self.assertRegex(full_summary,'Number of fossil taxa: 2')
+        self.assertRegex(full_summary,'Number of analyses: 2')
+        self.assertRegex(full_summary,'Data spans: 2010 - 2011')
+        self.assertRegex(full_summary,'     morphological')
+        self.assertRegex(full_summary,'     molecular')
+        self.assertRegex(full_summary,'Taxa List')
 
     def test_data_summary_incomplete(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
         simple_summary = data_summary(XML)
         XML = etree.tostring(etree.parse('data/input/old_stk_input_data_summary_test.phyml',parser),pretty_print=True)
         simple_summary2 = data_summary(XML,ignoreWarnings=True)
-        self.assert_(simple_summary == simple_summary2)
+        self.assertTrue(simple_summary == simple_summary2)
 
     def test_character_numbers(self):
         XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
         characters = get_character_numbers(XML)
-        self.assert_(characters['feathers'] == 1)
-        self.assert_(characters['12S'] == 2)
-        self.assert_(characters['nonsense'] == 0)
+        self.assertTrue(characters['feathers'] == 1)
+        self.assertTrue(characters['12S'] == 2)
+        self.assertTrue(characters['nonsense'] == 0)
 
     def test_analyses(self):
         XML = etree.tostring(etree.parse('data/input/check_fossils.phyml',parser),pretty_print=True)
@@ -283,7 +283,7 @@ class TestSTK(unittest.TestCase):
         self.assertListEqual(expected_idents, non_ind)
         self.assertListEqual(expected_subsets, subset)
         # check the second tree has not been removed
-        self.assertRegexpMatches(new_xml,re.escape('((A:1.00000,B:1.00000)0.00000:0.00000,F:1.00000,E:1.00000,(G:1.00000,H:1.00000)0.00000:0.00000)0.00000:0.00000;'))
+        self.assertRegex(new_xml,re.escape('((A:1.00000,B:1.00000)0.00000:0.00000,F:1.00000,E:1.00000,(G:1.00000,H:1.00000)0.00000:0.00000)0.00000:0.00000;'))
         # check that the first tree is removed
         self.assertNotRegexpMatches(new_xml,re.escape('((A:1.00000,B:1.00000)0.00000:0.00000,(F:1.00000,E:1.00000)0.00000:0.00000)0.00000:0.00000;'))
 
@@ -319,17 +319,17 @@ class TestSTK(unittest.TestCase):
     def test_overlap(self):
         XML = etree.tostring(etree.parse('data/input/check_overlap_ok.phyml',parser),pretty_print=True)
         overlap_ok,keys = data_overlap(XML)
-        self.assert_(overlap_ok)
+        self.assertTrue(overlap_ok)
         # Increase number required for sufficient overlap - this should fail
         overlap_ok,keys = data_overlap(XML,overlap_amount=3)
-        self.assert_(not overlap_ok)
+        self.assertTrue(not overlap_ok)
         # Now plot some graphics - kinda hard to test this, but not failing will suffice for now
         temp_file_handle, temp_file = tempfile.mkstemp(suffix=".png")
         overlap_ok,keys = data_overlap(XML,filename=temp_file,detailed=True)
-        self.assert_(overlap_ok)
+        self.assertTrue(overlap_ok)
         os.remove(temp_file)
         overlap_ok,keys = data_overlap(XML,filename=temp_file)
-        self.assert_(overlap_ok)
+        self.assertTrue(overlap_ok)
         os.remove(temp_file)
 
     def test_data_overlap_against_old_stk(self):
@@ -338,7 +338,7 @@ class TestSTK(unittest.TestCase):
         temp_file_handle, temp_file = tempfile.mkstemp(suffix=".pdf")
         overlap_ok,keys = data_overlap(XML,filename=temp_file,detailed=False)
         # this is not ok!
-        self.assert_(not overlap_ok)
+        self.assertTrue(not overlap_ok)
         # now compare against the old code. This was created using
         #stk_check_overlap.pl --dir data/input/old_stk_test --compressed --graphic
         #Node number, tree file
@@ -363,26 +363,26 @@ class TestSTK(unittest.TestCase):
         #8,data/input/old_stk_test/Bertelli_etal_2006/Tree 1/Bertelli_etal_2006_1_corr.tre
         #9,data/input/old_stk_test/Barhoum_Burns_2002/Tree 1/Barhoum_Burns_2002_corr.tre
         # So that's 10 clusters
-        self.assert_(len(keys) == 10)
+        self.assertTrue(len(keys) == 10)
         keys = sorted(keys, key = len, reverse=True)
         # the keys should be ordered from large to small, so
-        self.assert_(len(keys[0]) == 6) # same as node 7 above
-        self.assert_(len(keys[1]) == 4) # same as node 8 above
-        self.assert_(len(keys[2]) == 2) # same as node 6 or 4 above
-        self.assert_(len(keys[3]) == 2) # same as node 6 or 4 above
-        self.assert_(len(keys[4]) == 1) # same as node 0,1,2,3,5 or 9 above
-        self.assert_(len(keys[5]) == 1) # same as node 0,1,2,3,5 or 9 above
-        self.assert_(len(keys[6]) == 1) # same as node 0,1,2,3,5 or 9 above
-        self.assert_(len(keys[7]) == 1) # same as node 0,1,2,3,5 or 9 above
-        self.assert_(len(keys[8]) == 1) # same as node 0,1,2,3,5 or 9 above
-        self.assert_(len(keys[9]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assertTrue(len(keys[0]) == 6) # same as node 7 above
+        self.assertTrue(len(keys[1]) == 4) # same as node 8 above
+        self.assertTrue(len(keys[2]) == 2) # same as node 6 or 4 above
+        self.assertTrue(len(keys[3]) == 2) # same as node 6 or 4 above
+        self.assertTrue(len(keys[4]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assertTrue(len(keys[5]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assertTrue(len(keys[6]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assertTrue(len(keys[7]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assertTrue(len(keys[8]) == 1) # same as node 0,1,2,3,5 or 9 above
+        self.assertTrue(len(keys[9]) == 1) # same as node 0,1,2,3,5 or 9 above
         # Now let's check the largest node contains the right things
         # We can only do that as both Andersson_1999a, Andersson_1999b are in same cluster and
         # both the Baker_etal_2007 papers are there too. Otherwise we wouldn't know which 
         # was a and b...
-        self.assert_("Andersson_1999b_1" in keys[0])
-        self.assert_("Andersson_1999a_1" in keys[0])
-        self.assert_("Baker_etal_2007a_1" in keys[0])
+        self.assertTrue("Andersson_1999b_1" in keys[0])
+        self.assertTrue("Andersson_1999a_1" in keys[0])
+        self.assertTrue("Baker_etal_2007a_1" in keys[0])
 
     def test_sort_data(self):
         XML = etree.tostring(etree.parse('data/input/create_matrix.phyml',parser),pretty_print=True)
@@ -409,15 +409,15 @@ class TestSTK(unittest.TestCase):
         import time
         time.sleep(1) # so we have a differet timestamp
         XML2 = add_historical_event(XML2, "An event 2")
-        self.assertRegexpMatches(XML2, r'<history>')
-        self.assertRegexpMatches(XML2, r'<event>')
-        self.assertRegexpMatches(XML2, r'<datetime>')
-        self.assertRegexpMatches(XML2, r'An event 2')
-        self.assertRegexpMatches(XML2, r'An event 1')
+        self.assertRegex(XML2, r'<history>')
+        self.assertRegex(XML2, r'<event>')
+        self.assertRegex(XML2, r'<datetime>')
+        self.assertRegex(XML2, r'An event 2')
+        self.assertRegex(XML2, r'An event 1')
         # That's some tags found, now let's get the datetimes (they have the same unless by some completely random
         # coincidence the two calls straddle a minute - can't really test for that without lots of parsing, etc, so
         # let's just settle with the correct datetime being found
-        self.assertRegexpMatches(XML2, now1)
+        self.assertRegex(XML2, now1)
 
     def test_read_matrix_nexus(self):
         matrix,taxa = read_matrix("data/input/matrix.nex")
@@ -471,15 +471,15 @@ class TestSTK(unittest.TestCase):
         XML = etree.tostring(etree.parse('data/input/clean_data.phyml',parser),pretty_print=True)
         XML = clean_data(XML)
         trees = obtain_trees(XML)
-        self.assert_(len(trees) == 2)
+        self.assertTrue(len(trees) == 2)
         expected_trees = {'Hill_2011_2': '(A,B,(C,D,E));', 'Hill_2011_1': '(A, B, C, (D, E, F));'}
         for t in trees:
-            self.assert_(_trees_equal(trees[t],expected_trees[t]))
+            self.assertTrue(_trees_equal(trees[t],expected_trees[t]))
 
         # check only one source remains
         names = get_all_source_names(XML)
-        self.assert_(len(names) == 1)
-        self.assert_(names[0] == "Hill_2011")
+        self.assertTrue(len(names) == 1)
+        self.assertTrue(names[0] == "Hill_2011")
        
     def test_check_data(self):
         XML = etree.tostring(etree.parse('data/input/clean_data.phyml',parser),pretty_print=True)
@@ -487,13 +487,13 @@ class TestSTK(unittest.TestCase):
         try:
             _check_data(XML)
         except UninformativeTreeError as e:
-            self.assertRegexpMatches(e.msg,"contains only 2 taxa and is not informative")
-            self.assertRegexpMatches(e.msg,"doesn't contain any clades and is not informative")
+            self.assertRegex(e.msg,"contains only 2 taxa and is not informative")
+            self.assertRegex(e.msg,"doesn't contain any clades and is not informative")
 
     def test_replace_genera(self):
         XML = etree.tostring(etree.parse('data/input/old_stk_input.phyml',parser),pretty_print=True)
         XML,generic,subs = replace_genera(XML,dry_run=True)
-        self.assert_(XML == None)
+        self.assertTrue(XML == None)
         # Old STK gave the following subs
         # Gallus = Gallus gallus
         # Larus = Larus argentatus,Larus marinus
@@ -589,8 +589,8 @@ class TestSTK(unittest.TestCase):
          ('tRNA-Lys','molecular')
              ]
         for c in characters:
-            self.assert_(c in expected_characters)
-        self.assert_(len(characters) == len(expected_characters))
+            self.assertTrue(c in expected_characters)
+        self.assertTrue(len(characters) == len(expected_characters))
 
     def test_create_taxonomy(self):
         XML = etree.tostring(etree.parse('data/input/create_taxonomy.phyml',parser),pretty_print=True)
@@ -602,7 +602,7 @@ class TestSTK(unittest.TestCase):
             self.maxDiff = None
             self.assertDictEqual(taxonomy, expected)
         else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
+            print(bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function")
         return
     
     def test_create_taxonomy_from_tree(self):
@@ -616,7 +616,7 @@ class TestSTK(unittest.TestCase):
             self.maxDiff = None
             self.assertDictEqual(taxonomy, expected)
         else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the create_taxonomy function"
+            print(bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the create_taxonomy function")
         return
     
     def test_taxonomy_checker(self):
@@ -627,7 +627,7 @@ class TestSTK(unittest.TestCase):
             self.maxDiff = None
             self.assertDictEqual(equivs, expected)
         else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
+            print(bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function")
         return
 
     def test_taxonomy_checker2(self):
@@ -636,11 +636,11 @@ class TestSTK(unittest.TestCase):
             # This test is a bit dodgy as it depends on EOL's server speed. Run it a few times before deciding it's broken.
             equivs = taxonomic_checker(XML,verbose=False)
             self.maxDiff = None
-            self.assert_(equivs['Agathamera_crassa'][0][0] == 'Agathemera_crassa')
-            self.assert_(equivs['Celatoblatta_brunni'][0][0] == 'Maoriblatta_brunni')
-            self.assert_(equivs['Blatta_lateralis'][1] == 'amber')
+            self.assertTrue(equivs['Agathamera_crassa'][0][0] == 'Agathemera_crassa')
+            self.assertTrue(equivs['Celatoblatta_brunni'][0][0] == 'Maoriblatta_brunni')
+            self.assertTrue(equivs['Blatta_lateralis'][1] == 'amber')
         else:
-            print bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function"
+            print(bcolors.WARNING + "WARNING: "+ bcolors.ENDC+ "No internet connection found. Not checking the taxonomy_checker function")
         return
 
 
@@ -669,19 +669,19 @@ class TestSTK(unittest.TestCase):
         xml_root = _parse_xml(XML)
         source_tree_element = xml_root.xpath('/phylo_storage/sources/source/source_tree')[0]
         tree_name = create_tree_name(XML, source_tree_element)
-        self.assert_(tree_name == 'Hill_2011_1')
+        self.assertTrue(tree_name == 'Hill_2011_1')
 
     def test_all_name_tree(self):
         XML = etree.tostring(etree.parse('data/input/single_source_no_names.phyml',parser),pretty_print=True)
         new_xml = set_all_tree_names(XML)
         XML = etree.tostring(etree.parse('data/input/single_source.phyml',parser),pretty_print=True)
-        self.assert_(isEqualXML(new_xml,XML))
+        self.assertTrue(isEqualXML(new_xml,XML))
 
     def test_all_rename_tree(self):
         XML = etree.tostring(etree.parse('data/input/single_source_same_tree_name.phyml',parser),pretty_print=True)
         new_xml = set_all_tree_names(XML,overwrite=True)
         XML = etree.tostring(etree.parse('data/output/single_source_same_tree_name.phyml',parser),pretty_print=True)
-        self.assert_(isEqualXML(new_xml,XML))
+        self.assertTrue(isEqualXML(new_xml,XML))
 
     def test_get_all_tree_names(self):
         XML = etree.tostring(etree.parse('data/input/single_source_same_tree_name.phyml',parser),pretty_print=True)
@@ -702,7 +702,7 @@ def internet_on(host="8.8.8.8", port=443, timeout=5):
         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
         return True
     except Exception as ex:
-        print ex.message
+        print(ex.message)
         return False    
 
 

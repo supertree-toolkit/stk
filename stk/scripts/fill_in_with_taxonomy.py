@@ -19,8 +19,8 @@
 #
 #    Jon Hill. jon.hill@york.ac.uk
 
-import urllib2
-from urllib import quote_plus
+import urllib.request, urllib.error, urllib.parse
+from urllib.parse import quote_plus
 import simplejson as json
 import argparse
 import copy
@@ -42,8 +42,8 @@ def get_tree_taxa_taxonomy_eol(taxon):
 
     taxonq = quote_plus(taxon)
     URL = "http://eol.org/api/search/1.0.json?q="+taxonq
-    req = urllib2.Request(URL)
-    opener = urllib2.build_opener()
+    req = urllib.request.Request(URL)
+    opener = urllib.request.build_opener()
     f = opener.open(req)
     data = json.load(f)
     
@@ -52,8 +52,8 @@ def get_tree_taxa_taxonomy_eol(taxon):
     ID = str(data['results'][0]['id']) # take first hit
     # Now look for taxonomies
     URL = "http://eol.org/api/pages/1.0/"+ID+".json"
-    req = urllib2.Request(URL)
-    opener = urllib2.build_opener()
+    req = urllib.request.Request(URL)
+    opener = urllib.request.build_opener()
     f = opener.open(req)
     data = json.load(f)
     if len(data['taxonConcepts']) == 0:
@@ -67,15 +67,15 @@ def get_tree_taxa_taxonomy_eol(taxon):
         TID = str(db['identifier'])
         break
     URL="http://eol.org/api/hierarchy_entries/1.0/"+TID+".json"
-    req = urllib2.Request(URL)
-    opener = urllib2.build_opener()
+    req = urllib.request.Request(URL)
+    opener = urllib.request.build_opener()
     f = opener.open(req)
     data = json.load(f)
     tax_array = {}
     tax_array['provider'] = currentdb
     for a in data['ancestors']:
         try:
-            if a.has_key('taxonRank') :
+            if 'taxonRank' in a :
                 temp_level = a['taxonRank'].encode("ascii","ignore")
                 if (temp_level in taxonomy_levels):
                     # note the dump into ASCII
@@ -93,7 +93,7 @@ def get_tree_taxa_taxonomy_eol(taxon):
         # add taxonomy in to the taxonomy!
         # some issues here, so let's make sure it's OK
         temp_name = taxon.split(" ")            
-        if data.has_key('taxonRank') :
+        if 'taxonRank' in data :
             if not data['taxonRank'].lower() == 'species':
                 tax_array[data['taxonRank'].lower()] = temp_name[0]
             else:
@@ -134,29 +134,29 @@ def get_tree_taxa_taxonomy_worms(taxon):
 def get_tree_taxa_taxonomy_itis(taxon):
 
     URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(taxon.replace('_',' ').strip())
-    req = urllib2.Request(URL)
-    opener = urllib2.build_opener()
+    req = urllib.request.Request(URL)
+    opener = urllib.request.build_opener()
     f = opener.open(req)    
-    string = unicode(f.read(),"ISO-8859-1")
+    string = str(f.read(),"ISO-8859-1")
     this_item = json.loads(string)
     if this_item['scientificNames'] == [None]: # not found
         return {}
     tsn = this_item['scientificNames'][0]['tsn'] # there might be records that aren't valid - they point to the valid one though
     # so call another function to get any valid names
     URL="http://www.itis.gov/ITISWebService/jsonservice/getAcceptedNamesFromTSN?tsn="+tsn
-    req = urllib2.Request(URL)
-    opener = urllib2.build_opener()
+    req = urllib.request.Request(URL)
+    opener = urllib.request.build_opener()
     f = opener.open(req)
-    string = unicode(f.read(),"ISO-8859-1")
+    string = str(f.read(),"ISO-8859-1")
     this_item = json.loads(string)
     if not this_item['acceptedNames'] == [None]:
         tsn = this_item['acceptedNames'][0]['acceptedTsn']
 
     URL="http://www.itis.gov/ITISWebService/jsonservice/getFullHierarchyFromTSN?tsn="+str(tsn)
-    req = urllib2.Request(URL)
-    opener = urllib2.build_opener()
+    req = urllib.request.Request(URL)
+    opener = urllib.request.build_opener()
     f = opener.open(req)
-    string = unicode(f.read(),"ISO-8859-1")
+    string = str(f.read(),"ISO-8859-1")
     data = json.loads(string)
     # construct array
     this_taxonomy = {}
@@ -176,10 +176,10 @@ def get_taxonomy_eol(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
 
         # get data
         URL="http://eol.org/api/hierarchy_entries/1.0/"+str(ID)+".json?common_names=false&synonyms=false&cache_ttl="
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
+        req = urllib.request.Request(URL)
+        opener = urllib.request.build_opener()
         f = opener.open(req)
-        string = unicode(f.read(),"ISO-8859-1")
+        string = str(f.read(),"ISO-8859-1")
         this_item = json.loads(string)
         if this_item == None:
             return taxonomy  
@@ -197,7 +197,7 @@ def get_taxonomy_eol(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
                 # add species:
                 this_taxonomy['species'] = taxon.replace(" ","_")
                 if verbose:
-                    print "\tAdding "+taxon
+                    print("\tAdding "+taxon)
                 taxonomy[taxon] = this_taxonomy
                 if not tmpfile == None:
                     stk.save_taxonomy(taxonomy,tmpfile)
@@ -223,18 +223,18 @@ def get_taxonomy_eol(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
     # main bit of the get_taxonomy_eol function
     taxonq = quote_plus(start_otu)
     URL = "http://eol.org/api/search/1.0.json?q="+taxonq
-    req = urllib2.Request(URL)
-    opener = urllib2.build_opener()
+    req = urllib.request.Request(URL)
+    opener = urllib.request.build_opener()
     f = opener.open(req)
     data = json.load(f)
     start_id = str(data['results'][0]['id']) # this is the page ID. We get the species ID next
     URL = "http://eol.org/api/pages/1.0/"+start_id+".json"
-    req = urllib2.Request(URL)
-    opener = urllib2.build_opener()
+    req = urllib.request.Request(URL)
+    opener = urllib.request.build_opener()
     f = opener.open(req)
     data = json.load(f)
     if len(data['taxonConcepts']) == 0:
-        print "Error finding you start taxa. Spelling?"
+        print("Error finding you start taxa. Spelling?")
         return None  
     start_id = data['taxonConcepts'][0]['identifier']
     start_taxonomy_level = data['taxonConcepts'][0]['taxonRank'].lower()
@@ -255,15 +255,15 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
 
         # get data
         URL="http://www.itis.gov/ITISWebService/jsonservice/getFullRecordFromTSN?tsn="+ID
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
+        req = urllib.request.Request(URL)
+        opener = urllib.request.build_opener()
         f = opener.open(req)
-        string = unicode(f.read(),"ISO-8859-1")
+        string = str(f.read(),"ISO-8859-1")
         this_item = json.loads(string)
         if this_item == None:
             return taxonomy
         if not this_item['usage']['taxonUsageRating'].lower() == 'valid':
-            print "rejecting " , this_item['scientificName']['combinedName']
+            print("rejecting " , this_item['scientificName']['combinedName'])
             return taxonomy        
         if this_item['taxRank']['rankName'].lower().strip() == 'species':
             # add data to taxonomy dictionary
@@ -273,10 +273,10 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
                 # get the taxonomy of this species
                 tsn = this_item["scientificName"]["tsn"]
                 URL="http://www.itis.gov/ITISWebService/jsonservice/getFullHierarchyFromTSN?tsn="+tsn
-                req = urllib2.Request(URL)
-                opener = urllib2.build_opener()
+                req = urllib.request.Request(URL)
+                opener = urllib.request.build_opener()
                 f = opener.open(req)
-                string = unicode(f.read(),"ISO-8859-1")
+                string = str(f.read(),"ISO-8859-1")
                 data = json.loads(string)
                 this_taxonomy = {}
                 for level in data['hierarchyList']:
@@ -284,7 +284,7 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
                         # note the dump into ASCII            
                         this_taxonomy[level['rankName'].lower().encode("ascii","ignore")] = level['taxonName'].encode("ascii","ignore")
                 if verbose:
-                    print "\tAdding "+taxon
+                    print("\tAdding "+taxon)
                 taxonomy[taxon] = this_taxonomy
                 if not tmpfile == None:
                     stk.save_taxonomy(taxonomy,tmpfile)
@@ -294,10 +294,10 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
 
         all_children = []
         URL="http://www.itis.gov/ITISWebService/jsonservice/getHierarchyDownFromTSN?tsn="+ID
-        req = urllib2.Request(URL)
-        opener = urllib2.build_opener()
+        req = urllib.request.Request(URL)
+        opener = urllib.request.build_opener()
         f = opener.open(req)
-        string = unicode(f.read(),"ISO-8859-1")
+        string = str(f.read(),"ISO-8859-1")
         this_item = json.loads(string)
         if this_item == None:
             return taxonomy
@@ -320,28 +320,28 @@ def get_taxonomy_itis(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
 
     # main bit of the get_taxonomy_worms function
     URL="http://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey="+quote_plus(start_otu.strip())
-    req = urllib2.Request(URL)
-    opener = urllib2.build_opener()
+    req = urllib.request.Request(URL)
+    opener = urllib.request.build_opener()
     f = opener.open(req)
-    string = unicode(f.read(),"ISO-8859-1")
+    string = str(f.read(),"ISO-8859-1")
     this_item = json.loads(string)
     start_id = this_item['scientificNames'][0]['tsn'] # there might be records that aren't valid - they point to the valid one though
     # call it again via the ID this time to make sure we've got the right one.
     # so call another function to get any valid names
     URL="http://www.itis.gov/ITISWebService/jsonservice/getAcceptedNamesFromTSN?tsn="+start_id
-    req = urllib2.Request(URL)
-    opener = urllib2.build_opener()
+    req = urllib.request.Request(URL)
+    opener = urllib.request.build_opener()
     f = opener.open(req)
-    string = unicode(f.read(),"ISO-8859-1")
+    string = str(f.read(),"ISO-8859-1")
     this_item = json.loads(string)
     if not this_item['acceptedNames'] == [None]:
         start_id = this_item['acceptedNames'][0]['acceptedTsn']
 
     URL="http://www.itis.gov/ITISWebService/jsonservice/getFullRecordFromTSN?tsn="+start_id
-    req = urllib2.Request(URL)
-    opener = urllib2.build_opener()
+    req = urllib.request.Request(URL)
+    opener = urllib.request.build_opener()
     f = opener.open(req)
-    string = unicode(f.read(),"ISO-8859-1")
+    string = str(f.read(),"ISO-8859-1")
     this_item = json.loads(string)
     start_taxonomy_level = this_item['taxRank']['rankName'].lower()
 
@@ -368,7 +368,7 @@ def get_taxonomy_worms(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
         if this_item == None:
             return taxonomy
         if not this_item['status'].lower() == 'accepted':
-            print "rejecting " , this_item.valid_name
+            print("rejecting " , this_item.valid_name)
             return taxonomy        
         if this_item['rank'].lower() == 'species':
             # add data to taxonomy dictionary
@@ -389,7 +389,7 @@ def get_taxonomy_worms(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
                     if current_child == '': # empty one is a string for some reason
                         break
                 if verbose:
-                    print "\tAdding "+this_item.scientificname
+                    print("\tAdding "+this_item.scientificname)
                 taxonomy[this_item.valid_name] = tax_array
                 if not tmpfile == None:
                     stk.save_taxonomy(taxonomy,tmpfile)
@@ -431,8 +431,8 @@ def get_taxonomy_worms(taxonomy, start_otu, verbose,tmpfile=None,skip=False):
             start_taxonomy_level = 'infraorder'
         else:
             start_taxonomy_level = start_taxa['rank'].lower()
-    except urllib2.HTTPError:
-        print "Error finding start_otu taxonomic level. Do you have an internet connection?"
+    except urllib.error.HTTPError:
+        print("Error finding start_otu taxonomic level. Do you have an internet connection?")
         sys.exit(-1)
 
     aphiaIDsDone = []
@@ -519,7 +519,7 @@ def main():
         load_tree_taxonomy = True
     if skip:
         if taxonomy == None:
-            print "Error: If you're skipping checking online, then you need to supply taxonomy files"
+            print("Error: If you're skipping checking online, then you need to supply taxonomy files")
             return
 
     # grab taxa in tree
@@ -527,7 +527,7 @@ def main():
     taxa_list = stk._getTaxaFromNewick(tree)
     
     if verbose:
-        print "Taxa count for input tree: ", len(taxa_list)
+        print("Taxa count for input tree: ", len(taxa_list))
 
     # load in any taxonomy files - we still call the APIs as a) they may have updated data and
     # b) the user may have missed some first time round (i.e. expanded the tree and not redone 
@@ -560,25 +560,25 @@ def main():
     if (pref_db == 'itis'):
         # get taxonomy info from itis
         if (verbose):
-            print "Getting data from ITIS"
+            print("Getting data from ITIS")
         if (verbose):
-            print "Dealing with taxa in tree"
+            print("Dealing with taxa in tree")
         for t in taxa_list:
             if verbose:
-                print "\t"+t
+                print("\t"+t)
             if not(t in tree_taxonomy or t.replace("_"," ") in tree_taxonomy):
                 # we don't have data - NOTE we assume things are *not* updated here if we do
                 tree_taxonomy[t] = get_tree_taxa_taxonomy_itis(t)
        
         if save_taxonomy:
             if (verbose):
-                print "Saving tree taxonomy"
+                print("Saving tree taxonomy")
             # note -temporary save as we overwrite this file later.
             stk.save_taxonomy(tree_taxonomy,save_taxonomy_file+'_tree.csv')
 
         # get taxonomy from worms
         if verbose:
-            print "Now dealing with all other taxa - this might take a while..."
+            print("Now dealing with all other taxa - this might take a while...")
         # create a temp file so we can checkpoint and continue
         tmpf, tmpfile = tempfile.mkstemp()
         
@@ -606,27 +606,27 @@ def main():
             pass
     elif (pref_db == 'worms'):
         if (verbose):
-            print "Getting data from WoRMS"
+            print("Getting data from WoRMS")
         # get tree taxonomy from worms
         if (verbose):
-            print "Dealing with taxa in tree"
+            print("Dealing with taxa in tree")
         
         for t in taxa_list:
             if verbose:
-                print "\t"+t
+                print("\t"+t)
             if not(t in tree_taxonomy or t.replace("_"," ") in tree_taxonomy):
                 # we don't have data - NOTE we assume things are *not* updated here if we do
                 tree_taxonomy[t] = get_tree_taxa_taxonomy_worms(t)
 
         if save_taxonomy:
             if (verbose):
-                print "Saving tree taxonomy"
+                print("Saving tree taxonomy")
             # note -temporary save as we overwrite this file later.
             stk.save_taxonomy(tree_taxonomy,save_taxonomy_file+'_tree.csv')
 
         # get taxonomy from worms
         if verbose:
-            print "Now dealing with all other taxa - this might take a while..."
+            print("Now dealing with all other taxa - this might take a while...")
         # create a temp file so we can checkpoint and continue
         tmpf, tmpfile = tempfile.mkstemp()
         
@@ -655,17 +655,17 @@ def main():
 
     elif (pref_db == 'ncbi'):
         # get taxonomy from ncbi
-        print "Sorry, NCBI is not implemented yet"        
+        print("Sorry, NCBI is not implemented yet")        
         pass
     elif (pref_db == 'eol'):
         if (verbose):
-            print "Getting data from EOL"
+            print("Getting data from EOL")
         # get tree taxonomy from worms
         if (verbose):
-            print "Dealing with taxa in tree"
+            print("Dealing with taxa in tree")
         for t in taxa_list:
             if verbose:
-                print "\t"+t
+                print("\t"+t)
             try:
                 tree_taxonomy[t]
                 pass # we have data - NOTE we assume things are *not* updated here...
@@ -677,13 +677,13 @@ def main():
        
         if save_taxonomy:
             if (verbose):
-                print "Saving tree taxonomy"
+                print("Saving tree taxonomy")
             # note -temporary save as we overwrite this file later.
             stk.save_taxonomy(tree_taxonomy,save_taxonomy_file+'_tree.csv')
 
         # get taxonomy from worms
         if verbose:
-            print "Now dealing with all other taxa - this might take a while..."
+            print("Now dealing with all other taxa - this might take a while...")
         # create a temp file so we can checkpoint and continue
         tmpf, tmpfile = tempfile.mkstemp()
         
@@ -710,7 +710,7 @@ def main():
         except OSError:
             pass
     else:
-        print "ERROR: Didn't understand your database choice"
+        print("ERROR: Didn't understand your database choice")
         sys.exit(-1)
 
     # clean up taxonomy, deleting the ones already in the tree
@@ -746,10 +746,10 @@ def main():
     # as a polytomy
     start_level = start_level.encode('utf-8').strip()
     if verbose:
-        print "I think your start OTU is at: ", start_level
+        print("I think your start OTU is at: ", start_level)
     for level in tlevels[1::]: # skip species....
         if verbose:
-            print "Dealing with ",level
+            print("Dealing with ",level)
         new_taxa = []
         for t in taxonomy:
             # skip odd ones that should be in there
@@ -785,8 +785,8 @@ def main():
                 try:
                     taxa_list = stk._getTaxaFromNewick(tree) 
                 except stk.TreeParseError as e:
-                    print taxa_to_add, taxa_in_clade, level, tree
-                    print e.msg
+                    print(taxa_to_add, taxa_in_clade, level, tree)
+                    print(e.msg)
                     return
 
                 for t in taxa_to_add:
@@ -812,7 +812,7 @@ def main():
     f.close()
     taxa_list = stk._getTaxaFromNewick(tree)
     
-    print "Final taxa count:", len(taxa_list)
+    print("Final taxa count:", len(taxa_list))
  
 
 def _uniquify(l):
@@ -823,7 +823,7 @@ def _uniquify(l):
     for e in l:
         keys[e] = 1
 
-    return keys.keys()
+    return list(keys.keys())
 
 def add_taxa(tree, new_taxa, taxa_in_clade, level):
 
@@ -865,7 +865,7 @@ def add_taxa(tree, new_taxa, taxa_in_clade, level):
 def tree_from_taxonomy(top_level, tree_taxonomy):
 
     start_level = taxonomy_levels.index(top_level)
-    new_taxa = tree_taxonomy.keys()
+    new_taxa = list(tree_taxonomy.keys())
 
     tl_types = []
     for tt in tree_taxonomy:
@@ -909,17 +909,17 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
                                     parent = tree_taxonomy[tt][levels_to_worry_about[ci+3]]
                                     level = ci+3
                                 except KeyError:
-                                    print "ERROR: tried to find some taxonomic info for "+tt+" from tree_taxonomy file/downloaded data and I went two levels up, but failed find any. Looked at:\n"
-                                    print "\t"+levels_to_worry_about[ci+1]
-                                    print "\t"+levels_to_worry_about[ci+2]
-                                    print "\t"+levels_to_worry_about[ci+3]
-                                    print "This is the taxonomy info I have for "+tt
-                                    print tree_taxonomy[tt]
+                                    print("ERROR: tried to find some taxonomic info for "+tt+" from tree_taxonomy file/downloaded data and I went two levels up, but failed find any. Looked at:\n")
+                                    print("\t"+levels_to_worry_about[ci+1])
+                                    print("\t"+levels_to_worry_about[ci+2])
+                                    print("\t"+levels_to_worry_about[ci+3])
+                                    print("This is the taxonomy info I have for "+tt)
+                                    print(tree_taxonomy[tt])
                                     sys.exit(1)
 
                         k = []
                         for nd in nodes[levels_to_worry_about[level]]:
-                            k.extend(nd.keys())
+                            k.extend(list(nd.keys()))
                         i = 0
                         for kk in k:
                             if kk == parent:
