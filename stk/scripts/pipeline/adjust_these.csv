@@ -1,0 +1,16 @@
+accepted_name,early_interval,,late_interval,,FAD1,FAD2,LAD1,LAD2,,superinfraclass,infraclass,subclass,superorder,order,suborder,superfamily,subsuperfamilu,family,suprasubfamily,subfamily,tribe,genus
+Cuon alpinus,Late Pleistocene,Late Pleistocene,Late Pleistocene,Late Pleistocene,0.126,0.012,0.126,0.012,,,,,,Carnivora,,,,Canidae,,,,Cuon
+Desmodus draculae,Early Pleistocene,Early Pleistocene,Late Pleistocene,Holocene,2.58,1.8,0.126,0,,,,,,Chiroptera,,,,Phyllostomidae,,,,Desmodus
+Dicrostonyx torquatus,Late Pleistocene,Holocene,Late Pleistocene,Holocene,0.126,0,0.126,0,,,,,,Rodentia,,,,Cricetidae,,,,Dicrostonyx
+Hippidion principale,Pleistocene,Pleistocene,Pleistocene,Pleistocene,2.58,0.0117,2.58,0.0117,,,,,,Perissodactyla,,,,Equidae,,,,Hippidion
+Hippidion saldiasi,Late Pleistocene,Late Pleistocene,Late Pleistocene,Late Pleistocene,0.126,0.012,0.126,0.012,,,,,,Perissodactyla,,,,Equidae,,,,Hippidion
+Homotherium serum,Pleistocene,Pleistocene,Pleistocene,Pleistocene,2.58,0.0117,2.58,0.0117,,,,,,Carnivora,,,,Felidae,,,,Homotherium
+Lemmus sibiricus,Irvingtonian,Irvingtonian,Late Pleistocene,Late Pleistocene,1.4,0.21,0.126,0.012,,,,,,Rodentia,,,,Cricetidae,,,,Lemmus
+Mammut americanum,Blancan,Blancan,Holocene,Holocene,4.7,1.4,0.0117,0,,,,,,Proboscidea,,,,Mammutidae,,,,Mammut
+Mammuthus columbi,Blancan,Blancan,Late Pleistocene,Late Pleistocene,4.7,1.4,0.126,0.012,,,,,,Proboscidea,,,,Elephantidae,,,,Mammuthus
+Mammuthus_primigenius,Pleistocene,Pleistocene,Holocene,Holocene,2.58,0.0117,0.0117,0,,,,,,Proboscidea,,,,Elephantidae,,,,Mammuthus
+Miracinonyx trumani,Rancholabrean,Rancholabrean,Late Pleistocene,Late Pleistocene,0.21,0.014,0.126,0.0117,,,,,,Carnivora,,,,Felidae,,,,Miracinonyx
+Mylodon darwinii,Pleistocene,Pleistocene,Pleistocene,Pleistocene,2.58,0.0117,2.58,0.0117,,,,,,Pilosa,Folivora,Mylodontoidea,,Mylodontidae,,,,Mylodon
+Oreamnos harringtoni,Irvingtonian,Irvingtonian,Late Pleistocene,Late Pleistocene,1.4,0.21,0.126,0.012,,,,,,Artiodactyla,,,,Bovidae,,,,Oreamnos
+Saiga tatarica,Late Pleistocene,Late Pleistocene,Late Pleistocene,Late Pleistocene,0.126,0.012,0.126,0.012,,,,,,Artiodactyla,,,,Bovidae,,,,Saiga
+Smilodon populator,Pleistocene,Pleistocene,Holocene,Holocene,2.58,0.0117,0.0117,0,,,,,,Carnivora,,,,Felidae,,,,Smilodon

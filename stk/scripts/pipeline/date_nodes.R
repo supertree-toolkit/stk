@@ -6,11 +6,11 @@ library(caper)
 library(phangorn)
 library(phytools)
 
-orig_tree <- read.tree("input_tree.tre")
-tree<-read.tree('filled_tree.tre')
+orig_tree <- read.tree("temp_corrected.tre")
+tree<-read.tree('temp_filled.tre')
 
 # read in csv data
-date_data = read.csv("FossilMammalAges_statusChecked_210420.csv",header=TRUE,sep=",",stringsAsFactors=FALSE)
+date_data = read.csv("FossilMammalAges.csv",header=TRUE,sep=",",stringsAsFactors=FALSE)
 orig_tree<-di2multi(orig_tree, tol = 1e-08)
 lengths = distRoot(orig_tree, orig_tree$tip.label)
 desired_root = max(lengths)
@@ -116,6 +116,6 @@ for (i in 1:length(date_data$accepted_name)) {
 ttree$edge.length[terms] = terminal.edges
 
 # and save!
-write.tree(ttree,"dated_tree_randres_LAD2termination.tre")
+write.tree(ttree,"dated_tree_randres.tre")
 
 
