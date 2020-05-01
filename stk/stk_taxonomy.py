@@ -363,8 +363,11 @@ def save_taxonomy(taxonomy, output_file):
             for l in taxonomy_levels:
                 try:
                     g = taxonomy[t][l]
+                    if taxonomy[t][l] == None:
+                        g = "-"
                 except KeyError:
                     g = '-'
+
                 row.append(g.encode('utf-8'))
             try:
                 provider = taxonomy[t]['provider']
@@ -395,7 +398,8 @@ def load_taxonomy(taxonomy_csv):
                 current_taxonomy = {}
                 for t in tax_levels:
                     if not row[i] == '-':
-                        current_taxonomy[t] = row[i].replace(" ","_")
+                        if not row[i] == "":
+                            current_taxonomy[t] = row[i].replace(" ","_")
                     i = i+ 1
                 current_taxonomy['provider'] = row[-1] # data source
                 taxonomy[row[0].replace(" ","_")] = current_taxonomy
@@ -660,13 +664,16 @@ def tree_from_taxonomy(top_level, tree_taxonomy):
             # find out where to attach it
             node_id = nodes[levels_to_worry_about[level]][parent_id][parent]
             nd = node_id.add_child(name=n.replace(" ","_"))
+            #print n#, parent, node_id
             nodes[l].append({n:nd})
 
     tree = t.write(format=9)  
     try:
-        tree = stk_trees.collapse_nodes(tree)
-        tree = stk_trees.collapse_nodes(tree)
-        tree = stk_trees.collapse_nodes(tree)
+        pass
+        #tree = stk_trees.collapse_nodes(tree)
+        #tree = stk_trees.collapse_nodes(tree)
+        #tree = stk_trees.collapse_nodes(tree)
+        #tree = stk_trees.collapse_nodes(tree)
     except excp.TreeParseError:
         print e.msg
         return None

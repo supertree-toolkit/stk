@@ -148,6 +148,14 @@ class TestSTKTaxonomy(unittest.TestCase):
         tree = tree_from_taxonomy('class', taxonomy)
         self.assert_(trees_equal(tree,expected_tree))
 
+    def test_create_tree_taxonomy_complex(self):
+        taxonomy = load_taxonomy("data/input/test_make_tree.csv")
+        expected_tree = "(Egretta_tricolor);"
+        tree = tree_from_taxonomy('class', taxonomy)
+        print tree
+        self.assert_(trees_equal(tree,expected_tree))
+
+
     @unittest.skipUnless(internet_on(), "requires internet connection")
     def test_get_taxonomy_for_taxon_eol(self):
         # Let's check an easy one!
