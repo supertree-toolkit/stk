@@ -1,0 +1,5 @@
+This pipeline takes in a number of trees and creates a unique, randomyl resolved, dated tree, clipped to a prescribed time. This is stored in a unqiue folder ID with a BAMM control script ready to run on the Viking supercomputer.
+
+To run, do:
+
+

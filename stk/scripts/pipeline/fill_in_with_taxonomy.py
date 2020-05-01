@@ -26,7 +26,7 @@ import argparse
 import copy
 import os
 import sys
-stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir )
+stk_path = os.path.join( os.path.realpath(os.path.dirname(__file__)), os.pardir, os.pardir, os.pardir )
 sys.path.insert(0, stk_path)
 import stk
 import csv
