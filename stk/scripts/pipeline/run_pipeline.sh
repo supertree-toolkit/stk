@@ -31,10 +31,10 @@ do
     python2 ../../stk sub_taxa -s RedTaxaToRemove.txt temp_chopped.tre final_tree.tre
 
     # create bamm folder and save everything
-    mkdir mammals_tree_${i}
-    mv final_tree.tre mammals_tree_${i}
-    cp divcontrol.txt mammals_tree_${i}
-    # cp treepar script
+    mkdir mammal_tree_${i}
+    mv final_tree.tre mammal_tree_${i}
+    cp divcontrol.txt mammal_tree_${i}
+    cp TreePar.R mammal_tree_{$i}
 
     # tidy up
     rm temp_filled.tre temp.tre temp_corrected.tre temp_chopped.tre
@@ -44,4 +44,5 @@ do
 done
 
 # create job script for viking
+sed 's/NCORES/${NTREES}/g' bamm_array_template.job > bamm_array.job
 
