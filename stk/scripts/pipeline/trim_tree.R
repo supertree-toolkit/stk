@@ -1,11 +1,9 @@
 #!/usr/bin/env Rscript
 
-library(phytools)
-library(adephylo)
+library(paleotree)
 
 tree <- read.tree("dated_tree_randres.tre")
-lengths <- distRoot(tree, tree$tip.label)
-root <- max(lengths)
-trim <- root - 0.13
-chopped tt<-treeSlice(tree, trim, trivial=FALSE, orientation="rootwards")
+trim <- 0.13
+chopped<-timeSliceTree(tree, trim, tipLabels="allDesc")
+
 write.tree(chopped,"temp_chopped.tre")
